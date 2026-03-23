@@ -1,2 +1,5 @@
 /* app/globals.css */
 @import "tailwindcss";
+
+/* Enable class-based dark mode: apply dark: utilities when .dark is on any ancestor */
+@custom-variant dark (&:where(.dark, .dark *));

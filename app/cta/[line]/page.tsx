@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getLinesForService, getLine, getStationsForLine } from '../../lib/transit'
+import Breadcrumb from '../../components/Breadcrumb'
+import LineDetail from '../../components/LineDetail'
 
 type Props = { params: Promise<{ line: string }> }
 
@@ -34,81 +35,9 @@ export default async function CTALinePage({ params }: Props) {
 
   return (
     <main>
-      <p><Link href="/cta">← CTA Lines</Link></p>
+      <Breadcrumb items={[{ label: 'CTA Lines', href: '/cta' }, { label: line.name }]} />
 
-      <h1>
-        <span style={{ backgroundColor: line.color, color: line.textColor, padding: '2px 10px', borderRadius: 4, marginRight: 10 }}>
-          {line.shortName}
-        </span>
-        {line.name}
-      </h1>
-
-      <dl>
-        <dt>Type</dt>
-        <dd>{line.type === 'rapid_transit' ? 'Rapid Transit' : 'Commuter Rail'}</dd>
-
-        <dt>Termini</dt>
-        <dd>{line.termini.join(' → ')}</dd>
-
-        <dt>Stations</dt>
-        <dd>{line.stationCount}</dd>
-
-        <dt>Route Miles</dt>
-        <dd>{line.routeMiles}</dd>
-
-        <dt>Description</dt>
-        <dd>{line.description}</dd>
-
-        <dt>24-Hour Service</dt>
-        <dd>{line.operatesOvernight ? 'Yes' : 'No'}</dd>
-
-        {line.peakFrequencyMins && (
-          <>
-            <dt>Peak Frequency</dt>
-            <dd>Every {line.peakFrequencyMins} min</dd>
-          </>
-        )}
-
-        {line.offPeakFrequencyMins && (
-          <>
-            <dt>Off-Peak Frequency</dt>
-            <dd>Every {line.offPeakFrequencyMins} min</dd>
-          </>
-        )}
-
-        {line.firstTrainApprox && (
-          <>
-            <dt>First Train (approx)</dt>
-            <dd>{line.firstTrainApprox}</dd>
-          </>
-        )}
-
-        {line.lastTrainApprox && (
-          <>
-            <dt>Last Train (approx)</dt>
-            <dd>{line.lastTrainApprox}</dd>
-          </>
-        )}
-
-        {line.ctaRouteId && (
-          <>
-            <dt>CTA Route ID</dt>
-            <dd>{line.ctaRouteId}</dd>
-          </>
-        )}
-      </dl>
-
-      <h2>Stations ({stationList.length})</h2>
-      <ul>
-        {stationList.map((station) => (
-          <li key={station.id}>
-            <Link href={`/cta/${slug}/${station.slug}`}>
-              {station.name}
-            </Link>
-            {station.accessibility.ada && ' ♿'}
-          </li>
-        ))}
-      </ul>
+      <LineDetail line={line} stations={stationList} stationHrefPrefix={`/cta/${slug}`} />
     </main>
   )
 }

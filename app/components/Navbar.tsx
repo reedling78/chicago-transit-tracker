@@ -1,19 +1,17 @@
 import Link from 'next/link'
 import MobileMenuToggle from './MobileMenuToggle'
+import ThemeToggle from './ThemeToggle'
 
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/metra', label: 'Metra' },
   { href: '/cta', label: 'CTA' },
-  { href: '/about', label: 'About' },
-  { href: '/search', label: 'Search' },
+  { href: '/metra', label: 'Metra' },
 ]
 
 export default function Navbar() {
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
       <nav className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg text-gray-900">
+        <Link href="/" className="font-bold text-lg text-gray-900 dark:text-white">
           Chicago Transit Tracker
         </Link>
 
@@ -23,7 +21,7 @@ export default function Navbar() {
             <li key={href}>
               <Link
                 href={href}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white text-sm font-medium"
               >
                 {label}
               </Link>
@@ -31,8 +29,10 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Mobile toggle island */}
-        <MobileMenuToggle links={navLinks} />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <MobileMenuToggle links={navLinks} />
+        </div>
       </nav>
     </header>
   )

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getLinesForService } from '../lib/transit'
+import LinkCard from '../components/LinkCard'
+import PageHeader from '../components/PageHeader'
 
 export const metadata: Metadata = {
   title: 'Metra',
@@ -18,26 +19,21 @@ export default async function MetraPage() {
 
   return (
     <main>
-      <h1>Metra Lines</h1>
-      <ul>
+      <PageHeader title="Metra Lines" description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties." />
+      <div className="flex flex-col gap-3">
         {lines.map((line) => (
-          <li key={line.id}>
-            <Link href={`/metra/${line.slug}`}>
-              <span style={{ backgroundColor: line.color, color: line.textColor, padding: '2px 8px', borderRadius: 4, marginRight: 8 }}>
-                {line.shortName}
-              </span>
-              {line.name}
-            </Link>
-            {' — '}
-            {line.termini.join(' → ')}
-            {' · '}
-            {line.stationCount} stations
-            {' · '}
-            {line.routeMiles} mi
-            {line.downtownTerminal && ` · Terminal: ${line.downtownTerminal}`}
-          </li>
+          <LinkCard
+            key={line.id}
+            href={`/metra/${line.slug}`}
+            title={line.name}
+            subtitle={line.termini.join(' → ')}
+            meta={`${line.stationCount} stations · ${line.routeMiles} mi`}
+            badge={line.shortName}
+            badgeColor={line.color}
+            badgeTextColor={line.textColor}
+          />
         ))}
-      </ul>
+      </div>
     </main>
   )
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getLinesForService, getLine, getStationsForLine, getStation } from '../../../lib/transit'
+import Breadcrumb from '../../../components/Breadcrumb'
+import StationDetail from '../../../components/StationDetail'
 
 type Props = { params: Promise<{ line: string; station: string }> }
 
@@ -42,83 +43,13 @@ export default async function CTAStationPage({ params }: Props) {
 
   return (
     <main>
-      <p>
-        <Link href="/cta">← CTA Lines</Link>
-        {line && <>{' / '}<Link href={`/cta/${lineSlug}`}>← {line.name}</Link></>}
-      </p>
+      <Breadcrumb items={[
+        { label: 'CTA Lines', href: '/cta' },
+        { label: line?.name ?? lineSlug, href: `/cta/${lineSlug}` },
+        { label: station.name },
+      ]} />
 
-      <h1>{station.name}</h1>
-
-      <dl>
-        <dt>Service</dt>
-        <dd>CTA</dd>
-
-        <dt>Lines</dt>
-        <dd>{station.lines.join(', ')}</dd>
-
-        {station.address && (
-          <>
-            <dt>Address</dt>
-            <dd>{station.address}</dd>
-          </>
-        )}
-
-        {station.municipality && (
-          <>
-            <dt>Municipality</dt>
-            <dd>{station.municipality}</dd>
-          </>
-        )}
-
-        <dt>Latitude / Longitude</dt>
-        <dd>{station.location.latitude}, {station.location.longitude}</dd>
-
-        <dt>Station Type</dt>
-        <dd>{station.stationType}</dd>
-
-        <dt>Terminal</dt>
-        <dd>{station.terminal ? 'Yes' : 'No'}</dd>
-
-        <dt>24-Hour Service</dt>
-        <dd>{station.open24Hours ? 'Yes' : 'No'}</dd>
-
-        {station.hours && (
-          <>
-            <dt>Hours — Weekday</dt>
-            <dd>{station.hours.weekday}</dd>
-            <dt>Hours — Saturday</dt>
-            <dd>{station.hours.saturday}</dd>
-            <dt>Hours — Sunday</dt>
-            <dd>{station.hours.sunday}</dd>
-          </>
-        )}
-
-        <dt>ADA Accessible</dt>
-        <dd>{station.accessibility.ada ? 'Yes' : 'No'}</dd>
-
-        <dt>Elevator</dt>
-        <dd>{station.accessibility.elevator ? 'Yes' : 'No'}</dd>
-
-        <dt>Escalator</dt>
-        <dd>{station.accessibility.escalator ? 'Yes' : 'No'}</dd>
-
-        <dt>Parking</dt>
-        <dd>{station.parking ? 'Yes' : 'No'}</dd>
-
-        {station.amenities.length > 0 && (
-          <>
-            <dt>Amenities</dt>
-            <dd>{station.amenities.join(', ')}</dd>
-          </>
-        )}
-
-        {station.ctaMapId && (
-          <>
-            <dt>CTA Map ID</dt>
-            <dd>{station.ctaMapId}</dd>
-          </>
-        )}
-      </dl>
+      <StationDetail station={station} />
     </main>
   )
 }
