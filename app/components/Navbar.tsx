@@ -3,6 +3,8 @@ import MobileMenuToggle from './MobileMenuToggle'
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/metra', label: 'Metra' },
+  { href: '/cta', label: 'CTA' },
   { href: '/about', label: 'About' },
   { href: '/search', label: 'Search' },
 ]

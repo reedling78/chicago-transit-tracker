@@ -1,0 +1,91 @@
+import { getFirestore } from './firebase-admin'
+import type { Line, Station } from './types'
+import type { DocumentData } from 'firebase-admin/firestore'
+
+function toLine(id: string, d: DocumentData): Line {
+  return {
+    id,
+    name: d.name,
+    shortName: d.shortName,
+    slug: d.slug,
+    service: d.service,
+    color: d.color,
+    textColor: d.textColor,
+    termini: d.termini ?? [],
+    stationCount: d.stationCount ?? 0,
+    routeMiles: d.routeMiles ?? 0,
+    operatesOvernight: d.operatesOvernight ?? false,
+    peakFrequencyMins: d.peakFrequencyMins ?? null,
+    offPeakFrequencyMins: d.offPeakFrequencyMins ?? null,
+    firstTrainApprox: d.firstTrainApprox ?? null,
+    lastTrainApprox: d.lastTrainApprox ?? null,
+    type: d.type,
+    description: d.description,
+    ctaRouteId: d.ctaRouteId ?? null,
+    metraLineCode: d.metraLineCode ?? null,
+    downtownTerminal: d.downtownTerminal ?? null,
+    operator: d.operator ?? null,
+    countiesServed: d.countiesServed ?? [],
+    photoUrl: d.photoUrl ?? null,
+  }
+}
+
+function toStation(id: string, d: DocumentData): Station {
+  return {
+    id,
+    name: d.name,
+    slug: d.slug,
+    address: d.address ?? '',
+    location: {
+      latitude: d.location?.latitude ?? 0,
+      longitude: d.location?.longitude ?? 0,
+    },
+    municipality: d.municipality ?? '',
+    service: d.service,
+    lines: d.lines ?? [],
+    hours: d.hours ?? null,
+    open24Hours: d.open24Hours ?? false,
+    accessibility: d.accessibility ?? { ada: false, elevator: false, escalator: false },
+    amenities: d.amenities ?? [],
+    parking: d.parking ?? false,
+    stationType: d.stationType ?? '',
+    terminal: d.terminal ?? false,
+    ctaStopId: d.ctaStopId ?? null,
+    ctaMapId: d.ctaMapId ?? null,
+    metraStopId: d.metraStopId ?? null,
+    photoUrl: d.photoUrl ?? null,
+  }
+}
+
+export async function getLinesForService(service: 'cta' | 'metra'): Promise<Line[]> {
+  const db = getFirestore()
+  const snap = await db.collection('lines').where('service', '==', service).get()
+  return snap.docs
+    .map((d) => toLine(d.id, d.data()))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export async function getLine(slug: string): Promise<Line | null> {
+  const db = getFirestore()
+  const doc = await db.collection('lines').doc(slug).get()
+  if (!doc.exists) return null
+  return toLine(doc.id, doc.data()!)
+}
+
+export async function getStationsForLine(lineShortName: string): Promise<Station[]> {
+  const db = getFirestore()
+  const snap = await db
+    .collection('stations')
+    .where('lines', 'array-contains', lineShortName)
+    .get()
+  return snap.docs
+    .map((d) => toStation(d.id, d.data()))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export async function getStation(slug: string): Promise<Station | null> {
+  const db = getFirestore()
+  const doc = await db.collection('stations').doc(slug).get()
+  if (!doc.exists) return null
+  return toStation(doc.id, doc.data()!)
+}

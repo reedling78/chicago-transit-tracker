@@ -20,3 +20,6 @@ next-env.d.ts
 
 # worktrees
 .worktrees/
+
+# secrets
+service-account.json
