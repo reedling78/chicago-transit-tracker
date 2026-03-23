@@ -1,16 +1,15 @@
+import Link from 'next/link'
 import type { Station } from '../lib/types'
-import PageHeader from './PageHeader'
+import { CTA_LINE_COLORS } from './CTALineIcon'
 
-// Stable color map for line chips — covers all CTA and Metra lines
-const LINE_COLORS: Record<string, { bg: string; text: string }> = {
-  Red:     { bg: '#C60C30', text: '#fff' },
-  Blue:    { bg: '#00A1DE', text: '#fff' },
-  Green:   { bg: '#009B3A', text: '#fff' },
-  Brown:   { bg: '#62361B', text: '#fff' },
-  Purple:  { bg: '#522398', text: '#fff' },
-  Yellow:  { bg: '#F9E300', text: '#000' },
-  Pink:    { bg: '#E27EA6', text: '#fff' },
-  Orange:  { bg: '#F9461C', text: '#fff' },
+// Combined color map — CTA colors from the official branding guide (via CTALineIcon),
+// plus Metra line colors. Used for line chips on station pages.
+export const LINE_COLORS: Record<string, { bg: string; text: string }> = {
+  // CTA lines — sourced from CTALineIcon (official branding guide colors)
+  ...Object.fromEntries(
+    Object.entries(CTA_LINE_COLORS).map(([name, { bg, fg }]) => [name, { bg, text: fg }])
+  ),
+  // Metra lines
   BNSF:    { bg: '#1A3D7A', text: '#fff' },
   'UP-N':  { bg: '#007B40', text: '#fff' },
   'UP-NW': { bg: '#007B40', text: '#fff' },
@@ -24,13 +23,13 @@ const LINE_COLORS: Record<string, { bg: string; text: string }> = {
   NCS:     { bg: '#8B4513', text: '#fff' },
 }
 
-const SERVICE_LABEL: Record<string, string> = {
+export const SERVICE_LABEL: Record<string, string> = {
   cta: 'CTA',
   metra: 'Metra',
   both: 'CTA + Metra',
 }
 
-const SERVICE_COLOR: Record<string, string> = {
+export const SERVICE_COLOR: Record<string, string> = {
   cta: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   metra: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   both: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
@@ -89,48 +88,6 @@ export default function StationDetail({ station }: StationDetailProps) {
 
   return (
     <div>
-      <PageHeader
-        title={station.name}
-        badges={
-          <>
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${SERVICE_COLOR[station.service]}`}>
-              {SERVICE_LABEL[station.service]}
-            </span>
-            {station.terminal && (
-              <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
-                Terminal
-              </span>
-            )}
-            {station.open24Hours && (
-              <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-400">
-                24 Hours
-              </span>
-            )}
-          </>
-        }
-      >
-        {station.lines.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {station.lines.map((line) => {
-              const colors = LINE_COLORS[line]
-              return colors ? (
-                <span
-                  key={line}
-                  className="rounded-full px-3 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: colors.bg, color: colors.text }}
-                >
-                  {line}
-                </span>
-              ) : (
-                <span key={line} className="rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                  {line}
-                </span>
-              )
-            })}
-          </div>
-        )}
-      </PageHeader>
-
       {/* Detail grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
@@ -142,6 +99,21 @@ export default function StationDetail({ station }: StationDetailProps) {
             <Row
               label="Coordinates"
               value={`${station.location.latitude.toFixed(5)}, ${station.location.longitude.toFixed(5)}`}
+            />
+          )}
+          {station.wikipediaUrl && (
+            <Row
+              label="Wikipedia"
+              value={
+                <Link
+                  href={station.wikipediaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  View article ↗
+                </Link>
+              }
             />
           )}
         </SectionCard>

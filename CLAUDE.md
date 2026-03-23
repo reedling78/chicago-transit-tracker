@@ -2,34 +2,168 @@
 
 This file provides guidance for Claude Code when working in this repository.
 
+---
+
 ## Repository State
 
-This project is a Next.js 16 / Tailwind v4 / TypeScript scaffold for the Chicago Transit Tracker application. The scaffold includes a root layout, a responsive Navbar with mobile menu toggle, placeholder pages (Home, About Us, Search), a sitemap, and a robots.txt. Jest is configured with React Testing Library for unit/integration tests.
+A Next.js 16 / Tailwind CSS v4 / TypeScript static web app for exploring CTA and Metra transit lines and stations. Data is stored in Firebase Firestore and read at build time via Firebase Admin SDK. The site is statically exported and deployed to Firebase Hosting.
+
+---
 
 ## Project Structure
 
-- `app/` — Next.js App Router pages and layouts
-- `app/sitemap.ts` — Dynamic sitemap (must be updated when pages are added)
-- `app/robots.ts` — Robots.txt configuration
-- `app/components/` — Shared UI components (Navbar, MobileMenuToggle)
-- `__tests__/` — Jest test suites
+```
+app/
+  layout.tsx                  Root layout — Navbar, GA scripts, dark mode init
+  page.tsx                    Home page — Hero component
+  globals.css                 Tailwind imports + dark mode custom variant
+  sitemap.ts                  Dynamic sitemap — fetches all routes from Firestore
+  robots.ts                   Robots.txt config
+  cta/
+    page.tsx                  CTA service list page
+    [line]/
+      page.tsx                CTA line detail page
+      [station]/
+        page.tsx              CTA station detail page
+  metra/
+    page.tsx                  Metra service list page
+    [line]/
+      page.tsx                Metra line detail page
+      [station]/
+        page.tsx              Metra station detail page
+  components/
+    Navbar.tsx                Top nav — links, ThemeToggle, MobileMenuToggle
+    MobileMenuToggle.tsx      Hamburger menu (client component)
+    ThemeToggle.tsx           Light/dark toggle — persisted to localStorage
+    Hero.tsx                  Home page banner with CTA and Metra service cards
+    PageHeader.tsx            Uniform page title with optional badges/description
+    Breadcrumb.tsx            Semantic breadcrumb for line and station pages
+    LinkCard.tsx              Clickable list card used on service and line pages
+    LineDetail.tsx            Full line detail layout
+    StationDetail.tsx         Full station detail layout
+  lib/
+    firebase-admin.ts         Firestore singleton (Admin SDK)
+    transit.ts                Data access functions — getLinesForService, getLine, etc.
+    types.ts                  Line and Station TypeScript interfaces
+scripts/
+  seed-lines.ts               Seeds 19 lines into Firestore
+  seed-stations.ts            Seeds stations from CTA API + Metra GTFS
+  tsconfig.json               CommonJS tsconfig for ts-node script execution
+__tests__/                    Jest + React Testing Library test suites
+```
+
+---
 
 ## Tech Stack
 
-- Next.js 16 (App Router)
+- Next.js 16 (App Router, `output: 'export'` — fully static)
 - React 19
 - TypeScript 5
-- Tailwind CSS v4
+- Tailwind CSS v4 (class-based dark mode via `@custom-variant dark`)
+- Firebase Admin SDK (build-time Firestore reads)
+- Firebase Hosting (deployment target, serves `out/`)
+- Google Analytics 4 (G-KQ1MNGBQP2, loaded via `next/script afterInteractive`)
 - Jest 30 + React Testing Library
+
+---
 
 ## Commands
 
-- `npm run dev` — start development server at http://localhost:3000
-- `npm run build` — production build
-- `npm run lint` — ESLint
-- `npm test` — run Jest tests
-- `npm run test:watch` — Jest in watch mode
+```bash
+npm run dev            # Dev server at http://localhost:3000
+npm run build          # Static export to out/
+npm run lint           # ESLint
+npm test               # Jest
+npm run test:watch     # Jest watch mode
+npm run seed:lines     # Seed Firestore lines collection
+npm run seed:stations  # Seed Firestore stations collection
+firebase deploy --only hosting   # Deploy to Firebase Hosting
+firebase deploy                  # Deploy hosting + Firestore rules
+```
+
+---
+
+## Key Architecture Decisions
+
+### Static export + Firestore at build time
+`next.config.ts` sets `output: 'export'`. There is no runtime server. All Firestore reads happen during `npm run build`:
+- `generateStaticParams` enumerates slugs for all dynamic routes
+- Server components fetch line/station data as props
+- `serverExternalPackages: ['firebase-admin']` prevents Next.js from bundling the Admin SDK client-side
+
+### Dark mode
+Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` applies `.dark` to `<html>` before first paint to prevent flash. `suppressHydrationWarning` is set on `<html>`. `ThemeToggle` uses a mount-only render pattern to avoid hydration mismatch.
+
+### Firestore credentials
+`app/lib/firebase-admin.ts` checks for `service-account.json` first, then falls back to `applicationDefault()`. `service-account.json` is gitignored.
+
+### Duplicate station slugs
+Some stations share names across CTA and Metra (e.g. Rosemont). The seed script detects duplicates and appends `-cta` / `-metra` to the slug and doc ID.
+
+---
+
+## Firestore Collections
+
+### `lines` — doc ID = slug (e.g. `red`, `bnsf`, `up-n`)
+19 documents total (8 CTA rapid transit + 11 Metra commuter rail). Seeded by `scripts/seed-lines.ts`.
+
+### `stations` — doc ID = slug (e.g. `clark-lake`, `union-station-metra`)
+~388 documents. Seeded by `scripts/seed-stations.ts` using:
+- CTA: Chicago Open Data Portal Socrata API (no auth required)
+- Metra: GTFS static zip from Metra's public schedule feed (no auth required)
+
+---
+
+## CTA Branding Guidelines
+
+All CTA-related UI must comply with the CTA Trademark Guidelines for Developers.
+
+- **Local copy:** `docs/design guidelines/CTA_Trademark_Developer_Guidelines_(with_Branding_Guide)_v1_0.pdf`
+- **Online:** `https://www.transitchicago.com/developers/branding/`
+
+### Official 'L' Route Colors — use these exact hex values, no substitutions
+
+| Line | Hex | Pantone |
+|---|---|---|
+| Red | `#c60c30` | 186C |
+| Blue | `#00a1de` | 299C |
+| Brown | `#62361b` | 161C |
+| Green | `#009b3a` | 355C |
+| Orange | `#f9461c` | 172C |
+| Purple | `#522398` | 267C |
+| Pink | `#e27ea6` | 204C |
+| Yellow | `#f9e300` | 012C |
+| Sign Grey | `#565a5c` | 425C |
+
+These are already correctly set in `scripts/seed-lines.ts` and `app/components/StationDetail.tsx`.
+
+### Attribution
+- Always credit CTA data with a phrase like "Data provided by Chicago Transit Authority" or "Powered by CTA data"
+- Never use "official", "authorized", or "in partnership with CTA"
+
+### Project naming
+- **Chicago Transit Tracker** is compliant — CTA is not the first word
+- Never name any page or feature in a way that sounds like it was made by or endorsed by CTA
+
+### Logos — what is and isn't allowed
+- **Prohibited:** Any CTA agency logo (circle logo, text-based logos, or approximations)
+- **Allowed:** CTA Bus Tracker icon — only alongside Bus Tracker API data, black/white/grey only. Must include note: *"CTA Bus Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."*
+- **Allowed:** CTA Train Tracker icon — only alongside Train Tracker API data, black/white/grey only. Must include note: *"CTA Train Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."*
+- **Allowed:** US DOT bus icon — keep black or white, do not colorize
+- **Allowed:** CTA 'L' train icon — can be used for L service information; may be colored to match official route colors
+
+### Other rules
+- Do not embed or reproduce official CTA maps or documents — link to them on the CTA website instead
+- Do not imply CTA endorsement, sponsorship, or affiliation in any copy or UI
+
+---
 
 ## Standing Rules
 
-**Sitemap:** Any time a new page is added to the site, `app/sitemap.ts` must be updated to include the new route. This applies without exception.
+**Sitemap:** Any time a new page route is added, `app/sitemap.ts` must be updated to include it. No exceptions.
+
+**Static export compatibility:** All pages must work with `output: 'export'`. No `getServerSideProps`, no API routes, no server-only runtime features. Dynamic routes require `generateStaticParams`.
+
+**Firebase Admin in server components only:** Never import `firebase-admin` or anything from `app/lib/firebase-admin.ts` in a client component (`'use client'`).
+
+**CTA branding:** All CTA UI must use the official hex colors above and follow the trademark rules. Full guidelines at `https://www.transitchicago.com/developers/branding/`.

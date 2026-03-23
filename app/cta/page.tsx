@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getLinesForService } from '../lib/transit'
 import LinkCard from '../components/LinkCard'
 import PageHeader from '../components/PageHeader'
+import CTALineIcon from '../components/CTALineIcon'
 
 export const metadata: Metadata = {
   title: 'CTA',
@@ -28,9 +29,7 @@ export default async function CTAPage() {
             title={line.name}
             subtitle={line.termini.join(' → ')}
             meta={`${line.stationCount} stations · ${line.routeMiles} mi`}
-            badge={line.shortName}
-            badgeColor={line.color}
-            badgeTextColor={line.textColor}
+            icon={<CTALineIcon line={line.shortName} size={40} />}
           />
         ))}
       </div>

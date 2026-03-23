@@ -2,8 +2,10 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import Script from 'next/script'
+import { Suspense } from 'react'
 import './globals.css'
 import Navbar from './components/Navbar'
+import Analytics from './components/Analytics'
 
 const GA_ID = 'G-KQ1MNGBQP2'
 
@@ -41,6 +43,7 @@ export default function RootLayout({
         <Navbar />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
         <footer />
+        <Suspense fallback={null}><Analytics /></Suspense>
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="ga-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];

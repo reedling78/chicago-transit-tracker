@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getLinesForService, getLine, getStationsForLine } from '../../lib/transit'
 import Breadcrumb from '../../components/Breadcrumb'
 import LineDetail from '../../components/LineDetail'
+import StationList from '../../components/StationList'
 
 type Props = { params: Promise<{ line: string }> }
 
@@ -37,7 +38,19 @@ export default async function CTALinePage({ params }: Props) {
     <main>
       <Breadcrumb items={[{ label: 'CTA Lines', href: '/cta' }, { label: line.name }]} />
 
-      <LineDetail line={line} stations={stationList} stationHrefPrefix={`/cta/${slug}`} />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <LineDetail line={line} />
+        </div>
+        <div className="lg:col-span-1">
+          <StationList
+            stations={stationList}
+            lineColor={line.color}
+            stationHrefPrefix={`/cta/${slug}`}
+            currentLine={line.shortName}
+          />
+        </div>
+      </div>
     </main>
   )
 }

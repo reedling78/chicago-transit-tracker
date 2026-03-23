@@ -22,6 +22,7 @@ export interface Line {
   operator: string | null
   countiesServed: string[]
   photoUrl: string | null
+  scheduleUrl: string | null
 }
 
 export interface Station {
@@ -44,4 +45,7 @@ export interface Station {
   ctaMapId: number | null
   metraStopId: string | null
   photoUrl: string | null
+  wikipediaUrl: string | null
+  /** Position of this station on each line it serves, keyed by line shortName (e.g. { "Red": 3, "Purple": 7 }) */
+  lineOrder: Record<string, number>
 }

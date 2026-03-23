@@ -27,6 +27,7 @@ function toLine(id: string, d: DocumentData): Line {
     operator: d.operator ?? null,
     countiesServed: d.countiesServed ?? [],
     photoUrl: d.photoUrl ?? null,
+    scheduleUrl: d.scheduleUrl ?? null,
   }
 }
 
@@ -54,6 +55,8 @@ function toStation(id: string, d: DocumentData): Station {
     ctaMapId: d.ctaMapId ?? null,
     metraStopId: d.metraStopId ?? null,
     photoUrl: d.photoUrl ?? null,
+    wikipediaUrl: d.wikipediaUrl ?? null,
+    lineOrder: d.lineOrder ?? {},
   }
 }
 
@@ -80,7 +83,7 @@ export async function getStationsForLine(lineShortName: string): Promise<Station
     .get()
   return snap.docs
     .map((d) => toStation(d.id, d.data()))
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => (a.lineOrder[lineShortName] ?? 9999) - (b.lineOrder[lineShortName] ?? 9999))
 }
 
 export async function getStation(slug: string): Promise<Station | null> {
