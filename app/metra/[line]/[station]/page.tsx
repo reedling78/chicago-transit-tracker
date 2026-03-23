@@ -5,6 +5,7 @@ import PageHeader from '../../../components/PageHeader'
 import StationDetail from '../../../components/StationDetail'
 import { LINE_COLORS, SERVICE_COLOR, SERVICE_LABEL } from '../../../components/StationDetail'
 import StationMap from '../../../components/StationMap'
+import Arrivals from '../../../components/Arrivals'
 
 type Props = { params: Promise<{ line: string; station: string }> }
 
@@ -96,6 +97,7 @@ export default async function MetraStationPage({ params }: Props) {
         name={station.name}
         markerColor={line?.color}
       />
+      <Arrivals slug={stationSlug} service="metra" hasSchedule={!!station.metraStopId} />
       <StationDetail station={station} />
     </main>
   )

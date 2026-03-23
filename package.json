@@ -13,7 +13,9 @@
     "seed:lines": "ts-node --project scripts/tsconfig.json scripts/seed-lines.ts",
     "seed:storage": "ts-node --project scripts/tsconfig.json scripts/seed-storage.ts",
     "upload:schedules": "ts-node --project scripts/tsconfig.json scripts/upload-schedules.ts",
-    "fetch:station-images": "ts-node --project scripts/tsconfig.json scripts/fetch-station-images.ts"
+    "fetch:station-images": "ts-node --project scripts/tsconfig.json scripts/fetch-station-images.ts",
+    "generate:schedules": "ts-node --project scripts/tsconfig.json scripts/generate-cta-schedules.ts",
+    "generate:metra-schedules": "ts-node --project scripts/tsconfig.json scripts/generate-metra-schedules.ts"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
