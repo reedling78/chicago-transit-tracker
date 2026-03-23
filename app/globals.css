@@ -3,3 +3,6 @@
 
 /* Enable class-based dark mode: apply dark: utilities when .dark is on any ancestor */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Hide MapLibre logo — attribution text is retained */
+.maplibregl-ctrl-logo { display: none !important; }

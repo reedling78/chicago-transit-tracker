@@ -211,7 +211,11 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-2xl font-bold text-white tabular-nums">
-                    {arrival.minutesAway < 1 ? 'Due' : `${arrival.minutesAway} min`}
+                    {arrival.minutesAway < 1
+                      ? 'Due'
+                      : arrival.minutesAway > 120
+                      ? formatTime(arrival.departureMinutes)
+                      : `${arrival.minutesAway} min`}
                   </span>
                   {/* Approximate indicator — distinguishes schedule from live data */}
                   <span className="text-white/60 text-lg" title="Scheduled estimate">≈</span>

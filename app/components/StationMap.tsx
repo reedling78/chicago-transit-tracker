@@ -28,11 +28,9 @@ export default function StationMap({ latitude, longitude, name, markerColor = '#
       style: isDark ? STYLE_DARK : STYLE_LIGHT,
       center: [longitude, latitude],
       zoom: 14,
+      interactive: false,
       attributionControl: false,
     })
-
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right')
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
 
     new maplibregl.Marker({ color: markerColor })
       .setLngLat([longitude, latitude])
