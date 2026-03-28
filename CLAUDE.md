@@ -158,6 +158,21 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 
 ---
 
+## Git Workflow
+
+**Branch protection is enabled on `main`.** Direct pushes to `main` are blocked. All changes must be merged via a pull request. No approving review is required (solo project), so you can open and merge your own PRs.
+
+Typical workflow:
+```bash
+git checkout -b your-feature-branch
+# make changes, commit
+git push origin your-feature-branch
+gh pr create --base main
+gh pr merge --squash
+```
+
+---
+
 ## Standing Rules
 
 **Sitemap:** Any time a new page route is added, `app/sitemap.ts` must be updated to include it. No exceptions.
