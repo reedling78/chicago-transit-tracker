@@ -162,6 +162,8 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 
 **Branch protection is enabled on `main`.** Direct pushes to `main` are blocked. All changes must be merged via a pull request. No approving review is required (solo project), so you can open and merge your own PRs.
 
+**Auto-delete is enabled.** GitHub automatically deletes the feature branch after a PR is merged — no manual cleanup needed.
+
 Typical workflow:
 ```bash
 git checkout -b your-feature-branch
@@ -169,6 +171,8 @@ git checkout -b your-feature-branch
 git push origin your-feature-branch
 gh pr create --base main
 gh pr merge --squash
+# branch is deleted on GitHub automatically after merge
+git checkout main && git pull && git branch -d your-feature-branch
 ```
 
 ---
