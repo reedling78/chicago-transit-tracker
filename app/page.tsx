@@ -23,5 +23,5 @@ export const metadata: Metadata = {
 import Hero from './components/Hero'
 
 export default function HomePage() {
-  return <Hero />
+  return <div><Hero /></div>
 }
