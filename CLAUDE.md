@@ -158,6 +158,26 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 
 ---
 
+## CI / CD
+
+Deployments to Firebase Hosting are automated via GitHub Actions (`.github/workflows/deploy.yml`). Every push to `main` (i.e. every merged PR) triggers a build and deploy automatically.
+
+**Workflow steps:**
+1. `npm ci` — install dependencies
+2. Write `FIREBASE_SERVICE_ACCOUNT` secret → `service-account.json` (needed for Firestore reads during build)
+3. `npm run build` — Next.js static export to `out/`
+4. `firebase deploy --only hosting` — upload `out/` to Firebase Hosting
+5. Credentials file is always removed at the end
+
+**Required GitHub secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | What it is | How to get it |
+|---|---|---|
+| `FIREBASE_SERVICE_ACCOUNT` | Full JSON content of `service-account.json` | Open the local file and copy its entire contents |
+| `FIREBASE_TOKEN` | Firebase CI auth token | Run `npx firebase-tools login:ci` locally and copy the printed token |
+
+---
+
 ## Git Workflow
 
 **Branch protection is enabled on `main`.** Direct pushes to `main` are blocked. All changes must be merged via a pull request. No approving review is required (solo project), so you can open and merge your own PRs.
