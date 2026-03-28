@@ -5,6 +5,7 @@ import Script from 'next/script'
 import { Suspense } from 'react'
 import './globals.css'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import Analytics from './components/Analytics'
 import { siteConfig } from './lib/siteConfig'
 
@@ -54,10 +55,10 @@ export default function RootLayout({
           })();
         `}} />
       </head>
-      <body className={`${geist.className} bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors`}>
+      <body className={`${geist.className} bg-gray-50 dark:bg-gray-950 min-h-screen flex flex-col transition-colors`}>
         <Navbar />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
-        <footer />
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+        <Footer />
         <Suspense fallback={null}><Analytics /></Suspense>
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
         <Script id="ga-init" strategy="afterInteractive">{`
