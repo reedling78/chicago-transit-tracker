@@ -23,3 +23,4 @@ next-env.d.ts
 
 # secrets
 service-account.json
+.firebase/hosting.b3V0.cache

@@ -20,11 +20,18 @@ interface StationTripsData {
 }
 
 type ServiceType = 'weekday' | 'saturday' | 'sunday'
+type Direction = 'all' | 'inbound' | 'outbound'
 
 const TAB_LABELS: Record<ServiceType, string> = {
   weekday: 'Weekday',
   saturday: 'Saturday',
   sunday: 'Sunday',
+}
+
+const DIR_LABELS: Record<Direction, string> = {
+  all: 'All',
+  inbound: 'Inbound',
+  outbound: 'Outbound',
 }
 
 function todayServiceType(): ServiceType {
@@ -37,6 +44,7 @@ function todayServiceType(): ServiceType {
 export default function StationTimetable({ slug }: { slug: string }) {
   const [data, setData] = useState<StationTripsData | null>(null)
   const [serviceType, setServiceType] = useState<ServiceType>(todayServiceType())
+  const [direction, setDirection] = useState<Direction>('all')
 
   useEffect(() => {
     fetch(`/data/metra-station-trips/${slug}.json`)
@@ -47,29 +55,53 @@ export default function StationTimetable({ slug }: { slug: string }) {
 
   if (!data) return null
 
-  const trips = data[serviceType]
+  const trips = data[serviceType].filter((t) => {
+    if (direction === 'inbound') return t.directionId === 1
+    if (direction === 'outbound') return t.directionId === 0
+    return true
+  })
 
   return (
     <div className="mt-8">
-      {/* Header + tabs */}
-      <div className="mb-4 flex items-center justify-between gap-4 flex-wrap">
+      {/* Header + filters */}
+      <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
           Timetable
         </h2>
-        <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden text-xs font-medium">
-          {(Object.keys(TAB_LABELS) as ServiceType[]).map((type) => (
-            <button
-              key={type}
-              onClick={() => setServiceType(type)}
-              className={`px-3 py-1.5 transition-colors ${
-                serviceType === type
-                  ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
-                  : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
-              }`}
-            >
-              {TAB_LABELS[type]}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Direction filter */}
+          <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden text-xs font-medium">
+            {(Object.keys(DIR_LABELS) as Direction[]).map((dir) => (
+              <button
+                key={dir}
+                onClick={() => setDirection(dir)}
+                className={`px-3 py-1.5 transition-colors ${
+                  direction === dir
+                    ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+                }`}
+              >
+                {DIR_LABELS[dir]}
+              </button>
+            ))}
+          </div>
+
+          {/* Day selector */}
+          <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden text-xs font-medium">
+            {(Object.keys(TAB_LABELS) as ServiceType[]).map((type) => (
+              <button
+                key={type}
+                onClick={() => setServiceType(type)}
+                className={`px-3 py-1.5 transition-colors ${
+                  serviceType === type
+                    ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+                }`}
+              >
+                {TAB_LABELS[type]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
