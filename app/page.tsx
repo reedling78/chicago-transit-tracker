@@ -1,14 +1,22 @@
 // app/page.tsx
 import type { Metadata } from 'next'
+import { siteConfig } from './lib/siteConfig'
 
 export const metadata: Metadata = {
-  title: 'Home',
-  description: 'Track Chicago-area transit routes and schedules in real time.',
+  title: { absolute: siteConfig.name },
+  description: siteConfig.description,
   openGraph: {
-    title: 'Home | Chicago Transit Tracker',
-    description: 'Track Chicago-area transit routes and schedules in real time.',
-    url: 'https://chicago-transit-tracker.com',
+    title: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    images: [siteConfig.ogImage],
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
   },
 }
 

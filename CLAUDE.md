@@ -167,3 +167,35 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 **Firebase Admin in server components only:** Never import `firebase-admin` or anything from `app/lib/firebase-admin.ts` in a client component (`'use client'`).
 
 **CTA branding:** All CTA UI must use the official hex colors above and follow the trademark rules. Full guidelines at `https://www.transitchicago.com/developers/branding/`.
+
+---
+
+## SEO Rules
+
+These rules must be applied whenever a new page is added or an existing page's content changes.
+
+**Every page must export `metadata` or `generateMetadata`.** No exceptions. Static pages use `export const metadata: Metadata = { ... }`. Dynamic routes (`[param]`) must use `export async function generateMetadata(...)`.
+
+**Required metadata fields** on every page:
+- `title` — short page-level title (the root layout template appends `| Chicago Transit Tracker`)
+- `description` — descriptive sentence specific to the page
+- `openGraph` — must include `title`, `description`, `url`, `images`, and `type: 'website'`
+- `twitter` — must include `card: 'summary_large_image'`, `title`, `description`, and `images`
+
+**Site constants:** Always import from `app/lib/siteConfig.ts`. Never hardcode the site name, canonical URL, or default OG image path directly in a page file.
+
+```typescript
+import { siteConfig } from '../lib/siteConfig'
+// siteConfig.name  — 'Chicago Transit Tracker'
+// siteConfig.url   — 'https://chicago-transit-tracker.com'
+// siteConfig.ogImage — '/og-default.png'
+```
+
+**`og:image` / `twitter:image`:** Use `siteConfig.ogImage` as the minimum fallback. If a page-specific image is available (e.g., `line.photoUrl`), it may be used instead, but `siteConfig.ogImage` must still be the fallback.
+
+**`openGraph.url`:** Must be the full canonical URL of the page — `${siteConfig.url}/path`.
+
+**New dynamic routes checklist:**
+1. Add `generateStaticParams` (required for static export)
+2. Add `generateMetadata` with all required fields above
+3. Update `app/sitemap.ts` to include the new route

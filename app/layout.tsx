@@ -6,18 +6,33 @@ import { Suspense } from 'react'
 import './globals.css'
 import Navbar from './components/Navbar'
 import Analytics from './components/Analytics'
+import { siteConfig } from './lib/siteConfig'
 
 const GA_ID = 'G-KQ1MNGBQP2'
 
 const geist = Geist({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://chicago-transit-tracker.com'),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    template: '%s | Chicago Transit Tracker',
-    default: 'Chicago Transit Tracker',
+    template: `%s | ${siteConfig.name}`,
+    default: siteConfig.name,
   },
-  description: 'Track Chicago-area transit in real time.',
+  description: siteConfig.description,
+  openGraph: {
+    title: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    images: [siteConfig.ogImage],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
+  },
 }
 
 export default function RootLayout({

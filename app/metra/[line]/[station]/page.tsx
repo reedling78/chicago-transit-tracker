@@ -6,6 +6,7 @@ import StationDetail from '../../../components/StationDetail'
 import { LINE_COLORS, SERVICE_COLOR, SERVICE_LABEL } from '../../../components/StationDetail'
 import StationMap from '../../../components/StationMap'
 import Arrivals from '../../../components/Arrivals'
+import { siteConfig } from '../../../lib/siteConfig'
 
 type Props = { params: Promise<{ line: string; station: string }> }
 
@@ -21,17 +22,25 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { station: slug } = await params
+  const { line: lineSlug, station: slug } = await params
   const station = await getStation(slug)
   if (!station) return {}
+  const description = `${station.name} Metra station — lines, accessibility, and location information.`
   return {
     title: station.name,
-    description: `${station.name} Metra station — lines, accessibility, and location information.`,
+    description,
     openGraph: {
-      title: `${station.name} | Chicago Transit Tracker`,
-      description: `${station.name} Metra station information.`,
-      url: `https://chicago-transit-tracker.com/metra/${(await params).line}/${slug}`,
+      title: `${station.name} | ${siteConfig.name}`,
+      description,
+      url: `${siteConfig.url}/metra/${lineSlug}/${slug}`,
+      images: [siteConfig.ogImage],
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${station.name} | ${siteConfig.name}`,
+      description,
+      images: [siteConfig.ogImage],
     },
   }
 }

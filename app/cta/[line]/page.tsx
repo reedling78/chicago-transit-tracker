@@ -3,6 +3,7 @@ import { getLinesForService, getLine, getStationsForLine } from '../../lib/trans
 import Breadcrumb from '../../components/Breadcrumb'
 import LineDetail from '../../components/LineDetail'
 import StationList from '../../components/StationList'
+import { siteConfig } from '../../lib/siteConfig'
 
 type Props = { params: Promise<{ line: string }> }
 
@@ -19,10 +20,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: line.name,
     description: line.description,
     openGraph: {
-      title: `${line.name} | Chicago Transit Tracker`,
+      title: `${line.name} | ${siteConfig.name}`,
       description: line.description,
-      url: `https://chicago-transit-tracker.com/cta/${slug}`,
+      url: `${siteConfig.url}/cta/${slug}`,
+      images: [siteConfig.ogImage],
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${line.name} | ${siteConfig.name}`,
+      description: line.description,
+      images: [siteConfig.ogImage],
     },
   }
 }

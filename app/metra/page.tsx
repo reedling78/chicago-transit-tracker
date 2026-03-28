@@ -2,15 +2,25 @@ import type { Metadata } from 'next'
 import { getLinesForService } from '../lib/transit'
 import LinkCard from '../components/LinkCard'
 import PageHeader from '../components/PageHeader'
+import { siteConfig } from '../lib/siteConfig'
+
+const description = 'Metra commuter rail schedules, routes, and real-time tracking.'
 
 export const metadata: Metadata = {
   title: 'Metra',
-  description: 'Metra commuter rail schedules, routes, and real-time tracking.',
+  description,
   openGraph: {
-    title: 'Metra | Chicago Transit Tracker',
-    description: 'Metra commuter rail schedules, routes, and real-time tracking.',
-    url: 'https://chicago-transit-tracker.com/metra',
+    title: `Metra | ${siteConfig.name}`,
+    description,
+    url: `${siteConfig.url}/metra`,
+    images: [siteConfig.ogImage],
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `Metra | ${siteConfig.name}`,
+    description,
+    images: [siteConfig.ogImage],
   },
 }
 

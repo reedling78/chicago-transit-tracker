@@ -3,15 +3,25 @@ import { getLinesForService } from '../lib/transit'
 import LinkCard from '../components/LinkCard'
 import PageHeader from '../components/PageHeader'
 import CTALineIcon from '../components/CTALineIcon'
+import { siteConfig } from '../lib/siteConfig'
+
+const description = 'CTA bus and rail schedules, routes, and real-time tracking.'
 
 export const metadata: Metadata = {
   title: 'CTA',
-  description: 'CTA bus and rail schedules, routes, and real-time tracking.',
+  description,
   openGraph: {
-    title: 'CTA | Chicago Transit Tracker',
-    description: 'CTA bus and rail schedules, routes, and real-time tracking.',
-    url: 'https://chicago-transit-tracker.com/cta',
+    title: `CTA | ${siteConfig.name}`,
+    description,
+    url: `${siteConfig.url}/cta`,
+    images: [siteConfig.ogImage],
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `CTA | ${siteConfig.name}`,
+    description,
+    images: [siteConfig.ogImage],
   },
 }
 
