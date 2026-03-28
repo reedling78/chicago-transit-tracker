@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${line.name} | Chicago Transit Tracker`,
       description: line.description,
-      url: `https://chicago-transit-tracker.com/cta/${slug}`,
+      url: `https://chicagotransittracker.com/cta/${slug}`,
       type: 'website',
     },
   }

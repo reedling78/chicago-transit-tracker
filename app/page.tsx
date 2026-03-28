@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Home | Chicago Transit Tracker',
     description: 'Track Chicago-area transit routes and schedules in real time.',
-    url: 'https://chicago-transit-tracker.com',
+    url: 'https://chicagotransittracker.com',
     type: 'website',
   },
 }

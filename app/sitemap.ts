@@ -4,7 +4,7 @@ import { getLinesForService, getStationsForLine } from './lib/transit'
 
 export const dynamic = 'force-static'
 
-const baseUrl = 'https://chicago-transit-tracker.com'
+const baseUrl = 'https://chicagotransittracker.com'
 
 // STANDING RULE: Add every new page to this array when it is created.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-{ url: `${baseUrl}/cta`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/cta`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${baseUrl}/metra`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     ...ctaLines.map((l) => ({
       url: `${baseUrl}/cta/${l.slug}`,

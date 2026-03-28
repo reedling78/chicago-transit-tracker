@@ -1,0 +1,18 @@
+<svg width="1280" height="320" viewBox="0 0 1280 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Chicago Transit Tracker horizontal logo</title>
+  <desc id="desc">Logo mark and wordmark for Chicago Transit Tracker.</desc>
+  <g transform="translate(20 20)">
+    <rect width="280" height="280" rx="64" fill="#0F172A"/>
+    <circle cx="140" cy="140" r="96" stroke="#E5E7EB" stroke-width="14"/>
+    <path d="M52 140H228" stroke="#00A1DE" stroke-width="20" stroke-linecap="round"/>
+    <path d="M140 52V228" stroke="#C60C30" stroke-width="20" stroke-linecap="round"/>
+    <path d="M84 84L196 196" stroke="#22C55E" stroke-width="12" stroke-linecap="round" opacity="0.9"/>
+    <circle cx="140" cy="140" r="28" fill="#F8FAFC"/>
+    <path d="M140 160C151.046 160 160 151.046 160 140C160 128.954 151.046 120 140 120C128.954 120 120 128.954 120 140C120 151.046 128.954 160 140 160Z" fill="#0F172A"/>
+    <circle cx="140" cy="140" r="6" fill="#F8FAFC"/>
+  </g>
+  <g transform="translate(350 88)">
+    <text x="0" y="78" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="0.2">Chicago Transit</text>
+    <text x="0" y="166" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="700" letter-spacing="0.2">Tracker</text>
+  </g>
+</svg>

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import MobileMenuToggle from './MobileMenuToggle'
 import ThemeToggle from './ThemeToggle'
 
@@ -11,8 +12,16 @@ export default function Navbar() {
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
       <nav className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg text-gray-900 dark:text-white">
-          Chicago Transit Tracker
+        <Link href="/" className="inline-flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
+          <Image
+            src="/brand/logo-mark.svg"
+            alt="Chicago Transit Tracker logo"
+            width={28}
+            height={28}
+            priority
+            unoptimized
+          />
+          <span>Chicago Transit Tracker</span>
         </Link>
 
         {/* Desktop links — hidden on mobile */}

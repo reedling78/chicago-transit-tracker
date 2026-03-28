@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Chicago Transit Tracker logo mark</title>
+  <desc id="desc">A circular transit-inspired icon with crossing rail lines and a location pin center.</desc>
+  <rect width="512" height="512" rx="112" fill="#0F172A"/>
+  <circle cx="256" cy="256" r="176" stroke="#E5E7EB" stroke-width="24"/>
+  <path d="M96 256H416" stroke="#00A1DE" stroke-width="36" stroke-linecap="round"/>
+  <path d="M256 96V416" stroke="#C60C30" stroke-width="36" stroke-linecap="round"/>
+  <path d="M160 160L352 352" stroke="#22C55E" stroke-width="20" stroke-linecap="round" opacity="0.9"/>
+  <circle cx="256" cy="256" r="52" fill="#F8FAFC"/>
+  <path d="M256 292C278.091 292 296 274.091 296 252C296 229.909 278.091 212 256 212C233.909 212 216 229.909 216 252C216 274.091 233.909 292 256 292Z" fill="#0F172A"/>
+  <circle cx="256" cy="252" r="12" fill="#F8FAFC"/>
+</svg>
