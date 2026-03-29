@@ -46,6 +46,7 @@ export interface Station {
   metraStopId: string | null
   photoUrl: string | null
   wikipediaUrl: string | null
+  metraLink: string | null
   /** Position of this station on each line it serves, keyed by line shortName (e.g. { "Red": 3, "Purple": 7 }) */
   lineOrder: Record<string, number>
 }

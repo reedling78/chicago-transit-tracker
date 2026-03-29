@@ -116,6 +116,21 @@ export default function StationDetail({ station }: StationDetailProps) {
               }
             />
           )}
+          {station.metraLink && (station.service === 'metra' || station.service === 'both') && (
+            <Row
+              label="Metra Page"
+              value={
+                <Link
+                  href={station.metraLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  View on metra.com ↗
+                </Link>
+              }
+            />
+          )}
         </SectionCard>
 
         {/* Service */}
