@@ -56,6 +56,7 @@ function toStation(id: string, d: DocumentData): Station {
     metraStopId: d.metraStopId ?? null,
     photoUrl: d.photoUrl ?? null,
     wikipediaUrl: d.wikipediaUrl ?? null,
+    metraLink: d.metraLink ?? null,
     lineOrder: d.lineOrder ?? {},
   }
 }
