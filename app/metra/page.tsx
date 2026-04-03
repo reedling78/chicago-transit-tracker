@@ -29,7 +29,10 @@ export default async function MetraPage() {
 
   return (
     <main>
-      <PageHeader title="Metra Lines" description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties." />
+      <PageHeader
+        title="Metra Lines"
+        description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties."
+      />
       <div className="flex flex-col gap-3">
         {lines.map((line) => (
           <LinkCard

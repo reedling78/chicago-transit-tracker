@@ -47,7 +47,7 @@ describe('LinkCard', () => {
         meta="33 stations · 23 mi"
         badge="Red"
         badgeColor="#c60c30"
-      />
+      />,
     )
     expect(container).toMatchSnapshot()
   })

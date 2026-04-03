@@ -40,6 +40,7 @@ chicago-transit-tracker/
 ## Navbar Components
 
 ### Navbar.tsx
+
 **Type:** Server Component (no `"use client"`)
 
 - Renders the full nav structure as HTML on the server — SEO-friendly
@@ -50,6 +51,7 @@ chicago-transit-tracker/
 - Styled with Tailwind only
 
 ### MobileMenuToggle.tsx
+
 **Type:** Client Component (`"use client"`)
 
 - Minimal interactive island — handles only the hamburger open/close state
@@ -65,17 +67,18 @@ chicago-transit-tracker/
 
 Each page is a minimal React Server Component. They export a `metadata` object and render an empty `<main>` as a placeholder. No visible content.
 
-| Route    | File                  | Page Title         |
-|----------|-----------------------|--------------------|
-| `/`      | `app/page.tsx`        | Home               |
-| `/about` | `app/about/page.tsx`  | About Us           |
-| `/search`| `app/search/page.tsx` | Search             |
+| Route     | File                  | Page Title |
+| --------- | --------------------- | ---------- |
+| `/`       | `app/page.tsx`        | Home       |
+| `/about`  | `app/about/page.tsx`  | About Us   |
+| `/search` | `app/search/page.tsx` | Search     |
 
 ---
 
 ## SEO
 
 ### Metadata API
+
 - `layout.tsx` sets `metadataBase` to the production URL and a default `title.template` of `"%s | Chicago Transit Tracker"`
 - Each page exports a `metadata` object with:
   - `title` — page-specific title (composes into template)
@@ -83,12 +86,15 @@ Each page is a minimal React Server Component. They export a `metadata` object a
   - `openGraph` — `title`, `description`, `url`, `type: "website"`
 
 ### sitemap.ts
+
 Uses `MetadataRoute.Sitemap`. Exports an array of all site routes with `lastModified`, `changeFrequency`, and `priority`.
 
 ### robots.ts
+
 Uses `MetadataRoute.Robots`. Allows all crawlers (`User-Agent: *`, `Allow: /`) and references the sitemap URL.
 
 ### Standing Rule
+
 **Any time a new page is added to the site, `app/sitemap.ts` must be updated to include the new route.** This applies without exception.
 
 ---

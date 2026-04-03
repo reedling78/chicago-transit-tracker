@@ -3,11 +3,11 @@
 exports[`LinkCard matches snapshot 1`] = `
 <div>
   <a
-    class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:hover:border-gray-600"
+    class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
     href="/cta/red"
   >
     <div
-      class="flex items-center gap-3 min-w-0"
+      class="flex min-w-0 items-center gap-3"
     >
       <span
         class="shrink-0 rounded px-2 py-0.5 text-xs font-semibold"
@@ -39,7 +39,7 @@ exports[`LinkCard matches snapshot 1`] = `
         33 stations · 23 mi
       </span>
       <span
-        class="text-gray-300 dark:text-gray-600 transition group-hover:text-gray-500 dark:group-hover:text-gray-400"
+        class="text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400"
       >
         →
       </span>

@@ -4,10 +4,10 @@ exports[`Metra list page matches snapshot 1`] = `
 <div>
   <main>
     <div
-      class="mb-8 border-b border-gray-100 dark:border-gray-800 pb-8"
+      class="mb-8 border-b border-gray-100 pb-8 dark:border-gray-800"
     >
       <h1
-        class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl"
+        class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
       >
         Metra Lines
       </h1>
@@ -21,11 +21,11 @@ exports[`Metra list page matches snapshot 1`] = `
       class="flex flex-col gap-3"
     >
       <a
-        class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:hover:border-gray-600"
+        class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
         href="/metra/bnsf"
       >
         <div
-          class="flex items-center gap-3 min-w-0"
+          class="flex min-w-0 items-center gap-3"
         >
           <span
             class="shrink-0 rounded px-2 py-0.5 text-xs font-semibold"
@@ -57,7 +57,7 @@ exports[`Metra list page matches snapshot 1`] = `
             24 stations · 37 mi
           </span>
           <span
-            class="text-gray-300 dark:text-gray-600 transition group-hover:text-gray-500 dark:group-hover:text-gray-400"
+            class="text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400"
           >
             →
           </span>

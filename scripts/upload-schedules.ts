@@ -18,11 +18,14 @@ import * as admin from 'firebase-admin'
 import * as path from 'path'
 import * as fs from 'fs'
 
-const PROJECT_ID  = 'chicago-transit-tracker'
+const PROJECT_ID = 'chicago-transit-tracker'
 const BUCKET_NAME = `${PROJECT_ID}.firebasestorage.app`
 const SCHEDULES_DIR = path.join(__dirname, '..', 'docs', 'schedules', 'metra')
 
-function initFirebase(): { db: admin.firestore.Firestore; bucket: ReturnType<admin.storage.Storage['bucket']> } {
+function initFirebase(): {
+  db: admin.firestore.Firestore
+  bucket: ReturnType<admin.storage.Storage['bucket']>
+} {
   const saPath = path.join(__dirname, '..', 'service-account.json')
   if (fs.existsSync(saPath)) {
     const serviceAccount = require(saPath)

@@ -25,9 +25,9 @@ export default function LinkCard({
   return (
     <Link
       href={href}
-      className="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:hover:border-gray-600"
+      className="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex min-w-0 items-center gap-3">
         {icon && <span className="shrink-0">{icon}</span>}
         {!icon && badge && (
           <span
@@ -47,7 +47,9 @@ export default function LinkCard({
 
       <div className="flex shrink-0 items-center gap-3">
         {meta && <span className="text-sm text-gray-400 dark:text-gray-500">{meta}</span>}
-        <span className="text-gray-300 dark:text-gray-600 transition group-hover:text-gray-500 dark:group-hover:text-gray-400">→</span>
+        <span className="text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400">
+          →
+        </span>
       </div>
     </Link>
   )

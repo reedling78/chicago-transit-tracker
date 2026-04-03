@@ -23,7 +23,11 @@ describe('PageHeader', () => {
   })
 
   it('renders children when provided', () => {
-    render(<PageHeader title="CTA Lines"><span>Extra content</span></PageHeader>)
+    render(
+      <PageHeader title="CTA Lines">
+        <span>Extra content</span>
+      </PageHeader>,
+    )
     expect(screen.getByText('Extra content')).toBeInTheDocument()
   })
 
@@ -35,7 +39,7 @@ describe('PageHeader', () => {
         badges={<span>Badge</span>}
       >
         <span>Child</span>
-      </PageHeader>
+      </PageHeader>,
     )
     expect(container).toMatchSnapshot()
   })

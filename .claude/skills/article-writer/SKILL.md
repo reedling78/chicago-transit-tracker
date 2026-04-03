@@ -15,6 +15,7 @@ Images live at: `public/images/articles/{slug}/`
 ## Step 1 — Collect Inputs
 
 Ask for:
+
 1. **Subject** — what is the article about?
 2. **Angle / description** — what is the specific take, thesis, or hook?
 3. **Source URLs** — any reference URLs to use as research material (optional)
@@ -28,6 +29,7 @@ If any fetch fails, stop and ask the author for a replacement URL before continu
 ## Step 2 — Collect Metadata
 
 **Present these together for a single approval pass** (auto-suggest values before presenting):
+
 - `title` — the article headline
 - `description` — 1–2 sentence meta description (used in OG/Twitter cards and the article list)
 - `slug` — URL-safe lowercase-hyphenated identifier (e.g. `cta-red-line-history`)
@@ -35,6 +37,7 @@ If any fetch fails, stop and ask the author for a replacement URL before continu
 - `tags` — array of tags
 
 **Then collect one at a time:**
+
 1. `author` — full name
 2. `authorImage` — suggest `/images/authors/{first-last}.jpg` as the default before asking
 3. `date` — "What date should appear on this article? Default is today (YYYY-MM-DD)."
@@ -42,6 +45,7 @@ If any fetch fails, stop and ask the author for a replacement URL before continu
 5. `featuredPost` — "Should this be the featured article on the site? Only one article can be featured at a time. (yes/no)"
 
 Field notes:
+
 - `date` is the display date shown to readers — it does not control visibility
 - `publishAt` controls visibility at build time — leave empty for immediate publishing
 - `image`, `ogImage`, and `twitterImage` are auto-derived from the slug — never ask the author to type these paths
@@ -52,6 +56,7 @@ Field notes:
 ## Step 3 — Propose Article Plan
 
 Present:
+
 - **Angle / thesis** — one paragraph stating the central argument or narrative
 - **Section structure** — ordered list of proposed H2 sections, each with a one-sentence description
 - **Tone** — describe the intended voice (e.g. "authoritative but conversational, written for a transit-curious Chicago resident")
@@ -66,6 +71,7 @@ Wait for explicit approval before writing. If the author requests changes, revis
 Write the full article body in MDX. Apply these rules strictly:
 
 **Voice & tone:**
+
 - Authoritative, not academic. Conversational where appropriate.
 - Written for a curious Chicago transit rider, not a transit engineer.
 - No AI phrases: "In conclusion", "It's worth noting", "Dive into", "Delve", "Let's explore", "It's important to understand"
@@ -73,12 +79,14 @@ Write the full article body in MDX. Apply these rules strictly:
 - Do not open with a restatement of the title.
 
 **Structure:**
+
 - Prose-first. Use subheadings to organize sections, not to introduce bullet lists.
 - No bullet lists unless the content is genuinely enumerable (e.g. a list of stops, a step-by-step).
 - No emoji in headers or body.
 - Structure adapts to content — no rigid template.
 
 **Technical terms** — wrap inline on first use:
+
 ```
 <span data-term class="underline decoration-dotted cursor-help">term</span>
 ```
@@ -94,14 +102,17 @@ Wait for approval or revision requests. Make any requested edits and present aga
 ## Step 5 — Process Images
 
 Ask the author:
+
 > "What is the file path to the source image for this article?"
 
 Then:
 
 1. Check ImageMagick is installed:
+
    ```bash
    which magick || which convert
    ```
+
    If not found, tell the author to run `brew install imagemagick` and wait for confirmation before continuing.
 
 2. Determine the file extension from the source path. Then run all three commands:
@@ -129,24 +140,24 @@ Then:
 
 ```mdx
 ---
-title: "{title}"
-description: "{description}"
-date: {date}
-author: "{author}"
-authorImage: "{authorImage}"
-image: "/images/articles/{slug}/{slug}.{ext}"
-ogImage: "/images/articles/{slug}/{slug}-og.{ext}"
-twitterImage: "/images/articles/{slug}/{slug}-twitter.{ext}"
-slug: "{slug}"
-category: "{category}"
-tags: [{tags}]
-featuredPost: {featuredPost}
+title: '{title}'
+description: '{description}'
+date: { date }
+author: '{author}'
+authorImage: '{authorImage}'
+image: '/images/articles/{slug}/{slug}.{ext}'
+ogImage: '/images/articles/{slug}/{slug}-og.{ext}'
+twitterImage: '/images/articles/{slug}/{slug}-twitter.{ext}'
+slug: '{slug}'
+category: '{category}'
+tags: [{ tags }]
+featuredPost: { featuredPost }
 draft: false
-publishAt: "{publishAt}"
-imageVersion: {imageVersion}
+publishAt: '{publishAt}'
+imageVersion: { imageVersion }
 references:
-  - label: "{source title}"
-    url: "{source url}"
+  - label: '{source title}'
+    url: '{source url}'
 ---
 
 {article body}

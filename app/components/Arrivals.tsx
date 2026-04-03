@@ -56,9 +56,7 @@ function computeArrivals(schedule: StationSchedule): Arrival[] {
   for (const dir of schedule.directions) {
     const times = dir[dayType]
     // Also check early next-day departures stored as minutes > 1440
-    const upcoming = times
-      .filter((t) => t > nowMinutes)
-      .slice(0, 3)
+    const upcoming = times.filter((t) => t > nowMinutes).slice(0, 3)
 
     for (const t of upcoming) {
       arrivals.push({
@@ -83,7 +81,7 @@ function SkeletonRow({ color }: { color: string }) {
   return (
     <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: color }}>
       <div>
-        <div className="h-3 w-28 rounded bg-white/30 mb-1.5" />
+        <div className="mb-1.5 h-3 w-28 rounded bg-white/30" />
         <div className="h-5 w-20 rounded bg-white/30" />
       </div>
       <div className="h-7 w-14 rounded bg-white/30" />
@@ -144,9 +142,9 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
   const skeletonColor = '#00a1de' // Blue Line as fallback
 
   return (
-    <div className="mb-6 overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+    <div className="mb-6 overflow-hidden rounded-xl border border-gray-100 shadow-sm dark:border-gray-700">
       {/* Header */}
-      <div className="flex items-center gap-2 bg-gray-700 dark:bg-gray-800 px-4 py-2.5">
+      <div className="flex items-center gap-2 bg-gray-700 px-4 py-2.5 dark:bg-gray-800">
         <svg viewBox="0 0 20 20" fill="white" className="h-4 w-4 shrink-0" aria-hidden="true">
           <path d="M5 3a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1v2H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-1V9h1a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5Zm0 1.5h10a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5ZM8 9h4v2H8V9Z" />
         </svg>
@@ -163,7 +161,7 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
           </div>
           <SkeletonRow color={skeletonColor} />
           <SkeletonRow color={skeletonColor} />
-          <div className="bg-gray-600 px-4 py-2 mt-0.5">
+          <div className="mt-0.5 bg-gray-600 px-4 py-2">
             <div className="h-4 w-40 rounded bg-white/20" />
           </div>
           <SkeletonRow color={skeletonColor} />
@@ -183,48 +181,52 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
         </div>
       )}
 
-      {!loading && !error && grouped.map((group) => {
-        const colors = LINE_COLORS[group.line]
-        const bg = colors?.bg ?? '#565a5c'
+      {!loading &&
+        !error &&
+        grouped.map((group) => {
+          const colors = LINE_COLORS[group.line]
+          const bg = colors?.bg ?? '#565a5c'
 
-        return (
-          <div key={group.headsign}>
-            {/* Direction header */}
-            <div className="bg-gray-600 dark:bg-gray-700 px-4 py-2">
-              <p className="text-sm font-semibold text-white">Service toward {group.headsign}</p>
-            </div>
-
-            {/* Arrival rows */}
-            {group.rows.map((arrival, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between px-4 py-3 border-t border-black/10"
-                style={{ backgroundColor: bg }}
-              >
-                <div>
-                  <p className="text-xs text-white/80">
-                    {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
-                  </p>
-                  <p className="text-base font-bold text-white leading-tight">
-                    {arrival.headsign}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-2xl font-bold text-white tabular-nums">
-                    {arrival.minutesAway < 1
-                      ? 'Due'
-                      : arrival.minutesAway > 120
-                      ? formatTime(arrival.departureMinutes)
-                      : `${arrival.minutesAway} min`}
-                  </span>
-                  {/* Approximate indicator — distinguishes schedule from live data */}
-                  <span className="text-white/60 text-lg" title="Scheduled estimate">≈</span>
-                </div>
+          return (
+            <div key={group.headsign}>
+              {/* Direction header */}
+              <div className="bg-gray-600 px-4 py-2 dark:bg-gray-700">
+                <p className="text-sm font-semibold text-white">Service toward {group.headsign}</p>
               </div>
-            ))}
-          </div>
-        )
-      })}
+
+              {/* Arrival rows */}
+              {group.rows.map((arrival, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-t border-black/10 px-4 py-3"
+                  style={{ backgroundColor: bg }}
+                >
+                  <div>
+                    <p className="text-xs text-white/80">
+                      {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
+                    </p>
+                    <p className="text-base leading-tight font-bold text-white">
+                      {arrival.headsign}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-2xl font-bold text-white tabular-nums">
+                      {arrival.minutesAway < 1
+                        ? 'Due'
+                        : arrival.minutesAway > 120
+                          ? formatTime(arrival.departureMinutes)
+                          : `${arrival.minutesAway} min`}
+                    </span>
+                    {/* Approximate indicator — distinguishes schedule from live data */}
+                    <span className="text-lg text-white/60" title="Scheduled estimate">
+                      ≈
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        })}
     </div>
   )
 }

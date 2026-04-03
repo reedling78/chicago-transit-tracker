@@ -48,35 +48,41 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MetraStationPage({ params }: Props) {
   const { line: lineSlug, station: stationSlug } = await params
-  const [line, station] = await Promise.all([
-    getLine(lineSlug),
-    getStation(stationSlug),
-  ])
+  const [line, station] = await Promise.all([getLine(lineSlug), getStation(stationSlug)])
 
-  if (!station) return <main><p>Station not found.</p></main>
+  if (!station)
+    return (
+      <main>
+        <p>Station not found.</p>
+      </main>
+    )
 
   return (
     <main>
-      <Breadcrumb items={[
-        { label: 'Metra Lines', href: '/metra' },
-        { label: line?.name ?? lineSlug, href: `/metra/${lineSlug}` },
-        { label: station.name },
-      ]} />
+      <Breadcrumb
+        items={[
+          { label: 'Metra Lines', href: '/metra' },
+          { label: line?.name ?? lineSlug, href: `/metra/${lineSlug}` },
+          { label: station.name },
+        ]}
+      />
 
       <PageHeader
         title={station.name}
         badges={
           <>
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${SERVICE_COLOR[station.service]}`}>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${SERVICE_COLOR[station.service]}`}
+            >
               {SERVICE_LABEL[station.service]}
             </span>
             {station.terminal && (
-              <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
+              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                 Terminal
               </span>
             )}
             {station.open24Hours && (
-              <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-400">
+              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 24 Hours
               </span>
             )}
@@ -88,11 +94,18 @@ export default async function MetraStationPage({ params }: Props) {
             {station.lines.map((line) => {
               const colors = LINE_COLORS[line]
               return colors ? (
-                <span key={line} className="rounded-full px-3 py-1 text-xs font-semibold" style={{ backgroundColor: colors.bg, color: colors.text }}>
+                <span
+                  key={line}
+                  className="rounded-full px-3 py-1 text-xs font-semibold"
+                  style={{ backgroundColor: colors.bg, color: colors.text }}
+                >
                   {line}
                 </span>
               ) : (
-                <span key={line} className="rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                <span
+                  key={line}
+                  className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                >
                   {line}
                 </span>
               )
@@ -101,8 +114,7 @@ export default async function MetraStationPage({ params }: Props) {
         )}
       </PageHeader>
 
-
-      <div className="flex gap-4 items-start">
+      <div className="flex items-start gap-4">
         <div className="w-2/3">
           <StationMap
             latitude={station.location.latitude}
@@ -117,7 +129,6 @@ export default async function MetraStationPage({ params }: Props) {
         </div>
       </div>
       <StationTimetable slug={stationSlug} />
-
     </main>
   )
 }

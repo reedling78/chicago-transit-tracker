@@ -3,7 +3,8 @@ import Link from 'next/link'
 import PageHeader from '../components/PageHeader'
 import { siteConfig } from '../lib/siteConfig'
 
-const description = 'Privacy statement for Chicago Transit Tracker — what data we collect and how we use it.'
+const description =
+  'Privacy statement for Chicago Transit Tracker — what data we collect and how we use it.'
 
 export const metadata: Metadata = {
   title: 'Privacy Statement',
@@ -27,7 +28,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="mb-8">
       <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
-      <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+      <div className="space-y-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
         {children}
       </div>
     </section>
@@ -37,10 +38,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function PrivacyPage() {
   return (
     <main>
-      <PageHeader
-        title="Privacy Statement"
-        description="Effective date: March 2025"
-      />
+      <PageHeader title="Privacy Statement" description="Effective date: March 2025" />
 
       <Section title="Overview">
         <p>
@@ -56,10 +54,11 @@ export default function PrivacyPage() {
           We do not collect names, email addresses, or payment details.
         </p>
         <p>
-          We use <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4 (GA4)</strong>{' '}
-          to understand how visitors use the site. GA4 collects anonymized data including:
+          We use{' '}
+          <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4 (GA4)</strong> to
+          understand how visitors use the site. GA4 collects anonymized data including:
         </p>
-        <ul className="list-disc list-inside space-y-1 pl-2">
+        <ul className="list-inside list-disc space-y-1 pl-2">
           <li>Pages visited and time spent on each page</li>
           <li>General geographic region (city/country level, not precise location)</li>
           <li>Device type, browser, and operating system</li>
@@ -77,8 +76,12 @@ export default function PrivacyPage() {
           cookies only — we do not use advertising, retargeting, or cross-site tracking cookies.
         </p>
         <p>
-          This site also uses <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">localStorage</code> in
-          your browser to remember your light/dark mode preference. This data never leaves your device.
+          This site also uses{' '}
+          <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs dark:bg-gray-800">
+            localStorage
+          </code>{' '}
+          in your browser to remember your light/dark mode preference. This data never leaves your
+          device.
         </p>
       </Section>
 
@@ -92,16 +95,17 @@ export default function PrivacyPage() {
 
       <Section title="Third-Party Services">
         <p>
-          <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4</strong> — analytics
-          provider. Data is processed under Google&rsquo;s privacy policy at{' '}
+          <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4</strong> —
+          analytics provider. Data is processed under Google&rsquo;s privacy policy at{' '}
           <a
             href="https://policies.google.com/privacy"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-blue-600 hover:underline dark:text-blue-400"
           >
             policies.google.com/privacy
-          </a>.
+          </a>
+          .
         </p>
         <p>
           <strong className="text-gray-700 dark:text-gray-300">Firebase Hosting</strong> — used to
@@ -111,10 +115,11 @@ export default function PrivacyPage() {
             href="https://firebase.google.com/support/privacy"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-blue-600 hover:underline dark:text-blue-400"
           >
             Firebase&rsquo;s privacy information
-          </a>.
+          </a>
+          .
         </p>
       </Section>
 
@@ -125,7 +130,7 @@ export default function PrivacyPage() {
             href="https://tools.google.com/dlpage/gaoptout"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-blue-600 hover:underline dark:text-blue-400"
           >
             Google Analytics Opt-out Browser Add-on
           </a>{' '}
@@ -150,7 +155,10 @@ export default function PrivacyPage() {
 
       <Section title="Contact">
         <p>
-          Questions? <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline">Return to the home page.</Link>
+          Questions?{' '}
+          <Link href="/" className="text-blue-600 hover:underline dark:text-blue-400">
+            Return to the home page.
+          </Link>
         </p>
       </Section>
     </main>

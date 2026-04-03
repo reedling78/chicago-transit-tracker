@@ -36,16 +36,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Runs before paint — applies saved theme to avoid flash */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           (function() {
             var saved = localStorage.getItem('theme');
             var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -53,14 +51,25 @@ export default function RootLayout({
               document.documentElement.classList.add('dark');
             }
           })();
-        `}} />
+        `,
+          }}
+        />
       </head>
-      <body className={`${geist.className} bg-gray-50 dark:bg-gray-950 min-h-screen flex flex-col transition-colors`}>
+      <body
+        className={`${geist.className} flex min-h-screen flex-col bg-gray-50 transition-colors dark:bg-gray-950`}
+      >
         <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+          {children}
+        </main>
         <Footer />
-        <Suspense fallback={null}><Analytics /></Suspense>
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        <Suspense fallback={null}>
+          <Analytics />
+        </Suspense>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
         <Script id="ga-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}

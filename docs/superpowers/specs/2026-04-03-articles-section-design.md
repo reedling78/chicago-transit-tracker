@@ -65,6 +65,7 @@ This keeps content and code together, enables PR-based review of articles, and e
 ### Filtering
 
 Two visibility controls are evaluated at build time:
+
 - `draft: true` — always excluded from the build output
 - `publishAt` — if set and in the future relative to build time, excluded
 
@@ -78,10 +79,10 @@ This means scheduling a post requires a rebuild at or after the publish time. Gi
 
 ## Routes
 
-| Route | Page | Notes |
-|-------|------|-------|
-| `/articles` | Article list | Featured card + chronological list |
-| `/articles/[slug]` | Individual article | Full MDX render with metadata |
+| Route              | Page               | Notes                              |
+| ------------------ | ------------------ | ---------------------------------- |
+| `/articles`        | Article list       | Featured card + chronological list |
+| `/articles/[slug]` | Individual article | Full MDX render with metadata      |
 
 Both routes follow the existing SEO pattern: `generateMetadata` with `title`, `description`, `openGraph`, and `twitter` fields. The individual article uses `type: 'article'` in openGraph for better social sharing previews.
 
@@ -127,6 +128,7 @@ Reuse existing components wherever possible:
 - `LinkCard` — article list items (title, description excerpt, date + category as meta)
 
 New for this feature:
+
 - Featured article card on the list page (larger visual treatment with hero image)
 - `prose dark:prose-invert` wrapper div on the article detail page for MDX body styling
 

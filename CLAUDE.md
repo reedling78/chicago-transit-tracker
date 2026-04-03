@@ -97,18 +97,23 @@ firebase deploy                  # Deploy hosting + Firestore rules
 ## Key Architecture Decisions
 
 ### Static export + Firestore at build time
+
 `next.config.ts` sets `output: 'export'`. There is no runtime server. All Firestore reads happen during `npm run build`:
+
 - `generateStaticParams` enumerates slugs for all dynamic routes
 - Server components fetch line/station data as props
 - `serverExternalPackages: ['firebase-admin']` prevents Next.js from bundling the Admin SDK client-side
 
 ### Dark mode
+
 Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` applies `.dark` to `<html>` before first paint to prevent flash. `suppressHydrationWarning` is set on `<html>`. `ThemeToggle` uses a mount-only render pattern to avoid hydration mismatch.
 
 ### Firestore credentials
+
 `app/lib/firebase-admin.ts` checks for `service-account.json` first, then falls back to `applicationDefault()`. `service-account.json` is gitignored.
 
 ### Duplicate station slugs
+
 Some stations share names across CTA and Metra (e.g. Rosemont). The seed script detects duplicates and appends `-cta` / `-metra` to the slug and doc ID.
 
 ---
@@ -116,10 +121,13 @@ Some stations share names across CTA and Metra (e.g. Rosemont). The seed script 
 ## Firestore Collections
 
 ### `lines` — doc ID = slug (e.g. `red`, `bnsf`, `up-n`)
+
 19 documents total (8 CTA rapid transit + 11 Metra commuter rail). Seeded by `scripts/seed-lines.ts`.
 
 ### `stations` — doc ID = slug (e.g. `clark-lake`, `union-station-metra`)
+
 ~388 documents. Seeded by `scripts/seed-stations.ts` using:
+
 - CTA: Chicago Open Data Portal Socrata API (no auth required)
 - Metra: GTFS static zip from Metra's public schedule feed (no auth required)
 
@@ -134,36 +142,40 @@ All CTA-related UI must comply with the CTA Trademark Guidelines for Developers.
 
 ### Official 'L' Route Colors — use these exact hex values, no substitutions
 
-| Line | Hex | Pantone |
-|---|---|---|
-| Red | `#c60c30` | 186C |
-| Blue | `#00a1de` | 299C |
-| Brown | `#62361b` | 161C |
-| Green | `#009b3a` | 355C |
-| Orange | `#f9461c` | 172C |
-| Purple | `#522398` | 267C |
-| Pink | `#e27ea6` | 204C |
-| Yellow | `#f9e300` | 012C |
-| Sign Grey | `#565a5c` | 425C |
+| Line      | Hex       | Pantone |
+| --------- | --------- | ------- |
+| Red       | `#c60c30` | 186C    |
+| Blue      | `#00a1de` | 299C    |
+| Brown     | `#62361b` | 161C    |
+| Green     | `#009b3a` | 355C    |
+| Orange    | `#f9461c` | 172C    |
+| Purple    | `#522398` | 267C    |
+| Pink      | `#e27ea6` | 204C    |
+| Yellow    | `#f9e300` | 012C    |
+| Sign Grey | `#565a5c` | 425C    |
 
 These are already correctly set in `scripts/seed-lines.ts` and `app/components/StationDetail.tsx`.
 
 ### Attribution
+
 - Always credit CTA data with a phrase like "Data provided by Chicago Transit Authority" or "Powered by CTA data"
 - Never use "official", "authorized", or "in partnership with CTA"
 
 ### Project naming
+
 - **Chicago Transit Tracker** is compliant — CTA is not the first word
 - Never name any page or feature in a way that sounds like it was made by or endorsed by CTA
 
 ### Logos — what is and isn't allowed
+
 - **Prohibited:** Any CTA agency logo (circle logo, text-based logos, or approximations)
-- **Allowed:** CTA Bus Tracker icon — only alongside Bus Tracker API data, black/white/grey only. Must include note: *"CTA Bus Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."*
-- **Allowed:** CTA Train Tracker icon — only alongside Train Tracker API data, black/white/grey only. Must include note: *"CTA Train Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."*
+- **Allowed:** CTA Bus Tracker icon — only alongside Bus Tracker API data, black/white/grey only. Must include note: _"CTA Bus Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."_
+- **Allowed:** CTA Train Tracker icon — only alongside Train Tracker API data, black/white/grey only. Must include note: _"CTA Train Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."_
 - **Allowed:** US DOT bus icon — keep black or white, do not colorize
 - **Allowed:** CTA 'L' train icon — can be used for L service information; may be colored to match official route colors
 
 ### Other rules
+
 - Do not embed or reproduce official CTA maps or documents — link to them on the CTA website instead
 - Do not imply CTA endorsement, sponsorship, or affiliation in any copy or UI
 
@@ -174,6 +186,7 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 Deployments to Firebase Hosting are automated via GitHub Actions (`.github/workflows/deploy.yml`). Every push to `main` (i.e. every merged PR) triggers a build and deploy automatically.
 
 **Workflow steps:**
+
 1. `npm ci` — install dependencies
 2. Write `FIREBASE_SERVICE_ACCOUNT` secret → `service-account.json` (needed for Firestore reads during build)
 3. `npm run build` — Next.js static export to `out/`
@@ -182,10 +195,10 @@ Deployments to Firebase Hosting are automated via GitHub Actions (`.github/workf
 
 **Required GitHub secrets** (Settings → Secrets and variables → Actions):
 
-| Secret | What it is | How to get it |
-|---|---|---|
-| `FIREBASE_SERVICE_ACCOUNT` | Full JSON content of `service-account.json` | Open the local file and copy its entire contents |
-| `FIREBASE_TOKEN` | Firebase CI auth token | Run `npx firebase-tools login:ci` locally and copy the printed token |
+| Secret                     | What it is                                  | How to get it                                                        |
+| -------------------------- | ------------------------------------------- | -------------------------------------------------------------------- |
+| `FIREBASE_SERVICE_ACCOUNT` | Full JSON content of `service-account.json` | Open the local file and copy its entire contents                     |
+| `FIREBASE_TOKEN`           | Firebase CI auth token                      | Run `npx firebase-tools login:ci` locally and copy the printed token |
 
 ---
 
@@ -196,6 +209,7 @@ Deployments to Firebase Hosting are automated via GitHub Actions (`.github/workf
 **Auto-delete is enabled.** GitHub automatically deletes the feature branch after a PR is merged — no manual cleanup needed.
 
 Typical workflow:
+
 ```bash
 git checkout -b your-feature-branch
 # make changes, commit
@@ -229,6 +243,7 @@ These rules must be applied whenever a new page is added or an existing page's c
 **Every page must export `metadata` or `generateMetadata`.** No exceptions. Static pages use `export const metadata: Metadata = { ... }`. Dynamic routes (`[param]`) must use `export async function generateMetadata(...)`.
 
 **Required metadata fields** on every page:
+
 - `title` — short page-level title (the root layout template appends `| Chicago Transit Tracker`)
 - `description` — descriptive sentence specific to the page
 - `openGraph` — must include `title`, `description`, `url`, `images`, and `type: 'website'`
@@ -248,6 +263,7 @@ import { siteConfig } from '../lib/siteConfig'
 **`openGraph.url`:** Must be the full canonical URL of the page — `${siteConfig.url}/path`.
 
 **New dynamic routes checklist:**
+
 1. Add `generateStaticParams` (required for static export)
 2. Add `generateMetadata` with all required fields above
 3. Update `app/sitemap.ts` to include the new route

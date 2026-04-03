@@ -26,15 +26,16 @@
 
 ## Options / Trade-offs
 
-| Option | Bundle | Cost | Tile Source | Dark Mode | Notes |
-|---|---|---|---|---|---|
-| **MapLibre GL JS** (current) | ~290KB | Free | CARTO (no key) | Yes (style swap) | Current implementation; WebGL required |
-| **Leaflet + react-leaflet** | ~42KB | Free | OSM raster (no key) | Partial (via CSS tint) | Simpler API, no WebGL, raster only |
-| **Mapbox GL JS** | ~300KB | Free to 50k/mo, then metered | Mapbox CDN (key required) | Yes | Adds cost + vendor lock-in; no benefit over MapLibre here |
-| **Google Maps Embed** | 0 (iframe) | Free/unlimited | Google | No | Can't style; looks out of place in dark mode |
-| **Stadia Maps tiles** (with MapLibre) | ~290KB | Free (non-commercial, 200k/mo) | Stadia CDN (key required) | Yes | Better-looking styles than CARTO; worth considering if CARTO reliability becomes a concern |
+| Option                                | Bundle     | Cost                           | Tile Source               | Dark Mode              | Notes                                                                                      |
+| ------------------------------------- | ---------- | ------------------------------ | ------------------------- | ---------------------- | ------------------------------------------------------------------------------------------ |
+| **MapLibre GL JS** (current)          | ~290KB     | Free                           | CARTO (no key)            | Yes (style swap)       | Current implementation; WebGL required                                                     |
+| **Leaflet + react-leaflet**           | ~42KB      | Free                           | OSM raster (no key)       | Partial (via CSS tint) | Simpler API, no WebGL, raster only                                                         |
+| **Mapbox GL JS**                      | ~300KB     | Free to 50k/mo, then metered   | Mapbox CDN (key required) | Yes                    | Adds cost + vendor lock-in; no benefit over MapLibre here                                  |
+| **Google Maps Embed**                 | 0 (iframe) | Free/unlimited                 | Google                    | No                     | Can't style; looks out of place in dark mode                                               |
+| **Stadia Maps tiles** (with MapLibre) | ~290KB     | Free (non-commercial, 200k/mo) | Stadia CDN (key required) | Yes                    | Better-looking styles than CARTO; worth considering if CARTO reliability becomes a concern |
 
 **Recommendation:** Stay on MapLibre GL JS. The current library choice is correct. The refactor effort is better spent on:
+
 - Reducing the bundle impact (lazy load the component)
 - Making dark mode detection more robust (currently reads `classList` at mount, may miss changes in some cases — the `MutationObserver` handles live changes correctly)
 - Auditing whether `interactive: false` and `attributionControl: false` should be revisited for accessibility

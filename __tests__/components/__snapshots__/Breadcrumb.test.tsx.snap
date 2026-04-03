@@ -13,7 +13,7 @@ exports[`Breadcrumb matches snapshot 1`] = `
         class="flex items-center gap-1"
       >
         <a
-          class="hover:text-gray-900 dark:hover:text-white transition-colors"
+          class="transition-colors hover:text-gray-900 dark:hover:text-white"
           href="/cta"
         >
           CTA Lines
@@ -29,7 +29,7 @@ exports[`Breadcrumb matches snapshot 1`] = `
           ›
         </span>
         <a
-          class="hover:text-gray-900 dark:hover:text-white transition-colors"
+          class="transition-colors hover:text-gray-900 dark:hover:text-white"
           href="/cta/red"
         >
           Red Line

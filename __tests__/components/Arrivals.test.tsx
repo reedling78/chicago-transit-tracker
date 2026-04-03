@@ -6,8 +6,14 @@ import Arrivals from '@/app/components/Arrivals'
 beforeAll(() => {
   jest.useFakeTimers({
     doNotFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'setImmediate', 'clearImmediate', 'nextTick', 'queueMicrotask',
+      'setTimeout',
+      'clearTimeout',
+      'setInterval',
+      'clearInterval',
+      'setImmediate',
+      'clearImmediate',
+      'nextTick',
+      'queueMicrotask',
     ],
     now: new Date('2024-01-15T07:00:00.000Z'), // Mon Jan 15 01:00 AM CST
   })
@@ -21,7 +27,10 @@ const mockSchedule = {
     {
       headsign: '95th/Dan Ryan',
       line: 'Red',
-      weekday: [0, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440, 1500],
+      weekday: [
+        0, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020,
+        1080, 1140, 1200, 1260, 1320, 1380, 1440, 1500,
+      ],
       saturday: [],
       sunday: [],
     },
@@ -34,9 +43,7 @@ beforeEach(() => {
 
 describe('Arrivals', () => {
   it('renders nothing when hasSchedule is false', () => {
-    const { container } = render(
-      <Arrivals slug="clark-lake" service="cta" hasSchedule={false} />
-    )
+    const { container } = render(<Arrivals slug="clark-lake" service="cta" hasSchedule={false} />)
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -50,7 +57,7 @@ describe('Arrivals', () => {
 
   it('shows loading skeleton initially', () => {
     global.fetch = jest.fn().mockImplementation(
-      () => new Promise(() => {}) // never resolves
+      () => new Promise(() => {}), // never resolves
     ) as jest.Mock
 
     render(<Arrivals slug="clark-lake" service="cta" hasSchedule={true} />)
@@ -106,9 +113,7 @@ describe('Arrivals', () => {
       json: async () => mockSchedule,
     }) as jest.Mock
 
-    const { container } = render(
-      <Arrivals slug="clark-lake" service="cta" hasSchedule={true} />
-    )
+    const { container } = render(<Arrivals slug="clark-lake" service="cta" hasSchedule={true} />)
 
     await waitFor(() => {
       expect(screen.getAllByText('95th/Dan Ryan').length).toBeGreaterThanOrEqual(1)

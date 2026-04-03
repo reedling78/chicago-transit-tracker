@@ -8,15 +8,15 @@ Live site: [chicagotransittracker.com](https://chicagotransittracker.com)
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
+| Layer     | Technology                             |
+| --------- | -------------------------------------- |
 | Framework | Next.js 16 (App Router, static export) |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS v4 |
-| Database | Firebase Firestore |
-| Hosting | Firebase Hosting |
-| Analytics | Google Analytics 4 (G-KQ1MNGBQP2) |
-| Testing | Jest 30 + React Testing Library |
+| Language  | TypeScript 5                           |
+| Styling   | Tailwind CSS v4                        |
+| Database  | Firebase Firestore                     |
+| Hosting   | Firebase Hosting                       |
+| Analytics | Google Analytics 4 (G-KQ1MNGBQP2)      |
+| Testing   | Jest 30 + React Testing Library        |
 
 ---
 
@@ -38,17 +38,17 @@ All routes are statically exported at build time. `generateStaticParams` fetches
 
 ## Components
 
-| Component | Description |
-|---|---|
-| `Navbar` | Top navigation with CTA / Metra links, theme toggle, mobile menu |
-| `MobileMenuToggle` | Hamburger menu for mobile viewports |
-| `ThemeToggle` | Light/dark mode button — persisted to `localStorage` |
-| `Hero` | Home page banner with service cards linking to CTA and Metra |
-| `PageHeader` | Uniform page title block with optional badges and description |
-| `Breadcrumb` | Semantic breadcrumb trail for line and station pages |
-| `LinkCard` | Clickable card used in service and line listing pages |
-| `LineDetail` | Full line detail layout — stats, schedule, operations, station list |
-| `StationDetail` | Full station detail layout — location, service, accessibility, IDs |
+| Component          | Description                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| `Navbar`           | Top navigation with CTA / Metra links, theme toggle, mobile menu    |
+| `MobileMenuToggle` | Hamburger menu for mobile viewports                                 |
+| `ThemeToggle`      | Light/dark mode button — persisted to `localStorage`                |
+| `Hero`             | Home page banner with service cards linking to CTA and Metra        |
+| `PageHeader`       | Uniform page title block with optional badges and description       |
+| `Breadcrumb`       | Semantic breadcrumb trail for line and station pages                |
+| `LinkCard`         | Clickable card used in service and line listing pages               |
+| `LineDetail`       | Full line detail layout — stats, schedule, operations, station list |
+| `StationDetail`    | Full station detail layout — location, service, accessibility, IDs  |
 
 ---
 
@@ -60,53 +60,53 @@ Data lives in two Firestore collections. All reads happen at build time via Fire
 
 One document per transit line. Doc ID = slug (e.g. `red`, `bnsf`, `up-n`).
 
-| Field | Type | Notes |
-|---|---|---|
-| `name` | string | Full name, e.g. "Red Line" |
-| `shortName` | string | Display name, e.g. "Red" |
-| `slug` | string | URL-safe ID |
-| `service` | `cta` \| `metra` | |
-| `color` | string | Hex brand color |
-| `textColor` | string | Hex text color for contrast |
-| `termini` | string[] | [start, end] station names |
-| `stationCount` | number | |
-| `routeMiles` | number | |
-| `operatesOvernight` | boolean | |
-| `peakFrequencyMins` | number \| null | CTA only |
-| `offPeakFrequencyMins` | number \| null | CTA only |
-| `firstTrainApprox` | string \| null | |
-| `lastTrainApprox` | string \| null | |
-| `type` | `rapid_transit` \| `commuter_rail` | |
-| `description` | string | |
-| `ctaRouteId` | string \| null | |
-| `metraLineCode` | string \| null | |
-| `downtownTerminal` | string \| null | Metra only |
-| `operator` | string \| null | Metra only |
-| `countiesServed` | string[] | Metra only |
+| Field                  | Type                               | Notes                       |
+| ---------------------- | ---------------------------------- | --------------------------- |
+| `name`                 | string                             | Full name, e.g. "Red Line"  |
+| `shortName`            | string                             | Display name, e.g. "Red"    |
+| `slug`                 | string                             | URL-safe ID                 |
+| `service`              | `cta` \| `metra`                   |                             |
+| `color`                | string                             | Hex brand color             |
+| `textColor`            | string                             | Hex text color for contrast |
+| `termini`              | string[]                           | [start, end] station names  |
+| `stationCount`         | number                             |                             |
+| `routeMiles`           | number                             |                             |
+| `operatesOvernight`    | boolean                            |                             |
+| `peakFrequencyMins`    | number \| null                     | CTA only                    |
+| `offPeakFrequencyMins` | number \| null                     | CTA only                    |
+| `firstTrainApprox`     | string \| null                     |                             |
+| `lastTrainApprox`      | string \| null                     |                             |
+| `type`                 | `rapid_transit` \| `commuter_rail` |                             |
+| `description`          | string                             |                             |
+| `ctaRouteId`           | string \| null                     |                             |
+| `metraLineCode`        | string \| null                     |                             |
+| `downtownTerminal`     | string \| null                     | Metra only                  |
+| `operator`             | string \| null                     | Metra only                  |
+| `countiesServed`       | string[]                           | Metra only                  |
 
 ### `stations` collection
 
 One document per station. Doc ID = slug (e.g. `clark-lake`, `ogilvie-metra`).
 
-| Field | Type | Notes |
-|---|---|---|
-| `name` | string | |
-| `slug` | string | URL-safe ID |
-| `address` | string | |
-| `location` | `{latitude, longitude}` | |
-| `municipality` | string | |
-| `service` | `cta` \| `metra` \| `both` | |
-| `lines` | string[] | Line short names, e.g. `["Red", "Blue"]` |
-| `hours` | `{weekday, saturday, sunday}` \| null | |
-| `open24Hours` | boolean | |
-| `accessibility` | `{ada, elevator, escalator}` | |
-| `amenities` | string[] | |
-| `parking` | boolean | |
-| `stationType` | string | `elevated`, `subway`, `at_grade`, `terminal`, `commuter_rail` |
-| `terminal` | boolean | |
-| `ctaStopId` | number \| null | |
-| `ctaMapId` | number \| null | |
-| `metraStopId` | string \| null | |
+| Field           | Type                                  | Notes                                                         |
+| --------------- | ------------------------------------- | ------------------------------------------------------------- |
+| `name`          | string                                |                                                               |
+| `slug`          | string                                | URL-safe ID                                                   |
+| `address`       | string                                |                                                               |
+| `location`      | `{latitude, longitude}`               |                                                               |
+| `municipality`  | string                                |                                                               |
+| `service`       | `cta` \| `metra` \| `both`            |                                                               |
+| `lines`         | string[]                              | Line short names, e.g. `["Red", "Blue"]`                      |
+| `hours`         | `{weekday, saturday, sunday}` \| null |                                                               |
+| `open24Hours`   | boolean                               |                                                               |
+| `accessibility` | `{ada, elevator, escalator}`          |                                                               |
+| `amenities`     | string[]                              |                                                               |
+| `parking`       | boolean                               |                                                               |
+| `stationType`   | string                                | `elevated`, `subway`, `at_grade`, `terminal`, `commuter_rail` |
+| `terminal`      | boolean                               |                                                               |
+| `ctaStopId`     | number \| null                        |                                                               |
+| `ctaMapId`      | number \| null                        |                                                               |
+| `metraStopId`   | string \| null                        |                                                               |
 
 Duplicate slugs across services (e.g. a Metra and CTA station both named "Rosemont") get a `-cta` / `-metra` suffix.
 
@@ -223,21 +223,22 @@ Key points:
 
 These exact hex values must be used for all CTA line color representations — no substitutions.
 
-| Line | Hex |
-|---|---|
-| Red | `#c60c30` |
-| Blue | `#00a1de` |
-| Brown | `#62361b` |
-| Green | `#009b3a` |
-| Orange | `#f9461c` |
-| Purple | `#522398` |
-| Pink | `#e27ea6` |
-| Yellow | `#f9e300` |
+| Line      | Hex       |
+| --------- | --------- |
+| Red       | `#c60c30` |
+| Blue      | `#00a1de` |
+| Brown     | `#62361b` |
+| Green     | `#009b3a` |
+| Orange    | `#f9461c` |
+| Purple    | `#522398` |
+| Pink      | `#e27ea6` |
+| Yellow    | `#f9e300` |
 | Sign Grey | `#565a5c` |
 
 ### Attribution
 
 All pages or views that display CTA data must credit the source. Acceptable phrases:
+
 - "Data provided by Chicago Transit Authority"
 - "Data provided by CTA"
 - "Powered by CTA data"
@@ -246,15 +247,15 @@ Do not use words like "official", "authorized", or "in partnership with CTA".
 
 ### Logo and Icon Rules
 
-| Asset | Permitted use |
-|---|---|
-| CTA agency logos (circle, text) | **Prohibited** |
-| CTA Bus Tracker icon | Only alongside Bus Tracker API data. Black/white/grey only. Must carry trademark notice. |
-| CTA Train Tracker icon | Only alongside Train Tracker API data. Black/white/grey only. Must carry trademark notice. |
-| US DOT bus icon | Allowed. Keep black or white — do not colorize. |
-| CTA 'L' train icon | Allowed for L service info. May be colored to match official route colors. |
+| Asset                           | Permitted use                                                                              |
+| ------------------------------- | ------------------------------------------------------------------------------------------ |
+| CTA agency logos (circle, text) | **Prohibited**                                                                             |
+| CTA Bus Tracker icon            | Only alongside Bus Tracker API data. Black/white/grey only. Must carry trademark notice.   |
+| CTA Train Tracker icon          | Only alongside Train Tracker API data. Black/white/grey only. Must carry trademark notice. |
+| US DOT bus icon                 | Allowed. Keep black or white — do not colorize.                                            |
+| CTA 'L' train icon              | Allowed for L service info. May be colored to match official route colors.                 |
 
-When using the Bus Tracker or Train Tracker icons, include the notice: *"CTA Bus/Train Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."*
+When using the Bus Tracker or Train Tracker icons, include the notice: _"CTA Bus/Train Tracker (SM) logo icon is a trademark of the Chicago Transit Authority."_
 
 ### Project Naming
 

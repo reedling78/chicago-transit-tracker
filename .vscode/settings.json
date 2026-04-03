@@ -1,6 +1,9 @@
 {
-    "cSpell.words": [
-        "headsign",
-        "metra"
-    ]
+  "cSpell.words": ["headsign", "metra"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.useFlatConfig": true
 }

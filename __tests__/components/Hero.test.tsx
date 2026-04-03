@@ -5,7 +5,7 @@ describe('Hero', () => {
   it('renders the main heading', () => {
     render(<Hero />)
     expect(
-      screen.getByRole('heading', { level: 1, name: /chicago transit tracker/i })
+      screen.getByRole('heading', { level: 1, name: /chicago transit tracker/i }),
     ).toBeInTheDocument()
   })
 

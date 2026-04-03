@@ -64,13 +64,13 @@ export default function StationTimetable({ slug }: { slug: string }) {
   return (
     <div className="mt-8">
       {/* Header + filters */}
-      <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
           Timetable
         </h2>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Direction filter */}
-          <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden text-xs font-medium">
+          <div className="flex overflow-hidden rounded-lg border border-gray-200 text-xs font-medium dark:border-gray-700">
             {(Object.keys(DIR_LABELS) as Direction[]).map((dir) => (
               <button
                 key={dir}
@@ -87,7 +87,7 @@ export default function StationTimetable({ slug }: { slug: string }) {
           </div>
 
           {/* Day selector */}
-          <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden text-xs font-medium">
+          <div className="flex overflow-hidden rounded-lg border border-gray-200 text-xs font-medium dark:border-gray-700">
             {(Object.keys(TAB_LABELS) as ServiceType[]).map((type) => (
               <button
                 key={type}
@@ -106,33 +106,35 @@ export default function StationTimetable({ slug }: { slug: string }) {
       </div>
 
       {trips.length === 0 ? (
-        <p className="text-sm text-gray-400 dark:text-gray-500">No {TAB_LABELS[serviceType].toLowerCase()} service at this station.</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500">
+          No {TAB_LABELS[serviceType].toLowerCase()} service at this station.
+        </p>
       ) : (
-        <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+        <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
           <div className="divide-y divide-gray-50 dark:divide-gray-800">
             {trips.map((trip) => (
               <Link
                 key={`${trip.tripId}-${trip.departure}`}
                 href={`/metra/${trip.lineSlug}/train/${trip.tripId}`}
-                className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                className="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 {/* Departure time */}
-                <span className="w-20 shrink-0 text-sm font-semibold tabular-nums text-gray-900 dark:text-white">
+                <span className="w-20 shrink-0 text-sm font-semibold text-gray-900 tabular-nums dark:text-white">
                   {trip.departure}
                 </span>
 
                 {/* Destination */}
-                <span className="flex-1 text-sm text-gray-600 dark:text-gray-400 truncate">
+                <span className="flex-1 truncate text-sm text-gray-600 dark:text-gray-400">
                   To {trip.headsign}
                 </span>
 
                 {/* Train number */}
-                <span className="shrink-0 text-xs font-medium text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                <span className="shrink-0 text-xs font-medium text-gray-400 transition-colors group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300">
                   Train {trip.trainNumber}
                 </span>
 
                 {/* Arrow */}
-                <span className="shrink-0 text-gray-300 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors">
+                <span className="shrink-0 text-gray-300 transition-colors group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400">
                   →
                 </span>
               </Link>

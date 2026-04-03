@@ -38,21 +38,36 @@ No changes to `next.config.ts` — `next-mdx-remote` is a library, not a build p
    - `BUILD_TIME = new Date()` at module scope (consistent timestamp across one build)
 
    Types:
+
    ```ts
    interface ArticleFrontmatter {
-     title, description, date, author, authorImage
-     image, ogImage, twitterImage, slug, category
-     tags: string[], featuredPost: boolean, draft: boolean
-     publishAt: string, imageVersion: number, references: {label, url}[]
+     title
+     description
+     date
+     author
+     authorImage
+     image
+     ogImage
+     twitterImage
+     slug
+     category
+     tags: string[]
+     featuredPost: boolean
+     draft: boolean
+     publishAt: string
+     imageVersion: number
+     references: { label; url }[]
    }
    type ArticleListItem = Omit<ArticleFrontmatter & { content?: never }, 'content'>
-   interface Article extends ArticleFrontmatter { content: string }
+   interface Article extends ArticleFrontmatter {
+     content: string
+   }
    ```
 
 4. **Add typography plugin to `app/globals.css`:**
    ```css
-   @import "tailwindcss";
-   @plugin "@tailwindcss/typography";
+   @import 'tailwindcss';
+   @plugin '@tailwindcss/typography';
    ```
    (Insert after the `@import` line, before the `@custom-variant` rule)
 
@@ -69,13 +84,14 @@ No changes to `next.config.ts` — `next-mdx-remote` is a library, not a build p
    - `generateMetadata` → article-specific `title`, `description`, `ogImage`, `twitterImage`, `type: 'article'`
    - Renders: `Breadcrumb` → `PageHeader` → hero img with `?v={imageVersion}` → MDX body
    - MDX body:
+
      ```tsx
      import { compileMDX } from 'next-mdx-remote/rsc'
      import rehypeRaw from 'rehype-raw'
 
      const { content } = await compileMDX({
        source: article.content,
-       options: { parseFrontmatter: false, mdxOptions: { rehypePlugins: [rehypeRaw] } }
+       options: { parseFrontmatter: false, mdxOptions: { rehypePlugins: [rehypeRaw] } },
      })
      // Wrap in: <div className="prose dark:prose-invert max-w-none mt-8">{content}</div>
      ```
@@ -83,6 +99,7 @@ No changes to `next.config.ts` — `next-mdx-remote` is a library, not a build p
 ### Phase 3 — Integration
 
 7. **Update `app/components/Navbar.tsx`** — add to `navLinks`:
+
    ```ts
    { href: '/articles', label: 'Articles' }
    ```
@@ -116,15 +133,15 @@ No changes to `next.config.ts` — `next-mdx-remote` is a library, not a build p
 
 ## Critical Files
 
-| File | Status | Note |
-|------|--------|------|
-| `app/lib/articles.ts` | New | Central data layer — everything depends on this |
-| `app/articles/page.tsx` | New | List page |
-| `app/articles/[slug]/page.tsx` | New | Detail page with generateStaticParams |
-| `app/globals.css` | Modify | Add `@plugin "@tailwindcss/typography"` |
-| `app/components/Navbar.tsx` | Modify | Add Articles nav link |
-| `app/sitemap.ts` | Modify | Add /articles routes (STANDING RULE) |
-| `.claude/skills/article-writer/SKILL.md` | New | Local skill file |
+| File                                     | Status | Note                                            |
+| ---------------------------------------- | ------ | ----------------------------------------------- |
+| `app/lib/articles.ts`                    | New    | Central data layer — everything depends on this |
+| `app/articles/page.tsx`                  | New    | List page                                       |
+| `app/articles/[slug]/page.tsx`           | New    | Detail page with generateStaticParams           |
+| `app/globals.css`                        | Modify | Add `@plugin "@tailwindcss/typography"`         |
+| `app/components/Navbar.tsx`              | Modify | Add Articles nav link                           |
+| `app/sitemap.ts`                         | Modify | Add /articles routes (STANDING RULE)            |
+| `.claude/skills/article-writer/SKILL.md` | New    | Local skill file                                |
 
 ---
 

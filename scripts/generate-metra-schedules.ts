@@ -49,15 +49,17 @@ function initFirebase(): admin.firestore.Firestore {
 
 function downloadBuffer(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
-        return downloadBuffer(res.headers.location).then(resolve).catch(reject)
-      }
-      const chunks: Buffer[] = []
-      res.on('data', (c: Buffer) => chunks.push(c))
-      res.on('end', () => resolve(Buffer.concat(chunks)))
-      res.on('error', reject)
-    }).on('error', reject)
+    https
+      .get(url, (res) => {
+        if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+          return downloadBuffer(res.headers.location).then(resolve).catch(reject)
+        }
+        const chunks: Buffer[] = []
+        res.on('data', (c: Buffer) => chunks.push(c))
+        res.on('end', () => resolve(Buffer.concat(chunks)))
+        res.on('error', reject)
+      })
+      .on('error', reject)
   })
 }
 
@@ -212,7 +214,10 @@ async function main(): Promise<void> {
 
   for (const [stopId, byDir] of schedule) {
     const slug = stopIdToSlug.get(stopId)
-    if (!slug) { missing++; continue }
+    if (!slug) {
+      missing++
+      continue
+    }
 
     const directions: DirectionSchedule[] = []
     for (const [dirKey, bySvc] of byDir) {
@@ -222,9 +227,9 @@ async function main(): Promise<void> {
       directions.push({
         headsign,
         line,
-        weekday:  [...(bySvc.get('weekday')  ?? [])].sort((a, b) => a - b),
+        weekday: [...(bySvc.get('weekday') ?? [])].sort((a, b) => a - b),
         saturday: [...(bySvc.get('saturday') ?? [])].sort((a, b) => a - b),
-        sunday:   [...(bySvc.get('sunday')   ?? [])].sort((a, b) => a - b),
+        sunday: [...(bySvc.get('sunday') ?? [])].sort((a, b) => a - b),
       })
     }
 

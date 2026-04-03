@@ -30,7 +30,10 @@ export default async function CTAPage() {
 
   return (
     <main>
-      <PageHeader title="CTA Lines" description="8 colour-coded rapid transit lines serving Chicago and the inner suburbs." />
+      <PageHeader
+        title="CTA Lines"
+        description="8 colour-coded rapid transit lines serving Chicago and the inner suburbs."
+      />
       <div className="flex flex-col gap-3">
         {lines.map((line) => (
           <LinkCard

@@ -18,7 +18,9 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
           return (
             <li key={index} className="flex items-center gap-1">
               {index > 0 && (
-                <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">›</span>
+                <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">
+                  ›
+                </span>
               )}
               {isLast || !item.href ? (
                 <span className="font-medium text-gray-900 dark:text-white" aria-current="page">
@@ -27,7 +29,7 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
               ) : (
                 <Link
                   href={item.href}
-                  className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="transition-colors hover:text-gray-900 dark:hover:text-white"
                 >
                   {item.label}
                 </Link>

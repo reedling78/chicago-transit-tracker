@@ -5,7 +5,7 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const STYLE_LIGHT = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
-const STYLE_DARK  = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+const STYLE_DARK = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
 interface StationMapProps {
   latitude: number
@@ -14,7 +14,12 @@ interface StationMapProps {
   markerColor?: string
 }
 
-export default function StationMap({ latitude, longitude, name, markerColor = '#C60C30' }: StationMapProps) {
+export default function StationMap({
+  latitude,
+  longitude,
+  name,
+  markerColor = '#C60C30',
+}: StationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
@@ -35,8 +40,9 @@ export default function StationMap({ latitude, longitude, name, markerColor = '#
     new maplibregl.Marker({ color: markerColor })
       .setLngLat([longitude, latitude])
       .setPopup(
-        new maplibregl.Popup({ offset: 25, closeButton: false })
-          .setHTML(`<span style="font-size:13px;font-weight:600;">${name}</span>`)
+        new maplibregl.Popup({ offset: 25, closeButton: false }).setHTML(
+          `<span style="font-size:13px;font-weight:600;">${name}</span>`,
+        ),
       )
       .addTo(map)
 
@@ -56,7 +62,7 @@ export default function StationMap({ latitude, longitude, name, markerColor = '#
   }, [latitude, longitude, name, markerColor])
 
   return (
-    <div className="mb-8 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+    <div className="mb-8 overflow-hidden rounded-xl border border-gray-200 shadow-sm dark:border-gray-700">
       <div ref={containerRef} style={{ height: 340 }} />
     </div>
   )
