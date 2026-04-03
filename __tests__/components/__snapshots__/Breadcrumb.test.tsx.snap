@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Breadcrumb matches snapshot 1`] = `
+<div>
+  <nav
+    aria-label="Breadcrumb"
+    class="mb-6"
+  >
+    <ol
+      class="flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
+    >
+      <li
+        class="flex items-center gap-1"
+      >
+        <a
+          class="hover:text-gray-900 dark:hover:text-white transition-colors"
+          href="/cta"
+        >
+          CTA Lines
+        </a>
+      </li>
+      <li
+        class="flex items-center gap-1"
+      >
+        <span
+          aria-hidden="true"
+          class="text-gray-300 dark:text-gray-600"
+        >
+          ›
+        </span>
+        <a
+          class="hover:text-gray-900 dark:hover:text-white transition-colors"
+          href="/cta/red"
+        >
+          Red Line
+        </a>
+      </li>
+      <li
+        class="flex items-center gap-1"
+      >
+        <span
+          aria-hidden="true"
+          class="text-gray-300 dark:text-gray-600"
+        >
+          ›
+        </span>
+        <span
+          aria-current="page"
+          class="font-medium text-gray-900 dark:text-white"
+        >
+          Clark/Lake
+        </span>
+      </li>
+    </ol>
+  </nav>
+</div>
+`;

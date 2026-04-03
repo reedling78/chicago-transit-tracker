@@ -1,0 +1,27 @@
+{
+  "plansDirectory": "docs/superpowers/plans",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\", \"additionalContext\": \"REMINDER: A plan was just approved. You MUST save two documents to the repo before starting implementation:\\n1. Plan: docs/superpowers/plans/YYYY-MM-DD-<topic>.md\\n2. Spec: docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md\\nDo not begin any implementation work until both files are written.\"}}'",
+            "statusMessage": "Reminding to save plan docs..."
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | grep -qvE '(__tests__|\\.test\\.|\\.spec\\.|jest\\.config|node_modules|docs/|\\.md$|\\.json$|\\.css$)' && echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\", \"additionalContext\": \"REMINDER: A source file was just modified. You MUST write or update the corresponding unit test in __tests__/ before moving on to other work. Follow existing test patterns (Jest + React Testing Library). If a test file already exists for this component/module, update it to cover the changes. If no test file exists, create one.\"}}' || true",
+            "statusMessage": "Checking if tests needed..."
+          }
+        ]
+      }
+    ]
+  }
+}

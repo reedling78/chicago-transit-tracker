@@ -1,0 +1,243 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Hero matches snapshot 1`] = `
+<div>
+  <section
+    class="relative -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden bg-gray-50 px-4 py-20 sm:px-6 lg:px-8 dark:bg-gray-950"
+  >
+    <div
+      class="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.03]"
+      style="background-image: linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px); background-size: 40px 40px;"
+    />
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.08),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.15),transparent)]"
+    />
+    <div
+      class="relative mx-auto max-w-7xl"
+    >
+      <div
+        class="mb-14 text-center"
+      >
+        <h1
+          class="mb-4 text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl dark:text-white"
+        >
+          Chicago Transit Tracker
+        </h1>
+        <p
+          class="mx-auto max-w-xl text-lg text-gray-500 dark:text-white/50"
+        >
+          Real-time schedules, routes, and station info for every line in the Chicago metro area.
+        </p>
+      </div>
+      <div
+        class="grid grid-cols-1 gap-6 sm:grid-cols-2"
+      >
+        <a
+          class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition duration-300 hover:border-gray-300 hover:shadow-lg hover:scale-[1.02] dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-sm dark:hover:bg-white/10 dark:hover:shadow-2xl"
+          href="/cta"
+        >
+          <div
+            class="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full opacity-10 blur-3xl transition duration-300 group-hover:opacity-25 dark:opacity-20 dark:group-hover:opacity-40"
+            style="background-color: rgb(198, 12, 48);"
+          />
+          <div>
+            <p
+              class="mb-2 text-sm font-semibold uppercase tracking-widest text-gray-400 dark:text-white/50"
+            >
+              Chicago
+            </p>
+            <h2
+              class="mb-3 text-4xl font-bold text-gray-900 dark:text-white"
+            >
+              CTA
+            </h2>
+            <p
+              class="text-base text-gray-500 dark:text-white/60"
+            >
+              8 color-coded rapid transit lines serving Chicago, with 24-hour service on the Red and Blue lines.
+            </p>
+          </div>
+          <div
+            class="mt-8 flex flex-col gap-4"
+          >
+            <div
+              class="flex flex-wrap gap-2"
+            >
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(198, 12, 48);"
+              >
+                Red
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(0, 161, 222);"
+              >
+                Blue
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(0, 155, 58);"
+              >
+                Green
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(98, 54, 27);"
+              >
+                Brown
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(82, 35, 152);"
+              >
+                Purple
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(226, 126, 166);"
+              >
+                Pink
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(249, 70, 28);"
+              >
+                Orange
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(249, 227, 0);"
+              >
+                Yellow
+              </span>
+            </div>
+            <div
+              class="flex items-center gap-2 text-sm font-medium text-gray-400 transition group-hover:text-gray-900 dark:text-white/70 dark:group-hover:text-white"
+            >
+              Explore 
+              CTA
+              <span
+                class="transition-transform group-hover:translate-x-1"
+              >
+                →
+              </span>
+            </div>
+          </div>
+        </a>
+        <a
+          class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition duration-300 hover:border-gray-300 hover:shadow-lg hover:scale-[1.02] dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-sm dark:hover:bg-white/10 dark:hover:shadow-2xl"
+          href="/metra"
+        >
+          <div
+            class="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full opacity-10 blur-3xl transition duration-300 group-hover:opacity-25 dark:opacity-20 dark:group-hover:opacity-40"
+            style="background-color: rgb(26, 61, 122);"
+          />
+          <div>
+            <p
+              class="mb-2 text-sm font-semibold uppercase tracking-widest text-gray-400 dark:text-white/50"
+            >
+              Chicago
+            </p>
+            <h2
+              class="mb-3 text-4xl font-bold text-gray-900 dark:text-white"
+            >
+              Metra
+            </h2>
+            <p
+              class="text-base text-gray-500 dark:text-white/60"
+            >
+              11 commuter rail lines connecting Chicago to the suburbs across 6 counties and 243 stations.
+            </p>
+          </div>
+          <div
+            class="mt-8 flex flex-col gap-4"
+          >
+            <div
+              class="flex flex-wrap gap-2"
+            >
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(26, 61, 122);"
+              >
+                BNSF
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(0, 123, 64);"
+              >
+                UP-N
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(0, 123, 64);"
+              >
+                UP-NW
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(0, 123, 64);"
+              >
+                UP-W
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(200, 135, 42);"
+              >
+                MD-N
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(200, 135, 42);"
+              >
+                MD-W
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(190, 0, 0);"
+              >
+                RI
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(0, 61, 165);"
+              >
+                ME
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(139, 69, 19);"
+              >
+                NCS
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(123, 63, 151);"
+              >
+                SWS
+              </span>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                style="background-color: rgb(74, 119, 41);"
+              >
+                HC
+              </span>
+            </div>
+            <div
+              class="flex items-center gap-2 text-sm font-medium text-gray-400 transition group-hover:text-gray-900 dark:text-white/70 dark:group-hover:text-white"
+            >
+              Explore 
+              Metra
+              <span
+                class="transition-transform group-hover:translate-x-1"
+              >
+                →
+              </span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+`;
