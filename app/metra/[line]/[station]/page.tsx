@@ -103,17 +103,21 @@ export default async function MetraStationPage({ params }: Props) {
 
 
       <div className="flex gap-4 items-start">
-        <div className="w-2/3"><StationMap
-          latitude={station.location.latitude}
-          longitude={station.location.longitude}
-          name={station.name}
-          markerColor={line?.color}
-        />
-         <StationDetail station={station} /></div>
-        <div className="w-1/3"><Arrivals slug={stationSlug} service="metra" hasSchedule={!!station.metraStopId} /></div>
+        <div className="w-2/3">
+          <StationMap
+            latitude={station.location.latitude}
+            longitude={station.location.longitude}
+            name={station.name}
+            markerColor={line?.color}
+          />
+          <StationDetail station={station} />
+        </div>
+        <div className="w-1/3">
+          <Arrivals slug={stationSlug} service="metra" hasSchedule={!!station.metraStopId} />
+        </div>
       </div>
       <StationTimetable slug={stationSlug} />
-     
+
     </main>
   )
 }
