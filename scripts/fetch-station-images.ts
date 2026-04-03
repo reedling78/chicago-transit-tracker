@@ -24,7 +24,7 @@ import * as http from 'http'
 import * as path from 'path'
 import * as fs from 'fs'
 
-const PROJECT_ID  = 'chicago-transit-tracker'
+const PROJECT_ID = 'chicago-transit-tracker'
 const BUCKET_NAME = `${PROJECT_ID}.firebasestorage.app`
 
 // ---------------------------------------------------------------------------
@@ -63,33 +63,48 @@ function sleep(ms: number): Promise<void> {
 function downloadBuffer(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const lib = url.startsWith('https') ? https : http
-    lib.get(url, { headers: { 'User-Agent': 'ChicagoTransitTracker/1.0 (educational project)' } }, (res) => {
-      if (res.statusCode === 301 || res.statusCode === 302 && res.headers.location) {
-        return downloadBuffer(res.headers.location!).then(resolve).catch(reject)
-      }
-      if (res.statusCode !== 200) {
-        res.resume()
-        return reject(new Error(`HTTP ${res.statusCode} for ${url}`))
-      }
-      const chunks: Buffer[] = []
-      res.on('data', (c: Buffer) => chunks.push(c))
-      res.on('end', () => resolve(Buffer.concat(chunks)))
-      res.on('error', reject)
-    }).on('error', reject)
+    lib
+      .get(
+        url,
+        { headers: { 'User-Agent': 'ChicagoTransitTracker/1.0 (educational project)' } },
+        (res) => {
+          if (res.statusCode === 301 || (res.statusCode === 302 && res.headers.location)) {
+            return downloadBuffer(res.headers.location!).then(resolve).catch(reject)
+          }
+          if (res.statusCode !== 200) {
+            res.resume()
+            return reject(new Error(`HTTP ${res.statusCode} for ${url}`))
+          }
+          const chunks: Buffer[] = []
+          res.on('data', (c: Buffer) => chunks.push(c))
+          res.on('end', () => resolve(Buffer.concat(chunks)))
+          res.on('error', reject)
+        },
+      )
+      .on('error', reject)
   })
 }
 
 function fetchJson(url: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'ChicagoTransitTracker/1.0 (educational project)' } }, (res) => {
-      const chunks: Buffer[] = []
-      res.on('data', (c: Buffer) => chunks.push(c))
-      res.on('end', () => {
-        try { resolve(JSON.parse(Buffer.concat(chunks).toString())) }
-        catch (e) { reject(e) }
-      })
-      res.on('error', reject)
-    }).on('error', reject)
+    https
+      .get(
+        url,
+        { headers: { 'User-Agent': 'ChicagoTransitTracker/1.0 (educational project)' } },
+        (res) => {
+          const chunks: Buffer[] = []
+          res.on('data', (c: Buffer) => chunks.push(c))
+          res.on('end', () => {
+            try {
+              resolve(JSON.parse(Buffer.concat(chunks).toString()))
+            } catch (e) {
+              reject(e)
+            }
+          })
+          res.on('error', reject)
+        },
+      )
+      .on('error', reject)
   })
 }
 
@@ -176,20 +191,22 @@ async function main(): Promise<void> {
   const { db, bucket } = initFirebase()
 
   const snap = await db.collection('stations').get()
-  const stations = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown> & { id: string }))
+  const stations = snap.docs.map(
+    (d) => ({ id: d.id, ...d.data() }) as Record<string, unknown> & { id: string },
+  )
 
-  const total     = stations.length
-  let found       = 0
-  let notFound    = 0
-  let skipped     = 0
-  let errors      = 0
+  const total = stations.length
+  let found = 0
+  let notFound = 0
+  let skipped = 0
+  let errors = 0
 
   console.log(`Processing ${total} stations...\n`)
 
   for (let i = 0; i < stations.length; i++) {
     const station = stations[i]
-    const slug    = station.id
-    const name    = station.name as string
+    const slug = station.id
+    const name = station.name as string
     const service = station.service as string
 
     process.stdout.write(`[${i + 1}/${total}] ${name} (${slug}) ... `)
@@ -215,11 +232,16 @@ async function main(): Promise<void> {
 
       // Download the image
       const imageBuffer = await downloadBuffer(result.imageUrl)
-      const contentType = result.imageUrl.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'
+      const contentType = result.imageUrl.toLowerCase().endsWith('.png')
+        ? 'image/png'
+        : 'image/jpeg'
 
       // Upload to Storage and update Firestore
       const downloadUrl = await uploadImage(bucket, slug, imageBuffer, contentType)
-      await db.collection('stations').doc(slug).update({ photoUrl: downloadUrl, wikipediaUrl: result.articleUrl })
+      await db
+        .collection('stations')
+        .doc(slug)
+        .update({ photoUrl: downloadUrl, wikipediaUrl: result.articleUrl })
 
       console.log(`✓ ${result.imageUrl.slice(0, 60)}...`)
       found++

@@ -3,7 +3,7 @@
 exports[`StationMap matches snapshot 1`] = `
 <div>
   <div
-    class="mb-8 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"
+    class="mb-8 overflow-hidden rounded-xl border border-gray-200 shadow-sm dark:border-gray-700"
   >
     <div
       style="height: 340px;"

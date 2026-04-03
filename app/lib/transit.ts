@@ -64,9 +64,7 @@ function toStation(id: string, d: DocumentData): Station {
 export async function getLinesForService(service: 'cta' | 'metra'): Promise<Line[]> {
   const db = getFirestore()
   const snap = await db.collection('lines').where('service', '==', service).get()
-  return snap.docs
-    .map((d) => toLine(d.id, d.data()))
-    .sort((a, b) => a.name.localeCompare(b.name))
+  return snap.docs.map((d) => toLine(d.id, d.data())).sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export async function getLine(slug: string): Promise<Line | null> {
@@ -78,10 +76,7 @@ export async function getLine(slug: string): Promise<Line | null> {
 
 export async function getStationsForLine(lineShortName: string): Promise<Station[]> {
   const db = getFirestore()
-  const snap = await db
-    .collection('stations')
-    .where('lines', 'array-contains', lineShortName)
-    .get()
+  const snap = await db.collection('stations').where('lines', 'array-contains', lineShortName).get()
   return snap.docs
     .map((d) => toStation(d.id, d.data()))
     .sort((a, b) => (a.lineOrder[lineShortName] ?? 9999) - (b.lineOrder[lineShortName] ?? 9999))

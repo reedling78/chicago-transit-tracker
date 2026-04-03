@@ -24,35 +24,35 @@ The Chicago Transit Tracker codebase had 2 test files covering only the Navbar a
 
 ### Components (16 total)
 
-| Component | Type | Key Test Concerns |
-|-----------|------|-------------------|
-| `Navbar` | Server | Site name link, CTA/Metra nav links |
-| `MobileMenuToggle` | Client | Toggle open/close, aria state |
-| `ThemeToggle` | Client | Button renders after mount, toggles aria-label, persists to localStorage |
-| `Hero` | Server | H1 heading, CTA/Metra service links |
-| `PageHeader` | Server | `title` as H1, optional `description`, optional `badges`, optional `children` |
-| `Breadcrumb` | Server | All labels render, last item has `aria-current="page"`, intermediate items are links |
-| `LinkCard` | Server | Title, subtitle, meta, badge, href |
-| `Footer` | Server | Site name, Terms of Use and Privacy links |
-| `CTALineIcon` | Server | aria-label, background color, null for unknown line |
-| `LineDetail` | Server | Heading, station count, route miles, termini, overnight badge, schedule section |
-| `StationDetail` | Server | Address, municipality, ADA badge, elevator/escalator rows |
-| `StationList` | Server | Station count, station links, ADA icons, transfer chips |
-| `Arrivals` | Client | Empty when `hasSchedule: false`, header visible while loading, arrival rows after fetch resolves, error state |
-| `StationTimetable` | Client | Header renders, fetch resolves to timetable data |
-| `StationMap` | Client | Renders map container, MapLibre constructor called with correct lat/lng |
-| `Analytics` | Client | Renders without throwing |
+| Component          | Type   | Key Test Concerns                                                                                             |
+| ------------------ | ------ | ------------------------------------------------------------------------------------------------------------- |
+| `Navbar`           | Server | Site name link, CTA/Metra nav links                                                                           |
+| `MobileMenuToggle` | Client | Toggle open/close, aria state                                                                                 |
+| `ThemeToggle`      | Client | Button renders after mount, toggles aria-label, persists to localStorage                                      |
+| `Hero`             | Server | H1 heading, CTA/Metra service links                                                                           |
+| `PageHeader`       | Server | `title` as H1, optional `description`, optional `badges`, optional `children`                                 |
+| `Breadcrumb`       | Server | All labels render, last item has `aria-current="page"`, intermediate items are links                          |
+| `LinkCard`         | Server | Title, subtitle, meta, badge, href                                                                            |
+| `Footer`           | Server | Site name, Terms of Use and Privacy links                                                                     |
+| `CTALineIcon`      | Server | aria-label, background color, null for unknown line                                                           |
+| `LineDetail`       | Server | Heading, station count, route miles, termini, overnight badge, schedule section                               |
+| `StationDetail`    | Server | Address, municipality, ADA badge, elevator/escalator rows                                                     |
+| `StationList`      | Server | Station count, station links, ADA icons, transfer chips                                                       |
+| `Arrivals`         | Client | Empty when `hasSchedule: false`, header visible while loading, arrival rows after fetch resolves, error state |
+| `StationTimetable` | Client | Header renders, fetch resolves to timetable data                                                              |
+| `StationMap`       | Client | Renders map container, MapLibre constructor called with correct lat/lng                                       |
+| `Analytics`        | Client | Renders without throwing                                                                                      |
 
 ### Pages (7 total)
 
-| Page | Route | Key Test Concerns |
-|------|-------|-------------------|
-| Home | `/` | H1 heading, service cards render |
-| CTA Lines | `/cta` | "CTA Lines" heading, line card renders |
-| Metra Lines | `/metra` | "Metra Lines" heading, line card renders |
-| CTA Line | `/cta/[line]` | Line name heading, breadcrumb, station list |
-| Metra Line | `/metra/[line]` | Line name heading, breadcrumb, station list |
-| CTA Station | `/cta/[line]/[station]` | Station name heading, breadcrumb, address, "Station not found" fallback |
+| Page          | Route                     | Key Test Concerns                                                              |
+| ------------- | ------------------------- | ------------------------------------------------------------------------------ |
+| Home          | `/`                       | H1 heading, service cards render                                               |
+| CTA Lines     | `/cta`                    | "CTA Lines" heading, line card renders                                         |
+| Metra Lines   | `/metra`                  | "Metra Lines" heading, line card renders                                       |
+| CTA Line      | `/cta/[line]`             | Line name heading, breadcrumb, station list                                    |
+| Metra Line    | `/metra/[line]`           | Line name heading, breadcrumb, station list                                    |
+| CTA Station   | `/cta/[line]/[station]`   | Station name heading, breadcrumb, address, "Station not found" fallback        |
 | Metra Station | `/metra/[line]/[station]` | Station name heading, breadcrumb, Terminal badge, "Station not found" fallback |
 
 ---
@@ -62,6 +62,7 @@ The Chicago Transit Tracker codebase had 2 test files covering only the Navbar a
 ### Shared fixture data
 
 All tests share mock objects from `__tests__/fixtures.ts`. The objects fully satisfy the `Line` and `Station` TypeScript interfaces so tests don't need to cast or use partial types. Two variants of each:
+
 - `mockLine` / `mockStation` — CTA (Red Line / Clark/Lake)
 - `mockMetraLine` / `mockMetraStation` — Metra (BNSF Railway / Aurora)
 
@@ -98,8 +99,16 @@ jest.mock('../../app/components/Arrivals', () => () => null)
 
 ```ts
 jest.useFakeTimers({
-  doNotFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-              'setImmediate', 'clearImmediate', 'nextTick', 'queueMicrotask'],
+  doNotFake: [
+    'setTimeout',
+    'clearTimeout',
+    'setInterval',
+    'clearInterval',
+    'setImmediate',
+    'clearImmediate',
+    'nextTick',
+    'queueMicrotask',
+  ],
   now: new Date('2024-01-15T07:00:00.000Z'),
 })
 ```
@@ -112,11 +121,11 @@ jest.useFakeTimers({
 
 ## npm Scripts
 
-| Script | Command | Purpose |
-|--------|---------|---------|
-| `test` | `jest` | Run all tests |
-| `test:watch` | `jest --watch` | Watch mode during development |
-| `test:coverage` | `jest --coverage` | Generate coverage report in `coverage/` |
+| Script           | Command                 | Purpose                                       |
+| ---------------- | ----------------------- | --------------------------------------------- |
+| `test`           | `jest`                  | Run all tests                                 |
+| `test:watch`     | `jest --watch`          | Watch mode during development                 |
+| `test:coverage`  | `jest --coverage`       | Generate coverage report in `coverage/`       |
 | `test:snapshots` | `jest --updateSnapshot` | Update snapshots after intentional UI changes |
 
 ---

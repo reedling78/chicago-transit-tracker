@@ -6,7 +6,7 @@ describe('Home page', () => {
     const ui = HomePage()
     render(ui)
     expect(
-      screen.getByRole('heading', { level: 1, name: /chicago transit tracker/i })
+      screen.getByRole('heading', { level: 1, name: /chicago transit tracker/i }),
     ).toBeInTheDocument()
   })
 

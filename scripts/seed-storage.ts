@@ -24,10 +24,13 @@ import * as fs from 'fs'
 // Firebase init
 // ---------------------------------------------------------------------------
 
-const PROJECT_ID  = 'chicago-transit-tracker'
+const PROJECT_ID = 'chicago-transit-tracker'
 const BUCKET_NAME = `${PROJECT_ID}.firebasestorage.app`
 
-function initFirebase(): { db: admin.firestore.Firestore; bucket: ReturnType<admin.storage.Storage['bucket']> } {
+function initFirebase(): {
+  db: admin.firestore.Firestore
+  bucket: ReturnType<admin.storage.Storage['bucket']>
+} {
   const saPath = path.join(__dirname, '..', 'service-account.json')
   if (fs.existsSync(saPath)) {
     const serviceAccount = require(saPath)

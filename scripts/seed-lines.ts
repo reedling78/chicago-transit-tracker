@@ -322,7 +322,7 @@ const LINES: Record<string, LineData> = {
     lastTrainApprox: null,
     type: 'commuter_rail',
     description:
-      "Runs from Ogilvie Transportation Center north along Lake Michigan through Evanston, Wilmette, Waukegan, and Winthrop Harbor, ending in Kenosha, Wisconsin.",
+      'Runs from Ogilvie Transportation Center north along Lake Michigan through Evanston, Wilmette, Waukegan, and Winthrop Harbor, ending in Kenosha, Wisconsin.',
     ctaRouteId: null,
     metraLineCode: 'UP-N',
     downtownTerminal: 'Ogilvie Transportation Center',
@@ -530,7 +530,7 @@ const LINES: Record<string, LineData> = {
     lastTrainApprox: null,
     type: 'commuter_rail',
     description:
-      'Chicago\'s only electrified commuter rail line, running from Millennium Station south through Hyde Park and the South Shore with three terminal branches. Operates on Metra-owned track.',
+      "Chicago's only electrified commuter rail line, running from Millennium Station south through Hyde Park and the South Shore with three terminal branches. Operates on Metra-owned track.",
     ctaRouteId: null,
     metraLineCode: 'ME',
     downtownTerminal: 'Millennium Station',
@@ -556,7 +556,7 @@ const LINES: Record<string, LineData> = {
     lastTrainApprox: null,
     type: 'commuter_rail',
     description:
-      'Runs north from Union Station through O\'Hare, Des Plaines, and Grayslake before ending in Antioch near the Wisconsin border. Passes through O\'Hare Airport area.',
+      "Runs north from Union Station through O'Hare, Des Plaines, and Grayslake before ending in Antioch near the Wisconsin border. Passes through O'Hare Airport area.",
     ctaRouteId: null,
     metraLineCode: 'NCS',
     downtownTerminal: 'Union Station',

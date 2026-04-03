@@ -12,28 +12,29 @@
 
 ## File Map
 
-| Action | Path | Purpose |
-|--------|------|---------|
-| Create | `app/layout.tsx` | Root layout — metadataBase, title template, Navbar, main, footer |
-| Create | `app/page.tsx` | Home page placeholder + metadata |
-| Create | `app/about/page.tsx` | About Us placeholder + metadata |
-| Create | `app/search/page.tsx` | Search placeholder + metadata |
-| Create | `app/sitemap.ts` | Auto-generates /sitemap.xml |
-| Create | `app/robots.ts` | Auto-generates /robots.txt |
-| Create | `app/components/Navbar.tsx` | Server Component — nav structure + desktop links |
-| Create | `app/components/MobileMenuToggle.tsx` | Client Component — hamburger toggle island |
-| Create | `app/globals.css` | Tailwind directives only |
-| Create | `jest.config.ts` | Jest config using next/jest transformer |
-| Create | `jest.setup.ts` | jest-dom setup |
-| Create | `__tests__/components/MobileMenuToggle.test.tsx` | Toggle behavior tests |
-| Create | `__tests__/components/Navbar.test.tsx` | Navbar render tests |
-| Modify | `CLAUDE.md` | Add dev commands |
+| Action | Path                                             | Purpose                                                          |
+| ------ | ------------------------------------------------ | ---------------------------------------------------------------- |
+| Create | `app/layout.tsx`                                 | Root layout — metadataBase, title template, Navbar, main, footer |
+| Create | `app/page.tsx`                                   | Home page placeholder + metadata                                 |
+| Create | `app/about/page.tsx`                             | About Us placeholder + metadata                                  |
+| Create | `app/search/page.tsx`                            | Search placeholder + metadata                                    |
+| Create | `app/sitemap.ts`                                 | Auto-generates /sitemap.xml                                      |
+| Create | `app/robots.ts`                                  | Auto-generates /robots.txt                                       |
+| Create | `app/components/Navbar.tsx`                      | Server Component — nav structure + desktop links                 |
+| Create | `app/components/MobileMenuToggle.tsx`            | Client Component — hamburger toggle island                       |
+| Create | `app/globals.css`                                | Tailwind directives only                                         |
+| Create | `jest.config.ts`                                 | Jest config using next/jest transformer                          |
+| Create | `jest.setup.ts`                                  | jest-dom setup                                                   |
+| Create | `__tests__/components/MobileMenuToggle.test.tsx` | Toggle behavior tests                                            |
+| Create | `__tests__/components/Navbar.test.tsx`           | Navbar render tests                                              |
+| Modify | `CLAUDE.md`                                      | Add dev commands                                                 |
 
 ---
 
 ## Task 1: Initialize Next.js Project
 
 **Files:**
+
 - Create: `package.json`, `tsconfig.json`, `next.config.ts`, `tailwind.config.ts`, `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
 
 - [ ] **Step 1: Run create-next-app in the existing repo directory**
@@ -91,6 +92,7 @@ EOF
 ## Task 2: Install and Configure Jest
 
 **Files:**
+
 - Create: `jest.config.ts`
 - Create: `jest.setup.ts`
 - Modify: `package.json` (add test script)
@@ -159,6 +161,7 @@ EOF
 ## Task 3: Build MobileMenuToggle (TDD)
 
 **Files:**
+
 - Create: `app/components/MobileMenuToggle.tsx`
 - Create: `__tests__/components/MobileMenuToggle.test.tsx`
 
@@ -247,20 +250,20 @@ export default function MobileMenuToggle({ links }: Props) {
         aria-expanded={isOpen}
         className="p-2 text-gray-600 hover:text-gray-900"
       >
-        <span className="block w-6 h-0.5 bg-current mb-1.5" />
-        <span className="block w-6 h-0.5 bg-current mb-1.5" />
-        <span className="block w-6 h-0.5 bg-current" />
+        <span className="mb-1.5 block h-0.5 w-6 bg-current" />
+        <span className="mb-1.5 block h-0.5 w-6 bg-current" />
+        <span className="block h-0.5 w-6 bg-current" />
       </button>
 
       {isOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 px-4 py-2 z-10">
+        <div className="absolute top-16 right-0 left-0 z-10 border-b border-gray-200 bg-white px-4 py-2">
           <ul className="flex flex-col gap-2">
             {links.map(({ href, label }) => (
               <li key={href}>
                 <Link
                   href={href}
                   onClick={() => setIsOpen(false)}
-                  className="block py-2 text-gray-600 hover:text-gray-900 text-sm font-medium"
+                  className="block py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
                 >
                   {label}
                 </Link>
@@ -299,6 +302,7 @@ EOF
 ## Task 4: Build Navbar (TDD)
 
 **Files:**
+
 - Create: `app/components/Navbar.tsx`
 - Create: `__tests__/components/Navbar.test.tsx`
 
@@ -351,20 +355,17 @@ const navLinks = [
 
 export default function Navbar() {
   return (
-    <header className="bg-white border-b border-gray-200">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-lg text-gray-900">
+    <header className="border-b border-gray-200 bg-white">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="text-lg font-bold text-gray-900">
           Chicago Transit Tracker
         </Link>
 
         {/* Desktop links — hidden on mobile */}
-        <ul className="hidden md:flex items-center gap-6">
+        <ul className="hidden items-center gap-6 md:flex">
           {navLinks.map(({ href, label }) => (
             <li key={href}>
-              <Link
-                href={href}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-              >
+              <Link href={href} className="text-sm font-medium text-gray-600 hover:text-gray-900">
                 {label}
               </Link>
             </li>
@@ -412,6 +413,7 @@ EOF
 ## Task 5: Wire Root Layout and Clean Globals
 
 **Files:**
+
 - Modify: `app/layout.tsx`
 - Modify: `app/globals.css`
 
@@ -435,14 +437,10 @@ export const metadata: Metadata = {
   description: 'Track Chicago-area transit in real time.',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geist.className} bg-gray-50 min-h-screen`}>
+      <body className={`${geist.className} min-h-screen bg-gray-50`}>
         <Navbar />
         <main>{children}</main>
         <footer />
@@ -463,6 +461,7 @@ npm list tailwindcss
 ```
 
 **If Tailwind v3.x:**
+
 ```css
 /* app/globals.css */
 @tailwind base;
@@ -471,9 +470,10 @@ npm list tailwindcss
 ```
 
 **If Tailwind v4.x** (default with Next.js 15 as of early 2026):
+
 ```css
 /* app/globals.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 ```
 
 - [ ] **Step 3: Verify dev server still works**
@@ -501,6 +501,7 @@ EOF
 ## Task 6: Create Placeholder Pages with Metadata
 
 **Files:**
+
 - Modify: `app/page.tsx`
 - Create: `app/about/page.tsx`
 - Create: `app/search/page.tsx`
@@ -604,6 +605,7 @@ EOF
 ## Task 7: Add Sitemap and Robots
 
 **Files:**
+
 - Create: `app/sitemap.ts`
 - Create: `app/robots.ts`
 
@@ -685,6 +687,7 @@ EOF
 ## Task 8: Update CLAUDE.md
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 
 - [ ] **Step 1: Read the current CLAUDE.md**
@@ -732,6 +735,7 @@ EOF
 ## Done
 
 At this point the scaffold is complete:
+
 - Next.js 15, App Router, TypeScript, Tailwind CSS
 - Responsive navbar (server-rendered, mobile hamburger via client island)
 - Three placeholder pages with full SEO metadata

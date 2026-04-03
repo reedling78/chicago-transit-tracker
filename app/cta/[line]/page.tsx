@@ -38,7 +38,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CTALinePage({ params }: Props) {
   const { line: slug } = await params
   const line = await getLine(slug)
-  if (!line) return <main><p>Line not found.</p></main>
+  if (!line)
+    return (
+      <main>
+        <p>Line not found.</p>
+      </main>
+    )
 
   const stationList = await getStationsForLine(line.shortName)
 

@@ -50,15 +50,17 @@ function initFirebase(): admin.firestore.Firestore {
 
 function downloadBuffer(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
-        return downloadBuffer(res.headers.location).then(resolve).catch(reject)
-      }
-      const chunks: Buffer[] = []
-      res.on('data', (c: Buffer) => chunks.push(c))
-      res.on('end', () => resolve(Buffer.concat(chunks)))
-      res.on('error', reject)
-    }).on('error', reject)
+    https
+      .get(url, (res) => {
+        if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+          return downloadBuffer(res.headers.location).then(resolve).catch(reject)
+        }
+        const chunks: Buffer[] = []
+        res.on('data', (c: Buffer) => chunks.push(c))
+        res.on('end', () => resolve(Buffer.concat(chunks)))
+        res.on('error', reject)
+      })
+      .on('error', reject)
   })
 }
 
@@ -239,27 +241,50 @@ async function main(): Promise<void> {
   const trips = parseGTFS(readZipFile('trips.txt'))
 
   // lineSlug → { entries per service type (with sort key) }
-  const lineIndexData = new Map<string, { weekday: Array<TripIndexEntry & { _sortMin: number }>, saturday: Array<TripIndexEntry & { _sortMin: number }>, sunday: Array<TripIndexEntry & { _sortMin: number }> }>()
+  const lineIndexData = new Map<
+    string,
+    {
+      weekday: Array<TripIndexEntry & { _sortMin: number }>
+      saturday: Array<TripIndexEntry & { _sortMin: number }>
+      sunday: Array<TripIndexEntry & { _sortMin: number }>
+    }
+  >()
 
   // stationSlug → { entries per service type (with sort key) }
-  const stationTripsData = new Map<string, { weekday: Array<StationTripEntry & { _sortMin: number }>, saturday: Array<StationTripEntry & { _sortMin: number }>, sunday: Array<StationTripEntry & { _sortMin: number }> }>()
+  const stationTripsData = new Map<
+    string,
+    {
+      weekday: Array<StationTripEntry & { _sortMin: number }>
+      saturday: Array<StationTripEntry & { _sortMin: number }>
+      sunday: Array<StationTripEntry & { _sortMin: number }>
+    }
+  >()
 
   let detailsWritten = 0
   let skipped = 0
 
   for (const t of trips) {
     const lineCode = routeToLineCode.get(t.route_id)
-    if (!lineCode) { skipped++; continue }
+    if (!lineCode) {
+      skipped++
+      continue
+    }
 
     const lineSlug = lineCodeToSlug.get(lineCode)
-    if (!lineSlug) { skipped++; continue }
+    if (!lineSlug) {
+      skipped++
+      continue
+    }
 
     const lineName = lineCodeToName.get(lineCode) ?? lineCode
     const serviceType = serviceTypeMap.get(t.service_id) ?? 'weekday'
     const directionId = parseInt(t.direction_id ?? '0')
 
     const stopRows = tripStopRows.get(t.trip_id)
-    if (!stopRows || stopRows.length === 0) { skipped++; continue }
+    if (!stopRows || stopRows.length === 0) {
+      skipped++
+      continue
+    }
 
     // Headsign: use trip_headsign, fall back to last stop name
     let headsign = t.trip_headsign?.trim() ?? ''
@@ -267,7 +292,10 @@ async function main(): Promise<void> {
       const lastStop = stopRows[stopRows.length - 1]
       headsign = stopIdToName.get(lastStop.stop_id) ?? gtfsStopName.get(lastStop.stop_id) ?? ''
     }
-    if (!headsign) { skipped++; continue }
+    if (!headsign) {
+      skipped++
+      continue
+    }
 
     // Train number: trip_short_name if present, otherwise trip_id
     const trainNumber = t.trip_short_name?.trim() || t.trip_id
@@ -343,9 +371,15 @@ async function main(): Promise<void> {
   let indexWritten = 0
   for (const [lineSlug, buckets] of lineIndexData) {
     const index: TripIndex = {
-      weekday:  buckets.weekday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin: _, ...e }) => e),
-      saturday: buckets.saturday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin: _, ...e }) => e),
-      sunday:   buckets.sunday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin: _, ...e }) => e),
+      weekday: buckets.weekday
+        .sort((a, b) => a._sortMin - b._sortMin)
+        .map(({ _sortMin: _, ...e }) => e),
+      saturday: buckets.saturday
+        .sort((a, b) => a._sortMin - b._sortMin)
+        .map(({ _sortMin: _, ...e }) => e),
+      sunday: buckets.sunday
+        .sort((a, b) => a._sortMin - b._sortMin)
+        .map(({ _sortMin: _, ...e }) => e),
     }
     fs.writeFileSync(path.join(INDEX_DIR, `${lineSlug}.json`), JSON.stringify(index))
     indexWritten++
@@ -355,11 +389,20 @@ async function main(): Promise<void> {
   let stationTripsWritten = 0
   for (const [stationSlug, buckets] of stationTripsData) {
     const stationTrips: StationTrips = {
-      weekday:  buckets.weekday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin: _, ...e }) => e),
-      saturday: buckets.saturday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin: _, ...e }) => e),
-      sunday:   buckets.sunday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin: _, ...e }) => e),
+      weekday: buckets.weekday
+        .sort((a, b) => a._sortMin - b._sortMin)
+        .map(({ _sortMin: _, ...e }) => e),
+      saturday: buckets.saturday
+        .sort((a, b) => a._sortMin - b._sortMin)
+        .map(({ _sortMin: _, ...e }) => e),
+      sunday: buckets.sunday
+        .sort((a, b) => a._sortMin - b._sortMin)
+        .map(({ _sortMin: _, ...e }) => e),
     }
-    fs.writeFileSync(path.join(STATION_TRIPS_DIR, `${stationSlug}.json`), JSON.stringify(stationTrips))
+    fs.writeFileSync(
+      path.join(STATION_TRIPS_DIR, `${stationSlug}.json`),
+      JSON.stringify(stationTrips),
+    )
     stationTripsWritten++
   }
 

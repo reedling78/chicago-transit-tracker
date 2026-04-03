@@ -157,15 +157,15 @@ const CTA_LINE_MAP: Record<string, string> = {
 
 // CTA GTFS route_id → our line shortName
 const CTA_GTFS_ROUTE_MAP: Record<string, string> = {
-  Red:  'Red',
+  Red: 'Red',
   Blue: 'Blue',
-  G:    'Green',
-  Brn:  'Brown',
-  P:    'Purple',
+  G: 'Green',
+  Brn: 'Brown',
+  P: 'Purple',
   Pexp: 'Purple',
-  Y:    'Yellow',
-  Pnk:  'Pink',
-  Org:  'Orange',
+  Y: 'Yellow',
+  Pnk: 'Pink',
+  Org: 'Orange',
 }
 
 async function fetchCTAStations(): Promise<Record<string, unknown>[]> {
@@ -189,10 +189,7 @@ async function fetchCTAStations(): Promise<Record<string, unknown>[]> {
         name: stop.station_name,
         slug: slugify(stop.station_name as string),
         address: '',
-        location: new admin.firestore.GeoPoint(
-          parseFloat(loc.latitude),
-          parseFloat(loc.longitude),
-        ),
+        location: new admin.firestore.GeoPoint(parseFloat(loc.latitude), parseFloat(loc.longitude)),
         municipality: 'Chicago',
         service: 'cta',
         lines,
@@ -226,9 +223,9 @@ async function fetchCTAStations(): Promise<Record<string, unknown>[]> {
   const buf = await downloadBuffer(CTA_GTFS_URL)
   const zip = new AdmZip(buf)
 
-  const gtfsStops   = parseGTFS(zip.readAsText('stops.txt'))
-  const gtfsTrips   = parseGTFS(zip.readAsText('trips.txt'))
-  const gtfsTimes   = parseGTFS(zip.readAsText('stop_times.txt'))
+  const gtfsStops = parseGTFS(zip.readAsText('stops.txt'))
+  const gtfsTrips = parseGTFS(zip.readAsText('trips.txt'))
+  const gtfsTimes = parseGTFS(zip.readAsText('stop_times.txt'))
 
   // Platform stop_id → parent_station (map_id) — location_type 0 are platforms
   const platformToMapId = new Map<string, number>()
@@ -238,19 +235,12 @@ async function fetchCTAStations(): Promise<Record<string, unknown>[]> {
     }
   }
 
-  const routeToShortName = new Map(
-    Object.entries(CTA_GTFS_ROUTE_MAP)
-  )
+  const routeToShortName = new Map(Object.entries(CTA_GTFS_ROUTE_MAP))
 
-  const lineOrder = buildLineOrder(
-    gtfsTimes,
-    gtfsTrips,
-    routeToShortName,
-    (stopId) => {
-      const mapId = platformToMapId.get(stopId)
-      return mapId != null ? String(mapId) : null
-    },
-  )
+  const lineOrder = buildLineOrder(gtfsTimes, gtfsTrips, routeToShortName, (stopId) => {
+    const mapId = platformToMapId.get(stopId)
+    return mapId != null ? String(mapId) : null
+  })
 
   // Apply lineOrder to station docs
   for (const [mapId, station] of stations) {
@@ -272,9 +262,9 @@ async function fetchMetraStations(): Promise<Record<string, unknown>[]> {
   const zip = new AdmZip(buf)
 
   console.log('  Parsing GTFS files...')
-  const stops     = parseGTFS(zip.readAsText('stops.txt'))
-  const routes    = parseGTFS(zip.readAsText('routes.txt'))
-  const trips     = parseGTFS(zip.readAsText('trips.txt'))
+  const stops = parseGTFS(zip.readAsText('stops.txt'))
+  const routes = parseGTFS(zip.readAsText('routes.txt'))
+  const trips = parseGTFS(zip.readAsText('trips.txt'))
   const stopTimes = parseGTFS(zip.readAsText('stop_times.txt'))
 
   // trip_id → route_id
@@ -306,15 +296,10 @@ async function fetchMetraStations(): Promise<Record<string, unknown>[]> {
     name: stop.stop_name,
     slug: slugify(stop.stop_name),
     address: '',
-    location: new admin.firestore.GeoPoint(
-      parseFloat(stop.stop_lat),
-      parseFloat(stop.stop_lon),
-    ),
+    location: new admin.firestore.GeoPoint(parseFloat(stop.stop_lat), parseFloat(stop.stop_lon)),
     municipality: '',
     service: 'metra',
-    lines: [...(stopRoutes.get(stop.stop_id) ?? [])].map(
-      (id) => routeName.get(id) ?? id,
-    ),
+    lines: [...(stopRoutes.get(stop.stop_id) ?? [])].map((id) => routeName.get(id) ?? id),
     hours: null,
     open24Hours: false,
     accessibility: {
@@ -352,9 +337,7 @@ async function writeStations(
 
   const resolved = stations.map((station) => {
     const base = station.slug as string
-    const docId = slugCount.get(base)! > 1
-      ? `${base}-${station.service as string}`
-      : base
+    const docId = slugCount.get(base)! > 1 ? `${base}-${station.service as string}` : base
     return { docId, data: { ...station, slug: docId } }
   })
 

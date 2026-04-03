@@ -9,11 +9,11 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, description, badges, children }: PageHeaderProps) {
   return (
-    <div className="mb-8 border-b border-gray-100 dark:border-gray-800 pb-8">
-      {badges && (
-        <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>
-      )}
-      <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">{title}</h1>
+    <div className="mb-8 border-b border-gray-100 pb-8 dark:border-gray-800">
+      {badges && <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>}
+      <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+        {title}
+      </h1>
       {description && (
         <p className="mt-3 max-w-2xl text-base text-gray-500 dark:text-gray-400">{description}</p>
       )}

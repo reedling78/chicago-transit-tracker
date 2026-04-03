@@ -14,6 +14,7 @@ The goal is reference-grade research — material the team will cite again in a 
 ## Step 1 — Clarify the research question
 
 Ask the user:
+
 1. **Topic** — what is being researched?
 2. **Question** — what specific question are we trying to answer? (e.g. "What are our options for rendering MDX in a static Next.js export?" not just "MDX")
 3. **Source URLs** — any specific URLs, docs, or APIs to read? (optional — if none provided, use WebSearch to find relevant sources)
@@ -26,6 +27,7 @@ The "next step" shapes how findings are framed. Know it before researching.
 ## Step 2 — Fetch and read sources
 
 For each source URL provided:
+
 - Fetch it with WebFetch and read the content
 - If no URLs were provided, use WebSearch to find 2–4 relevant sources, then fetch each
 
@@ -38,6 +40,7 @@ Do not summarize sources yet — read all of them first, then synthesize.
 ## Step 3 — Synthesize findings
 
 Across all sources, identify:
+
 - The direct answer to the research question
 - Key options, trade-offs, or decision points
 - Anything that contradicts assumptions the user may have had going in
@@ -83,6 +86,7 @@ Write the file with this structure:
 ```
 
 **Writing rules:**
+
 - Write for a teammate who will read this in three months and needs to understand what was learned and why it matters — not just a list of facts
 - No AI filler phrases ("it's worth noting", "delve into", "in conclusion")
 - Frame the next step in the `Feeds into:` line and the Options section — not as a separate section

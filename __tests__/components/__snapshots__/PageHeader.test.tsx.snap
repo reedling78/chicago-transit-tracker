@@ -3,7 +3,7 @@
 exports[`PageHeader matches snapshot 1`] = `
 <div>
   <div
-    class="mb-8 border-b border-gray-100 dark:border-gray-800 pb-8"
+    class="mb-8 border-b border-gray-100 pb-8 dark:border-gray-800"
   >
     <div
       class="mb-3 flex flex-wrap items-center gap-2"
@@ -13,7 +13,7 @@ exports[`PageHeader matches snapshot 1`] = `
       </span>
     </div>
     <h1
-      class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl"
+      class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
     >
       CTA Lines
     </h1>

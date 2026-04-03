@@ -59,10 +59,7 @@ function metraSlug(name: string): string {
 async function main() {
   const db = initFirebase()
 
-  const snap = await db
-    .collection('stations')
-    .where('service', 'in', ['metra', 'both'])
-    .get()
+  const snap = await db.collection('stations').where('service', 'in', ['metra', 'both']).get()
 
   if (snap.empty) {
     console.log('No Metra stations found.')

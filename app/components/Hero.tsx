@@ -12,7 +12,7 @@ function ServiceCard({ href, label, description, accent, lines }: ServiceCardPro
   return (
     <Link
       href={href}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition duration-300 hover:border-gray-300 hover:shadow-lg hover:scale-[1.02] dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-sm dark:hover:bg-white/10 dark:hover:shadow-2xl"
+      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition duration-300 hover:scale-[1.02] hover:border-gray-300 hover:shadow-lg dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-sm dark:hover:bg-white/10 dark:hover:shadow-2xl"
     >
       {/* Accent glow */}
       <div
@@ -21,7 +21,7 @@ function ServiceCard({ href, label, description, accent, lines }: ServiceCardPro
       />
 
       <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-gray-400 dark:text-white/50">
+        <p className="mb-2 text-sm font-semibold tracking-widest text-gray-400 uppercase dark:text-white/50">
           Chicago
         </p>
         <h2 className="mb-3 text-4xl font-bold text-gray-900 dark:text-white">{label}</h2>
@@ -78,7 +78,7 @@ const METRA_LINES = [
 
 export default function Hero() {
   return (
-    <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden bg-gray-50 px-4 py-20 sm:px-6 lg:px-8 dark:bg-gray-950">
+    <section className="relative -mx-4 overflow-hidden bg-gray-50 px-4 py-20 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-950">
       {/* Background grid */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.03]"

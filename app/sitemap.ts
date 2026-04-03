@@ -9,8 +9,14 @@ export const dynamic = 'force-static'
 const baseUrl = 'https://chicago-transit-tracker.com'
 const TRIP_INDEX_DIR = path.join(process.cwd(), 'public', 'data', 'metra-trip-index')
 
-interface TripIndexEntry { tripId: string }
-interface TripIndex { weekday: TripIndexEntry[]; saturday: TripIndexEntry[]; sunday: TripIndexEntry[] }
+interface TripIndexEntry {
+  tripId: string
+}
+interface TripIndex {
+  weekday: TripIndexEntry[]
+  saturday: TripIndexEntry[]
+  sunday: TripIndexEntry[]
+}
 
 // STANDING RULE: Add every new page to this array when it is created.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -49,8 +55,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-    { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: 'yearly' as const, priority: 0.3 },
-    { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: 'yearly' as const, priority: 0.3 },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
     { url: `${baseUrl}/cta`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${baseUrl}/metra`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     ...ctaLines.map((l) => ({

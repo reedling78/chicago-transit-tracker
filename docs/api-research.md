@@ -17,11 +17,11 @@ PDF guide: https://www.transitchicago.com/assets/1/6/cta_Train_Tracker_API_Devel
 
 Three endpoints:
 
-| Endpoint | Description |
-|---|---|
-| `arrivals` | Predicted arrival times by `mapid` (station) or `stpid` (stop/direction) |
-| `locations` | Real-time train positions by route |
-| `followThisTrain` | Track a single train run |
+| Endpoint          | Description                                                              |
+| ----------------- | ------------------------------------------------------------------------ |
+| `arrivals`        | Predicted arrival times by `mapid` (station) or `stpid` (stop/direction) |
+| `locations`       | Real-time train positions by route                                       |
+| `followThisTrain` | Track a single train run                                                 |
 
 - Returns XML or JSON
 - No polling frequency specified; data is live
@@ -35,11 +35,11 @@ Base URL: `http://www.ctabustracker.com/bustime/api/v2/`
 
 Key endpoints:
 
-| Endpoint | Description |
-|---|---|
-| `getroutes` | List all routes |
-| `getstops` | Stops for a given route/direction |
-| `getvehicles` | Real-time bus positions |
+| Endpoint         | Description                              |
+| ---------------- | ---------------------------------------- |
+| `getroutes`      | List all routes                          |
+| `getstops`       | Stops for a given route/direction        |
+| `getvehicles`    | Real-time bus positions                  |
 | `getpredictions` | Predicted arrivals for a stop or vehicle |
 
 - Parameters passed as HTTP GET query strings
@@ -82,11 +82,11 @@ Authentication: `?api_token=YOUR_TOKEN` query parameter on every request.
 
 Data updated every **30 seconds**.
 
-| Endpoint | Description |
-|---|---|
-| `/positions` | Real-time vehicle positions (lat/lng, train run, route) |
-| `/tripupdates` | Live trip updates — delays, stop time predictions |
-| `/alerts` | Service alerts and disruptions |
+| Endpoint       | Description                                             |
+| -------------- | ------------------------------------------------------- |
+| `/positions`   | Real-time vehicle positions (lat/lng, train run, route) |
+| `/tripupdates` | Live trip updates — delays, stop time predictions       |
+| `/alerts`      | Service alerts and disruptions                          |
 
 - Response format: [Protocol Buffers](https://protobuf.dev/) following the [GTFS-realtime spec](https://gtfs.org/documentation/realtime/reference/)
 - A JS/TS library like `gtfs-realtime-bindings` can decode the protobuf payloads

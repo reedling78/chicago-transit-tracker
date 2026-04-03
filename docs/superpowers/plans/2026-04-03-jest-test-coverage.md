@@ -13,35 +13,37 @@
 ## File Map
 
 ### New files
-| File | Purpose |
-|------|---------|
-| `__tests__/fixtures.ts` | Shared mock data for all tests |
-| `__tests__/components/ThemeToggle.test.tsx` | Unit + snapshot |
-| `__tests__/components/PageHeader.test.tsx` | Unit + snapshot |
-| `__tests__/components/Breadcrumb.test.tsx` | Unit + snapshot |
-| `__tests__/components/Hero.test.tsx` | Unit + snapshot |
-| `__tests__/components/LinkCard.test.tsx` | Unit + snapshot |
-| `__tests__/components/Footer.test.tsx` | Unit + snapshot |
-| `__tests__/components/CTALineIcon.test.tsx` | Unit + snapshot |
-| `__tests__/components/LineDetail.test.tsx` | Unit + snapshot |
-| `__tests__/components/StationDetail.test.tsx` | Unit + snapshot |
-| `__tests__/components/StationList.test.tsx` | Unit + snapshot |
-| `__tests__/components/Arrivals.test.tsx` | Unit + snapshot (fetch mock + fixed Date) |
-| `__tests__/components/StationTimetable.test.tsx` | Unit + snapshot |
-| `__tests__/components/StationMap.test.tsx` | Render test (MapLibre mock) |
-| `__tests__/components/Analytics.test.tsx` | Render test |
-| `__tests__/pages/home.test.tsx` | Snapshot |
-| `__tests__/pages/cta-list.test.tsx` | Snapshot (mocks transit.ts) |
-| `__tests__/pages/metra-list.test.tsx` | Snapshot (mocks transit.ts) |
-| `__tests__/pages/cta-line.test.tsx` | Snapshot (mocks transit.ts) |
-| `__tests__/pages/metra-line.test.tsx` | Snapshot (mocks transit.ts) |
-| `__tests__/pages/cta-station.test.tsx` | Snapshot (mocks transit.ts + client components) |
-| `__tests__/pages/metra-station.test.tsx` | Snapshot (mocks transit.ts + client components) |
+
+| File                                             | Purpose                                         |
+| ------------------------------------------------ | ----------------------------------------------- |
+| `__tests__/fixtures.ts`                          | Shared mock data for all tests                  |
+| `__tests__/components/ThemeToggle.test.tsx`      | Unit + snapshot                                 |
+| `__tests__/components/PageHeader.test.tsx`       | Unit + snapshot                                 |
+| `__tests__/components/Breadcrumb.test.tsx`       | Unit + snapshot                                 |
+| `__tests__/components/Hero.test.tsx`             | Unit + snapshot                                 |
+| `__tests__/components/LinkCard.test.tsx`         | Unit + snapshot                                 |
+| `__tests__/components/Footer.test.tsx`           | Unit + snapshot                                 |
+| `__tests__/components/CTALineIcon.test.tsx`      | Unit + snapshot                                 |
+| `__tests__/components/LineDetail.test.tsx`       | Unit + snapshot                                 |
+| `__tests__/components/StationDetail.test.tsx`    | Unit + snapshot                                 |
+| `__tests__/components/StationList.test.tsx`      | Unit + snapshot                                 |
+| `__tests__/components/Arrivals.test.tsx`         | Unit + snapshot (fetch mock + fixed Date)       |
+| `__tests__/components/StationTimetable.test.tsx` | Unit + snapshot                                 |
+| `__tests__/components/StationMap.test.tsx`       | Render test (MapLibre mock)                     |
+| `__tests__/components/Analytics.test.tsx`        | Render test                                     |
+| `__tests__/pages/home.test.tsx`                  | Snapshot                                        |
+| `__tests__/pages/cta-list.test.tsx`              | Snapshot (mocks transit.ts)                     |
+| `__tests__/pages/metra-list.test.tsx`            | Snapshot (mocks transit.ts)                     |
+| `__tests__/pages/cta-line.test.tsx`              | Snapshot (mocks transit.ts)                     |
+| `__tests__/pages/metra-line.test.tsx`            | Snapshot (mocks transit.ts)                     |
+| `__tests__/pages/cta-station.test.tsx`           | Snapshot (mocks transit.ts + client components) |
+| `__tests__/pages/metra-station.test.tsx`         | Snapshot (mocks transit.ts + client components) |
 
 ### Modified files
-| File | Change |
-|------|--------|
-| `package.json` | Added `test:coverage` and `test:snapshots` scripts |
+
+| File             | Change                                                   |
+| ---------------- | -------------------------------------------------------- |
+| `package.json`   | Added `test:coverage` and `test:snapshots` scripts       |
 | `jest.config.ts` | Added `collectCoverageFrom` and `testPathIgnorePatterns` |
 
 ---
@@ -53,6 +55,7 @@
 `jest.mock('@/app/lib/transit', factory)` throws "Cannot find module" even though the `@/` alias works for regular imports. Root cause: `transit.ts` imports `firebase-admin`, and Jest's module resolver encounters an error when it tries to resolve the path at mock-registration time.
 
 **Fix:** Use relative paths in ALL `jest.mock()` calls in `__tests__/pages/`:
+
 ```ts
 // ❌ Breaks
 jest.mock('@/app/lib/transit', () => ({ ... }))
@@ -62,6 +65,7 @@ jest.mock('../../app/lib/transit', () => ({ ... }))
 ```
 
 This also applies to `await import(...)` calls inside tests and to mocking async-fetching components:
+
 ```ts
 jest.mock('../../app/components/Arrivals', () => () => null)
 jest.mock('../../app/components/StationTimetable', () => () => null)
@@ -70,6 +74,7 @@ jest.mock('../../app/components/StationTimetable', () => () => null)
 ### 2. `__tests__/fixtures.ts` is treated as a test suite
 
 Jest discovers everything in `__tests__/` and fails files with no tests. Add to `jest.config.ts`:
+
 ```ts
 testPathIgnorePatterns: ['/node_modules/', '<rootDir>/__tests__/fixtures.ts'],
 ```
@@ -92,8 +97,14 @@ The Metra line fixture has `termini: ['Union Station', 'Aurora']` and `downtownT
 beforeAll(() => {
   jest.useFakeTimers({
     doNotFake: [
-      'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
-      'setImmediate', 'clearImmediate', 'nextTick', 'queueMicrotask',
+      'setTimeout',
+      'clearTimeout',
+      'setInterval',
+      'clearInterval',
+      'setImmediate',
+      'clearImmediate',
+      'nextTick',
+      'queueMicrotask',
     ],
     now: new Date('2024-01-15T07:00:00.000Z'), // Mon Jan 15 01:00 AM CST
   })
@@ -128,7 +139,9 @@ jsdom doesn't include `MutationObserver`. Add before any test file that renders 
 global.MutationObserver = class {
   observe() {}
   disconnect() {}
-  takeRecords() { return [] }
+  takeRecords() {
+    return []
+  }
 } as unknown as typeof MutationObserver
 ```
 
@@ -144,55 +157,105 @@ Must satisfy the full `Line` and `Station` interfaces from `app/lib/types.ts`. E
 import type { Line, Station } from '@/app/lib/types'
 
 export const mockLine: Line = {
-  id: 'red', name: 'Red Line', shortName: 'Red', slug: 'red',
-  service: 'cta', color: '#c60c30', textColor: '#ffffff',
-  termini: ['Howard', '95th/Dan Ryan'], stationCount: 33,
-  routeMiles: 23.0, operatesOvernight: true, type: 'rapid_transit',
-  peakFrequencyMins: 3, offPeakFrequencyMins: 8,
-  firstTrainApprox: '4:00 AM', lastTrainApprox: '1:00 AM',
+  id: 'red',
+  name: 'Red Line',
+  shortName: 'Red',
+  slug: 'red',
+  service: 'cta',
+  color: '#c60c30',
+  textColor: '#ffffff',
+  termini: ['Howard', '95th/Dan Ryan'],
+  stationCount: 33,
+  routeMiles: 23.0,
+  operatesOvernight: true,
+  type: 'rapid_transit',
+  peakFrequencyMins: 3,
+  offPeakFrequencyMins: 8,
+  firstTrainApprox: '4:00 AM',
+  lastTrainApprox: '1:00 AM',
   description: 'The busiest CTA line, running north–south through downtown.',
-  ctaRouteId: 'Red', metraLineCode: null, downtownTerminal: null,
-  operator: null, countiesServed: [], photoUrl: null, scheduleUrl: null,
+  ctaRouteId: 'Red',
+  metraLineCode: null,
+  downtownTerminal: null,
+  operator: null,
+  countiesServed: [],
+  photoUrl: null,
+  scheduleUrl: null,
 }
 
 export const mockMetraLine: Line = {
-  id: 'bnsf', name: 'BNSF Railway', shortName: 'BNSF', slug: 'bnsf',
-  service: 'metra', color: '#1A3D7A', textColor: '#ffffff',
-  termini: ['Union Station', 'Aurora'], stationCount: 24,
-  routeMiles: 37.0, operatesOvernight: false, type: 'commuter_rail',
-  peakFrequencyMins: null, offPeakFrequencyMins: null,
-  firstTrainApprox: '5:00 AM', lastTrainApprox: '11:30 PM',
+  id: 'bnsf',
+  name: 'BNSF Railway',
+  shortName: 'BNSF',
+  slug: 'bnsf',
+  service: 'metra',
+  color: '#1A3D7A',
+  textColor: '#ffffff',
+  termini: ['Union Station', 'Aurora'],
+  stationCount: 24,
+  routeMiles: 37.0,
+  operatesOvernight: false,
+  type: 'commuter_rail',
+  peakFrequencyMins: null,
+  offPeakFrequencyMins: null,
+  firstTrainApprox: '5:00 AM',
+  lastTrainApprox: '11:30 PM',
   description: 'Metra BNSF line connecting Union Station to Aurora.',
-  ctaRouteId: null, metraLineCode: 'BNSF',
-  downtownTerminal: 'Union Station', operator: 'BNSF Railway',
-  countiesServed: ['Cook', 'DuPage'], photoUrl: null, scheduleUrl: null,
+  ctaRouteId: null,
+  metraLineCode: 'BNSF',
+  downtownTerminal: 'Union Station',
+  operator: 'BNSF Railway',
+  countiesServed: ['Cook', 'DuPage'],
+  photoUrl: null,
+  scheduleUrl: null,
 }
 
 export const mockStation: Station = {
-  id: 'clark-lake', name: 'Clark/Lake', slug: 'clark-lake',
-  address: '100 W Lake St, Chicago, IL', municipality: 'Chicago',
+  id: 'clark-lake',
+  name: 'Clark/Lake',
+  slug: 'clark-lake',
+  address: '100 W Lake St, Chicago, IL',
+  municipality: 'Chicago',
   location: { latitude: 41.8857, longitude: -87.6318 },
-  service: 'cta', lines: ['Red', 'Blue', 'Green', 'Brown', 'Purple', 'Pink', 'Orange'],
+  service: 'cta',
+  lines: ['Red', 'Blue', 'Green', 'Brown', 'Purple', 'Pink', 'Orange'],
   hours: { weekday: '24 hours', saturday: '24 hours', sunday: '24 hours' },
-  open24Hours: true, terminal: false, parking: false, stationType: 'subway',
+  open24Hours: true,
+  terminal: false,
+  parking: false,
+  stationType: 'subway',
   accessibility: { ada: true, elevator: true, escalator: true },
   amenities: ['fare_vending', 'seating'],
-  ctaStopId: 30074, ctaMapId: 40380, metraStopId: null,
-  photoUrl: null, wikipediaUrl: null, metraLink: null,
+  ctaStopId: 30074,
+  ctaMapId: 40380,
+  metraStopId: null,
+  photoUrl: null,
+  wikipediaUrl: null,
+  metraLink: null,
   lineOrder: { Red: 12, Blue: 5 },
 }
 
 export const mockMetraStation: Station = {
-  id: 'aurora', name: 'Aurora', slug: 'aurora',
-  address: '233 N Broadway, Aurora, IL', municipality: 'Aurora',
+  id: 'aurora',
+  name: 'Aurora',
+  slug: 'aurora',
+  address: '233 N Broadway, Aurora, IL',
+  municipality: 'Aurora',
   location: { latitude: 41.7606, longitude: -88.3201 },
-  service: 'metra', lines: ['BNSF'],
-  hours: null, open24Hours: false, terminal: true, parking: true,
+  service: 'metra',
+  lines: ['BNSF'],
+  hours: null,
+  open24Hours: false,
+  terminal: true,
+  parking: true,
   stationType: 'commuter_rail',
   accessibility: { ada: true, elevator: false, escalator: false },
   amenities: ['parking'],
-  ctaStopId: null, ctaMapId: null, metraStopId: 'AURORA',
-  photoUrl: null, wikipediaUrl: null,
+  ctaStopId: null,
+  ctaMapId: null,
+  metraStopId: 'AURORA',
+  photoUrl: null,
+  wikipediaUrl: null,
   metraLink: 'https://metra.com/stations/aurora',
   lineOrder: { BNSF: 24 },
 }
@@ -238,7 +301,9 @@ jest.mock('maplibre-gl', () => ({
 global.MutationObserver = class {
   observe() {}
   disconnect() {}
-  takeRecords() { return [] }
+  takeRecords() {
+    return []
+  }
 } as unknown as typeof MutationObserver
 ```
 

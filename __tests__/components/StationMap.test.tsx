@@ -21,7 +21,9 @@ jest.mock('maplibre-gl', () => ({
 global.MutationObserver = class {
   observe() {}
   disconnect() {}
-  takeRecords() { return [] }
+  takeRecords() {
+    return []
+  }
 } as unknown as typeof MutationObserver
 
 describe('StationMap', () => {
@@ -31,27 +33,23 @@ describe('StationMap', () => {
 
   it('renders the map container div', () => {
     const { container } = render(
-      <StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />
+      <StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />,
     )
     expect(container.querySelector('div')).toBeInTheDocument()
   })
 
   it('initializes maplibregl.Map with correct coordinates', () => {
-    render(
-      <StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />
-    )
+    render(<StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />)
     expect(maplibregl.Map).toHaveBeenCalledWith(
       expect.objectContaining({
         center: [-87.6318, 41.8857],
         zoom: 14,
-      })
+      }),
     )
   })
 
   it('creates a Marker at the station coordinates', () => {
-    render(
-      <StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />
-    )
+    render(<StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />)
     const markerInstance = (maplibregl.Marker as jest.Mock).mock.results[0].value
     expect(markerInstance.setLngLat).toHaveBeenCalledWith([-87.6318, 41.8857])
   })
@@ -63,21 +61,19 @@ describe('StationMap', () => {
         longitude={-87.6318}
         name="Clark/Lake"
         markerColor="#00a1de"
-      />
+      />,
     )
     expect(maplibregl.Marker).toHaveBeenCalledWith({ color: '#00a1de' })
   })
 
   it('uses default markerColor #C60C30 when not provided', () => {
-    render(
-      <StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />
-    )
+    render(<StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />)
     expect(maplibregl.Marker).toHaveBeenCalledWith({ color: '#C60C30' })
   })
 
   it('matches snapshot', () => {
     const { container } = render(
-      <StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />
+      <StationMap latitude={41.8857} longitude={-87.6318} name="Clark/Lake" />,
     )
     expect(container).toMatchSnapshot()
   })

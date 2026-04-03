@@ -18,7 +18,9 @@ jest.mock('../../app/components/Arrivals', () => () => null)
 global.MutationObserver = class {
   observe() {}
   disconnect() {}
-  takeRecords() { return [] }
+  takeRecords() {
+    return []
+  }
 } as unknown as typeof MutationObserver
 
 jest.mock('../../app/lib/transit', () => ({

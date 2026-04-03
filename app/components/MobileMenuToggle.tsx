@@ -23,20 +23,20 @@ export default function MobileMenuToggle({ links }: Props) {
         aria-expanded={isOpen}
         className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
       >
-        <span className="block w-6 h-0.5 bg-current mb-1.5" />
-        <span className="block w-6 h-0.5 bg-current mb-1.5" />
-        <span className="block w-6 h-0.5 bg-current" />
+        <span className="mb-1.5 block h-0.5 w-6 bg-current" />
+        <span className="mb-1.5 block h-0.5 w-6 bg-current" />
+        <span className="block h-0.5 w-6 bg-current" />
       </button>
 
       {isOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-2 z-10">
+        <div className="absolute top-16 right-0 left-0 z-10 border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
           <ul className="flex flex-col gap-2">
             {links.map(({ href, label }) => (
               <li key={href}>
                 <Link
                   href={href}
                   onClick={() => setIsOpen(false)}
-                  className="block py-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white text-sm font-medium"
+                  className="block py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                 >
                   {label}
                 </Link>

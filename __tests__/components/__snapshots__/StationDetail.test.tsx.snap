@@ -7,88 +7,88 @@ exports[`StationDetail matches snapshot for CTA station 1`] = `
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           Location
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Address
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             100 W Lake St, Chicago, IL
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Municipality
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             Chicago
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Coordinates
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             41.88570, -87.63180
           </span>
         </div>
       </div>
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           Service
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Station Type
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             Subway
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Terminal
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-gray-400"
@@ -101,15 +101,15 @@ exports[`StationDetail matches snapshot for CTA station 1`] = `
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             24-Hour Service
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-green-600"
@@ -122,66 +122,66 @@ exports[`StationDetail matches snapshot for CTA station 1`] = `
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Weekday Hours
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             24 hours
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Saturday Hours
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             24 hours
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Sunday Hours
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             24 hours
           </span>
         </div>
       </div>
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           Accessibility
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             ADA Accessible
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-green-600"
@@ -194,15 +194,15 @@ exports[`StationDetail matches snapshot for CTA station 1`] = `
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Elevator
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-green-600"
@@ -215,15 +215,15 @@ exports[`StationDetail matches snapshot for CTA station 1`] = `
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Escalator
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-green-600"
@@ -236,15 +236,15 @@ exports[`StationDetail matches snapshot for CTA station 1`] = `
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Parking
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-gray-400"
@@ -260,49 +260,49 @@ exports[`StationDetail matches snapshot for CTA station 1`] = `
           class="mt-3 flex flex-wrap gap-1.5"
         >
           <span
-            class="rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400 capitalize"
+            class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 capitalize dark:bg-gray-800 dark:text-gray-400"
           >
             fare vending
           </span>
           <span
-            class="rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400 capitalize"
+            class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 capitalize dark:bg-gray-800 dark:text-gray-400"
           >
             seating
           </span>
         </div>
       </div>
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           System IDs
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             CTA Map ID
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             40380
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             CTA Stop ID
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             30074
           </span>
@@ -320,68 +320,68 @@ exports[`StationDetail matches snapshot for Metra station 1`] = `
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           Location
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Address
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             233 N Broadway, Aurora, IL
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Municipality
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             Aurora
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Coordinates
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             41.76060, -88.32010
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Metra Page
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <a
-              class="text-blue-600 dark:text-blue-400 hover:underline"
+              class="text-blue-600 hover:underline dark:text-blue-400"
               href="https://metra.com/stations/aurora"
               rel="noopener noreferrer"
               target="_blank"
@@ -392,37 +392,37 @@ exports[`StationDetail matches snapshot for Metra station 1`] = `
         </div>
       </div>
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           Service
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Station Type
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             Commuter Rail
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Terminal
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-green-600"
@@ -435,15 +435,15 @@ exports[`StationDetail matches snapshot for Metra station 1`] = `
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             24-Hour Service
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-gray-400"
@@ -457,23 +457,23 @@ exports[`StationDetail matches snapshot for Metra station 1`] = `
         </div>
       </div>
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           Accessibility
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             ADA Accessible
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-green-600"
@@ -486,15 +486,15 @@ exports[`StationDetail matches snapshot for Metra station 1`] = `
           </span>
         </div>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Parking
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             <span
               class="inline-flex items-center gap-1 text-sm font-medium text-green-600"
@@ -510,30 +510,30 @@ exports[`StationDetail matches snapshot for Metra station 1`] = `
           class="mt-3 flex flex-wrap gap-1.5"
         >
           <span
-            class="rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-400 capitalize"
+            class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 capitalize dark:bg-gray-800 dark:text-gray-400"
           >
             parking
           </span>
         </div>
       </div>
       <div
-        class="rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900 p-5 shadow-sm"
+        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900"
       >
         <h2
-          class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
           System IDs
         </h2>
         <div
-          class="flex items-start justify-between gap-4 py-2 border-b border-gray-50 dark:border-gray-800 last:border-0"
+          class="flex items-start justify-between gap-4 border-b border-gray-50 py-2 last:border-0 dark:border-gray-800"
         >
           <span
-            class="text-sm text-gray-500 dark:text-gray-400 shrink-0"
+            class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
           >
             Metra Stop ID
           </span>
           <span
-            class="text-sm font-medium text-gray-900 dark:text-white text-right"
+            class="text-right text-sm font-medium text-gray-900 dark:text-white"
           >
             AURORA
           </span>

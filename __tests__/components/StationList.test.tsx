@@ -28,7 +28,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     expect(screen.getByText('Stations')).toBeInTheDocument()
     expect(screen.getByText('(1)')).toBeInTheDocument()
@@ -41,7 +41,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     expect(screen.getByRole('link', { name: /clark\/lake/i })).toBeInTheDocument()
   })
@@ -53,7 +53,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     const link = screen.getByRole('link', { name: /clark\/lake/i })
     expect(link).toHaveAttribute('href', '/cta/red/clark-lake')
@@ -66,7 +66,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     expect(screen.getByLabelText('ADA Accessible')).toBeInTheDocument()
   })
@@ -78,7 +78,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     expect(screen.queryByLabelText('ADA Accessible')).not.toBeInTheDocument()
   })
@@ -90,7 +90,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     // Blue should appear as a transfer chip; Red (currentLine) should not
     expect(screen.getByText('Blue')).toBeInTheDocument()
@@ -104,7 +104,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     expect(screen.getByText('(2)')).toBeInTheDocument()
     expect(screen.getByText('Clark/Lake')).toBeInTheDocument()
@@ -118,7 +118,7 @@ describe('StationList', () => {
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
-      />
+      />,
     )
     expect(container).toMatchSnapshot()
   })

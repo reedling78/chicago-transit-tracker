@@ -24,7 +24,12 @@ function WheelchairIcon() {
   )
 }
 
-export default function StationList({ stations, lineColor, stationHrefPrefix, currentLine }: StationListProps) {
+export default function StationList({
+  stations,
+  lineColor,
+  stationHrefPrefix,
+  currentLine,
+}: StationListProps) {
   return (
     <div>
       <h2 className="mb-5 text-xl font-semibold text-gray-900 dark:text-white">
@@ -37,7 +42,7 @@ export default function StationList({ stations, lineColor, stationHrefPrefix, cu
       <div className="relative">
         {/* Vertical timeline bar */}
         <div
-          className="absolute left-[11px] top-3 bottom-3 w-[3px] rounded-full"
+          className="absolute top-3 bottom-3 left-[11px] w-[3px] rounded-full"
           style={{ backgroundColor: lineColor }}
         />
 
@@ -47,15 +52,13 @@ export default function StationList({ stations, lineColor, stationHrefPrefix, cu
           return (
             <div
               key={station.slug}
-              className="relative flex items-start gap-4 border-b border-gray-100 dark:border-gray-800 last:border-0 py-4"
+              className="relative flex items-start gap-4 border-b border-gray-100 py-4 last:border-0 dark:border-gray-800"
             >
               {/* Dot */}
               <div className="relative z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center">
                 <div
                   className={`rounded-full border-2 ${
-                    station.terminal
-                      ? 'h-5 w-5'
-                      : 'h-3 w-3 bg-white dark:bg-gray-950'
+                    station.terminal ? 'h-5 w-5' : 'h-3 w-3 bg-white dark:bg-gray-950'
                   }`}
                   style={{
                     borderColor: lineColor,
@@ -70,7 +73,7 @@ export default function StationList({ stations, lineColor, stationHrefPrefix, cu
                 className="group flex min-w-0 flex-1 items-start justify-between gap-4"
               >
                 <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white group-hover:underline">
+                  <p className="flex items-center gap-1.5 font-semibold text-gray-900 group-hover:underline dark:text-white">
                     {station.name}
                     {station.accessibility.ada && <WheelchairIcon />}
                   </p>
@@ -90,7 +93,7 @@ export default function StationList({ stations, lineColor, stationHrefPrefix, cu
                         ) : (
                           <span
                             key={line}
-                            className="rounded bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:text-gray-400"
+                            className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                           >
                             {line}
                           </span>
@@ -100,7 +103,7 @@ export default function StationList({ stations, lineColor, stationHrefPrefix, cu
                   )}
                 </div>
 
-                <span className="mt-0.5 shrink-0 text-gray-300 dark:text-gray-600 transition group-hover:text-gray-500 dark:group-hover:text-gray-400">
+                <span className="mt-0.5 shrink-0 text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400">
                   →
                 </span>
               </Link>
