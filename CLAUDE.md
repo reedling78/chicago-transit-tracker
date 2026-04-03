@@ -4,6 +4,17 @@ This file provides guidance for Claude Code when working in this repository.
 
 ---
 
+## Project Purpose
+
+This project serves two purposes: it is a real, production-deployed transit information site **and** a teaching tool used to train a team on Claude Code workflows (planning, brainstorming, skills, subagents, etc.). When working in this repo, keep both audiences in mind:
+
+- **As a product:** correctness, SEO, and CTA branding compliance matter
+- **As a learning resource:** prefer clear, well-documented approaches over clever ones; follow the full superpowers workflow (brainstorm → spec → plan → implement) so the team can see the process modeled correctly; leave decisions explained in spec and plan docs rather than only in code comments
+
+When introducing a new feature or workflow pattern, consider whether it would make a good example for someone learning Claude Code for the first time.
+
+---
+
 ## Repository State
 
 A Next.js 16 / Tailwind CSS v4 / TypeScript static web app for exploring CTA and Metra transit lines and stations. Data is stored in Firebase Firestore and read at build time via Firebase Admin SDK. The site is statically exported and deployed to Firebase Hosting.
@@ -206,6 +217,8 @@ git checkout main && git pull && git branch -d your-feature-branch
 **Firebase Admin in server components only:** Never import `firebase-admin` or anything from `app/lib/firebase-admin.ts` in a client component (`'use client'`).
 
 **CTA branding:** All CTA UI must use the official hex colors above and follow the trademark rules. Full guidelines at `https://www.transitchicago.com/developers/branding/`.
+
+**Planning and spec documents:** All planning documents go in `docs/superpowers/plans/YYYY-MM-DD-topic.md` and all design specs go in `docs/superpowers/specs/YYYY-MM-DD-topic-design.md`. Never save these only to Claude's internal plans directory — always write them to the repo so they are versioned with the code.
 
 ---
 
