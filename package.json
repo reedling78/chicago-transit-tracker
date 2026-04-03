@@ -9,6 +9,8 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:snapshots": "jest --updateSnapshot",
     "seed:stations": "ts-node --project scripts/tsconfig.json scripts/seed-stations.ts",
     "seed:lines": "ts-node --project scripts/tsconfig.json scripts/seed-lines.ts",
     "seed:storage": "ts-node --project scripts/tsconfig.json scripts/seed-storage.ts",

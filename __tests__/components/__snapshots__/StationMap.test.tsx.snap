@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`StationMap matches snapshot 1`] = `
+<div>
+  <div
+    class="mb-8 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"
+  >
+    <div
+      style="height: 340px;"
+    />
+  </div>
+</div>
+`;
