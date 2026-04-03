@@ -66,9 +66,6 @@ export default async function CTAStationPage({ params }: Props) {
         title={station.name}
         badges={
           <>
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${SERVICE_COLOR[station.service]}`}>
-              {SERVICE_LABEL[station.service]}
-            </span>
             {station.terminal && (
               <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
                 Terminal
@@ -100,14 +97,21 @@ export default async function CTAStationPage({ params }: Props) {
         )}
       </PageHeader>
 
-      <StationMap
-        latitude={station.location.latitude}
-        longitude={station.location.longitude}
-        name={station.name}
-        markerColor={line?.color}
-      />
-      <Arrivals slug={stationSlug} service="cta" hasSchedule={!!station.ctaMapId} />
-      <StationDetail station={station} />
+      <div className="flex gap-4 items-start">
+        <div className="w-2/3">
+          <StationMap
+            latitude={station.location.latitude}
+            longitude={station.location.longitude}
+            name={station.name}
+            markerColor={line?.color}
+          />
+          <StationDetail station={station} />
+        </div>
+        <div className="w-1/3">
+          <Arrivals slug={stationSlug} service="cta" hasSchedule={!!station.ctaMapId} />
+        </div>
+      </div>
+
     </main>
   )
 }
