@@ -202,10 +202,10 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 
 **Secrets and environment variables:**
 
-| Secret             | Where it lives          | What it is                                |
-| ------------------ | ----------------------- | ----------------------------------------- |
-| `METRA_API_TOKEN`  | Cloud Secret Manager    | Metra GTFS Realtime API key (server-only) |
-| Firebase SA creds  | Firebase App Hosting    | Managed automatically by App Hosting      |
+| Secret            | Where it lives       | What it is                                |
+| ----------------- | -------------------- | ----------------------------------------- |
+| `METRA_API_TOKEN` | Cloud Secret Manager | Metra GTFS Realtime API key (server-only) |
+| Firebase SA creds | Firebase App Hosting | Managed automatically by App Hosting      |
 
 Secrets are configured in `apphosting.yaml` and managed via `firebase apphosting:secrets:set`.
 

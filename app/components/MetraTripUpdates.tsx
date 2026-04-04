@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { fetchMetraFeed } from '../lib/metra-realtime'
 
 export default function MetraTripUpdates() {
-  const [data, setData] = useState<ReturnType<typeof fetchMetraFeed> extends Promise<infer T> ? T | null : never>(null)
+  const [data, setData] =
+    useState<ReturnType<typeof fetchMetraFeed> extends Promise<infer T> ? T | null : never>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

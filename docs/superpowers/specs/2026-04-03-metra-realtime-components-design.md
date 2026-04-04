@@ -13,14 +13,14 @@ The site currently uses static GTFS schedule data for Metra (pre-generated JSON 
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| API key exposure | Client-side (exposed in browser) | Static export site, no server runtime. Key is free/public-tier. |
-| Key storage | `NEXT_PUBLIC_METRA_API_TOKEN` env var | Next.js convention for browser-exposed vars. `.env.local` for dev, GitHub secret for CI. |
-| Protobuf library | `gtfs-realtime-bindings` | Official Google GTFS Realtime JS bindings. Purpose-built. |
-| Component structure | Three separate components | Matches existing patterns (Arrivals.tsx), single responsibility, easy to relocate later. |
-| Placement | Home page below Hero | Temporary debug placement. Will move to appropriate pages once data structure is understood. |
-| Polling interval | 30 seconds | Matches Metra's stated update frequency. |
+| Decision            | Choice                                | Rationale                                                                                    |
+| ------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| API key exposure    | Client-side (exposed in browser)      | Static export site, no server runtime. Key is free/public-tier.                              |
+| Key storage         | `NEXT_PUBLIC_METRA_API_TOKEN` env var | Next.js convention for browser-exposed vars. `.env.local` for dev, GitHub secret for CI.     |
+| Protobuf library    | `gtfs-realtime-bindings`              | Official Google GTFS Realtime JS bindings. Purpose-built.                                    |
+| Component structure | Three separate components             | Matches existing patterns (Arrivals.tsx), single responsibility, easy to relocate later.     |
+| Placement           | Home page below Hero                  | Temporary debug placement. Will move to appropriate pages once data structure is understood. |
+| Polling interval    | 30 seconds                            | Matches Metra's stated update frequency.                                                     |
 
 ---
 
@@ -56,14 +56,13 @@ export async function fetchMetraFeed(feedType: FeedType) {
   if (!res.ok) throw new Error(`Metra API error: ${res.status}`)
 
   const buffer = await res.arrayBuffer()
-  const feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(
-    new Uint8Array(buffer)
-  )
+  const feed = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(new Uint8Array(buffer))
   return feed
 }
 ```
 
 **Responsibilities:**
+
 - Constructs the URL with auth token
 - Fetches binary response
 - Decodes protobuf into a JS object using `gtfs-realtime-bindings`
@@ -210,6 +209,7 @@ This package provides `GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(
 ## Testing Strategy
 
 ### Manual verification
+
 1. Run `npm run dev` with `.env.local` set
 2. Open browser to `http://localhost:3000`
 3. Open DevTools Console
@@ -218,12 +218,14 @@ This package provides `GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(
 6. Check that each component card shows entity count
 
 ### Unit tests
+
 - Test `fetchMetraFeed` utility with mocked fetch responses
 - Test each component renders loading → loaded states
 - Test error state when API key is missing
 - Test cleanup (interval cleared on unmount)
 
 ### Build verification
+
 - `npm run build` succeeds (static export still works with client-only components)
 - No `firebase-admin` or server-only imports in the new components
 

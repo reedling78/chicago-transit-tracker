@@ -17,11 +17,13 @@ Created the ship-it skill with a 6-step process: Analyze → Verify → Branch �
 ### Task 1: Create the ship-it skill
 
 **Files:**
+
 - Create: `.claude/skills/ship-it/SKILL.md`
 
 - [x] **Step 1: Write SKILL.md with frontmatter and process**
 
 Initial skill included:
+
 - YAML frontmatter with name, description, and trigger phrases
 - 6-step process: Analyze → Verify → Branch → Commit → PR → Report
 - Common mistakes table
@@ -38,6 +40,7 @@ Run a subagent WITH the skill loaded. Verified it follows all 6 steps correctly,
 ### Task 2: Write spec and plan docs
 
 **Files:**
+
 - Create: `docs/superpowers/specs/2026-04-03-ship-it-skill-design.md`
 - Create: `docs/superpowers/plans/2026-04-03-ship-it-skill.md`
 
@@ -49,11 +52,13 @@ Run a subagent WITH the skill loaded. Verified it follows all 6 steps correctly,
 ## Phase 2: Expanded Skill (v2 — 9 steps)
 
 User requested three additions:
+
 1. **Generate/update unit tests** for changed source files before running `npm test`
 2. **Lint check and auto-fix** — run `npm run lint`, auto-fix if needed, stop if unresolvable
 3. **Update README.md and CLAUDE.md** — keep documentation current with code changes
 
 ### Key design decisions
+
 - **Tests before lint** — lint runs after test generation so it catches formatting issues in generated test files too
 - **Docs after lint** — docs are written based on the final state of the code (post-lint-fix)
 - **Surgical doc updates only** — skill specifies which README/CLAUDE.md sections to check against changes, never rewrites the whole file
@@ -64,6 +69,7 @@ New step order: Analyze → Generate Tests → Run Tests + Build → Lint → Up
 ### Task 3: Update SKILL.md
 
 **Files:**
+
 - Modify: `.claude/skills/ship-it/SKILL.md`
 
 - [x] **Step 1: Replace SKILL.md with the updated 9-step version**
@@ -89,6 +95,7 @@ Read skill back — all 9 steps present, frontmatter valid, no placeholders.
 ### Task 4: Update Spec and Plan Docs
 
 **Files:**
+
 - Modify: `docs/superpowers/specs/2026-04-03-ship-it-skill-design.md`
 - Modify: `docs/superpowers/plans/2026-04-03-ship-it-skill.md`
 
