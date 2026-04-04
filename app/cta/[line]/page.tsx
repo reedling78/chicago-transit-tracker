@@ -93,7 +93,7 @@ export default async function CTALinePage({ params }: Props) {
             }
           />
           <LineDetail line={line} />
-          <CTAAlerts line={line} />
+          <CTAAlerts line={line} hideChips />
         </div>
         <div className="lg:col-span-1">
           <StationList

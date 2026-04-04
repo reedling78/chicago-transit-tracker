@@ -197,9 +197,18 @@ describe('MetraAlerts with line prop', () => {
     })
   })
 
-  it('does not render filter chips', async () => {
+  it('still renders filter chips when line is passed without hideChips', async () => {
     mockFetch.mockResolvedValue(sampleFeed as never)
     render(<MetraAlerts line={metraLine} />)
+    await waitFor(() => {
+      expect(screen.getByText('UPN Elevator Out')).toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument()
+  })
+
+  it('hides filter chips when hideChips is set', async () => {
+    mockFetch.mockResolvedValue(sampleFeed as never)
+    render(<MetraAlerts line={metraLine} hideChips />)
     await waitFor(() => {
       expect(screen.getByText('UPN Elevator Out')).toBeInTheDocument()
     })
@@ -215,5 +224,39 @@ describe('MetraAlerts with line prop', () => {
       expect(screen.getByText('No alerts for Heritage Corridor')).toBeInTheDocument()
     })
     expect(screen.queryByText('Show all alerts')).not.toBeInTheDocument()
+  })
+})
+
+describe('MetraAlerts with limit prop', () => {
+  it('shows only the limited number of cards', async () => {
+    mockFetch.mockResolvedValue(sampleFeed as never)
+    render(<MetraAlerts limit={2} />)
+    await waitFor(() => {
+      expect(screen.getByText('MD-N Construction')).toBeInTheDocument()
+      expect(screen.getByText('UPN Elevator Out')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Track Construction')).not.toBeInTheDocument()
+    expect(screen.queryByText('MED Power Outage')).not.toBeInTheDocument()
+  })
+
+  it('renders a "View all" link when alerts exceed the limit', async () => {
+    mockFetch.mockResolvedValue(sampleFeed as never)
+    render(<MetraAlerts limit={2} />)
+    await waitFor(() => {
+      const link = screen.getByText(/View all 4 alerts/)
+      expect(link.closest('a')).toHaveAttribute('href', '/metra/alerts')
+    })
+  })
+
+  it('does not render a "View all" link when alerts fit within the limit', async () => {
+    mockFetch.mockResolvedValue({
+      header: sampleFeed.header,
+      entity: [sampleFeed.entity[0]],
+    } as never)
+    render(<MetraAlerts limit={3} />)
+    await waitFor(() => {
+      expect(screen.getByText('MD-N Construction')).toBeInTheDocument()
+    })
+    expect(screen.queryByText(/View all/)).not.toBeInTheDocument()
   })
 })
