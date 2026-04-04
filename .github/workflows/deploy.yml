@@ -30,6 +30,8 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          TZ: America/Chicago
 
 # Deployment is handled automatically by Firebase App Hosting.
 # Push to main triggers a build and deploy via GitHub integration.
