@@ -28,6 +28,7 @@
     "adm-zip": "^0.5.16",
     "csv-parse": "^6.2.1",
     "firebase-admin": "^13.7.0",
+    "gtfs-realtime-bindings": "^1.1.1",
     "maplibre-gl": "^4.7.1",
     "next": "16.2.1",
     "react": "19.2.4",
