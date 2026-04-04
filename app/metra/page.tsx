@@ -35,8 +35,8 @@ export default async function MetraPage() {
         description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties."
       />
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <div>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="md:col-span-2">
           <h2 className="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
             11 Metra Lines
           </h2>
