@@ -8,7 +8,14 @@ const mockFetch = fetchMetraFeed as jest.MockedFunction<typeof fetchMetraFeed>
 beforeEach(() => {
   jest.clearAllMocks()
   jest.useFakeTimers({
-    doNotFake: ['setTimeout', 'clearTimeout', 'setImmediate', 'clearImmediate', 'nextTick', 'queueMicrotask'],
+    doNotFake: [
+      'setTimeout',
+      'clearTimeout',
+      'setImmediate',
+      'clearImmediate',
+      'nextTick',
+      'queueMicrotask',
+    ],
   })
 })
 
@@ -24,7 +31,10 @@ describe('MetraPositions', () => {
   })
 
   it('shows entity count after successful fetch', async () => {
-    mockFetch.mockResolvedValue({ header: {}, entity: [{ id: '1' }, { id: '2' }, { id: '3' }] } as never)
+    mockFetch.mockResolvedValue({
+      header: {},
+      entity: [{ id: '1' }, { id: '2' }, { id: '3' }],
+    } as never)
     render(<MetraPositions />)
     await waitFor(() => {
       expect(screen.getByText('3 entities — check console')).toBeInTheDocument()

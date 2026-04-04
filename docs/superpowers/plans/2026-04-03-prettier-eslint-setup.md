@@ -13,6 +13,7 @@
 ### Task 1: Install Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 - [x] **Step 1: Install Prettier + integration packages**
@@ -30,6 +31,7 @@ Run: `npx prettier --version`
 ### Task 2: Create Prettier Configuration
 
 **Files:**
+
 - Create: `.prettierrc`
 - Create: `.prettierignore`
 
@@ -62,6 +64,7 @@ public
 ### Task 3: Update ESLint Config
 
 **Files:**
+
 - Modify: `eslint.config.mjs`
 
 - [x] **Step 1: Add eslint-config-prettier to flat config**
@@ -91,6 +94,7 @@ Run: `npx eslint`
 ### Task 4: Add npm Scripts
 
 **Files:**
+
 - Modify: `package.json`
 
 - [x] **Step 1: Update scripts in `package.json`**
@@ -107,6 +111,7 @@ Run: `npx eslint`
 ### Task 5: Configure VS Code
 
 **Files:**
+
 - Modify: `.vscode/settings.json`
 - Create: `.vscode/extensions.json`
 

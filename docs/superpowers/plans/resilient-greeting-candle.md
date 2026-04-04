@@ -31,11 +31,13 @@ Adding three client-side debug components (MetraAlerts, MetraPositions, MetraTri
 ### Step 3: Create the three components
 
 **New files:**
+
 - `app/components/MetraAlerts.tsx`
 - `app/components/MetraPositions.tsx`
 - `app/components/MetraTripUpdates.tsx`
 
 Each component follows the same pattern:
+
 - `'use client'` directive
 - `useState` for `data`, `loading`, `error`
 - `useEffect` that calls `fetchMetraFeed()` on mount and every 30 seconds
@@ -76,19 +78,19 @@ Each component follows the same pattern:
 
 ## Critical Files
 
-| File | Action |
-|------|--------|
-| `app/lib/metra-realtime.ts` | Create |
-| `app/components/MetraAlerts.tsx` | Create |
-| `app/components/MetraPositions.tsx` | Create |
-| `app/components/MetraTripUpdates.tsx` | Create |
-| `app/page.tsx` | Modify |
-| `.github/workflows/deploy.yml` | Modify |
-| `.env.local` | Create (not committed) |
-| `__tests__/metra-realtime.test.ts` | Create |
-| `__tests__/MetraAlerts.test.tsx` | Create |
-| `__tests__/MetraPositions.test.tsx` | Create |
-| `__tests__/MetraTripUpdates.test.tsx` | Create |
+| File                                  | Action                 |
+| ------------------------------------- | ---------------------- |
+| `app/lib/metra-realtime.ts`           | Create                 |
+| `app/components/MetraAlerts.tsx`      | Create                 |
+| `app/components/MetraPositions.tsx`   | Create                 |
+| `app/components/MetraTripUpdates.tsx` | Create                 |
+| `app/page.tsx`                        | Modify                 |
+| `.github/workflows/deploy.yml`        | Modify                 |
+| `.env.local`                          | Create (not committed) |
+| `__tests__/metra-realtime.test.ts`    | Create                 |
+| `__tests__/MetraAlerts.test.tsx`      | Create                 |
+| `__tests__/MetraPositions.test.tsx`   | Create                 |
+| `__tests__/MetraTripUpdates.test.tsx` | Create                 |
 
 ## Existing code to reuse
 

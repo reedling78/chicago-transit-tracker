@@ -8,7 +8,14 @@ const mockFetch = fetchMetraFeed as jest.MockedFunction<typeof fetchMetraFeed>
 beforeEach(() => {
   jest.clearAllMocks()
   jest.useFakeTimers({
-    doNotFake: ['setTimeout', 'clearTimeout', 'setImmediate', 'clearImmediate', 'nextTick', 'queueMicrotask'],
+    doNotFake: [
+      'setTimeout',
+      'clearTimeout',
+      'setImmediate',
+      'clearImmediate',
+      'nextTick',
+      'queueMicrotask',
+    ],
   })
 })
 
