@@ -3,6 +3,7 @@ import { getLinesForService, getLine, getStationsForLine } from '../../lib/trans
 import Link from 'next/link'
 import Breadcrumb from '../../components/Breadcrumb'
 import CTALineIcon from '../../components/CTALineIcon'
+import CTAAlerts from '../../components/CTAAlerts'
 import LineDetail from '../../components/LineDetail'
 import PageHeader from '../../components/PageHeader'
 import StationList from '../../components/StationList'
@@ -92,6 +93,7 @@ export default async function CTALinePage({ params }: Props) {
             }
           />
           <LineDetail line={line} />
+          <CTAAlerts line={line} />
         </div>
         <div className="lg:col-span-1">
           <StationList
