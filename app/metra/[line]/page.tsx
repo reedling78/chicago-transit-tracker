@@ -97,7 +97,7 @@ export default async function MetraLinePage({ params }: Props) {
             }
           />
           <LineDetail line={line} />
-          <MetraAlerts line={line} />
+          <MetraAlerts line={line} limit={3} hideChips />
         </div>
         <div className="lg:col-span-1">
           <StationList

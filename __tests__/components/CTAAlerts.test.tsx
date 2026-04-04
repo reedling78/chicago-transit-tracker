@@ -230,9 +230,18 @@ describe('CTAAlerts with line prop', () => {
     })
   })
 
-  it('does not render filter chips', async () => {
-    mockFetch.mockResolvedValue([sampleAlerts[0]] as never)
+  it('still renders filter chips when line is passed without hideChips', async () => {
+    mockFetch.mockResolvedValue([sampleAlerts[0], sampleAlerts[3]] as never)
     render(<CTAAlerts line={redLine} />)
+    await waitFor(() => {
+      expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: 'Red Line' })).toBeInTheDocument()
+  })
+
+  it('hides filter chips when hideChips is set', async () => {
+    mockFetch.mockResolvedValue([sampleAlerts[0]] as never)
+    render(<CTAAlerts line={redLine} hideChips />)
     await waitFor(() => {
       expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
     })
@@ -249,5 +258,35 @@ describe('CTAAlerts with line prop', () => {
       expect(screen.getByText('No alerts for Yellow Line')).toBeInTheDocument()
     })
     expect(screen.queryByText('Show all alerts')).not.toBeInTheDocument()
+  })
+})
+
+describe('CTAAlerts with limit prop', () => {
+  it('shows only the limited number of cards', async () => {
+    mockFetch.mockResolvedValue(sampleAlerts as never)
+    render(<CTAAlerts limit={2} />)
+    await waitFor(() => {
+      expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
+      expect(screen.getByText('Blue Line Track Maintenance')).toBeInTheDocument()
+    })
+    expect(screen.queryByText('Brown Line Station Work')).not.toBeInTheDocument()
+  })
+
+  it('renders a "View all" link when alerts exceed the limit', async () => {
+    mockFetch.mockResolvedValue(sampleAlerts as never)
+    render(<CTAAlerts limit={2} />)
+    await waitFor(() => {
+      const link = screen.getByText(/View all 4 alerts/)
+      expect(link.closest('a')).toHaveAttribute('href', '/cta/alerts')
+    })
+  })
+
+  it('does not render a "View all" link when alerts fit within the limit', async () => {
+    mockFetch.mockResolvedValue([sampleAlerts[0]] as never)
+    render(<CTAAlerts limit={3} />)
+    await waitFor(() => {
+      expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
+    })
+    expect(screen.queryByText(/View all/)).not.toBeInTheDocument()
   })
 })

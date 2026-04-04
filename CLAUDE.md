@@ -32,12 +32,16 @@ app/
   robots.ts                   Robots.txt config
   cta/
     page.tsx                  CTA service list page
+    alerts/
+      page.tsx                CTA service alerts page
     [line]/
       page.tsx                CTA line detail page
       [station]/
         page.tsx              CTA station detail page
   metra/
     page.tsx                  Metra service list page
+    alerts/
+      page.tsx                Metra service alerts page
     [line]/
       page.tsx                Metra line detail page
       [station]/

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { fetchCTAAlerts, getRailServices } from '../lib/cta-alerts'
 import type { CTAAlert } from '../lib/cta-alerts'
 import type { Line } from '../lib/types'
@@ -120,7 +121,15 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
-export default function CTAAlerts({ line }: { line?: Line }) {
+export default function CTAAlerts({
+  line,
+  limit,
+  hideChips,
+}: {
+  line?: Line
+  limit?: number
+  hideChips?: boolean
+}) {
   const fixedRouteId = line ? (SLUG_TO_ROUTE_ID[line.slug] ?? null) : null
   const [data, setData] = useState<CTAAlert[]>([])
   const [loading, setLoading] = useState(true)
@@ -193,8 +202,8 @@ export default function CTAAlerts({ line }: { line?: Line }) {
         </h2>
       </div>
 
-      {/* Filter chips — hidden when a specific line is passed in */}
-      {!fixedRouteId && activeRoutes.size > 0 && (
+      {/* Filter chips */}
+      {!hideChips && activeRoutes.size > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedRoute('all')}
@@ -301,9 +310,17 @@ export default function CTAAlerts({ line }: { line?: Line }) {
       {/* Alert cards */}
       {!loading && !error && filteredAlerts.length > 0 && (
         <div className="grid grid-cols-1 gap-4">
-          {filteredAlerts.map((alert) => (
+          {(limit ? filteredAlerts.slice(0, limit) : filteredAlerts).map((alert) => (
             <AlertCard key={alert.AlertId} alert={alert} />
           ))}
+          {limit && filteredAlerts.length > limit && (
+            <Link
+              href="/cta/alerts"
+              className="block rounded-xl border border-gray-200 bg-white py-3 text-center text-sm font-medium text-blue-600 transition-colors hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:text-blue-400 dark:hover:bg-white/10"
+            >
+              View all {filteredAlerts.length} alerts →
+            </Link>
+          )}
         </div>
       )}
     </div>

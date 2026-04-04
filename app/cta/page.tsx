@@ -55,7 +55,7 @@ export default async function CTAPage() {
           </div>
         </div>
         <div>
-          <CTAAlerts />
+          <CTAAlerts limit={3} hideChips />
         </div>
       </div>
     </main>

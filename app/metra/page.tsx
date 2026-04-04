@@ -57,7 +57,7 @@ export default async function MetraPage() {
           </div>
         </div>
         <div>
-          <MetraAlerts />
+          <MetraAlerts limit={3} hideChips />
         </div>
       </div>
     </main>
