@@ -43,6 +43,8 @@ app/
       [station]/
         page.tsx              Metra station detail page
   api/
+    cta/alerts/
+      route.ts                Server-side proxy for CTA Customer Alerts API
     metra/[...path]/
       route.ts                Server-side proxy for Metra GTFS Realtime API
   components/
@@ -50,7 +52,8 @@ app/
     MobileMenuToggle.tsx      Hamburger menu (client component)
     ThemeToggle.tsx           Light/dark toggle — persisted to localStorage
     Hero.tsx                  Home page banner with CTA and Metra service cards
-    MetraAlerts.tsx           Metra realtime alerts feed (client component, debug)
+    CTAAlerts.tsx             CTA realtime rail alerts feed (client component)
+    MetraAlerts.tsx           Metra realtime alerts feed (client component)
     MetraPositions.tsx        Metra realtime vehicle positions (client component, debug)
     MetraTripUpdates.tsx      Metra realtime trip updates (client component, debug)
     PageHeader.tsx            Uniform page title with optional badges/description
@@ -60,6 +63,7 @@ app/
     StationDetail.tsx         Full station detail layout
   lib/
     firebase-admin.ts         Firestore singleton (Admin SDK)
+    cta-alerts.ts             Client-side fetch + types for CTA Customer Alerts API
     metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
     transit.ts                Data access functions — getLinesForService, getLine, etc.
     types.ts                  Line and Station TypeScript interfaces
