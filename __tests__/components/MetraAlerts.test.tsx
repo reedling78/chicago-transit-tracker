@@ -55,7 +55,7 @@ describe('MetraAlerts', () => {
   it('shows skeleton loading state initially', () => {
     mockFetch.mockReturnValue(new Promise(() => {}))
     render(<MetraAlerts />)
-    expect(screen.getByText('Metra Service Alerts')).toBeInTheDocument()
+    expect(screen.getByText('Service Alerts')).toBeInTheDocument()
   })
 
   it('renders alert cards after successful fetch', async () => {

@@ -43,6 +43,7 @@ export default async function CTAPage() {
             subtitle={line.termini.join(' → ')}
             meta={`${line.stationCount} stations · ${line.routeMiles} mi`}
             icon={<CTALineIcon line={line.shortName} size={40} />}
+            accentColor={line.color}
           />
         ))}
       </div>

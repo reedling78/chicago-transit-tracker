@@ -21,8 +21,9 @@ exports[`CTA list page matches snapshot 1`] = `
       class="flex flex-col gap-3"
     >
       <a
-        class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
+        class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:bg-white/3 dark:border-gray-700 dark:hover:border-gray-600"
         href="/cta/red"
+        style="border-left-width: 4px; border-left-color: rgb(198, 12, 48);"
       >
         <div
           class="flex min-w-0 items-center gap-3"
@@ -111,7 +112,7 @@ exports[`CTA list page matches snapshot 1`] = `
           class="flex shrink-0 items-center gap-3"
         >
           <span
-            class="text-sm text-gray-400 dark:text-gray-500"
+            class="hidden text-sm text-gray-400 sm:inline dark:text-gray-500"
           >
             33 stations · 23 mi
           </span>

@@ -120,6 +120,13 @@ function SkeletonCard() {
   )
 }
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
 export default function MetraAlerts({ line }: { line?: Line }) {
   const fixedRoute = line?.metraLineCode ?? null
   const [data, setData] = useState<FeedData | null>(null)
@@ -185,9 +192,11 @@ export default function MetraAlerts({ line }: { line?: Line }) {
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Metra Service Alerts</h2>
+        <h2 className="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
+          Service Alerts
+        </h2>
         {!loading && !error && (
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-white/10 dark:text-white/70">
+          <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white">
             {filteredAlerts.length} active
           </span>
         )}
@@ -217,7 +226,7 @@ export default function MetraAlerts({ line }: { line?: Line }) {
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                   isSelected
                     ? 'shadow-sm ring-2 ring-offset-1 dark:ring-offset-gray-950'
-                    : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:text-white/60 dark:hover:bg-white/10'
+                    : 'hover:opacity-80'
                 }`}
                 style={
                   isSelected
@@ -225,7 +234,11 @@ export default function MetraAlerts({ line }: { line?: Line }) {
                         backgroundColor: colors?.bg ?? '#6b7280',
                         color: colors?.text ?? '#fff',
                       }
-                    : undefined
+                    : {
+                        backgroundColor: hexToRgba(colors?.bg ?? '#6b7280', 0.1),
+                        border: `1px solid ${hexToRgba(colors?.bg ?? '#6b7280', 0.25)}`,
+                        color: colors?.bg ?? '#6b7280',
+                      }
                 }
               >
                 {routeId}

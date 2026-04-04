@@ -18,51 +18,158 @@ exports[`Metra list page matches snapshot 1`] = `
       </p>
     </div>
     <div
-      class="flex flex-col gap-3"
+      class="grid grid-cols-1 gap-8 md:grid-cols-2"
     >
-      <a
-        class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
-        href="/metra/bnsf"
-      >
-        <div
-          class="flex min-w-0 items-center gap-3"
+      <div>
+        <h2
+          class="mb-4 text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
         >
-          <span
-            class="shrink-0 rounded px-2 py-0.5 text-xs font-semibold"
-            style="background-color: rgb(26, 61, 122); color: rgb(255, 255, 255);"
+          11 Metra Lines
+        </h2>
+        <div
+          class="flex flex-col gap-3"
+        >
+          <a
+            class="group flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4 shadow-sm transition hover:border-gray-300 hover:shadow-md dark:bg-white/3 dark:border-gray-700 dark:hover:border-gray-600"
+            href="/metra/bnsf"
+            style="border-left-width: 4px; border-left-color: rgb(26, 61, 122);"
           >
-            BNSF
-          </span>
+            <div
+              class="flex min-w-0 items-center gap-3"
+            >
+              <span
+                class="shrink-0 rounded px-2 py-0.5 text-xs font-semibold"
+                style="background-color: rgb(26, 61, 122); color: rgb(255, 255, 255);"
+              >
+                BNSF
+              </span>
+              <div
+                class="min-w-0"
+              >
+                <p
+                  class="truncate font-medium text-gray-900 dark:text-white"
+                >
+                  BNSF Railway
+                </p>
+                <p
+                  class="truncate text-sm text-gray-500 dark:text-gray-400"
+                >
+                  Union Station → Aurora
+                </p>
+              </div>
+            </div>
+            <div
+              class="flex shrink-0 items-center gap-3"
+            >
+              <span
+                class="hidden text-sm text-gray-400 sm:inline dark:text-gray-500"
+              >
+                24 stations · 37 mi
+              </span>
+              <span
+                class="text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400"
+              >
+                →
+              </span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div>
           <div
-            class="min-w-0"
+            class="mb-6 flex items-center gap-3"
           >
-            <p
-              class="truncate font-medium text-gray-900 dark:text-white"
+            <h2
+              class="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500"
             >
-              BNSF Railway
-            </p>
-            <p
-              class="truncate text-sm text-gray-500 dark:text-gray-400"
+              Service Alerts
+            </h2>
+          </div>
+          <div
+            class="grid grid-cols-1 gap-4"
+          >
+            <div
+              class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
             >
-              Union Station → Aurora
-            </p>
+              <div
+                class="mb-3 flex gap-2"
+              >
+                <div
+                  class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
+                />
+                <div
+                  class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
+                />
+              </div>
+              <div
+                class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
+              />
+              <div
+                class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+              />
+              <div
+                class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+              />
+              <div
+                class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
+              />
+            </div>
+            <div
+              class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-3 flex gap-2"
+              >
+                <div
+                  class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
+                />
+                <div
+                  class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
+                />
+              </div>
+              <div
+                class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
+              />
+              <div
+                class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+              />
+              <div
+                class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+              />
+              <div
+                class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
+              />
+            </div>
+            <div
+              class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-3 flex gap-2"
+              >
+                <div
+                  class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
+                />
+                <div
+                  class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
+                />
+              </div>
+              <div
+                class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
+              />
+              <div
+                class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+              />
+              <div
+                class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+              />
+              <div
+                class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
+              />
+            </div>
           </div>
         </div>
-        <div
-          class="flex shrink-0 items-center gap-3"
-        >
-          <span
-            class="text-sm text-gray-400 dark:text-gray-500"
-          >
-            24 stations · 37 mi
-          </span>
-          <span
-            class="text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400"
-          >
-            →
-          </span>
-        </div>
-      </a>
+      </div>
     </div>
   </main>
 </div>

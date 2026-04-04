@@ -38,6 +38,18 @@ describe('LinkCard', () => {
     expect(screen.getByRole('link')).toHaveAttribute('href', '/cta/red')
   })
 
+  it('applies accent color left border when accentColor is provided', () => {
+    render(<LinkCard href="/metra/bnsf" title="BNSF Railway" accentColor="#1A3D7A" />)
+    const link = screen.getByRole('link')
+    expect(link).toHaveStyle({ borderLeftWidth: '4px', borderLeftColor: '#1A3D7A' })
+  })
+
+  it('does not apply accent border when accentColor is omitted', () => {
+    render(<LinkCard href="/cta/red" title="Red Line" />)
+    const link = screen.getByRole('link')
+    expect(link).not.toHaveStyle({ borderLeftWidth: '4px' })
+  })
+
   it('matches snapshot', () => {
     const { container } = render(
       <LinkCard
