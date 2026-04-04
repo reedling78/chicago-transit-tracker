@@ -1,6 +1,26 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import StationTimetable from '@/app/components/StationTimetable'
 
+// Fix current time to a Wednesday so the default tab is always "Weekday" in snapshots.
+beforeAll(() => {
+  jest.useFakeTimers({
+    doNotFake: [
+      'setTimeout',
+      'clearTimeout',
+      'setInterval',
+      'clearInterval',
+      'setImmediate',
+      'clearImmediate',
+      'nextTick',
+      'queueMicrotask',
+    ],
+    now: new Date('2024-01-17T12:00:00.000Z'), // Wed Jan 17
+  })
+})
+afterAll(() => {
+  jest.useRealTimers()
+})
+
 const mockTrips = {
   weekday: [
     {
