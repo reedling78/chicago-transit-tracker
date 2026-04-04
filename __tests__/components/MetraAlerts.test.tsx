@@ -68,11 +68,11 @@ describe('MetraAlerts', () => {
     })
   })
 
-  it('shows alert count badge', async () => {
+  it('shows alert count in header', async () => {
     mockFetch.mockResolvedValue(sampleFeed as never)
     render(<MetraAlerts />)
     await waitFor(() => {
-      expect(screen.getByText('4 active')).toBeInTheDocument()
+      expect(screen.getByText('4 Service Alerts')).toBeInTheDocument()
     })
   })
 
@@ -189,11 +189,11 @@ describe('MetraAlerts with line prop', () => {
     expect(screen.queryByText('MED Power Outage')).not.toBeInTheDocument()
   })
 
-  it('shows filtered count in badge', async () => {
+  it('shows filtered count in header', async () => {
     mockFetch.mockResolvedValue(sampleFeed as never)
     render(<MetraAlerts line={metraLine} />)
     await waitFor(() => {
-      expect(screen.getByText('2 active')).toBeInTheDocument()
+      expect(screen.getByText('2 Service Alerts')).toBeInTheDocument()
     })
   })
 

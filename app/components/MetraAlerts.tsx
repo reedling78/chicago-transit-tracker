@@ -191,15 +191,10 @@ export default function MetraAlerts({ line }: { line?: Line }) {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6">
         <h2 className="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
-          Service Alerts
+          {!loading && !error ? `${filteredAlerts.length} Service Alerts` : 'Service Alerts'}
         </h2>
-        {!loading && !error && (
-          <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white">
-            {filteredAlerts.length} active
-          </span>
-        )}
       </div>
 
       {/* Filter chips — hidden when a specific line is passed in */}
