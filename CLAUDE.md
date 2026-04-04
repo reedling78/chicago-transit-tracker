@@ -17,7 +17,7 @@ When introducing a new feature or workflow pattern, consider whether it would ma
 
 ## Repository State
 
-A Next.js 16 / Tailwind CSS v4 / TypeScript static web app for exploring CTA and Metra transit lines and stations. Data is stored in Firebase Firestore and read at build time via Firebase Admin SDK. The site is statically exported and deployed to Firebase Hosting.
+A Next.js 16 / Tailwind CSS v4 / TypeScript web app for exploring CTA and Metra transit lines and stations. Data is stored in Firebase Firestore and read at build time via Firebase Admin SDK. Metra GTFS Realtime data (alerts, positions, trip updates) is fetched live via a server-side API proxy. The site is deployed to Firebase App Hosting (SSR).
 
 ---
 
@@ -42,11 +42,17 @@ app/
       page.tsx                Metra line detail page
       [station]/
         page.tsx              Metra station detail page
+  api/
+    metra/[...path]/
+      route.ts                Server-side proxy for Metra GTFS Realtime API
   components/
     Navbar.tsx                Top nav — links, ThemeToggle, MobileMenuToggle
     MobileMenuToggle.tsx      Hamburger menu (client component)
     ThemeToggle.tsx           Light/dark toggle — persisted to localStorage
     Hero.tsx                  Home page banner with CTA and Metra service cards
+    MetraAlerts.tsx           Metra realtime alerts feed (client component, debug)
+    MetraPositions.tsx        Metra realtime vehicle positions (client component, debug)
+    MetraTripUpdates.tsx      Metra realtime trip updates (client component, debug)
     PageHeader.tsx            Uniform page title with optional badges/description
     Breadcrumb.tsx            Semantic breadcrumb for line and station pages
     LinkCard.tsx              Clickable list card used on service and line pages
@@ -54,6 +60,7 @@ app/
     StationDetail.tsx         Full station detail layout
   lib/
     firebase-admin.ts         Firestore singleton (Admin SDK)
+    metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
     transit.ts                Data access functions — getLinesForService, getLine, etc.
     types.ts                  Line and Station TypeScript interfaces
 scripts/
@@ -67,12 +74,13 @@ __tests__/                    Jest + React Testing Library test suites
 
 ## Tech Stack
 
-- Next.js 16 (App Router, `output: 'export'` — fully static)
+- Next.js 16 (App Router, SSR with `generateStaticParams` for pre-rendering)
 - React 19
 - TypeScript 5
 - Tailwind CSS v4 (class-based dark mode via `@custom-variant dark`)
 - Firebase Admin SDK (build-time Firestore reads)
-- Firebase Hosting (deployment target, serves `out/`)
+- Firebase App Hosting (SSR deployment target)
+- gtfs-realtime-bindings (protobuf decode for Metra GTFS Realtime feeds)
 - Google Analytics 4 (G-KQ1MNGBQP2, loaded via `next/script afterInteractive`)
 - Jest 30 + React Testing Library
 
@@ -82,27 +90,28 @@ __tests__/                    Jest + React Testing Library test suites
 
 ```bash
 npm run dev            # Dev server at http://localhost:3000
-npm run build          # Static export to out/
+npm run build          # Production build (SSR + static pre-rendering)
 npm run lint           # ESLint
 npm test               # Jest
 npm run test:watch     # Jest watch mode
 npm run seed:lines     # Seed Firestore lines collection
 npm run seed:stations  # Seed Firestore stations collection
-firebase deploy --only hosting   # Deploy to Firebase Hosting
-firebase deploy                  # Deploy hosting + Firestore rules
+firebase deploy --only firestore # Deploy Firestore rules
+# App deploys automatically via Firebase App Hosting on push to main
 ```
 
 ---
 
 ## Key Architecture Decisions
 
-### Static export + Firestore at build time
+### SSR with static pre-rendering + Firestore at build time
 
-`next.config.ts` sets `output: 'export'`. There is no runtime server. All Firestore reads happen during `npm run build`:
+The site runs as a server-side rendered Next.js app deployed to Firebase App Hosting. Pages with `generateStaticParams` are pre-rendered at build time (SSG). API routes (`app/api/`) run server-side on Cloud Run.
 
-- `generateStaticParams` enumerates slugs for all dynamic routes
+- `generateStaticParams` enumerates slugs for all dynamic routes (pre-rendered as static HTML)
 - Server components fetch line/station data as props
 - `serverExternalPackages: ['firebase-admin']` prevents Next.js from bundling the Admin SDK client-side
+- `app/api/metra/[...path]/route.ts` proxies Metra GTFS Realtime requests server-side (avoids CORS, hides API key)
 
 ### Dark mode
 
@@ -183,22 +192,22 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 
 ## CI / CD
 
-Deployments to Firebase Hosting are automated via GitHub Actions (`.github/workflows/deploy.yml`). Every push to `main` (i.e. every merged PR) triggers a build and deploy automatically.
+**Deployment** is handled by Firebase App Hosting. Pushing to `main` (via merged PR) triggers an automatic build and deploy through Firebase's GitHub integration. No manual deploy step needed.
 
-**Workflow steps:**
+**CI checks** run via GitHub Actions (`.github/workflows/deploy.yml`) on every push to `main` and on PRs:
 
 1. `npm ci` — install dependencies
-2. Write `FIREBASE_SERVICE_ACCOUNT` secret → `service-account.json` (needed for Firestore reads during build)
-3. `npm run build` — Next.js static export to `out/`
-4. `firebase deploy --only hosting` — upload `out/` to Firebase Hosting
-5. Credentials file is always removed at the end
+2. `npm run lint` — ESLint + Prettier
+3. `npm test` — Jest test suite
 
-**Required GitHub secrets** (Settings → Secrets and variables → Actions):
+**Secrets and environment variables:**
 
-| Secret                     | What it is                                  | How to get it                                                        |
-| -------------------------- | ------------------------------------------- | -------------------------------------------------------------------- |
-| `FIREBASE_SERVICE_ACCOUNT` | Full JSON content of `service-account.json` | Open the local file and copy its entire contents                     |
-| `FIREBASE_TOKEN`           | Firebase CI auth token                      | Run `npx firebase-tools login:ci` locally and copy the printed token |
+| Secret             | Where it lives          | What it is                                |
+| ------------------ | ----------------------- | ----------------------------------------- |
+| `METRA_API_TOKEN`  | Cloud Secret Manager    | Metra GTFS Realtime API key (server-only) |
+| Firebase SA creds  | Firebase App Hosting    | Managed automatically by App Hosting      |
+
+Secrets are configured in `apphosting.yaml` and managed via `firebase apphosting:secrets:set`.
 
 ---
 
@@ -226,7 +235,7 @@ git checkout main && git pull && git branch -d your-feature-branch
 
 **Sitemap:** Any time a new page route is added, `app/sitemap.ts` must be updated to include it. No exceptions.
 
-**Static export compatibility:** All pages must work with `output: 'export'`. No `getServerSideProps`, no API routes, no server-only runtime features. Dynamic routes require `generateStaticParams`.
+**SSR compatibility:** The site runs as a server-side rendered app. API routes are available under `app/api/`. Dynamic routes should use `generateStaticParams` for pre-rendering where possible.
 
 **Firebase Admin in server components only:** Never import `firebase-admin` or anything from `app/lib/firebase-admin.ts` in a client component (`'use client'`).
 
@@ -264,6 +273,6 @@ import { siteConfig } from '../lib/siteConfig'
 
 **New dynamic routes checklist:**
 
-1. Add `generateStaticParams` (required for static export)
+1. Add `generateStaticParams` (for pre-rendering at build time)
 2. Add `generateMetadata` with all required fields above
 3. Update `app/sitemap.ts` to include the new route

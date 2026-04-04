@@ -1,0 +1,10 @@
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  concurrency: 80
+
+env:
+  - variable: METRA_API_TOKEN
+    secret: metra-api-token
+    availability:
+      - RUNTIME

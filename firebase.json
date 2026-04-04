@@ -10,5 +10,15 @@
     "cleanUrls": true,
     "trailingSlash": false,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  },
+  "apphosting": {
+    "backends": [
+      {
+        "backendId": "default",
+        "codebase": {
+          "root": "."
+        }
+      }
+    ]
   }
 }

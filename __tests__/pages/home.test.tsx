@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import HomePage from '@/app/page'
 
+jest.mock('../../app/lib/metra-realtime', () => ({
+  fetchMetraFeed: jest.fn(() => new Promise(() => {})),
+}))
+
 describe('Home page', () => {
   it('renders the Hero heading', () => {
     const ui = HomePage()
