@@ -243,28 +243,111 @@ exports[`Home page matches snapshot 1`] = `
     <section
       class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
     >
+      <div>
+        <div
+          class="mb-6 flex items-center gap-3"
+        >
+          <h2
+            class="text-2xl font-bold text-gray-900 dark:text-white"
+          >
+            Metra Service Alerts
+          </h2>
+        </div>
+        <div
+          class="grid grid-cols-1 gap-4"
+        >
+          <div
+            class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
+          >
+            <div
+              class="mb-3 flex gap-2"
+            >
+              <div
+                class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
+              />
+              <div
+                class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
+              />
+            </div>
+            <div
+              class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
+            />
+            <div
+              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+            />
+            <div
+              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+            />
+            <div
+              class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
+            />
+          </div>
+          <div
+            class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
+          >
+            <div
+              class="mb-3 flex gap-2"
+            >
+              <div
+                class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
+              />
+              <div
+                class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
+              />
+            </div>
+            <div
+              class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
+            />
+            <div
+              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+            />
+            <div
+              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+            />
+            <div
+              class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
+            />
+          </div>
+          <div
+            class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
+          >
+            <div
+              class="mb-3 flex gap-2"
+            >
+              <div
+                class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
+              />
+              <div
+                class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
+              />
+            </div>
+            <div
+              class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
+            />
+            <div
+              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+            />
+            <div
+              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
+            />
+            <div
+              class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+    <section
+      class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
+    >
       <h2
         class="mb-6 text-2xl font-bold text-gray-900 dark:text-white"
       >
         Metra Realtime Feeds (Debug)
       </h2>
       <div
-        class="grid grid-cols-1 gap-6 md:grid-cols-3"
+        class="grid grid-cols-1 gap-6 md:grid-cols-2"
       >
-        <div
-          class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5"
-        >
-          <h3
-            class="mb-2 text-lg font-semibold text-gray-900 dark:text-white"
-          >
-            Alerts
-          </h3>
-          <p
-            class="text-sm text-gray-500 dark:text-white/50"
-          >
-            Loading...
-          </p>
-        </div>
         <div
           class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5"
         >

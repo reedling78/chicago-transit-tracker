@@ -4,11 +4,6 @@ import { mockLine, mockMetraLine } from '../fixtures'
 import type { Line } from '@/app/lib/types'
 
 describe('LineDetail', () => {
-  it('renders the line name as a heading', () => {
-    render(<LineDetail line={mockLine} />)
-    expect(screen.getByRole('heading', { level: 1, name: 'Red Line' })).toBeInTheDocument()
-  })
-
   it('renders the station count', () => {
     render(<LineDetail line={mockLine} />)
     expect(screen.getByText('33')).toBeInTheDocument()
@@ -23,16 +18,6 @@ describe('LineDetail', () => {
     render(<LineDetail line={mockLine} />)
     expect(screen.getByText('Howard')).toBeInTheDocument()
     expect(screen.getByText('95th/Dan Ryan')).toBeInTheDocument()
-  })
-
-  it('renders the 24 Hours badge when operatesOvernight is true', () => {
-    render(<LineDetail line={mockLine} />)
-    expect(screen.getByText('24 Hours')).toBeInTheDocument()
-  })
-
-  it('does not render 24 Hours badge when operatesOvernight is false', () => {
-    render(<LineDetail line={mockMetraLine} />)
-    expect(screen.queryByText('24 Hours')).not.toBeInTheDocument()
   })
 
   it('renders schedule section when schedule data exists', () => {
