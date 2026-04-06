@@ -8,8 +8,13 @@ const config: Config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/__tests__/fixtures.ts'],
+  moduleNameMapper: {
+    '^@functions/(.*)$': '<rootDir>/functions/src/$1',
+  },
+  resolver: '<rootDir>/jest.resolver.js',
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',
+    'functions/src/**/*.ts',
     '!app/**/*.d.ts',
     '!app/lib/firebase-admin.ts',
     '!app/lib/transit.ts',

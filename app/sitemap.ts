@@ -1,13 +1,11 @@
 // app/sitemap.ts
 import type { MetadataRoute } from 'next'
-import { existsSync, readFileSync } from 'fs'
-import path from 'path'
 import { getLinesForService, getStationsForLine } from './lib/transit'
+import { getFirestore } from './lib/firebase-admin'
 
 export const dynamic = 'force-static'
 
 const baseUrl = 'https://chicago-transit-tracker.com'
-const TRIP_INDEX_DIR = path.join(process.cwd(), 'public', 'data', 'metra-trip-index')
 
 interface TripIndexEntry {
   tripId: string
@@ -95,17 +93,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...ctaStationEntries,
     ...metraStationEntries,
-    ...metraLines.flatMap((line) => {
-      const indexPath = path.join(TRIP_INDEX_DIR, `${line.slug}.json`)
-      if (!existsSync(indexPath)) return []
-      const index = JSON.parse(readFileSync(indexPath, 'utf8')) as TripIndex
-      const allTrips = [...index.weekday, ...index.saturday, ...index.sunday]
-      return allTrips.map((t) => ({
-        url: `${baseUrl}/metra/${line.slug}/train/${t.tripId}`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.5,
-      }))
-    }),
+    ...(
+      await Promise.all(
+        metraLines.map(async (line) => {
+          const db = getFirestore()
+          const doc = await db.collection('metra-trip-indexes').doc(line.slug).get()
+          if (!doc.exists) return []
+          const index = doc.data() as TripIndex
+          const allTrips = [...index.weekday, ...index.saturday, ...index.sunday]
+          return allTrips.map((t) => ({
+            url: `${baseUrl}/metra/${line.slug}/train/${t.tripId}`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly' as const,
+            priority: 0.5,
+          }))
+        }),
+      )
+    ).flat(),
   ]
 }

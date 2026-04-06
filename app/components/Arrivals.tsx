@@ -98,7 +98,7 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
 
   useEffect(() => {
     if (!hasSchedule) return
-    fetch(`/data/${service}-schedules/${slug}.json`)
+    fetch(`/api/schedules/${slug}`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.json() as Promise<StationSchedule>

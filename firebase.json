@@ -1,4 +1,11 @@
 {
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "gtfs-sync",
+      "runtime": "nodejs22"
+    }
+  ],
   "firestore": {
     "database": "(default)",
     "location": "nam5",
