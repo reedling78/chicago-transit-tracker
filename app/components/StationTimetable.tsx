@@ -47,7 +47,7 @@ export default function StationTimetable({ slug }: { slug: string }) {
   const [direction, setDirection] = useState<Direction>('all')
 
   useEffect(() => {
-    fetch(`/data/metra-station-trips/${slug}.json`)
+    fetch(`/api/metra/station-trips/${slug}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => setData(d))
       .catch(() => setData(null))

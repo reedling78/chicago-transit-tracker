@@ -18,3 +18,12 @@ export function getFirestore(): admin.firestore.Firestore {
 
   return admin.apps[0]!.firestore()
 }
+
+/** Lazy Firestore instance for API routes. Initialized on first access. */
+let _db: admin.firestore.Firestore | null = null
+export const db: admin.firestore.Firestore = new Proxy({} as admin.firestore.Firestore, {
+  get(_target, prop) {
+    if (!_db) _db = getFirestore()
+    return (_db as unknown as Record<string | symbol, unknown>)[prop]
+  },
+})

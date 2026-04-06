@@ -51,6 +51,14 @@ app/
       route.ts                Server-side proxy for CTA Customer Alerts API
     metra/[...path]/
       route.ts                Server-side proxy for Metra GTFS Realtime API
+    metra/station-trips/[slug]/
+      route.ts                Metra station trips from Firestore
+    metra/trip-index/[line]/
+      route.ts                Metra trip index by line from Firestore
+    metra/trips/[tripId]/
+      route.ts                Metra trip detail from Firestore
+    schedules/[slug]/
+      route.ts                Station schedule data from Firestore
   components/
     Navbar.tsx                Top nav — links, ThemeToggle, MobileMenuToggle
     MobileMenuToggle.tsx      Hamburger menu (client component)
@@ -75,6 +83,19 @@ scripts/
   seed-lines.ts               Seeds 19 lines into Firestore
   seed-stations.ts            Seeds stations from CTA API + Metra GTFS
   tsconfig.json               CommonJS tsconfig for ts-node script execution
+functions/
+  src/
+    index.ts                  Cloud Functions entry — syncCtaGtfs, syncMetraGtfs
+    lib/
+      gtfs-utils.ts           Shared GTFS parsing utilities
+      change-detection.ts     CTA/Metra feed change detection (HEAD + published.txt)
+      firestore-writer.ts     Batched Firestore writer (500-op chunks)
+      parsers/
+        cta-schedules.ts      CTA GTFS → per-station schedule data
+        metra-schedules.ts    Metra GTFS → per-station schedule data
+        metra-trips.ts        Metra GTFS → trip details, indexes, station trips
+  package.json                Separate deps for Cloud Functions runtime
+  tsconfig.json               TypeScript config for Cloud Functions
 __tests__/                    Jest + React Testing Library test suites
 ```
 
@@ -90,6 +111,7 @@ __tests__/                    Jest + React Testing Library test suites
 - Firebase App Hosting (SSR deployment target)
 - gtfs-realtime-bindings (protobuf decode for Metra GTFS Realtime feeds)
 - Google Analytics 4 (G-KQ1MNGBQP2, loaded via `next/script afterInteractive`)
+- Firebase Cloud Functions (2nd gen) with Cloud Scheduler (automated GTFS sync)
 - Jest 30 + React Testing Library
 
 ---
@@ -106,6 +128,11 @@ npm run seed:lines     # Seed Firestore lines collection
 npm run seed:stations  # Seed Firestore stations collection
 firebase deploy --only firestore # Deploy Firestore rules
 # App deploys automatically via Firebase App Hosting on push to main
+
+# Cloud Functions (GTFS auto-sync)
+cd functions && npm install && npm run build  # Build Cloud Functions
+firebase deploy --only functions              # Deploy Cloud Functions
+firebase functions:log                        # View function logs
 ```
 
 ---
@@ -133,6 +160,25 @@ Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` appl
 
 Some stations share names across CTA and Metra (e.g. Rosemont). The seed script detects duplicates and appends `-cta` / `-metra` to the slug and doc ID.
 
+### Automated GTFS schedule sync
+
+Two Cloud Functions (2nd gen) check CTA and Metra GTFS static feeds hourly for updates:
+
+- **`syncCtaGtfs`** — runs at `:00`, checks `Last-Modified`/`ETag` headers via HEAD request on the CTA GTFS zip (~99MB). Only downloads if changed.
+- **`syncMetraGtfs`** — runs at `:05`, checks Metra's `published.txt` timestamp file. Only downloads if changed.
+
+When a feed changes, the function downloads the zip, parses it using the shared library in `functions/src/lib/`, and writes results to these Firestore collections:
+
+| Collection            | Contents                                                        | Doc count |
+| --------------------- | --------------------------------------------------------------- | --------- |
+| `schedules`           | Per-station departure times by direction + service type         | ~336      |
+| `metra-trips`         | Individual trip stop sequences                                  | ~3,431    |
+| `metra-trip-indexes`  | Trip lists per line by service type                             | 11        |
+| `metra-station-trips` | Trips per station by service type                               | ~237      |
+| `gtfs-meta`           | Change detection state (lastModified, etag, publishedTimestamp) | 2         |
+
+Client components fetch schedule data through API routes (`/api/schedules/[slug]`, `/api/metra/station-trips/[slug]`, etc.) which read from Firestore with 1-hour cache headers.
+
 ---
 
 ## Firestore Collections
@@ -147,6 +193,26 @@ Some stations share names across CTA and Metra (e.g. Rosemont). The seed script 
 
 - CTA: Chicago Open Data Portal Socrata API (no auth required)
 - Metra: GTFS static zip from Metra's public schedule feed (no auth required)
+
+### `schedules` — doc ID = station slug
+
+Per-station departure times grouped by direction and service type. Populated automatically by `syncCtaGtfs` and `syncMetraGtfs` Cloud Functions.
+
+### `metra-trips` — doc ID = safe trip ID
+
+Individual Metra trip stop sequences. Populated automatically by `syncMetraGtfs`.
+
+### `metra-trip-indexes` — doc ID = line slug
+
+Trip lists per Metra line, grouped by service type. Populated automatically by `syncMetraGtfs`.
+
+### `metra-station-trips` — doc ID = station slug
+
+Trips stopping at each Metra station, grouped by service type. Populated automatically by `syncMetraGtfs`.
+
+### `gtfs-meta` — doc ID = `cta` or `metra`
+
+Change detection state for the GTFS sync functions (lastModified, etag, publishedTimestamp, lastCheckedAt, lastSyncedAt).
 
 ---
 

@@ -1,14 +1,13 @@
 import type { Metadata } from 'next'
-import { existsSync, readFileSync } from 'fs'
-import path from 'path'
 import Link from 'next/link'
+import { getFirestore } from '../../../../lib/firebase-admin'
 import { getLinesForService } from '../../../../lib/transit'
 import Breadcrumb from '../../../../components/Breadcrumb'
 import PageHeader from '../../../../components/PageHeader'
 import { siteConfig } from '../../../../lib/siteConfig'
 
 // ---------------------------------------------------------------------------
-// Data types (mirrors generate-metra-trips.ts output)
+// Data types (mirrors Firestore metra-trips / metra-trip-indexes documents)
 // ---------------------------------------------------------------------------
 
 interface TripStop {
@@ -42,22 +41,21 @@ interface TripIndex {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Firestore helpers
 // ---------------------------------------------------------------------------
 
-const INDEX_DIR = path.join(process.cwd(), 'public', 'data', 'metra-trip-index')
-const DETAIL_DIR = path.join(process.cwd(), 'public', 'data', 'metra-trip-detail')
-
-function readIndex(lineSlug: string): TripIndex | null {
-  const p = path.join(INDEX_DIR, `${lineSlug}.json`)
-  if (!existsSync(p)) return null
-  return JSON.parse(readFileSync(p, 'utf8')) as TripIndex
+async function readIndex(lineSlug: string): Promise<TripIndex | null> {
+  const db = getFirestore()
+  const doc = await db.collection('metra-trip-indexes').doc(lineSlug).get()
+  if (!doc.exists) return null
+  return doc.data() as TripIndex
 }
 
-function readDetail(tripId: string): TripDetail | null {
-  const p = path.join(DETAIL_DIR, `${tripId}.json`)
-  if (!existsSync(p)) return null
-  return JSON.parse(readFileSync(p, 'utf8')) as TripDetail
+async function readDetail(tripId: string): Promise<TripDetail | null> {
+  const db = getFirestore()
+  const doc = await db.collection('metra-trips').doc(tripId).get()
+  if (!doc.exists) return null
+  return doc.data() as TripDetail
 }
 
 const SERVICE_LABEL: Record<string, string> = {
@@ -79,13 +77,11 @@ const SERVICE_COLOR: Record<string, string> = {
 type Props = { params: Promise<{ line: string; tripId: string }> }
 
 export async function generateStaticParams() {
-  if (!existsSync(INDEX_DIR)) return []
-
   const lines = await getLinesForService('metra')
   const pairs: { line: string; tripId: string }[] = []
 
   for (const line of lines) {
-    const index = readIndex(line.slug)
+    const index = await readIndex(line.slug)
     if (!index) continue
     const allEntries = [...index.weekday, ...index.saturday, ...index.sunday]
     for (const entry of allEntries) {
@@ -98,7 +94,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { line: lineSlug, tripId } = await params
-  const trip = readDetail(tripId)
+  const trip = await readDetail(tripId)
   if (!trip) return {}
 
   const title = `Train ${trip.trainNumber} — ${trip.headsign}`
@@ -129,7 +125,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MetraTripPage({ params }: Props) {
   const { line: lineSlug, tripId } = await params
-  const trip = readDetail(tripId)
+  const trip = await readDetail(tripId)
 
   if (!trip) {
     return (
