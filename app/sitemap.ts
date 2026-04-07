@@ -5,7 +5,7 @@ import { getFirestore } from './lib/firebase-admin'
 
 export const dynamic = 'force-static'
 
-const baseUrl = 'https://chicago-transit-tracker.com'
+const baseUrl = 'https://chicagotransittracker.com'
 
 interface TripIndexEntry {
   tripId: string

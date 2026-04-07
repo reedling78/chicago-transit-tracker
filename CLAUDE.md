@@ -337,7 +337,7 @@ These rules must be applied whenever a new page is added or an existing page's c
 ```typescript
 import { siteConfig } from '../lib/siteConfig'
 // siteConfig.name  — 'Chicago Transit Tracker'
-// siteConfig.url   — 'https://chicago-transit-tracker.com'
+// siteConfig.url   — 'https://chicagotransittracker.com'
 // siteConfig.ogImage — '/og-default.png'
 ```
 
