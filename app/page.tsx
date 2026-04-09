@@ -20,10 +20,10 @@ export const metadata: Metadata = {
   },
 }
 
-import Hero from './components/Hero'
-import MetraAlerts from './components/MetraAlerts'
-// import MetraPositions from './components/MetraPositions'se
-// import MetraTripUpdates from './components/MetraTripUpdates'
+import Hero from '@components/Hero'
+import MetraAlerts from '@components/MetraAlerts'
+// import MetraPositions from '@components/MetraPositions'
+// import MetraTripUpdates from '@components/MetraTripUpdates'
 
 export default function HomePage() {
   return (
