@@ -7,6 +7,8 @@ jest.mock('../../app/lib/transit', () => ({
   getStationsForLine: jest.fn().mockResolvedValue([mockStation]),
 }))
 
+jest.mock('../../app/components/CTAAlerts', () => () => <div data-testid="cta-alerts-mock" />)
+
 import CTALinePage from '@/app/cta/[line]/page'
 
 describe('CTA line detail page', () => {

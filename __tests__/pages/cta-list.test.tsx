@@ -5,6 +5,8 @@ jest.mock('../../app/lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([mockLine]),
 }))
 
+jest.mock('../../app/components/CTAAlerts', () => () => <div data-testid="cta-alerts-mock" />)
+
 // Import after mock is set up
 import CTAPage from '@/app/cta/page'
 

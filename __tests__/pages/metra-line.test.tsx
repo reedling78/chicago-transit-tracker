@@ -7,6 +7,8 @@ jest.mock('../../app/lib/transit', () => ({
   getStationsForLine: jest.fn().mockResolvedValue([mockMetraStation]),
 }))
 
+jest.mock('../../app/components/MetraAlerts', () => () => <div data-testid="metra-alerts-mock" />)
+
 import MetraLinePage from '@/app/metra/[line]/page'
 
 describe('Metra line detail page', () => {
