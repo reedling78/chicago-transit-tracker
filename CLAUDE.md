@@ -30,6 +30,7 @@ app/
   globals.css                 Tailwind imports + dark mode custom variant
   sitemap.ts                  Dynamic sitemap — fetches all routes from Firestore
   robots.ts                   Robots.txt config
+  not-found.tsx               Custom 404 page — transit-themed with navigation cards
   cta/
     page.tsx                  CTA service list page
     alerts/

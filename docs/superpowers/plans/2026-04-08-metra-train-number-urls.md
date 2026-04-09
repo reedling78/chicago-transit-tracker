@@ -15,6 +15,7 @@ Metra train URLs currently use the raw GTFS trip ID (e.g., `/metra/md-w/train/md
 **File**: [gtfs-utils.ts](functions/src/lib/gtfs-utils.ts)
 
 Add a function that extracts the numeric train number from a Metra trip ID:
+
 - Pattern: `{LINE}_{PREFIX}{NUMBER}_V{version}_{suffix}` → take second segment, strip alpha prefix
 - `MD-W_MW2222_V2_A` → `2222`, `BNSF_BN1200_V4_A` → `1200`, `NCS_NC100_V1_A` → `100`
 - Falls back to full trip ID if pattern doesn't match
@@ -40,6 +41,7 @@ Also add `metraTrainDocId(lineSlug, trainNumber)` → `"{lineSlug}_{trainNumber}
 **File**: [generate-metra-trips.ts](scripts/generate-metra-trips.ts)
 
 Mirror the same changes from Step 2:
+
 - Line 301: Use `extractMetraTrainNumber` (import or inline the function since this script doesn't import from functions/)
 - Line 312: Use `metraTrainDocId` pattern for filename
 - Add deduplication set
@@ -94,6 +96,7 @@ These files use `trip.tripId` or `t.tripId` for URL construction, which will aut
 ## Step 8: Regenerate static JSON data
 
 Run `npm run generate:metra-trips` to regenerate all `public/data/` files with:
+
 - Correct train numbers in `trainNumber` fields
 - Train numbers in `tripId` fields (for URL construction)
 - Deduplicated entries (3x reduction in trip detail files)
@@ -115,13 +118,13 @@ Run `npm run generate:metra-trips` to regenerate all `public/data/` files with:
 
 ## Files Modified (summary)
 
-| File | Change |
-|------|--------|
-| `functions/src/lib/gtfs-utils.ts` | Add `extractMetraTrainNumber`, `metraTrainDocId` |
-| `functions/src/lib/parsers/metra-trips.ts` | Extract train number, deduplicate, new doc keys |
-| `scripts/generate-metra-trips.ts` | Same parser changes for local script |
-| `app/metra/[line]/train/[trainNumber]/page.tsx` | Rename + update params/lookup |
-| `app/api/metra/trips/[trainNumber]/route.ts` | Rename + accept line param |
-| `__tests__/pages/metra-train.test.tsx` | Update for new param/path |
-| `__tests__/components/StationTimetable.test.tsx` | Update mock data |
-| New: `__tests__/functions/gtfs-utils.test.ts` | Test extractMetraTrainNumber |
+| File                                             | Change                                           |
+| ------------------------------------------------ | ------------------------------------------------ |
+| `functions/src/lib/gtfs-utils.ts`                | Add `extractMetraTrainNumber`, `metraTrainDocId` |
+| `functions/src/lib/parsers/metra-trips.ts`       | Extract train number, deduplicate, new doc keys  |
+| `scripts/generate-metra-trips.ts`                | Same parser changes for local script             |
+| `app/metra/[line]/train/[trainNumber]/page.tsx`  | Rename + update params/lookup                    |
+| `app/api/metra/trips/[trainNumber]/route.ts`     | Rename + accept line param                       |
+| `__tests__/pages/metra-train.test.tsx`           | Update for new param/path                        |
+| `__tests__/components/StationTimetable.test.tsx` | Update mock data                                 |
+| New: `__tests__/functions/gtfs-utils.test.ts`    | Test extractMetraTrainNumber                     |
