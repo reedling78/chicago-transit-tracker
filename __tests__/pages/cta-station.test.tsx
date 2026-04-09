@@ -62,6 +62,13 @@ describe('CTA station detail page', () => {
     expect(screen.getByText('Station not found.')).toBeInTheDocument()
   })
 
+  it('uses single-column layout on mobile and two-column on desktop', async () => {
+    const ui = await CTAStationPage({ params })
+    const { container } = render(ui)
+    const layoutDiv = container.querySelector('.flex.flex-col.lg\\:flex-row')
+    expect(layoutDiv).toBeInTheDocument()
+  })
+
   it('matches snapshot', async () => {
     const ui = await CTAStationPage({ params })
     const { container } = render(ui)
