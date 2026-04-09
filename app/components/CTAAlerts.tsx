@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { fetchCTAAlerts, getRailServices } from '../lib/cta-alerts'
-import type { CTAAlert } from '../lib/cta-alerts'
-import type { Line } from '../lib/types'
+import { fetchCTAAlerts, getRailServices } from '@lib/cta-alerts'
+import type { CTAAlert } from '@lib/cta-alerts'
+import type { Line } from '@lib/types'
 
 const SLUG_TO_ROUTE_ID: Record<string, string> = {
   red: 'Red',

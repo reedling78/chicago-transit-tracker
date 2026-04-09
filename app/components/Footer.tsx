@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { siteConfig } from '../lib/siteConfig'
+import { siteConfig } from '@lib/siteConfig'
 
 export default function Footer() {
   const year = new Date().getFullYear()

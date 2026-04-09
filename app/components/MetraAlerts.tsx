@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { fetchMetraFeed } from '../lib/metra-realtime'
-import type { Line } from '../lib/types'
+import { fetchMetraFeed } from '@lib/metra-realtime'
+import type { Line } from '@lib/types'
 import { LINE_COLORS } from './StationDetail'
 
 const METRA_LINE_NAMES: Record<string, string> = {
