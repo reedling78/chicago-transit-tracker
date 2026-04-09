@@ -1,7 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from 'next'
-import { getLinesForService, getStationsForLine } from './lib/transit'
-import { getFirestore } from './lib/firebase-admin'
+import { getLinesForService, getStationsForLine } from '@lib/transit'
+import { getFirestore } from '@lib/firebase-admin'
 
 export const dynamic = 'force-static'
 

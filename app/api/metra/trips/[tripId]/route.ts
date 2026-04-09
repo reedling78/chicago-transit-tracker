@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '../../../../lib/firebase-admin'
+import { db } from '@lib/firebase-admin'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ tripId: string }> }) {
   const { tripId } = await params

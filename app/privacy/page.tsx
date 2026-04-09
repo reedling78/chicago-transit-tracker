@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import PageHeader from '../components/PageHeader'
-import { siteConfig } from '../lib/siteConfig'
+import PageHeader from '@components/PageHeader'
+import { siteConfig } from '@lib/siteConfig'
 
 const description =
   'Privacy statement for Chicago Transit Tracker — what data we collect and how we use it.'

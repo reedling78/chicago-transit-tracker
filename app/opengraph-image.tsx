@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { readFileSync } from 'fs'
 import path from 'path'
-import { siteConfig } from './lib/siteConfig'
+import { siteConfig } from '@lib/siteConfig'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-static'

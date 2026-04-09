@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getLinesForService, getLine, getStationsForLine } from '../../lib/transit'
-import Breadcrumb from '../../components/Breadcrumb'
-import LineDetail from '../../components/LineDetail'
-import MetraAlerts from '../../components/MetraAlerts'
-import PageHeader from '../../components/PageHeader'
-import StationList from '../../components/StationList'
-import { siteConfig } from '../../lib/siteConfig'
+import { getLinesForService, getLine, getStationsForLine } from '@lib/transit'
+import Breadcrumb from '@components/Breadcrumb'
+import LineDetail from '@components/LineDetail'
+import MetraAlerts from '@components/MetraAlerts'
+import PageHeader from '@components/PageHeader'
+import StationList from '@components/StationList'
+import { siteConfig } from '@lib/siteConfig'
 
 type Props = { params: Promise<{ line: string }> }
 
