@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { mockLine, mockStation } from '../fixtures'
 
-jest.mock('../../app/lib/transit', () => ({
+jest.mock('@lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([mockLine]),
   getLine: jest.fn().mockResolvedValue(mockLine),
   getStationsForLine: jest.fn().mockResolvedValue([mockStation]),
 }))
 
-jest.mock('../../app/components/CTAAlerts', () => {
+jest.mock('@components/CTAAlerts', () => {
   return function MockCTAAlerts() {
     return <div data-testid="cta-alerts-mock" />
   }
@@ -37,7 +37,7 @@ describe('CTA line detail page', () => {
   })
 
   it('renders "Line not found" when getLine returns null', async () => {
-    const { getLine } = await import('../../app/lib/transit')
+    const { getLine } = await import('@lib/transit')
     ;(getLine as jest.Mock).mockResolvedValueOnce(null)
 
     const ui = await CTALinePage({ params })

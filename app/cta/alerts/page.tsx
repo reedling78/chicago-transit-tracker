@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import PageHeader from '../../components/PageHeader'
-import CTAAlerts from '../../components/CTAAlerts'
-import { siteConfig } from '../../lib/siteConfig'
+import PageHeader from '@components/PageHeader'
+import CTAAlerts from '@components/CTAAlerts'
+import { siteConfig } from '@lib/siteConfig'
 
 const description = 'Real-time CTA rail service alerts and advisories.'
 

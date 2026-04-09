@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Station } from '../lib/types'
+import type { Station } from '@lib/types'
 import { LINE_COLORS } from './StationDetail'
 
 interface StationListProps {

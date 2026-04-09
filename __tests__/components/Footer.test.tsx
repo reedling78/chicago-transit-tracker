@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import Footer from '@/app/components/Footer'
+import Footer from '@components/Footer'
 
 describe('Footer', () => {
   it('renders the site name', () => {

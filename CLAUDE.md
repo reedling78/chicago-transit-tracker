@@ -336,7 +336,7 @@ These rules must be applied whenever a new page is added or an existing page's c
 **Site constants:** Always import from `app/lib/siteConfig.ts`. Never hardcode the site name, canonical URL, or default OG image path directly in a page file.
 
 ```typescript
-import { siteConfig } from '../lib/siteConfig'
+import { siteConfig } from '@lib/siteConfig'
 // siteConfig.name  — 'Chicago Transit Tracker'
 // siteConfig.url   — 'https://chicagotransittracker.com'
 // siteConfig.ogImage — '/og-default.png'

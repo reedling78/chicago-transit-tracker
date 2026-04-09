@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import PageHeader from '../../components/PageHeader'
-import MetraAlerts from '../../components/MetraAlerts'
-import { siteConfig } from '../../lib/siteConfig'
+import PageHeader from '@components/PageHeader'
+import MetraAlerts from '@components/MetraAlerts'
+import { siteConfig } from '@lib/siteConfig'
 
 const description = 'Real-time Metra commuter rail service alerts and advisories.'
 

@@ -1,4 +1,4 @@
-import type { Line, Station } from '@/app/lib/types'
+import type { Line, Station } from '@lib/types'
 
 export const mockLine: Line = {
   id: 'red',

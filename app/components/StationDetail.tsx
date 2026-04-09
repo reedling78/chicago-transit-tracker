@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Station } from '../lib/types'
+import type { Station } from '@lib/types'
 import { CTA_LINE_COLORS } from './CTALineIcon'
 
 // Combined color map — CTA colors from the official branding guide (via CTALineIcon),

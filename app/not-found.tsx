@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import LinkCard from './components/LinkCard'
-import { siteConfig } from './lib/siteConfig'
+import LinkCard from '@components/LinkCard'
+import { siteConfig } from '@lib/siteConfig'
 
 const description =
   'The page you are looking for does not exist. Browse CTA and Metra transit lines, stations, and service alerts.'

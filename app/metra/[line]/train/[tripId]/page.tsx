@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getFirestore } from '../../../../lib/firebase-admin'
-import { getLinesForService } from '../../../../lib/transit'
-import Breadcrumb from '../../../../components/Breadcrumb'
-import PageHeader from '../../../../components/PageHeader'
-import { siteConfig } from '../../../../lib/siteConfig'
+import { getFirestore } from '@lib/firebase-admin'
+import { getLinesForService } from '@lib/transit'
+import Breadcrumb from '@components/Breadcrumb'
+import PageHeader from '@components/PageHeader'
+import { siteConfig } from '@lib/siteConfig'
 
 // ---------------------------------------------------------------------------
 // Data types (mirrors Firestore metra-trips / metra-trip-indexes documents)

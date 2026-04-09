@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import StationTimetable from '@/app/components/StationTimetable'
+import StationTimetable from '@components/StationTimetable'
 
 // Fix current time to a Wednesday so the default tab is always "Weekday" in snapshots.
 beforeAll(() => {

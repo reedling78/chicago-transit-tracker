@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-jest.mock('../../app/lib/firebase-admin', () => {
+jest.mock('@lib/firebase-admin', () => {
   const mockGet = jest.fn()
   const mockDoc = jest.fn().mockReturnValue({ get: mockGet })
   const mockCollection = jest.fn().mockReturnValue({ doc: mockDoc })
@@ -14,7 +14,7 @@ jest.mock('../../app/lib/firebase-admin', () => {
 })
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { __mocks } = require('../../app/lib/firebase-admin')
+const { __mocks } = require('@lib/firebase-admin')
 const { mockGet } = __mocks
 
 describe('GET /api/schedules/[slug]', () => {

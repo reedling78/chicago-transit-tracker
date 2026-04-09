@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import Navbar from '@/app/components/Navbar'
+import Navbar from '@components/Navbar'
 
 describe('Navbar', () => {
   it('renders the site name as a link', () => {

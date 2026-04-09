@@ -1,5 +1,5 @@
-import { fetchCTAAlerts, getRailServices } from '@/app/lib/cta-alerts'
-import type { CTAAlert } from '@/app/lib/cta-alerts'
+import { fetchCTAAlerts, getRailServices } from '@lib/cta-alerts'
+import type { CTAAlert } from '@lib/cta-alerts'
 
 beforeEach(() => {
   jest.clearAllMocks()

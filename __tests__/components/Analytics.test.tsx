@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Analytics from '@/app/components/Analytics'
+import Analytics from '@components/Analytics'
 
 // next/navigation is auto-mocked by Next.js jest config
 // Analytics returns null from render — just verify it mounts without error

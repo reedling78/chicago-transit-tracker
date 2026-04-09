@@ -1,6 +1,6 @@
 // app/page.tsx
 import type { Metadata } from 'next'
-import { siteConfig } from './lib/siteConfig'
+import { siteConfig } from '@lib/siteConfig'
 
 export const metadata: Metadata = {
   title: { absolute: siteConfig.name },
@@ -20,10 +20,10 @@ export const metadata: Metadata = {
   },
 }
 
-import Hero from './components/Hero'
-import MetraAlerts from './components/MetraAlerts'
-import MetraPositions from './components/MetraPositions'
-import MetraTripUpdates from './components/MetraTripUpdates'
+import Hero from '@components/Hero'
+import MetraAlerts from '@components/MetraAlerts'
+// import MetraPositions from '@components/MetraPositions'
+// import MetraTripUpdates from '@components/MetraTripUpdates'
 
 export default function HomePage() {
   return (
@@ -33,7 +33,7 @@ export default function HomePage() {
         <MetraAlerts />
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      {/* <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
           Metra Realtime Feeds (Debug)
         </h2>
@@ -41,7 +41,7 @@ export default function HomePage() {
           <MetraPositions />
           <MetraTripUpdates />
         </div>
-      </section>
+      </section> */}
     </div>
   )
 }

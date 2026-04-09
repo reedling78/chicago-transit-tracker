@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { mockMetraLine, mockMetraStation } from '../fixtures'
 
-jest.mock('../../app/lib/transit', () => ({
+jest.mock('@lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([mockMetraLine]),
   getLine: jest.fn().mockResolvedValue(mockMetraLine),
   getStationsForLine: jest.fn().mockResolvedValue([mockMetraStation]),
 }))
 
-jest.mock('../../app/components/MetraAlerts', () => {
+jest.mock('@components/MetraAlerts', () => {
   return function MockMetraAlerts() {
     return <div data-testid="metra-alerts-mock" />
   }
@@ -37,7 +37,7 @@ describe('Metra line detail page', () => {
   })
 
   it('renders "Line not found" when getLine returns null', async () => {
-    const { getLine } = await import('../../app/lib/transit')
+    const { getLine } = await import('@lib/transit')
     ;(getLine as jest.Mock).mockResolvedValueOnce(null)
 
     const ui = await MetraLinePage({ params })

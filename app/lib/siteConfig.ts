@@ -3,5 +3,6 @@ export const siteConfig = {
   url: 'https://chicagotransittracker.com',
   description:
     'Explore CTA and Metra transit lines, stations, schedules, and accessibility information for the Chicago area.',
-  ogImage: '/og-default.png',
+  ogImage: '/og-default.jpg',
+  gaId: 'G-KQ1MNGBQP2',
 } as const

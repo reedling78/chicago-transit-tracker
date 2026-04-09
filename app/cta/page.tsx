@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { getLinesForService } from '../lib/transit'
-import LinkCard from '../components/LinkCard'
-import PageHeader from '../components/PageHeader'
-import CTALineIcon from '../components/CTALineIcon'
-import CTAAlerts from '../components/CTAAlerts'
-import { siteConfig } from '../lib/siteConfig'
+import { getLinesForService } from '@lib/transit'
+import LinkCard from '@components/LinkCard'
+import PageHeader from '@components/PageHeader'
+import CTALineIcon from '@components/CTALineIcon'
+import CTAAlerts from '@components/CTAAlerts'
+import { siteConfig } from '@lib/siteConfig'
 
 const description = 'CTA bus and rail schedules, routes, and real-time tracking.'
 

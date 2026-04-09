@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import MetraAlerts from '@/app/components/MetraAlerts'
-import { fetchMetraFeed } from '../../app/lib/metra-realtime'
+import MetraAlerts from '@components/MetraAlerts'
+import { fetchMetraFeed } from '@lib/metra-realtime'
 
-jest.mock('../../app/lib/metra-realtime')
+jest.mock('@lib/metra-realtime')
 const mockFetch = fetchMetraFeed as jest.MockedFunction<typeof fetchMetraFeed>
 
 function makeAlert(id: string, routeId: string, header: string, description: string) {

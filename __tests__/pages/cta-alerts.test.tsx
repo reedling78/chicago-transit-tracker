@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-jest.mock('../../app/components/CTAAlerts', () => {
+jest.mock('@components/CTAAlerts', () => {
   return function MockCTAAlerts() {
     return <div data-testid="cta-alerts">CTA Alerts Component</div>
   }

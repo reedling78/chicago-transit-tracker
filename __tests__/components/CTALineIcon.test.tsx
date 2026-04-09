@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import CTALineIcon from '@/app/components/CTALineIcon'
+import CTALineIcon from '@components/CTALineIcon'
 
 describe('CTALineIcon', () => {
   it('renders with correct aria-label for Red line', () => {

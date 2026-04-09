@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import StationList from '@/app/components/StationList'
+import StationList from '@components/StationList'
 import { mockStation } from '../fixtures'
-import type { Station } from '@/app/lib/types'
+import type { Station } from '@lib/types'
 
 const transferStation: Station = {
   ...mockStation,

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
-import { getLinesForService, getLine, getStationsForLine } from '../../lib/transit'
+import { getLinesForService, getLine, getStationsForLine } from '@lib/transit'
 import Link from 'next/link'
-import Breadcrumb from '../../components/Breadcrumb'
-import CTALineIcon from '../../components/CTALineIcon'
-import CTAAlerts from '../../components/CTAAlerts'
-import LineDetail from '../../components/LineDetail'
-import PageHeader from '../../components/PageHeader'
-import StationList from '../../components/StationList'
-import { siteConfig } from '../../lib/siteConfig'
+import Breadcrumb from '@components/Breadcrumb'
+import CTALineIcon from '@components/CTALineIcon'
+import CTAAlerts from '@components/CTAAlerts'
+import LineDetail from '@components/LineDetail'
+import PageHeader from '@components/PageHeader'
+import StationList from '@components/StationList'
+import { siteConfig } from '@lib/siteConfig'
 
 type Props = { params: Promise<{ line: string }> }
 

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import PageHeader from '../components/PageHeader'
-import { siteConfig } from '../lib/siteConfig'
+import PageHeader from '@components/PageHeader'
+import { siteConfig } from '@lib/siteConfig'
 
 const description =
   'Terms of use for Chicago Transit Tracker, an independent transit information resource.'

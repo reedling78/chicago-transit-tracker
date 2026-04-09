@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { getLinesForService } from '../lib/transit'
-import LinkCard from '../components/LinkCard'
-import PageHeader from '../components/PageHeader'
-import { siteConfig } from '../lib/siteConfig'
-import MetraAlerts from '../components/MetraAlerts'
+import { getLinesForService } from '@lib/transit'
+import LinkCard from '@components/LinkCard'
+import PageHeader from '@components/PageHeader'
+import { siteConfig } from '@lib/siteConfig'
+import MetraAlerts from '@components/MetraAlerts'
 
 const description = 'Metra commuter rail schedules, routes, and real-time tracking.'
 

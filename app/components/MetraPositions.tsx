@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchMetraFeed } from '../lib/metra-realtime'
+import { fetchMetraFeed } from '@lib/metra-realtime'
 
 export default function MetraPositions() {
   const [data, setData] =

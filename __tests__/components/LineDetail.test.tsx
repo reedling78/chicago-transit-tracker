@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import LineDetail from '@/app/components/LineDetail'
+import LineDetail from '@components/LineDetail'
 import { mockLine, mockMetraLine } from '../fixtures'
-import type { Line } from '@/app/lib/types'
+import type { Line } from '@lib/types'
 
 describe('LineDetail', () => {
   it('renders the station count', () => {

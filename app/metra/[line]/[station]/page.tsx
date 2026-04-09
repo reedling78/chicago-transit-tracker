@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
-import { getLinesForService, getLine, getStationsForLine, getStation } from '../../../lib/transit'
-import Breadcrumb from '../../../components/Breadcrumb'
-import PageHeader from '../../../components/PageHeader'
-import StationDetail from '../../../components/StationDetail'
-import { LINE_COLORS, SERVICE_COLOR, SERVICE_LABEL } from '../../../components/StationDetail'
-import StationMap from '../../../components/StationMap'
-import Arrivals from '../../../components/Arrivals'
-import StationTimetable from '../../../components/StationTimetable'
-import { siteConfig } from '../../../lib/siteConfig'
+import { getLinesForService, getLine, getStationsForLine, getStation } from '@lib/transit'
+import Breadcrumb from '@components/Breadcrumb'
+import PageHeader from '@components/PageHeader'
+import StationDetail from '@components/StationDetail'
+import { LINE_COLORS, SERVICE_COLOR, SERVICE_LABEL } from '@components/StationDetail'
+import StationMap from '@components/StationMap'
+import Arrivals from '@components/Arrivals'
+import StationTimetable from '@components/StationTimetable'
+import { siteConfig } from '@lib/siteConfig'
 
 type Props = { params: Promise<{ line: string; station: string }> }
 

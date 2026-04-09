@@ -9,6 +9,8 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/__tests__/fixtures.ts'],
   moduleNameMapper: {
+    '^@components/(.*)$': '<rootDir>/app/components/$1',
+    '^@lib/(.*)$': '<rootDir>/app/lib/$1',
     '^@functions/(.*)$': '<rootDir>/functions/src/$1',
   },
   resolver: '<rootDir>/jest.resolver.js',

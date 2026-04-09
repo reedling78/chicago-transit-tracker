@@ -1,4 +1,4 @@
-import type { Line } from '../lib/types'
+import type { Line } from '@lib/types'
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (

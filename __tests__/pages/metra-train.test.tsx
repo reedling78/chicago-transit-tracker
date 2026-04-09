@@ -29,7 +29,7 @@ const mockTripDetail = {
 
 const mockGetDoc = jest.fn()
 
-jest.mock('../../app/lib/firebase-admin', () => ({
+jest.mock('@lib/firebase-admin', () => ({
   getFirestore: jest.fn().mockReturnValue({
     collection: jest.fn().mockReturnValue({
       doc: jest.fn().mockReturnValue({
@@ -39,7 +39,7 @@ jest.mock('../../app/lib/firebase-admin', () => ({
   }),
 }))
 
-jest.mock('../../app/lib/transit', () => ({
+jest.mock('@lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([{ slug: 'bnsf', shortName: 'BNSF' }]),
 }))
 
