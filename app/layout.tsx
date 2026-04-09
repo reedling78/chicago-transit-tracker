@@ -9,7 +9,6 @@ import Footer from '@components/Footer'
 import Analytics from '@components/Analytics'
 import { siteConfig } from '@lib/siteConfig'
 
-const GA_ID = 'G-KQ1MNGBQP2'
 
 const geist = Geist({ subsets: ['latin'] })
 
@@ -67,14 +66,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Analytics />
         </Suspense>
         <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.gaId}`}
           strategy="afterInteractive"
         />
         <Script id="ga-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', '${GA_ID}');
+          gtag('config', '${siteConfig.gaId}');
         `}</Script>
       </body>
     </html>

@@ -4,4 +4,5 @@ export const siteConfig = {
   description:
     'Explore CTA and Metra transit lines, stations, schedules, and accessibility information for the Chicago area.',
   ogImage: '/og-default.png',
+  gaId: 'G-KQ1MNGBQP2',
 } as const

@@ -2,8 +2,7 @@
 
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
-
-const GA_ID = 'G-KQ1MNGBQP2'
+import { siteConfig } from '@lib/siteConfig'
 
 declare global {
   interface Window {
@@ -18,7 +17,7 @@ export default function Analytics() {
   useEffect(() => {
     if (typeof window.gtag !== 'function') return
     const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '')
-    window.gtag('config', GA_ID, { page_path: url })
+    window.gtag('config', siteConfig.gaId, { page_path: url })
   }, [pathname, searchParams])
 
   return null
