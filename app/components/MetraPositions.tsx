@@ -16,8 +16,6 @@ export default function MetraPositions() {
       try {
         const feed = await fetchMetraFeed('positions')
         if (!active) return
-        console.log('Metra Positions:', feed)
-        console.log('Metra Positions entities:', feed.entity)
         setData(feed)
         setError(null)
       } catch (err) {
