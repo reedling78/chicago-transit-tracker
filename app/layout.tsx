@@ -9,7 +9,6 @@ import Footer from '@components/Footer'
 import Analytics from '@components/Analytics'
 import { siteConfig } from '@lib/siteConfig'
 
-
 const geist = Geist({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
