@@ -16,8 +16,6 @@ export default function MetraTripUpdates() {
       try {
         const feed = await fetchMetraFeed('tripupdates')
         if (!active) return
-        console.log('Metra Trip Updates:', feed)
-        console.log('Metra Trip Updates entities:', feed.entity)
         setData(feed)
         setError(null)
       } catch (err) {

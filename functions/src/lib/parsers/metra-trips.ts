@@ -181,18 +181,17 @@ export function parseMetraTrips(
   }
 
   // Sort and strip _sortMin from indexes
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const tripIndexes = new Map<string, TripIndex>()
   for (const [lineSlug, buckets] of lineIndexData) {
     tripIndexes.set(lineSlug, {
       weekday: buckets.weekday
         .sort((a, b) => a._sortMin - b._sortMin)
-        .map(({ _sortMin: _, ...e }) => e),
+        .map(({ _sortMin, ...e }) => e),
       saturday: buckets.saturday
         .sort((a, b) => a._sortMin - b._sortMin)
-        .map(({ _sortMin: _, ...e }) => e),
-      sunday: buckets.sunday
-        .sort((a, b) => a._sortMin - b._sortMin)
-        .map(({ _sortMin: _, ...e }) => e),
+        .map(({ _sortMin, ...e }) => e),
+      sunday: buckets.sunday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin, ...e }) => e),
     })
   }
 
@@ -202,15 +201,14 @@ export function parseMetraTrips(
     stationTrips.set(slug, {
       weekday: buckets.weekday
         .sort((a, b) => a._sortMin - b._sortMin)
-        .map(({ _sortMin: _, ...e }) => e),
+        .map(({ _sortMin, ...e }) => e),
       saturday: buckets.saturday
         .sort((a, b) => a._sortMin - b._sortMin)
-        .map(({ _sortMin: _, ...e }) => e),
-      sunday: buckets.sunday
-        .sort((a, b) => a._sortMin - b._sortMin)
-        .map(({ _sortMin: _, ...e }) => e),
+        .map(({ _sortMin, ...e }) => e),
+      sunday: buckets.sunday.sort((a, b) => a._sortMin - b._sortMin).map(({ _sortMin, ...e }) => e),
     })
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   return { tripDetails, tripIndexes, stationTrips }
 }

@@ -27,12 +27,6 @@ const mockTripDetail = {
   ],
 }
 
-const mockTripIndex = {
-  weekday: [{ tripId: 'bnsf_bn1234' }],
-  saturday: [],
-  sunday: [],
-}
-
 const mockGetDoc = jest.fn()
 
 jest.mock('../../app/lib/firebase-admin', () => ({

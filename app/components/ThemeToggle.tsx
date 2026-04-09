@@ -6,9 +6,11 @@ export default function ThemeToggle() {
   const [dark, setDark] = useState(false)
   const [mounted, setMounted] = useState(false)
 
+  // Read initial theme from DOM after mount — setState in effect is intentional
+  // here to sync React state with the external DOM class set by the blocking script.
   useEffect(() => {
-    setMounted(true) // eslint-disable-line
-    setDark(document.documentElement.classList.contains('dark')) // eslint-disable-line
+    setMounted(true) // eslint-disable-line react-hooks/set-state-in-effect
+    setDark(document.documentElement.classList.contains('dark'))
   }, [])
 
   function toggle() {
