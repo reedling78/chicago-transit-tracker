@@ -90,7 +90,6 @@ function SkeletonRow({ color }: { color: string }) {
 }
 
 export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) {
-  const [schedule, setSchedule] = useState<StationSchedule | null>(null)
   const [arrivals, setArrivals] = useState<Arrival[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -105,7 +104,6 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
       })
       .then((data) => {
         scheduleRef.current = data
-        setSchedule(data)
         setArrivals(computeArrivals(data))
         setLoading(false)
       })

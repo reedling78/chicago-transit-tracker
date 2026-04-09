@@ -3,7 +3,7 @@ import { getLinesForService, getLine, getStationsForLine, getStation } from '../
 import Breadcrumb from '../../../components/Breadcrumb'
 import PageHeader from '../../../components/PageHeader'
 import StationDetail from '../../../components/StationDetail'
-import { LINE_COLORS, SERVICE_COLOR, SERVICE_LABEL } from '../../../components/StationDetail'
+import { LINE_COLORS } from '../../../components/StationDetail'
 import StationMap from '../../../components/StationMap'
 import Arrivals from '../../../components/Arrivals'
 import { siteConfig } from '../../../lib/siteConfig'
