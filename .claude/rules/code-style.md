@@ -52,6 +52,18 @@ Config: `app/globals.css`
 
 ---
 
+## Responsive Design
+
+All pages and components must look good and work well on phones, tablets, and desktops. This is a hard requirement — not a nice-to-have.
+
+- **Mobile-first:** Write base styles for the smallest screen, then layer on `sm:`, `md:`, and `lg:` breakpoints for larger viewports
+- **Never use fixed-width layouts** (e.g., `w-2/3`) without a responsive breakpoint — always start with `w-full` and add width constraints at `md:` or `lg:`
+- **Multi-column grids** must collapse to a single column on small screens (e.g., `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`)
+- **Touch targets** should be at least 44×44px on mobile (links, buttons, interactive elements)
+- **Test at 375px wide** (phone), **768px** (tablet), and **1280px+** (desktop) as representative breakpoints
+
+---
+
 ## Component Conventions
 
 - **Server components are the default.** Only add `'use client'` when the component needs browser APIs, event handlers, or React hooks (`useState`, `useEffect`, etc.)

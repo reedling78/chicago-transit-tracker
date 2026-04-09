@@ -114,8 +114,8 @@ export default async function MetraStationPage({ params }: Props) {
         )}
       </PageHeader>
 
-      <div className="flex items-start gap-4">
-        <div className="w-2/3">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+        <div className="w-full lg:w-2/3">
           <StationMap
             latitude={station.location.latitude}
             longitude={station.location.longitude}
@@ -124,7 +124,7 @@ export default async function MetraStationPage({ params }: Props) {
           />
           <StationDetail station={station} />
         </div>
-        <div className="w-1/3">
+        <div className="w-full lg:w-1/3">
           <Arrivals slug={stationSlug} service="metra" hasSchedule={!!station.metraStopId} />
         </div>
       </div>
