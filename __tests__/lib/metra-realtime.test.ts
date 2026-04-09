@@ -1,4 +1,4 @@
-import { fetchMetraFeed } from '@/app/lib/metra-realtime'
+import { fetchMetraFeed } from '@lib/metra-realtime'
 import { transit_realtime } from 'gtfs-realtime-bindings'
 
 // Mock gtfs-realtime-bindings

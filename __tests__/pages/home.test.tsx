@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import HomePage from '@/app/page'
 
-jest.mock('../../app/lib/metra-realtime', () => ({
+jest.mock('@lib/metra-realtime', () => ({
   fetchMetraFeed: jest.fn(() => new Promise(() => {})),
 }))
 

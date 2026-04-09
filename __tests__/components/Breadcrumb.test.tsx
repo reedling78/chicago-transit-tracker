@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import Breadcrumb from '@/app/components/Breadcrumb'
+import Breadcrumb from '@components/Breadcrumb'
 
 describe('Breadcrumb', () => {
   const items = [

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import PageHeader from '@/app/components/PageHeader'
+import PageHeader from '@components/PageHeader'
 
 describe('PageHeader', () => {
   it('renders the title as an h1', () => {

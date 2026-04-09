@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
-import ThemeToggle from '@/app/components/ThemeToggle'
+import ThemeToggle from '@components/ThemeToggle'
 
 describe('ThemeToggle', () => {
   beforeEach(() => {

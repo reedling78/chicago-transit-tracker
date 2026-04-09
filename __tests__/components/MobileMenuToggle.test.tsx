@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import MobileMenuToggle from '@/app/components/MobileMenuToggle'
+import MobileMenuToggle from '@components/MobileMenuToggle'
 
 const links = [
   { href: '/', label: 'Home' },

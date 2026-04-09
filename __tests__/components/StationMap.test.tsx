@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import StationMap from '@/app/components/StationMap'
+import StationMap from '@components/StationMap'
 import maplibregl from 'maplibre-gl'
 
 jest.mock('maplibre-gl', () => ({

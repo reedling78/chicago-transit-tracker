@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import LinkCard from '@/app/components/LinkCard'
+import LinkCard from '@components/LinkCard'
 
 describe('LinkCard', () => {
   it('renders the title', () => {

@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import { mockLine } from '../fixtures'
 
-jest.mock('../../app/lib/transit', () => ({
+jest.mock('@lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([mockLine]),
 }))
 
-jest.mock('../../app/components/CTAAlerts', () => {
+jest.mock('@components/CTAAlerts', () => {
   return function MockCTAAlerts() {
     return <div data-testid="cta-alerts-mock" />
   }

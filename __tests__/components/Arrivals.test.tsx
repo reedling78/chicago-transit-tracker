@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import Arrivals from '@/app/components/Arrivals'
+import Arrivals from '@components/Arrivals'
 
 // Fix current time to Monday 01:00 AM local so arrival times are stable in snapshots.
 // Fake only Date (not setTimeout/setInterval) so waitFor's internal polling still works.

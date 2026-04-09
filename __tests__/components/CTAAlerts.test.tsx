@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import CTAAlerts from '@/app/components/CTAAlerts'
-import { fetchCTAAlerts } from '../../app/lib/cta-alerts'
+import CTAAlerts from '@components/CTAAlerts'
+import { fetchCTAAlerts } from '@lib/cta-alerts'
 
-jest.mock('../../app/lib/cta-alerts', () => {
-  const actual = jest.requireActual('../../app/lib/cta-alerts')
+jest.mock('@lib/cta-alerts', () => {
+  const actual = jest.requireActual('@lib/cta-alerts')
   return {
     ...actual,
     fetchCTAAlerts: jest.fn(),

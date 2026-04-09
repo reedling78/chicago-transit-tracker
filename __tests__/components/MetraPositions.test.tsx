@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import MetraPositions from '@/app/components/MetraPositions'
-import { fetchMetraFeed } from '../../app/lib/metra-realtime'
+import MetraPositions from '@components/MetraPositions'
+import { fetchMetraFeed } from '@lib/metra-realtime'
 
-jest.mock('../../app/lib/metra-realtime')
+jest.mock('@lib/metra-realtime')
 const mockFetch = fetchMetraFeed as jest.MockedFunction<typeof fetchMetraFeed>
 
 beforeEach(() => {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import StationDetail from '@/app/components/StationDetail'
+import StationDetail from '@components/StationDetail'
 import { mockStation, mockMetraStation } from '../fixtures'
-import type { Station } from '@/app/lib/types'
+import type { Station } from '@lib/types'
 
 describe('StationDetail', () => {
   it('renders the station address', () => {

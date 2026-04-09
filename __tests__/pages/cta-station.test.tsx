@@ -13,7 +13,7 @@ jest.mock('maplibre-gl', () => ({
 }))
 
 // Mock client components that fire async fetches — keeps page tests synchronous
-jest.mock('../../app/components/Arrivals', () => () => null)
+jest.mock('@components/Arrivals', () => () => null)
 
 global.MutationObserver = class {
   observe() {}
@@ -23,7 +23,7 @@ global.MutationObserver = class {
   }
 } as unknown as typeof MutationObserver
 
-jest.mock('../../app/lib/transit', () => ({
+jest.mock('@lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([mockLine]),
   getLine: jest.fn().mockResolvedValue(mockLine),
   getStationsForLine: jest.fn().mockResolvedValue([mockStation]),
@@ -54,7 +54,7 @@ describe('CTA station detail page', () => {
   })
 
   it('renders "Station not found" when getStation returns null', async () => {
-    const { getStation } = await import('../../app/lib/transit')
+    const { getStation } = await import('@lib/transit')
     ;(getStation as jest.Mock).mockResolvedValueOnce(null)
 
     const ui = await CTAStationPage({ params })

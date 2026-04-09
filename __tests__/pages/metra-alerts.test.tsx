@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-jest.mock('../../app/components/MetraAlerts', () => {
+jest.mock('@components/MetraAlerts', () => {
   return function MockMetraAlerts() {
     return <div data-testid="metra-alerts">Metra Alerts Component</div>
   }
