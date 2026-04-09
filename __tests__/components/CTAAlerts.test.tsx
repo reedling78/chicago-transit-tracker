@@ -81,6 +81,8 @@ beforeEach(() => {
     doNotFake: [
       'setTimeout',
       'clearTimeout',
+      'setInterval',
+      'clearInterval',
       'setImmediate',
       'clearImmediate',
       'nextTick',
