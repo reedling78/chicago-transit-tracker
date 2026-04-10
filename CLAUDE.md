@@ -84,6 +84,7 @@ app/
 scripts/
   seed-lines.ts               Seeds 19 lines into Firestore
   seed-stations.ts            Seeds stations from CTA API + Metra GTFS
+  upload-station-image.ts     Check/upload station hero photo to Firebase Storage
   tsconfig.json               CommonJS tsconfig for ts-node script execution
 functions/
   src/
@@ -161,6 +162,10 @@ Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` appl
 ### Duplicate station slugs
 
 Some stations share names across CTA and Metra (e.g. Rosemont). The seed script detects duplicates and appends `-cta` / `-metra` to the slug and doc ID.
+
+### Station hero photos
+
+Stations can have a custom hero photo. The `Station.photoUrl` field (Firestore) is read by the station page server component and passed to `PageHeader`'s `imageSrc` prop — when `null`, `PageHeader` falls back to the default CTA hero or the Metra-specific hero. Photos live in Firebase Storage at `stations/{slug}/hero.jpg` in the `chicago-transit-tracker.firebasestorage.app` bucket and are served publicly via `makePublic()`. The `storage.googleapis.com` bucket path is allowlisted in `next.config.ts` under `images.remotePatterns` so `next/image` accepts it. Photos are added via the `/station-image` skill, which shells out to ImageMagick to center-crop to 1600×900 and calls `scripts/upload-station-image.ts` to handle the upload + Firestore write.
 
 ### Automated GTFS schedule sync
 
