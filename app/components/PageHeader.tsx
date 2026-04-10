@@ -20,7 +20,7 @@ export default function PageHeader({
   children,
 }: PageHeaderProps) {
   return (
-    <section className="relative -mx-4 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72">
+    <section className="relative -mx-4 -mt-8 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72">
       {/* Background photo */}
       <Image
         src="/hero-header.jpg"

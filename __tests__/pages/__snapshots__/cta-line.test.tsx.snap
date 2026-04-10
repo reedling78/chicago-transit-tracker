@@ -4,7 +4,7 @@ exports[`CTA line detail page matches snapshot 1`] = `
 <div>
   <main>
     <section
-      class="relative -mx-4 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72"
+      class="relative -mx-4 -mt-8 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72"
     >
       <img
         alt=""
