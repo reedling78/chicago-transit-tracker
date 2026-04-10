@@ -45,6 +45,13 @@ describe('Metra line detail page', () => {
     expect(screen.getByText('Line not found.')).toBeInTheDocument()
   })
 
+  it('uses the Metra hero background image', async () => {
+    const ui = await MetraLinePage({ params })
+    const { container } = render(ui)
+    const img = container.querySelector('img')
+    expect(img?.getAttribute('src')).toContain('hero-header-metra.jpg')
+  })
+
   it('matches snapshot', async () => {
     const ui = await MetraLinePage({ params })
     const { container } = render(ui)

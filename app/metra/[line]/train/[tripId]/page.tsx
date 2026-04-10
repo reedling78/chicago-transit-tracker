@@ -139,6 +139,7 @@ export default async function MetraTripPage({ params }: Props) {
       <PageHeader
         title={`Train ${trip.trainNumber}`}
         description={`To ${trip.headsign}`}
+        imageSrc="/hero-header-metra.jpg"
         breadcrumbItems={[
           { label: 'Metra Lines', href: '/metra' },
           { label: trip.lineName, href: `/metra/${lineSlug}` },

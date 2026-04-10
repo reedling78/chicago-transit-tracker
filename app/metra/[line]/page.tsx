@@ -54,6 +54,7 @@ export default async function MetraLinePage({ params }: Props) {
       <PageHeader
         title={line.name}
         description={line.description}
+        imageSrc="/hero-header-metra.jpg"
         breadcrumbItems={[{ label: 'Metra Lines', href: '/metra' }, { label: line.name }]}
         badges={
           <>

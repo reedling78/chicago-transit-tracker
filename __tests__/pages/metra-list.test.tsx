@@ -26,6 +26,13 @@ describe('Metra list page', () => {
     expect(screen.getByText('BNSF Railway')).toBeInTheDocument()
   })
 
+  it('uses the Metra hero background image', async () => {
+    const ui = await MetraPage()
+    const { container } = render(ui)
+    const img = container.querySelector('img')
+    expect(img?.getAttribute('src')).toContain('hero-header-metra.jpg')
+  })
+
   it('matches snapshot', async () => {
     const ui = await MetraPage()
     const { container } = render(ui)

@@ -79,6 +79,14 @@ describe('PageHeader', () => {
     expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()
   })
 
+  it('uses a custom imageSrc when provided', () => {
+    const { container } = render(
+      <PageHeader title="Metra Lines" imageSrc="/hero-header-metra.jpg" />,
+    )
+    const img = container.querySelector('img')
+    expect(img?.getAttribute('src')).toContain('/hero-header-metra.jpg')
+  })
+
   it('does not render a breadcrumb when breadcrumbItems is empty', () => {
     render(<PageHeader title="CTA Lines" breadcrumbItems={[]} />)
     expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()

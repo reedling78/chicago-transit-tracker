@@ -75,6 +75,7 @@ export default async function MetraStationPage({ params }: Props) {
     <main>
       <PageHeader
         title={station.name}
+        imageSrc="/hero-header-metra.jpg"
         breadcrumbItems={[
           { label: 'Metra Lines', href: '/metra' },
           { label: line?.name ?? lineSlug, href: `/metra/${lineSlug}` },

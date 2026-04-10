@@ -8,6 +8,8 @@ interface PageHeaderProps {
   breadcrumbItems?: BreadcrumbItem[]
   /** Pill badges rendered above the title */
   badges?: React.ReactNode
+  /** Background hero image — defaults to the CTA/Chicago photo */
+  imageSrc?: string
   /** Extra content rendered below the description — e.g. line colour chips */
   children?: React.ReactNode
 }
@@ -17,13 +19,14 @@ export default function PageHeader({
   description,
   breadcrumbItems,
   badges,
+  imageSrc = '/hero-header.jpg',
   children,
 }: PageHeaderProps) {
   return (
     <section className="relative -mx-4 -mt-8 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72">
       {/* Background photo */}
       <Image
-        src="/hero-header.jpg"
+        src={imageSrc}
         alt=""
         fill
         priority

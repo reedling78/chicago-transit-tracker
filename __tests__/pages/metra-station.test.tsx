@@ -71,6 +71,14 @@ describe('Metra station detail page', () => {
     expect(layoutDiv).toBeInTheDocument()
   })
 
+  it('uses the Metra hero background image', async () => {
+    const ui = await MetraStationPage({ params })
+    const { container } = render(ui)
+    const imgs = container.querySelectorAll('img')
+    const hero = Array.from(imgs).find((i) => (i.getAttribute('src') || '').includes('hero-header'))
+    expect(hero?.getAttribute('src')).toContain('hero-header-metra.jpg')
+  })
+
   it('matches snapshot', async () => {
     const ui = await MetraStationPage({ params })
     const { container } = render(ui)
