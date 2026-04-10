@@ -34,7 +34,7 @@ exports[`Metra list page matches snapshot 1`] = `
           Metra Lines
         </h1>
         <p
-          class="mt-3 max-w-2xl text-sm text-white/70 sm:text-base"
+          class="mt-3 max-w-2xl text-sm text-white/85 sm:text-base"
         >
           11 commuter rail lines connecting Chicago to the suburbs across 6 counties.
         </p>

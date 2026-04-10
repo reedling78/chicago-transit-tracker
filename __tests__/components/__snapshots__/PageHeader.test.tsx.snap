@@ -35,7 +35,7 @@ exports[`PageHeader matches snapshot 1`] = `
         CTA Lines
       </h1>
       <p
-        class="mt-3 max-w-2xl text-sm text-white/70 sm:text-base"
+        class="mt-3 max-w-2xl text-sm text-white/85 sm:text-base"
       >
         8 rapid transit lines.
       </p>

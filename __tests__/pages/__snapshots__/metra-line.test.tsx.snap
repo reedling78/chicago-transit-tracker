@@ -90,7 +90,7 @@ exports[`Metra line detail page matches snapshot 1`] = `
               BNSF Railway
             </h1>
             <p
-              class="mt-3 max-w-2xl text-sm text-white/70 sm:text-base"
+              class="mt-3 max-w-2xl text-sm text-white/85 sm:text-base"
             >
               Metra BNSF line connecting Union Station to Aurora.
             </p>

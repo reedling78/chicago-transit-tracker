@@ -41,7 +41,7 @@ export default function PageHeader({ title, description, badges, children }: Pag
           {title}
         </h1>
         {description && (
-          <p className="mt-3 max-w-2xl text-sm text-white/70 sm:text-base">{description}</p>
+          <p className="mt-3 max-w-2xl text-sm text-white/85 sm:text-base">{description}</p>
         )}
         {children && <div className="mt-4">{children}</div>}
       </div>

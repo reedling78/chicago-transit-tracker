@@ -34,7 +34,7 @@ exports[`CTA Alerts page matches snapshot 1`] = `
           CTA Service Alerts
         </h1>
         <p
-          class="mt-3 max-w-2xl text-sm text-white/70 sm:text-base"
+          class="mt-3 max-w-2xl text-sm text-white/85 sm:text-base"
         >
           Real-time rail service alerts and advisories from the CTA.
         </p>
