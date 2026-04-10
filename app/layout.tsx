@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     default: siteConfig.name,
   },
   description: siteConfig.description,
+  alternates: {
+    canonical: './',
+  },
   openGraph: {
     title: siteConfig.name,
     description: siteConfig.description,
