@@ -21,6 +21,9 @@ next-env.d.ts
 # worktrees
 .worktrees/
 
+# superpowers brainstorming sessions (local-only mockups)
+.superpowers/
+
 # secrets
 service-account.json
 .firebase/hosting.b3V0.cache
