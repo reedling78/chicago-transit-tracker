@@ -69,8 +69,9 @@ app/
     MetraAlerts.tsx           Metra realtime alerts feed (client component)
     MetraPositions.tsx        Metra realtime vehicle positions (client component, debug)
     MetraTripUpdates.tsx      Metra realtime trip updates (client component, debug)
-    PageHeader.tsx            Uniform page title with optional badges/description
-    Breadcrumb.tsx            Semantic breadcrumb for line and station pages
+    PageHeader.tsx            Full-bleed photo hero with breadcrumb, badges, title
+    Breadcrumb.tsx            Semantic breadcrumb — rendered inside PageHeader
+    LineChipList.tsx          Clickable line color chips linking to line pages
     LinkCard.tsx              Clickable list card used on service and line pages
     LineDetail.tsx            Full line detail layout
     StationDetail.tsx         Full station detail layout
@@ -78,7 +79,7 @@ app/
     firebase-admin.ts         Firestore singleton (Admin SDK)
     cta-alerts.ts             Client-side fetch + types for CTA Customer Alerts API
     metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
-    transit.ts                Data access functions — getLinesForService, getLine, etc.
+    transit.ts                Data access — getLinesForService, getLine, getAllLines, etc.
     types.ts                  Line and Station TypeScript interfaces
 scripts/
   seed-lines.ts               Seeds 19 lines into Firestore
