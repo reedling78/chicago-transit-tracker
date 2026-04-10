@@ -1,6 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import PageHeader from '@components/PageHeader'
 
+// next/image uses features not available in jsdom. Render it as a plain <img>
+// so we can assert on the src without pulling in Next's runtime.
+// Next.js-specific boolean props (fill, priority) are stripped to avoid React DOM warnings.
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    const { src, alt, fill, priority, sizes, ...rest } = props
+    void fill
+    void priority
+    void sizes
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src as string} alt={alt as string} {...rest} />
+  },
+}))
+
 describe('PageHeader', () => {
   it('renders the title as an h1', () => {
     render(<PageHeader title="CTA Lines" />)
@@ -29,6 +44,14 @@ describe('PageHeader', () => {
       </PageHeader>,
     )
     expect(screen.getByText('Extra content')).toBeInTheDocument()
+  })
+
+  it('renders the hero-header background image (decorative, empty alt)', () => {
+    const { container } = render(<PageHeader title="CTA Lines" />)
+    const img = container.querySelector('img')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toContain('/hero-header.jpg')
+    expect(img?.getAttribute('alt')).toBe('')
   })
 
   it('matches snapshot', () => {
