@@ -29,6 +29,7 @@ jest.mock('@lib/transit', () => ({
   getLine: jest.fn().mockResolvedValue(mockMetraLine),
   getStationsForLine: jest.fn().mockResolvedValue([mockMetraStation]),
   getStation: jest.fn().mockResolvedValue(mockMetraStation),
+  getAllLines: jest.fn().mockResolvedValue([mockMetraLine]),
 }))
 
 import MetraStationPage from '@/app/metra/[line]/[station]/page'
