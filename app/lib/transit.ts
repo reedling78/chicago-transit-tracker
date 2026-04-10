@@ -67,6 +67,12 @@ export async function getLinesForService(service: 'cta' | 'metra'): Promise<Line
   return snap.docs.map((d) => toLine(d.id, d.data())).sort((a, b) => a.name.localeCompare(b.name))
 }
 
+export async function getAllLines(): Promise<Line[]> {
+  const db = getFirestore()
+  const snap = await db.collection('lines').get()
+  return snap.docs.map((d) => toLine(d.id, d.data()))
+}
+
 export async function getLine(slug: string): Promise<Line | null> {
   const db = getFirestore()
   const doc = await db.collection('lines').doc(slug).get()

@@ -21,6 +21,12 @@ describe('Metra Alerts page', () => {
     expect(screen.getByTestId('metra-alerts')).toBeInTheDocument()
   })
 
+  it('uses the Metra hero background image', () => {
+    const { container } = render(<MetraAlertsPage />)
+    const img = container.querySelector('img')
+    expect(img?.getAttribute('src')).toContain('hero-header-metra.jpg')
+  })
+
   it('matches snapshot', () => {
     const { container } = render(<MetraAlertsPage />)
     expect(container).toMatchSnapshot()

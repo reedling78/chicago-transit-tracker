@@ -32,13 +32,6 @@ export default function StationList({
 }: StationListProps) {
   return (
     <div>
-      <h2 className="mb-5 text-xl font-semibold text-gray-900 dark:text-white">
-        Stations
-        <span className="ml-2 text-base font-normal text-gray-400 dark:text-gray-500">
-          ({stations.length})
-        </span>
-      </h2>
-
       <div className="relative">
         {/* Vertical timeline bar */}
         <div

@@ -29,6 +29,7 @@ jest.mock('@lib/transit', () => ({
   getLine: jest.fn().mockResolvedValue(mockMetraLine),
   getStationsForLine: jest.fn().mockResolvedValue([mockMetraStation]),
   getStation: jest.fn().mockResolvedValue(mockMetraStation),
+  getAllLines: jest.fn().mockResolvedValue([mockMetraLine]),
 }))
 
 import MetraStationPage from '@/app/metra/[line]/[station]/page'
@@ -68,6 +69,14 @@ describe('Metra station detail page', () => {
     const { container } = render(ui)
     const layoutDiv = container.querySelector('.flex.flex-col.lg\\:flex-row')
     expect(layoutDiv).toBeInTheDocument()
+  })
+
+  it('uses the Metra hero background image', async () => {
+    const ui = await MetraStationPage({ params })
+    const { container } = render(ui)
+    const imgs = container.querySelectorAll('img')
+    const hero = Array.from(imgs).find((i) => (i.getAttribute('src') || '').includes('hero-header'))
+    expect(hero?.getAttribute('src')).toContain('hero-header-metra.jpg')
   })
 
   it('matches snapshot', async () => {

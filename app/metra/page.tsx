@@ -33,6 +33,7 @@ export default async function MetraPage() {
       <PageHeader
         title="Metra Lines"
         description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties."
+        imageSrc="/hero-header-metra.jpg"
       />
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">

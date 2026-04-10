@@ -3,125 +3,154 @@
 exports[`CTA station detail page matches snapshot 1`] = `
 <div>
   <main>
-    <nav
-      aria-label="Breadcrumb"
-      class="mb-6"
+    <section
+      class="relative -mx-4 -mt-8 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72"
     >
-      <ol
-        class="flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
-      >
-        <li
-          class="flex items-center gap-1"
-        >
-          <a
-            class="transition-colors hover:text-gray-900 dark:hover:text-white"
-            href="/cta"
-          >
-            CTA Lines
-          </a>
-        </li>
-        <li
-          class="flex items-center gap-1"
-        >
-          <span
-            aria-hidden="true"
-            class="text-gray-300 dark:text-gray-600"
-          >
-            ›
-          </span>
-          <a
-            class="transition-colors hover:text-gray-900 dark:hover:text-white"
-            href="/cta/red"
-          >
-            Red Line
-          </a>
-        </li>
-        <li
-          class="flex items-center gap-1"
-        >
-          <span
-            aria-hidden="true"
-            class="text-gray-300 dark:text-gray-600"
-          >
-            ›
-          </span>
-          <span
-            aria-current="page"
-            class="font-medium text-gray-900 dark:text-white"
-          >
-            Clark/Lake
-          </span>
-        </li>
-      </ol>
-    </nav>
-    <div
-      class="mb-8 border-b border-gray-100 pb-8 dark:border-gray-800"
-    >
+      <img
+        alt=""
+        class="object-cover object-[center_40%]"
+        data-nimg="fill"
+        decoding="async"
+        sizes="100vw"
+        src="/_next/image?url=%2Fhero-header.jpg&w=3840&q=75"
+        srcset="/_next/image?url=%2Fhero-header.jpg&w=640&q=75 640w, /_next/image?url=%2Fhero-header.jpg&w=750&q=75 750w, /_next/image?url=%2Fhero-header.jpg&w=828&q=75 828w, /_next/image?url=%2Fhero-header.jpg&w=1080&q=75 1080w, /_next/image?url=%2Fhero-header.jpg&w=1200&q=75 1200w, /_next/image?url=%2Fhero-header.jpg&w=1920&q=75 1920w, /_next/image?url=%2Fhero-header.jpg&w=2048&q=75 2048w, /_next/image?url=%2Fhero-header.jpg&w=3840&q=75 3840w"
+        style="position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; right: 0px; bottom: 0px; color: transparent;"
+      />
       <div
-        class="mb-3 flex flex-wrap items-center gap-2"
+        aria-hidden="true"
+        class="absolute inset-0 bg-black/30 dark:bg-black/40"
+      />
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 bg-linear-to-t from-black/75 via-black/20 to-transparent dark:from-black/85 dark:via-black/40"
+      />
+      <div
+        class="relative z-10 mx-auto w-full max-w-7xl px-4 pt-5 sm:px-6 lg:px-8"
       >
-        <span
-          class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400"
+        <nav
+          aria-label="Breadcrumb"
         >
-          24 Hours
-        </span>
+          <ol
+            class="flex flex-wrap items-center gap-1 text-sm text-white/70"
+            style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);"
+          >
+            <li
+              class="flex items-center gap-1"
+            >
+              <a
+                class="transition-colors hover:text-white"
+                href="/cta"
+              >
+                CTA Lines
+              </a>
+            </li>
+            <li
+              class="flex items-center gap-1"
+            >
+              <span
+                aria-hidden="true"
+                class="text-white/40"
+              >
+                ›
+              </span>
+              <a
+                class="transition-colors hover:text-white"
+                href="/cta/red"
+              >
+                Red Line
+              </a>
+            </li>
+            <li
+              class="flex items-center gap-1"
+            >
+              <span
+                aria-hidden="true"
+                class="text-white/40"
+              >
+                ›
+              </span>
+              <span
+                aria-current="page"
+                class="font-medium text-white"
+              >
+                Clark/Lake
+              </span>
+            </li>
+          </ol>
+        </nav>
       </div>
-      <h1
-        class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
-      >
-        Clark/Lake
-      </h1>
       <div
-        class="mt-4"
+        class="relative z-10 mx-auto mt-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8"
       >
         <div
-          class="flex flex-wrap gap-2"
+          class="mb-3 flex flex-wrap items-center gap-2"
         >
           <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
-            style="background-color: rgb(198, 12, 48); color: rgb(255, 255, 255);"
+            class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400"
           >
-            Red
-          </span>
-          <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
-            style="background-color: rgb(0, 161, 222); color: rgb(255, 255, 255);"
-          >
-            Blue
-          </span>
-          <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
-            style="background-color: rgb(0, 155, 58); color: rgb(255, 255, 255);"
-          >
-            Green
-          </span>
-          <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
-            style="background-color: rgb(98, 54, 27); color: rgb(255, 255, 255);"
-          >
-            Brown
-          </span>
-          <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
-            style="background-color: rgb(82, 35, 152); color: rgb(255, 255, 255);"
-          >
-            Purple
-          </span>
-          <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
-            style="background-color: rgb(226, 126, 166); color: rgb(255, 255, 255);"
-          >
-            Pink
-          </span>
-          <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
-            style="background-color: rgb(249, 70, 28); color: rgb(255, 255, 255);"
-          >
-            Orange
+            24 Hours
           </span>
         </div>
+        <h1
+          class="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl"
+          style="text-shadow: 0 1px 3px rgba(0,0,0,0.3);"
+        >
+          Clark/Lake
+        </h1>
+        <div
+          class="mt-4"
+        >
+          <div
+            class="flex flex-wrap gap-2"
+          >
+            <a
+              aria-label="Red line"
+              class="rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80"
+              href="/cta/red"
+              style="background-color: rgb(198, 12, 48); color: rgb(255, 255, 255);"
+            >
+              Red
+            </a>
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              style="background-color: rgb(0, 161, 222); color: rgb(255, 255, 255);"
+            >
+              Blue
+            </span>
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              style="background-color: rgb(0, 155, 58); color: rgb(255, 255, 255);"
+            >
+              Green
+            </span>
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              style="background-color: rgb(98, 54, 27); color: rgb(255, 255, 255);"
+            >
+              Brown
+            </span>
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              style="background-color: rgb(82, 35, 152); color: rgb(255, 255, 255);"
+            >
+              Purple
+            </span>
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              style="background-color: rgb(226, 126, 166); color: rgb(255, 255, 255);"
+            >
+              Pink
+            </span>
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              style="background-color: rgb(249, 70, 28); color: rgb(255, 255, 255);"
+            >
+              Orange
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
     <div
       class="flex flex-col gap-4 lg:flex-row lg:items-start"
     >

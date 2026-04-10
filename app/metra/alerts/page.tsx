@@ -29,6 +29,7 @@ export default function MetraAlertsPage() {
       <PageHeader
         title="Metra Service Alerts"
         description="Real-time commuter rail service alerts and advisories from Metra."
+        imageSrc="/hero-header-metra.jpg"
       />
       <MetraAlerts />
     </main>

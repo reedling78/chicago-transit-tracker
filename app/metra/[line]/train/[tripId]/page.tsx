@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getFirestore } from '@lib/firebase-admin'
 import { getLinesForService } from '@lib/transit'
-import Breadcrumb from '@components/Breadcrumb'
 import PageHeader from '@components/PageHeader'
 import { siteConfig } from '@lib/siteConfig'
 
@@ -137,17 +136,15 @@ export default async function MetraTripPage({ params }: Props) {
 
   return (
     <main>
-      <Breadcrumb
-        items={[
+      <PageHeader
+        title={`Train ${trip.trainNumber}`}
+        description={`To ${trip.headsign}`}
+        imageSrc="/hero-header-metra.jpg"
+        breadcrumbItems={[
           { label: 'Metra Lines', href: '/metra' },
           { label: trip.lineName, href: `/metra/${lineSlug}` },
           { label: `Train ${trip.trainNumber}` },
         ]}
-      />
-
-      <PageHeader
-        title={`Train ${trip.trainNumber}`}
-        description={`To ${trip.headsign}`}
         badges={
           <>
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">

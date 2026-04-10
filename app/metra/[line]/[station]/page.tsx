@@ -1,9 +1,15 @@
 import type { Metadata } from 'next'
-import { getLinesForService, getLine, getStationsForLine, getStation } from '@lib/transit'
-import Breadcrumb from '@components/Breadcrumb'
+import {
+  getAllLines,
+  getLinesForService,
+  getLine,
+  getStationsForLine,
+  getStation,
+} from '@lib/transit'
 import PageHeader from '@components/PageHeader'
 import StationDetail from '@components/StationDetail'
-import { LINE_COLORS, SERVICE_COLOR, SERVICE_LABEL } from '@components/StationDetail'
+import { SERVICE_COLOR, SERVICE_LABEL } from '@components/StationDetail'
+import LineChipList, { type LineLinkInfo } from '@components/LineChipList'
 import StationMap from '@components/StationMap'
 import Arrivals from '@components/Arrivals'
 import StationTimetable from '@components/StationTimetable'
@@ -48,7 +54,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MetraStationPage({ params }: Props) {
   const { line: lineSlug, station: stationSlug } = await params
-  const [line, station] = await Promise.all([getLine(lineSlug), getStation(stationSlug)])
+  const [line, station, allLines] = await Promise.all([
+    getLine(lineSlug),
+    getStation(stationSlug),
+    getAllLines(),
+  ])
 
   if (!station)
     return (
@@ -57,18 +67,20 @@ export default async function MetraStationPage({ params }: Props) {
       </main>
     )
 
+  const lineLookup: Record<string, LineLinkInfo> = Object.fromEntries(
+    allLines.map((l) => [l.shortName, { slug: l.slug, service: l.service }]),
+  )
+
   return (
     <main>
-      <Breadcrumb
-        items={[
+      <PageHeader
+        title={station.name}
+        imageSrc="/hero-header-metra.jpg"
+        breadcrumbItems={[
           { label: 'Metra Lines', href: '/metra' },
           { label: line?.name ?? lineSlug, href: `/metra/${lineSlug}` },
           { label: station.name },
         ]}
-      />
-
-      <PageHeader
-        title={station.name}
         badges={
           <>
             <span
@@ -89,29 +101,7 @@ export default async function MetraStationPage({ params }: Props) {
           </>
         }
       >
-        {station.lines.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {station.lines.map((line) => {
-              const colors = LINE_COLORS[line]
-              return colors ? (
-                <span
-                  key={line}
-                  className="rounded-full px-3 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: colors.bg, color: colors.text }}
-                >
-                  {line}
-                </span>
-              ) : (
-                <span
-                  key={line}
-                  className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                >
-                  {line}
-                </span>
-              )
-            })}
-          </div>
-        )}
+        <LineChipList lineNames={station.lines} lineLookup={lineLookup} />
       </PageHeader>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">

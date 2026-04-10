@@ -21,19 +21,6 @@ const terminalStation: Station = {
 }
 
 describe('StationList', () => {
-  it('renders the Stations heading with count', () => {
-    render(
-      <StationList
-        stations={[mockStation]}
-        lineColor="#c60c30"
-        stationHrefPrefix="/cta/red"
-        currentLine="Red"
-      />,
-    )
-    expect(screen.getByText('Stations')).toBeInTheDocument()
-    expect(screen.getByText('(1)')).toBeInTheDocument()
-  })
-
   it('renders each station name as a link', () => {
     render(
       <StationList
@@ -106,7 +93,6 @@ describe('StationList', () => {
         currentLine="Red"
       />,
     )
-    expect(screen.getByText('(2)')).toBeInTheDocument()
     expect(screen.getByText('Clark/Lake')).toBeInTheDocument()
     expect(screen.getByText('Howard')).toBeInTheDocument()
   })

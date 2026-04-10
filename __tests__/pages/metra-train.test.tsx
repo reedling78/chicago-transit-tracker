@@ -58,6 +58,16 @@ describe('Metra train detail page', () => {
     expect(screen.getByText('Naperville')).toBeInTheDocument()
   })
 
+  it('uses the Metra hero background image', async () => {
+    mockGetDoc.mockResolvedValue({ exists: true, data: () => mockTripDetail })
+
+    const params = Promise.resolve({ line: 'bnsf', tripId: 'bnsf_bn1234' })
+    const ui = await MetraTripPage({ params })
+    const { container } = render(ui)
+    const img = container.querySelector('img')
+    expect(img?.getAttribute('src')).toContain('hero-header-metra.jpg')
+  })
+
   it('renders not found when trip does not exist', async () => {
     mockGetDoc.mockResolvedValue({ exists: false })
 

@@ -28,6 +28,7 @@ jest.mock('@lib/transit', () => ({
   getLine: jest.fn().mockResolvedValue(mockLine),
   getStationsForLine: jest.fn().mockResolvedValue([mockStation]),
   getStation: jest.fn().mockResolvedValue(mockStation),
+  getAllLines: jest.fn().mockResolvedValue([mockLine]),
 }))
 
 import CTAStationPage from '@/app/cta/[line]/[station]/page'
