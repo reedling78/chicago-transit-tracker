@@ -73,6 +73,7 @@ export default async function CTAStationPage({ params }: Props) {
     <main>
       <PageHeader
         title={station.name}
+        imageSrc={station.photoUrl ?? undefined}
         breadcrumbItems={[
           { label: 'CTA Lines', href: '/cta' },
           { label: line?.name ?? lineSlug, href: `/cta/${lineSlug}` },

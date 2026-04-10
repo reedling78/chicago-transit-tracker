@@ -79,6 +79,23 @@ describe('Metra station detail page', () => {
     expect(hero?.getAttribute('src')).toContain('hero-header-metra.jpg')
   })
 
+  it('uses station.photoUrl as the hero image when set', async () => {
+    const { getStation } = await import('@lib/transit')
+    ;(getStation as jest.Mock).mockResolvedValueOnce({
+      ...mockMetraStation,
+      photoUrl: 'https://storage.googleapis.com/bucket/stations/aurora/hero.jpg',
+    })
+
+    const ui = await MetraStationPage({ params })
+    const { container } = render(ui)
+    const imgs = container.querySelectorAll('img')
+    const hero = Array.from(imgs).find((i) => {
+      const src = i.getAttribute('src') || ''
+      return src.includes('aurora') || src.includes('aurora%2Fhero')
+    })
+    expect(hero).toBeTruthy()
+  })
+
   it('matches snapshot', async () => {
     const ui = await MetraStationPage({ params })
     const { container } = render(ui)

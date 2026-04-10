@@ -70,6 +70,31 @@ describe('CTA station detail page', () => {
     expect(layoutDiv).toBeInTheDocument()
   })
 
+  it('uses the default CTA hero image when station.photoUrl is null', async () => {
+    const ui = await CTAStationPage({ params })
+    const { container } = render(ui)
+    const imgs = container.querySelectorAll('img')
+    const hero = Array.from(imgs).find((i) => (i.getAttribute('src') || '').includes('hero-header'))
+    expect(hero?.getAttribute('src')).toContain('hero-header.jpg')
+  })
+
+  it('uses station.photoUrl as the hero image when set', async () => {
+    const { getStation } = await import('@lib/transit')
+    ;(getStation as jest.Mock).mockResolvedValueOnce({
+      ...mockStation,
+      photoUrl: 'https://storage.googleapis.com/bucket/stations/clark-lake/hero.jpg',
+    })
+
+    const ui = await CTAStationPage({ params })
+    const { container } = render(ui)
+    const imgs = container.querySelectorAll('img')
+    const hero = Array.from(imgs).find((i) => {
+      const src = i.getAttribute('src') || ''
+      return src.includes('clark-lake') || src.includes('clark-lake%2Fhero')
+    })
+    expect(hero).toBeTruthy()
+  })
+
   it('matches snapshot', async () => {
     const ui = await CTAStationPage({ params })
     const { container } = render(ui)
