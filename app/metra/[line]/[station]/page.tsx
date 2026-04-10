@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { getLinesForService, getLine, getStationsForLine, getStation } from '@lib/transit'
-import Breadcrumb from '@components/Breadcrumb'
 import PageHeader from '@components/PageHeader'
 import StationDetail from '@components/StationDetail'
 import { LINE_COLORS, SERVICE_COLOR, SERVICE_LABEL } from '@components/StationDetail'
@@ -59,16 +58,13 @@ export default async function MetraStationPage({ params }: Props) {
 
   return (
     <main>
-      <Breadcrumb
-        items={[
+      <PageHeader
+        title={station.name}
+        breadcrumbItems={[
           { label: 'Metra Lines', href: '/metra' },
           { label: line?.name ?? lineSlug, href: `/metra/${lineSlug}` },
           { label: station.name },
         ]}
-      />
-
-      <PageHeader
-        title={station.name}
         badges={
           <>
             <span

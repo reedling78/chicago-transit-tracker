@@ -54,6 +54,36 @@ describe('PageHeader', () => {
     expect(img?.getAttribute('alt')).toBe('')
   })
 
+  it('renders a breadcrumb trail when breadcrumbItems is provided', () => {
+    render(
+      <PageHeader
+        title="Clark/Lake"
+        breadcrumbItems={[
+          { label: 'CTA Lines', href: '/cta' },
+          { label: 'Red Line', href: '/cta/red' },
+          { label: 'Clark/Lake' },
+        ]}
+      />,
+    )
+    const nav = screen.getByRole('navigation', { name: 'Breadcrumb' })
+    expect(nav).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'CTA Lines' })).toHaveAttribute('href', '/cta')
+    expect(screen.getByRole('link', { name: 'Red Line' })).toHaveAttribute('href', '/cta/red')
+    // The last item appears twice: once in the breadcrumb (as aria-current="page" span),
+    // and once as the h1 title.
+    expect(nav.querySelector('[aria-current="page"]')).toHaveTextContent('Clark/Lake')
+  })
+
+  it('does not render a breadcrumb when breadcrumbItems is omitted', () => {
+    render(<PageHeader title="CTA Lines" />)
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()
+  })
+
+  it('does not render a breadcrumb when breadcrumbItems is empty', () => {
+    render(<PageHeader title="CTA Lines" breadcrumbItems={[]} />)
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()
+  })
+
   it('matches snapshot', () => {
     const { container } = render(
       <PageHeader

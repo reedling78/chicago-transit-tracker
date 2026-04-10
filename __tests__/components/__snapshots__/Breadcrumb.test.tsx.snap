@@ -4,16 +4,16 @@ exports[`Breadcrumb matches snapshot 1`] = `
 <div>
   <nav
     aria-label="Breadcrumb"
-    class="mb-6"
   >
     <ol
-      class="flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
+      class="flex flex-wrap items-center gap-1 text-sm text-white/70"
+      style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);"
     >
       <li
         class="flex items-center gap-1"
       >
         <a
-          class="transition-colors hover:text-gray-900 dark:hover:text-white"
+          class="transition-colors hover:text-white"
           href="/cta"
         >
           CTA Lines
@@ -24,12 +24,12 @@ exports[`Breadcrumb matches snapshot 1`] = `
       >
         <span
           aria-hidden="true"
-          class="text-gray-300 dark:text-gray-600"
+          class="text-white/40"
         >
           ›
         </span>
         <a
-          class="transition-colors hover:text-gray-900 dark:hover:text-white"
+          class="transition-colors hover:text-white"
           href="/cta/red"
         >
           Red Line
@@ -40,13 +40,13 @@ exports[`Breadcrumb matches snapshot 1`] = `
       >
         <span
           aria-hidden="true"
-          class="text-gray-300 dark:text-gray-600"
+          class="text-white/40"
         >
           ›
         </span>
         <span
           aria-current="page"
-          class="font-medium text-gray-900 dark:text-white"
+          class="font-medium text-white"
         >
           Clark/Lake
         </span>

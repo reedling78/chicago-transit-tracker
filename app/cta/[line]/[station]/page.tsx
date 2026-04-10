@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { getLinesForService, getLine, getStationsForLine, getStation } from '@lib/transit'
-import Breadcrumb from '@components/Breadcrumb'
 import PageHeader from '@components/PageHeader'
 import StationDetail from '@components/StationDetail'
 import { LINE_COLORS } from '@components/StationDetail'
@@ -58,16 +57,13 @@ export default async function CTAStationPage({ params }: Props) {
 
   return (
     <main>
-      <Breadcrumb
-        items={[
+      <PageHeader
+        title={station.name}
+        breadcrumbItems={[
           { label: 'CTA Lines', href: '/cta' },
           { label: line?.name ?? lineSlug, href: `/cta/${lineSlug}` },
           { label: station.name },
         ]}
-      />
-
-      <PageHeader
-        title={station.name}
         badges={
           <>
             {station.terminal && (

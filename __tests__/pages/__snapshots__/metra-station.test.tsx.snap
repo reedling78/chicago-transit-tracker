@@ -3,59 +3,8 @@
 exports[`Metra station detail page matches snapshot 1`] = `
 <div>
   <main>
-    <nav
-      aria-label="Breadcrumb"
-      class="mb-6"
-    >
-      <ol
-        class="flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
-      >
-        <li
-          class="flex items-center gap-1"
-        >
-          <a
-            class="transition-colors hover:text-gray-900 dark:hover:text-white"
-            href="/metra"
-          >
-            Metra Lines
-          </a>
-        </li>
-        <li
-          class="flex items-center gap-1"
-        >
-          <span
-            aria-hidden="true"
-            class="text-gray-300 dark:text-gray-600"
-          >
-            ›
-          </span>
-          <a
-            class="transition-colors hover:text-gray-900 dark:hover:text-white"
-            href="/metra/bnsf"
-          >
-            BNSF Railway
-          </a>
-        </li>
-        <li
-          class="flex items-center gap-1"
-        >
-          <span
-            aria-hidden="true"
-            class="text-gray-300 dark:text-gray-600"
-          >
-            ›
-          </span>
-          <span
-            aria-current="page"
-            class="font-medium text-gray-900 dark:text-white"
-          >
-            Aurora
-          </span>
-        </li>
-      </ol>
-    </nav>
     <section
-      class="relative -mx-4 mb-8 flex h-56 flex-col justify-end overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72"
+      class="relative -mx-4 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72"
     >
       <img
         alt=""
@@ -76,7 +25,62 @@ exports[`Metra station detail page matches snapshot 1`] = `
         class="absolute inset-0 bg-linear-to-t from-black/75 via-black/20 to-transparent dark:from-black/85 dark:via-black/40"
       />
       <div
-        class="relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8"
+        class="relative z-10 mx-auto w-full max-w-7xl px-4 pt-5 sm:px-6 lg:px-8"
+      >
+        <nav
+          aria-label="Breadcrumb"
+        >
+          <ol
+            class="flex flex-wrap items-center gap-1 text-sm text-white/70"
+            style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);"
+          >
+            <li
+              class="flex items-center gap-1"
+            >
+              <a
+                class="transition-colors hover:text-white"
+                href="/metra"
+              >
+                Metra Lines
+              </a>
+            </li>
+            <li
+              class="flex items-center gap-1"
+            >
+              <span
+                aria-hidden="true"
+                class="text-white/40"
+              >
+                ›
+              </span>
+              <a
+                class="transition-colors hover:text-white"
+                href="/metra/bnsf"
+              >
+                BNSF Railway
+              </a>
+            </li>
+            <li
+              class="flex items-center gap-1"
+            >
+              <span
+                aria-hidden="true"
+                class="text-white/40"
+              >
+                ›
+              </span>
+              <span
+                aria-current="page"
+                class="font-medium text-white"
+              >
+                Aurora
+              </span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+      <div
+        class="relative z-10 mx-auto mt-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8"
       >
         <div
           class="mb-3 flex flex-wrap items-center gap-2"

@@ -4,7 +4,7 @@ exports[`CTA list page matches snapshot 1`] = `
 <div>
   <main>
     <section
-      class="relative -mx-4 mb-8 flex h-56 flex-col justify-end overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72"
+      class="relative -mx-4 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72"
     >
       <img
         alt=""
@@ -25,7 +25,7 @@ exports[`CTA list page matches snapshot 1`] = `
         class="absolute inset-0 bg-linear-to-t from-black/75 via-black/20 to-transparent dark:from-black/85 dark:via-black/40"
       />
       <div
-        class="relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8"
+        class="relative z-10 mx-auto mt-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8"
       >
         <h1
           class="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl"

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { getLinesForService, getLine, getStationsForLine } from '@lib/transit'
 import Link from 'next/link'
-import Breadcrumb from '@components/Breadcrumb'
 import CTALineIcon from '@components/CTALineIcon'
 import CTAAlerts from '@components/CTAAlerts'
 import LineDetail from '@components/LineDetail'
@@ -53,11 +52,10 @@ export default async function CTALinePage({ params }: Props) {
 
   return (
     <main>
-      <Breadcrumb items={[{ label: 'CTA Lines', href: '/cta' }, { label: line.name }]} />
-
       <PageHeader
         title={line.name}
         description={line.description}
+        breadcrumbItems={[{ label: 'CTA Lines', href: '/cta' }, { label: line.name }]}
         badges={
           <>
             <CTALineIcon line={line.shortName} size={40} />

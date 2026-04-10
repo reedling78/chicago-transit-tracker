@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getLinesForService, getLine, getStationsForLine } from '@lib/transit'
-import Breadcrumb from '@components/Breadcrumb'
 import LineDetail from '@components/LineDetail'
 import MetraAlerts from '@components/MetraAlerts'
 import PageHeader from '@components/PageHeader'
@@ -52,11 +51,10 @@ export default async function MetraLinePage({ params }: Props) {
 
   return (
     <main>
-      <Breadcrumb items={[{ label: 'Metra Lines', href: '/metra' }, { label: line.name }]} />
-
       <PageHeader
         title={line.name}
         description={line.description}
+        breadcrumbItems={[{ label: 'Metra Lines', href: '/metra' }, { label: line.name }]}
         badges={
           <>
             <span

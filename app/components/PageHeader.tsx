@@ -1,17 +1,26 @@
 import Image from 'next/image'
+import Breadcrumb, { type BreadcrumbItem } from './Breadcrumb'
 
 interface PageHeaderProps {
   title: string
   description?: string
+  /** Breadcrumb trail rendered at the top of the hero */
+  breadcrumbItems?: BreadcrumbItem[]
   /** Pill badges rendered above the title */
   badges?: React.ReactNode
   /** Extra content rendered below the description — e.g. line colour chips */
   children?: React.ReactNode
 }
 
-export default function PageHeader({ title, description, badges, children }: PageHeaderProps) {
+export default function PageHeader({
+  title,
+  description,
+  breadcrumbItems,
+  badges,
+  children,
+}: PageHeaderProps) {
   return (
-    <section className="relative -mx-4 mb-8 flex h-56 flex-col justify-end overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72">
+    <section className="relative -mx-4 mb-8 flex h-56 flex-col overflow-hidden sm:-mx-6 sm:h-64 lg:-mx-8 lg:h-72">
       {/* Background photo */}
       <Image
         src="/hero-header.jpg"
@@ -31,8 +40,15 @@ export default function PageHeader({ title, description, badges, children }: Pag
         aria-hidden="true"
       />
 
-      {/* Content */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+      {/* Top: breadcrumb */}
+      {breadcrumbItems && breadcrumbItems.length > 0 && (
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pt-5 sm:px-6 lg:px-8">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      )}
+
+      {/* Bottom: main content — mt-auto pins to the bottom of the flex column */}
+      <div className="relative z-10 mx-auto mt-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         {badges && <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>}
         <h1
           className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl"
