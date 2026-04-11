@@ -98,10 +98,7 @@ export default function CtaServicePulse({
                 data-tone={d.healthTone}
                 data-testid={`pulse-card-${d.terminalName}`}
               >
-                <p className="text-xs font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
-                  To
-                </p>
-                <p className="mt-0.5 text-xl font-bold text-gray-900 dark:text-white">
+                <p className="text-xl font-bold text-gray-900 dark:text-white">
                   To {d.terminalName}
                 </p>
 

@@ -13,7 +13,6 @@ import type { Line } from '@lib/types'
 import CtaServicePulse, { type DirectionPulse } from './CtaServicePulse'
 
 const POLL_INTERVAL_MS = 30_000
-const HIGH_SEVERITY_THRESHOLD = 50
 
 function toPulseInput(train: CtaTrain): PulseInputTrain {
   return {
@@ -34,11 +33,7 @@ function alertMatchesLine(a: CTAAlert, serviceId: string): boolean {
 
 function hasHighSeverityAlertForLine(alerts: CTAAlert[], serviceId: string | null): boolean {
   if (!serviceId) return false
-  return alerts.some((a) => {
-    const score = parseInt(a.SeverityScore, 10)
-    if (Number.isNaN(score) || score < HIGH_SEVERITY_THRESHOLD) return false
-    return alertMatchesLine(a, serviceId)
-  })
+  return alerts.some((a) => a.MajorAlert === '1' && alertMatchesLine(a, serviceId))
 }
 
 function firstAlertSnippet(alerts: CTAAlert[], serviceId: string | null): string | null {
@@ -117,9 +112,22 @@ export default function CtaServicePulseContainer({ line }: { line: Line }) {
     const groups = aggregateByTerminal(trains, line.termini)
     const hasHighAlert = hasHighSeverityAlertForLine(alerts, line.ctaRouteId)
     const inService = isInService(now, line.operatesOvernight)
+    const isFirstLoadError = error != null && trains.length === 0
 
     const result: DirectionPulse[] = []
     for (const terminal of line.termini) {
+      if (isFirstLoadError) {
+        result.push({
+          terminalName: terminal,
+          trainCount: 0,
+          delayedCount: 0,
+          nextArrivalMinutes: null,
+          nextArrivalNearStation: null,
+          healthLabel: 'No data',
+          healthTone: 'nodata',
+        })
+        continue
+      }
       const direction = groups.get(terminal) ?? []
       const delayed = direction.filter((t) => t.isDly).length
       const health = computeHealth({
@@ -140,7 +148,7 @@ export default function CtaServicePulseContainer({ line }: { line: Line }) {
       })
     }
     return result
-  }, [trains, alerts, nowMs, line.termini, line.ctaRouteId, line.operatesOvernight])
+  }, [trains, alerts, nowMs, line.termini, line.ctaRouteId, line.operatesOvernight, error])
 
   const alertSnippet = firstAlertSnippet(alerts, line.ctaRouteId)
 

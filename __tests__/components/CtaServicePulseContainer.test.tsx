@@ -207,6 +207,72 @@ describe('CtaServicePulseContainer', () => {
     })
   })
 
+  it('renders nodata tone on each direction card when the initial fetch errors', async () => {
+    mockFetchLocations.mockRejectedValue(new Error('Network down'))
+    mockFetchAlerts.mockResolvedValue([])
+
+    render(<CtaServicePulseContainer line={redLine} />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('pulse-card-Howard')).toHaveAttribute('data-tone', 'nodata')
+    })
+    expect(screen.getByTestId('pulse-card-95th/Dan Ryan')).toHaveAttribute('data-tone', 'nodata')
+  })
+
+  it('does not bump health when a non-major alert is present (MajorAlert=0)', async () => {
+    mockFetchLocations.mockResolvedValue({
+      ctatt: {
+        route: [
+          {
+            '@name': 'red',
+            train: [
+              mkTrain({ rn: '1', destNm: 'Howard' }),
+              mkTrain({ rn: '2', destNm: 'Howard' }),
+              mkTrain({ rn: '3', destNm: 'Howard' }),
+              mkTrain({ rn: '4', destNm: '95th/Dan Ryan' }),
+              mkTrain({ rn: '5', destNm: '95th/Dan Ryan' }),
+              mkTrain({ rn: '6', destNm: '95th/Dan Ryan' }),
+            ],
+          },
+        ],
+      },
+    })
+    mockFetchAlerts.mockResolvedValue([
+      {
+        AlertId: 'A2',
+        Headline: 'Elevator out',
+        ShortDescription: '',
+        FullDescription: { '#cdata-section': '' },
+        SeverityScore: '70',
+        SeverityColor: '',
+        SeverityCSS: '',
+        Impact: '',
+        EventStart: '',
+        EventEnd: null,
+        TBD: '',
+        MajorAlert: '0',
+        AlertURL: { '#cdata-section': '' },
+        ImpactedService: {
+          Service: {
+            ServiceType: '',
+            ServiceTypeDescription: '',
+            ServiceName: 'Red Line',
+            ServiceId: 'Red',
+            ServiceBackColor: '',
+            ServiceTextColor: '',
+            ServiceURL: { '#cdata-section': '' },
+          },
+        },
+      },
+    ])
+
+    render(<CtaServicePulseContainer line={redLine} />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('pulse-card-Howard')).toHaveAttribute('data-tone', 'normal')
+    })
+  })
+
   it('re-fetches when the tab regains visibility', async () => {
     mockFetchLocations.mockResolvedValue({
       ctatt: { route: [{ '@name': 'red', train: [] }] },
