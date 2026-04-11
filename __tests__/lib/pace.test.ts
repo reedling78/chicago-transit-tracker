@@ -51,6 +51,28 @@ describe('getAllPaceRoutes', () => {
     expect(routes[0].longName).toBe('Golf Road')
     expect(routes[0].region).toBe('north')
   })
+
+  it('applies defaults for missing optional fields', async () => {
+    mockGet.mockResolvedValue({
+      docs: [
+        {
+          id: 'minimal',
+          data: () => ({ shortName: 'X', longName: 'Minimal Route' }),
+        },
+      ],
+    })
+
+    const { getAllPaceRoutes } = await import('@lib/pace')
+    const routes = await getAllPaceRoutes()
+    expect(routes).toHaveLength(1)
+    expect(routes[0].slug).toBe('minimal')
+    expect(routes[0].color).toBe('#005DAA')
+    expect(routes[0].textColor).toBe('#FFFFFF')
+    expect(routes[0].serviceType).toBe('local')
+    expect(routes[0].region).toBe('north')
+    expect(routes[0].directions).toEqual([])
+    expect(routes[0].description).toBeNull()
+  })
 })
 
 describe('getPaceRoute', () => {
@@ -174,5 +196,11 @@ describe('getPaceRouteStops', () => {
     mockGet.mockResolvedValue({ exists: true, data: () => ({ directions: {} }) })
     const { getPaceRouteStops } = await import('@lib/pace')
     expect(await getPaceRouteStops('208', '0')).toEqual([])
+  })
+
+  it('returns empty array when route document does not exist', async () => {
+    mockGet.mockResolvedValue({ exists: false })
+    const { getPaceRouteStops } = await import('@lib/pace')
+    expect(await getPaceRouteStops('404', '0')).toEqual([])
   })
 })
