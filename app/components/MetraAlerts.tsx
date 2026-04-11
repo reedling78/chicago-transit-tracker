@@ -8,7 +8,7 @@ import { LINE_COLORS, METRA_LINE_NAMES } from '@lib/constants'
 
 type FeedData = Awaited<ReturnType<typeof fetchMetraFeed>>
 
-function AlertCard({ entity }: { entity: FeedData['entity'][number] }) {
+function AlertCard({ entity }: { entity: NonNullable<FeedData['entity']>[number] }) {
   const alert = entity.alert
   if (!alert) return null
 
