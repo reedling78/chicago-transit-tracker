@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { getFirestore } from './firebase-admin'
 import type { Line, Station } from './types'
 import type { TripStop } from './metra-status'
@@ -70,34 +71,39 @@ function toStation(id: string, d: DocumentData): Station {
   }
 }
 
-export async function getLinesForService(service: 'cta' | 'metra'): Promise<Line[]> {
+// React `cache()` memoizes these reads across `generateMetadata` and the page
+// component within a single request. During `npm run build`, this halves the
+// Firestore reads for every dynamic page (metadata + component previously
+// each triggered their own fetch).
+
+export const getLinesForService = cache(async (service: 'cta' | 'metra'): Promise<Line[]> => {
   const db = getFirestore()
   const snap = await db.collection('lines').where('service', '==', service).get()
   return snap.docs.map((d) => toLine(d.id, d.data())).sort((a, b) => a.name.localeCompare(b.name))
-}
+})
 
-export async function getAllLines(): Promise<Line[]> {
+export const getAllLines = cache(async (): Promise<Line[]> => {
   const db = getFirestore()
   const snap = await db.collection('lines').get()
   return snap.docs.map((d) => toLine(d.id, d.data()))
-}
+})
 
-export async function getLine(slug: string): Promise<Line | null> {
+export const getLine = cache(async (slug: string): Promise<Line | null> => {
   const db = getFirestore()
   const doc = await db.collection('lines').doc(slug).get()
   if (!doc.exists) return null
   return toLine(doc.id, doc.data()!)
-}
+})
 
-export async function getStationsForLine(lineShortName: string): Promise<Station[]> {
+export const getStationsForLine = cache(async (lineShortName: string): Promise<Station[]> => {
   const db = getFirestore()
   const snap = await db.collection('stations').where('lines', 'array-contains', lineShortName).get()
   return snap.docs
     .map((d) => toStation(d.id, d.data()))
     .sort((a, b) => (a.lineOrder[lineShortName] ?? 9999) - (b.lineOrder[lineShortName] ?? 9999))
-}
+})
 
-export async function getMetraLineTrips(lineSlug: string): Promise<MetraLineTrip[]> {
+export const getMetraLineTrips = cache(async (lineSlug: string): Promise<MetraLineTrip[]> => {
   const db = getFirestore()
   const snap = await db.collection('metra-trips').where('lineSlug', '==', lineSlug).get()
   return snap.docs.map((doc) => {
@@ -110,11 +116,11 @@ export async function getMetraLineTrips(lineSlug: string): Promise<MetraLineTrip
       stops: (d.stops ?? []) as TripStop[],
     }
   })
-}
+})
 
-export async function getStation(slug: string): Promise<Station | null> {
+export const getStation = cache(async (slug: string): Promise<Station | null> => {
   const db = getFirestore()
   const doc = await db.collection('stations').doc(slug).get()
   if (!doc.exists) return null
   return toStation(doc.id, doc.data()!)
-}
+})
