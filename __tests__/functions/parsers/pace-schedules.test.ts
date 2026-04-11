@@ -1,4 +1,8 @@
-import { deriveRegion, deriveServiceType } from '@functions/lib/parsers/pace-schedules'
+import {
+  deriveColor,
+  deriveRegion,
+  deriveServiceType,
+} from '@functions/lib/parsers/pace-schedules'
 
 describe('deriveServiceType', () => {
   it('classifies Pulse routes by short name suffix', () => {
@@ -61,5 +65,32 @@ describe('deriveRegion', () => {
 
   it('defaults 8xx feeder routes to north', () => {
     expect(deriveRegion('890')).toBe('north')
+  })
+})
+
+describe('deriveColor', () => {
+  it('uses GTFS route_color when populated and not the default', () => {
+    expect(
+      deriveColor({ shortName: '208', gtfsColor: '336699', gtfsTextColor: 'FFFFFF' }),
+    ).toEqual({ color: '#336699', textColor: '#FFFFFF' })
+  })
+
+  it('falls back to Pace corporate blue when GTFS color is missing', () => {
+    expect(deriveColor({ shortName: '208', gtfsColor: '', gtfsTextColor: '' })).toEqual({
+      color: '#005DAA',
+      textColor: '#FFFFFF',
+    })
+  })
+
+  it('hardcodes Milwaukee Pulse to its branded orange', () => {
+    expect(
+      deriveColor({ shortName: 'Milwaukee Pulse', gtfsColor: '', gtfsTextColor: '' }),
+    ).toEqual({ color: '#FF6C0C', textColor: '#FFFFFF' })
+  })
+
+  it('hardcodes Dempster Pulse to its branded teal', () => {
+    expect(
+      deriveColor({ shortName: 'Dempster Pulse', gtfsColor: '', gtfsTextColor: '' }),
+    ).toEqual({ color: '#00A3A1', textColor: '#FFFFFF' })
   })
 })

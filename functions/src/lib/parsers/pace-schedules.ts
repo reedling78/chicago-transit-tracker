@@ -61,3 +61,36 @@ export function deriveRegion(shortName: string): PaceRegion {
       return 'north'
   }
 }
+
+const PACE_CORPORATE_BLUE = '#005DAA'
+const DEFAULT_TEXT_COLOR = '#FFFFFF'
+
+/** Branded colors for known Pulse routes — overrides GTFS. */
+const PULSE_COLORS: Record<string, { color: string; textColor: string }> = {
+  'Milwaukee Pulse': { color: '#FF6C0C', textColor: '#FFFFFF' },
+  'Dempster Pulse': { color: '#00A3A1', textColor: '#FFFFFF' },
+}
+
+interface DeriveColorInput {
+  shortName: string
+  gtfsColor: string
+  gtfsTextColor: string
+}
+
+/** Compute the route's display color and text color. */
+export function deriveColor(input: DeriveColorInput): { color: string; textColor: string } {
+  const override = PULSE_COLORS[input.shortName.trim()]
+  if (override) return override
+
+  const raw = input.gtfsColor?.trim() ?? ''
+  if (raw && raw.toUpperCase() !== '005DAA') {
+    return {
+      color: `#${raw.toUpperCase()}`,
+      textColor: input.gtfsTextColor
+        ? `#${input.gtfsTextColor.toUpperCase()}`
+        : DEFAULT_TEXT_COLOR,
+    }
+  }
+
+  return { color: PACE_CORPORATE_BLUE, textColor: DEFAULT_TEXT_COLOR }
+}
