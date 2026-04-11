@@ -2,24 +2,19 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useMetraFeed, type FeedData } from '@lib/hooks/useMetraFeed'
-import { extractMetraTrainNumber, routeIdToLineSlug } from '@lib/metra-trip-matching'
+import { useMetraFeed } from '@lib/hooks/useMetraFeed'
 import {
   computeHeroStatus,
   deriveStopState,
   formatClockTime,
   isTripScheduledEndPast,
-  longToNumber,
   minutesSinceMidnight,
-  TONE_CLASSES,
-  type DerivedStop,
-  type HeroStatus,
   type RealtimeState,
-  type TripPhase,
   type TripStop,
-  type VehiclePosition,
 } from '@lib/metra-status'
 import { LINE_COLORS } from '@lib/constants'
+import { filterFeedForTrip, isTripCompleted } from '@lib/metra-trip-realtime-helpers'
+import MetraTripHeroStatusCard from './MetraTripHeroStatusCard'
 
 export type { TripStop } from '@lib/metra-status'
 
@@ -35,146 +30,9 @@ export interface TripDetail {
   stops: TripStop[]
 }
 
-type FeedEntity = NonNullable<FeedData['entity']>[number]
-
 const POLL_INTERVAL_MS = 30_000
 const MAX_POLLING_DURATION_MS = 4 * 60 * 60 * 1000
 const COMPLETION_EMPTY_THRESHOLD = 2
-
-function matchEntityToTrip(
-  entity: FeedEntity,
-  targetLineSlug: string,
-  targetTrainNumber: string,
-): boolean {
-  const trip = entity.tripUpdate?.trip ?? entity.vehicle?.trip
-  if (!trip) return false
-  const entityLineSlug = routeIdToLineSlug(trip.routeId ?? null)
-  if (entityLineSlug !== targetLineSlug) return false
-  const tripId = trip.tripId
-  if (!tripId) return false
-  return extractMetraTrainNumber(tripId) === targetTrainNumber
-}
-
-function filterFeedForTrip(
-  feed: FeedData | null,
-  lineSlug: string,
-  trainNumber: string,
-): {
-  tripUpdate: NonNullable<FeedEntity['tripUpdate']> | null
-  vehiclePosition: NonNullable<FeedEntity['vehicle']> | null
-} {
-  if (!feed?.entity) return { tripUpdate: null, vehiclePosition: null }
-  let tripUpdate: NonNullable<FeedEntity['tripUpdate']> | null = null
-  let vehiclePosition: NonNullable<FeedEntity['vehicle']> | null = null
-  for (const entity of feed.entity) {
-    if (!matchEntityToTrip(entity, lineSlug, trainNumber)) continue
-    if (entity.tripUpdate && !tripUpdate) tripUpdate = entity.tripUpdate
-    if (entity.vehicle && !vehiclePosition) vehiclePosition = entity.vehicle
-  }
-  return { tripUpdate, vehiclePosition }
-}
-
-function HeroStatusCard({
-  status,
-  phase,
-  currentDerived,
-  firstStop,
-  lastStop,
-  vehiclePosition,
-  lineColor,
-  error,
-  nowMs,
-}: {
-  status: HeroStatus
-  phase: TripPhase
-  currentDerived: DerivedStop | undefined
-  firstStop: TripStop | undefined
-  lastStop: TripStop | undefined
-  vehiclePosition: VehiclePosition | null
-  lineColor: string
-  error: string | null
-  nowMs: number
-}) {
-  const toneClass = TONE_CLASSES[status.tone]
-
-  let rightTitle: string | null = null
-  let rightStation: string | null = null
-  let rightTime: string | null = null
-  let rightSubtext: string | null = null
-
-  if (phase === 'active' && currentDerived) {
-    rightTitle = 'Next stop'
-    rightStation = currentDerived.stop.stationName
-    if (currentDerived.etaEpoch != null) {
-      const eta = new Date(currentDerived.etaEpoch * 1000)
-      rightTime = formatClockTime(eta)
-      const diffMin = Math.round((eta.getTime() - nowMs) / 60_000)
-      if (diffMin > 0) rightSubtext = `in ${diffMin} min`
-      else if (diffMin === 0) rightSubtext = 'arriving now'
-      else rightSubtext = 'arriving'
-    } else if (currentDerived.stop.arrival) {
-      rightTime = currentDerived.stop.arrival
-    }
-  } else if (phase === 'scheduled' && firstStop) {
-    rightTitle = 'Departs'
-    rightStation = firstStop.stationName
-    rightTime = firstStop.departure || firstStop.arrival
-  } else if (phase === 'completed' && lastStop) {
-    rightTitle = 'Arrived'
-    rightStation = lastStop.stationName
-    rightTime = lastStop.arrival
-  }
-
-  const timestampSec = vehiclePosition ? longToNumber(vehiclePosition.timestamp) : null
-  const lastReported =
-    timestampSec != null ? `Last reported ${formatClockTime(new Date(timestampSec * 1000))}` : null
-
-  const hasRightPanel = rightTitle != null && rightStation != null
-
-  return (
-    <div
-      className="mb-4 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900"
-      style={{ borderLeftWidth: '4px', borderLeftColor: lineColor }}
-    >
-      <div className="flex flex-col divide-y divide-gray-100 md:flex-row md:divide-x md:divide-y-0 dark:divide-gray-800">
-        {/* Left panel: status */}
-        <div className="flex-1 px-5 py-4">
-          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
-            Live status
-          </p>
-          <div className="mt-1 flex items-center gap-2">
-            <span className={`h-2.5 w-2.5 rounded-full ${toneClass.dot}`} />
-            <p className={`text-2xl font-bold ${toneClass.text}`}>{status.label}</p>
-          </div>
-          {lastReported && (
-            <p className="mt-1 text-xs text-gray-500 dark:text-white/50">{lastReported}</p>
-          )}
-          {error && <p className="mt-1 text-xs text-red-500">Live feed error: {error}</p>}
-        </div>
-
-        {/* Right panel: next stop / departs / arrived */}
-        {hasRightPanel && (
-          <div className="flex-1 px-5 py-4">
-            <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
-              {rightTitle}
-            </p>
-            <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{rightStation}</p>
-            <div className="mt-1 flex items-baseline gap-2 text-sm">
-              {rightTime && (
-                <span className="font-semibold text-gray-700 tabular-nums dark:text-white/80">
-                  {rightTime}
-                </span>
-              )}
-              {rightSubtext && (
-                <span className="text-gray-500 dark:text-white/50">{rightSubtext}</span>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
 export default function MetraTripRealtime({
   trip,
@@ -230,10 +88,8 @@ export default function MetraTripRealtime({
 
   // React to new fetches from the shared hook: filter to this trip, update
   // the derived realtime state, and decide whether we should stop polling
-  // because the train has completed its run. This is a classic subscriber
-  // pattern on top of useMetraFeed — `lastProcessedFetchRef` guarantees one
-  // state update per distinct fetch event, so no render cascades.
-  /* eslint-disable react-hooks/set-state-in-effect -- subscriber bridge from useMetraFeed */
+  // because the train has completed its run. `lastProcessedFetchRef`
+  // guarantees one state update per distinct fetch event, so no cascades.
   useEffect(() => {
     const latestFetchedAt = Math.max(tripUpdatesFeed.fetchedAt ?? 0, positionsFeed.fetchedAt ?? 0)
     if (latestFetchedAt === 0) return
@@ -255,10 +111,13 @@ export default function MetraTripRealtime({
     const nowMinutes = minutesSinceMidnight(new Date())
     const scheduledEndPast = isTripScheduledEndPast(trip.stops, nowMinutes)
 
-    const nonSkipped = tripUpdate?.stopTimeUpdate?.filter((u) => u.scheduleRelationship !== 1) ?? []
-    const completedByStu = Boolean(tripUpdate) && nonSkipped.length === 0
-    const completedByEmpty = emptyCountRef.current >= COMPLETION_EMPTY_THRESHOLD && scheduledEndPast
-    const isStopped = completedByStu || completedByEmpty
+    const isStopped = isTripCompleted({
+      tripUpdate,
+      vehiclePosition,
+      emptyCount: emptyCountRef.current,
+      emptyThreshold: COMPLETION_EMPTY_THRESHOLD,
+      scheduledEndPast,
+    })
 
     setRealtime({
       tripUpdate,
@@ -276,7 +135,6 @@ export default function MetraTripRealtime({
     trip.trainNumber,
     trip.stops,
   ])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const derivation = useMemo(() => deriveStopState(trip.stops, realtime), [trip.stops, realtime])
 
@@ -294,7 +152,7 @@ export default function MetraTripRealtime({
   return (
     <>
       {heroStatus && (
-        <HeroStatusCard
+        <MetraTripHeroStatusCard
           status={heroStatus}
           phase={phase}
           currentDerived={currentDerived}
