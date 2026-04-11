@@ -140,6 +140,6 @@ export const mockPaceStop: PaceStop = {
   name: 'Golf Rd & Waukegan Rd',
   lat: 42.0586,
   lon: -87.7972,
-  routes: ['208', '626'],
+  routes: ['208', 'milwaukee-pulse'],
   wheelchairBoarding: true,
 }

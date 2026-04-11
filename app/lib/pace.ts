@@ -71,7 +71,7 @@ export const getPaceRouteStops = cache(
     const db = getFirestore()
     const doc = await db.collection('pace-route-stops').doc(routeSlug).get()
     if (!doc.exists) return []
-    const data = doc.data() as { directions?: Record<string, PaceRouteStopEntry[]> }
+    const data = doc.data()! as { directions?: Record<string, PaceRouteStopEntry[]> }
     return data.directions?.[directionId] ?? []
   },
 )
