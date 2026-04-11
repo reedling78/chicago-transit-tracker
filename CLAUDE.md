@@ -70,6 +70,8 @@ app/
     MetraPositions.tsx        Metra realtime vehicle positions (client component, debug)
     MetraTripUpdates.tsx      Metra realtime trip updates (client component, debug)
     MetraTripRealtime.tsx     Train detail client component — schedule table + hero status card, polls tripupdates/positions
+    CurrentServiceList.tsx    Presentational list of active/upcoming trains with status pills (service-agnostic)
+    MetraCurrentService.tsx   Line detail client component — polls realtime feeds, applies selection rules, renders CurrentServiceList
     PageHeader.tsx            Full-bleed photo hero with breadcrumb, badges, title
     Breadcrumb.tsx            Semantic breadcrumb — rendered inside PageHeader
     LineChipList.tsx          Clickable line color chips linking to line pages
@@ -81,7 +83,8 @@ app/
     cta-alerts.ts             Client-side fetch + types for CTA Customer Alerts API
     metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
     metra-trip-matching.ts    Helpers for matching a Metra realtime entity to (lineSlug, trainNumber)
-    transit.ts                Data access — getLinesForService, getLine, getAllLines, etc.
+    metra-status.ts           Shared status derivation for Metra trips (deriveStopState, computeHeroStatus, TONE_CLASSES)
+    transit.ts                Data access — getLinesForService, getLine, getMetraLineTrips, etc.
     types.ts                  Line and Station TypeScript interfaces
 scripts/
   seed-lines.ts               Seeds 19 lines into Firestore

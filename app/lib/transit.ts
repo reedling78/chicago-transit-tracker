@@ -1,6 +1,15 @@
 import { getFirestore } from './firebase-admin'
 import type { Line, Station } from './types'
+import type { TripStop } from './metra-status'
 import type { DocumentData } from 'firebase-admin/firestore'
+
+export interface MetraLineTrip {
+  trainNumber: string
+  headsign: string
+  serviceType: 'weekday' | 'saturday' | 'sunday'
+  directionId: number
+  stops: TripStop[]
+}
 
 function toLine(id: string, d: DocumentData): Line {
   return {
@@ -86,6 +95,21 @@ export async function getStationsForLine(lineShortName: string): Promise<Station
   return snap.docs
     .map((d) => toStation(d.id, d.data()))
     .sort((a, b) => (a.lineOrder[lineShortName] ?? 9999) - (b.lineOrder[lineShortName] ?? 9999))
+}
+
+export async function getMetraLineTrips(lineSlug: string): Promise<MetraLineTrip[]> {
+  const db = getFirestore()
+  const snap = await db.collection('metra-trips').where('lineSlug', '==', lineSlug).get()
+  return snap.docs.map((doc) => {
+    const d = doc.data()
+    return {
+      trainNumber: d.trainNumber,
+      headsign: d.headsign,
+      serviceType: d.serviceType,
+      directionId: d.directionId ?? 0,
+      stops: (d.stops ?? []) as TripStop[],
+    }
+  })
 }
 
 export async function getStation(slug: string): Promise<Station | null> {
