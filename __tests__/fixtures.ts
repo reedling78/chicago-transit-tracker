@@ -1,4 +1,5 @@
 import type { Line, Station } from '@lib/types'
+import type { PaceRoute, PaceStop } from '@lib/pace-types'
 
 export const mockLine: Line = {
   id: 'red',
@@ -102,4 +103,43 @@ export const mockMetraStation: Station = {
   wikipediaUrl: null,
   metraLink: 'https://metra.com/stations/aurora',
   lineOrder: { BNSF: 24 },
+}
+
+export const mockPaceRoute: PaceRoute = {
+  slug: '208',
+  shortName: '208',
+  longName: 'Golf Road',
+  serviceType: 'local',
+  region: 'north',
+  color: '#005DAA',
+  textColor: '#FFFFFF',
+  description: 'Connects Evanston with Schaumburg via Golf Road.',
+  directions: [
+    { id: '0', name: 'East to Evanston' },
+    { id: '1', name: 'West to Schaumburg' },
+  ],
+}
+
+export const mockPacePulseRoute: PaceRoute = {
+  slug: 'milwaukee-pulse',
+  shortName: 'Milwaukee Pulse',
+  longName: 'Milwaukee Avenue',
+  serviceType: 'pulse',
+  region: 'northwest',
+  color: '#FF6C0C',
+  textColor: '#FFFFFF',
+  description: 'Limited-stop Pulse service along Milwaukee Avenue.',
+  directions: [
+    { id: '0', name: 'Golf Mill' },
+    { id: '1', name: 'Jefferson Park' },
+  ],
+}
+
+export const mockPaceStop: PaceStop = {
+  slug: 'golf-rd-waukegan-rd',
+  name: 'Golf Rd & Waukegan Rd',
+  lat: 42.0586,
+  lon: -87.7972,
+  routes: ['208', 'milwaukee-pulse'],
+  wheelchairBoarding: true,
 }
