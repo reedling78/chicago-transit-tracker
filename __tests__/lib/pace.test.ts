@@ -94,3 +94,30 @@ describe('getPaceRoute', () => {
     expect(route).toBeNull()
   })
 })
+
+describe('getAllPaceStops', () => {
+  it('reads all documents from the pace-stops collection', async () => {
+    mockGet.mockResolvedValue({
+      docs: [
+        {
+          id: 'golf-rd-waukegan-rd',
+          data: () => ({
+            slug: 'golf-rd-waukegan-rd',
+            name: 'Golf Rd & Waukegan Rd',
+            lat: 42.0586,
+            lon: -87.7972,
+            routes: ['208'],
+            wheelchairBoarding: true,
+          }),
+        },
+      ],
+    })
+
+    const { getAllPaceStops } = await import('@lib/pace')
+    const stops = await getAllPaceStops()
+
+    expect(mockCollection).toHaveBeenCalledWith('pace-stops')
+    expect(stops).toHaveLength(1)
+    expect(stops[0].name).toBe('Golf Rd & Waukegan Rd')
+  })
+})
