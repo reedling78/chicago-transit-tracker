@@ -19,7 +19,7 @@ import {
   type TripStop,
   type VehiclePosition,
 } from '@lib/metra-status'
-import { LINE_COLORS } from './StationDetail'
+import { LINE_COLORS } from '@lib/constants'
 
 export type { TripStop } from '@lib/metra-status'
 

@@ -12,6 +12,12 @@ import { parse as parseCSV } from 'csv-parse/sync'
 
 // ---------------------------------------------------------------------------
 // Types
+//
+// These types mirror the frontend-side definitions in
+// app/lib/gtfs-types.ts (schedule shapes) and app/lib/metra-status.ts
+// (TripStop). The Cloud Functions package has its own tsconfig so we keep
+// a local copy rather than importing across package boundaries. Keep the
+// two sides in sync when adding or removing fields.
 // ---------------------------------------------------------------------------
 
 export type ServiceType = 'weekday' | 'saturday' | 'sunday'

@@ -4,21 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { fetchMetraFeed } from '@lib/metra-realtime'
 import type { Line } from '@lib/types'
-import { LINE_COLORS } from './StationDetail'
-
-const METRA_LINE_NAMES: Record<string, string> = {
-  BNSF: 'BNSF Railway',
-  'UP-N': 'Union Pacific North',
-  'UP-NW': 'Union Pacific Northwest',
-  'UP-W': 'Union Pacific West',
-  'MD-N': 'Milwaukee District North',
-  'MD-W': 'Milwaukee District West',
-  RI: 'Rock Island',
-  SWS: 'SouthWest Service',
-  HC: 'Heritage Corridor',
-  ME: 'Metra Electric',
-  NCS: 'North Central Service',
-}
+import { LINE_COLORS, METRA_LINE_NAMES } from '@lib/constants'
 
 type FeedData = Awaited<ReturnType<typeof fetchMetraFeed>>
 
