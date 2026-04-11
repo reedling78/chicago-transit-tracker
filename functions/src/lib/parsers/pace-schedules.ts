@@ -12,22 +12,6 @@ export type PaceRouteServiceType = 'pulse' | 'local' | 'express' | 'feeder'
 
 export type PaceRegion = 'north' | 'northwest' | 'west' | 'southwest' | 'south' | 'heritage'
 
-interface GtfsRouteRow {
-  route_short_name: string
-  route_long_name: string
-}
-
-/** Classify a Pace route's service type from its GTFS row. */
-export function deriveServiceType(row: GtfsRouteRow): PaceRouteServiceType {
-  const short = row.route_short_name?.trim() ?? ''
-  const long = row.route_long_name?.trim() ?? ''
-
-  if (/\bpulse\b/i.test(short)) return 'pulse'
-  if (/express/i.test(long)) return 'express'
-  if (/^8\d{2}$/.test(short)) return 'feeder'
-  return 'local'
-}
-
 /**
  * Region override map. Populate this with route short names whose digit-based
  * region assignment is incorrect. Empty by default in v1; we'll add entries
@@ -41,6 +25,26 @@ const REGION_OVERRIDES: Record<string, PaceRegion> = {
 const PULSE_REGIONS: Record<string, PaceRegion> = {
   'milwaukee-pulse': 'northwest',
   'dempster-pulse': 'north',
+}
+
+const PACE_CORPORATE_BLUE = '#005DAA'
+const DEFAULT_TEXT_COLOR = '#FFFFFF'
+
+/** Branded colors for known Pulse routes, keyed by route slug — overrides GTFS. */
+const PULSE_COLORS: Record<string, { color: string; textColor: string }> = {
+  'milwaukee-pulse': { color: '#FF6C0C', textColor: '#FFFFFF' },
+  'dempster-pulse': { color: '#00A3A1', textColor: '#FFFFFF' },
+}
+
+/** Classify a Pace route's service type from its GTFS row. */
+export function deriveServiceType(row: Record<string, string>): PaceRouteServiceType {
+  const short = row.route_short_name?.trim() ?? ''
+  const long = row.route_long_name?.trim() ?? ''
+
+  if (/\bpulse\b/i.test(short)) return 'pulse'
+  if (/express/i.test(long)) return 'express'
+  if (/^8\d{2}$/.test(short)) return 'feeder'
+  return 'local'
 }
 
 /** Classify a Pace route's region from its short name. */
@@ -71,15 +75,6 @@ export function deriveRegion(shortName: string): PaceRegion {
   }
 }
 
-const PACE_CORPORATE_BLUE = '#005DAA'
-const DEFAULT_TEXT_COLOR = '#FFFFFF'
-
-/** Branded colors for known Pulse routes — overrides GTFS. */
-const PULSE_COLORS: Record<string, { color: string; textColor: string }> = {
-  'Milwaukee Pulse': { color: '#FF6C0C', textColor: '#FFFFFF' },
-  'Dempster Pulse': { color: '#00A3A1', textColor: '#FFFFFF' },
-}
-
 interface DeriveColorInput {
   shortName: string
   gtfsColor: string
@@ -88,7 +83,12 @@ interface DeriveColorInput {
 
 /** Compute the route's display color and text color. */
 export function deriveColor(input: DeriveColorInput): { color: string; textColor: string } {
-  const override = PULSE_COLORS[input.shortName.trim()]
+  const key = input.shortName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  const override = PULSE_COLORS[key]
   if (override) return override
 
   const raw = input.gtfsColor?.trim() ?? ''
@@ -111,16 +111,11 @@ export function routeSlug(shortName: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-interface GtfsStopRow {
-  stop_id: string
-  stop_name: string
-}
-
 /**
  * Build a map of GTFS stop_id → unique slug. When the same name appears
  * multiple times, append a -2, -3, ... suffix in stop_id order.
  */
-export function buildStopSlugMap(stops: GtfsStopRow[]): Map<string, string> {
+export function buildStopSlugMap(stops: Record<string, string>[]): Map<string, string> {
   const slugCounts = new Map<string, number>()
   const result = new Map<string, string>()
 
@@ -144,14 +139,14 @@ export interface PaceDirection {
   name: string
 }
 
-interface GtfsTripRow {
-  route_id: string
-  direction_id: string
-  trip_headsign: string
-}
-
-/** Derive the two most common (direction_id, headsign) pairs for a route. */
-export function extractDirections(routeId: string, trips: GtfsTripRow[]): PaceDirection[] {
+/**
+ * Derive one canonical PaceDirection per distinct direction_id for a route.
+ * For each direction_id, pick the headsign with the highest trip count.
+ */
+export function extractDirections(
+  routeId: string,
+  trips: Record<string, string>[],
+): PaceDirection[] {
   const counts = new Map<string, { id: string; name: string; count: number }>()
   for (const t of trips) {
     if (t.route_id !== routeId) continue
@@ -228,7 +223,7 @@ export function parsePaceGtfs(zip: AdmZip): ParsePaceResult {
   const rawCalendar = parseGTFS(readZipFile(zip, 'calendar.txt'))
 
   const serviceTypeMap = buildServiceTypeMap(rawCalendar)
-  const stopSlugMap = buildStopSlugMap(rawStops as unknown as GtfsStopRow[])
+  const stopSlugMap = buildStopSlugMap(rawStops)
 
   // Pass 1: routes
   const routes = new Map<string, ParsedPaceRoute>()
@@ -247,19 +242,20 @@ export function parsePaceGtfs(zip: AdmZip): ParsePaceResult {
     const baseRegion = deriveRegion(r.route_short_name)
     const region = PULSE_REGIONS[slug] ?? baseRegion
 
+    const longName = r.route_long_name ?? ''
     routes.set(slug, {
       slug,
       shortName: r.route_short_name,
-      longName: r.route_long_name ?? '',
+      longName,
       serviceType: deriveServiceType({
         route_short_name: r.route_short_name,
-        route_long_name: r.route_long_name ?? '',
+        route_long_name: longName,
       }),
       region,
       color,
       textColor,
       description: r.route_desc?.trim() || null,
-      directions: extractDirections(r.route_id, rawTrips as unknown as GtfsTripRow[]),
+      directions: extractDirections(r.route_id, rawTrips),
     })
   }
 
@@ -315,7 +311,7 @@ export function parsePaceGtfs(zip: AdmZip): ParsePaceResult {
     const dir = tripDirection.get(tripId) ?? '0'
     const key = `${slug}|${dir}`
     const cur = longestPatterns.get(key)
-    if (!cur || list.length > cur.count) {
+    if (!cur || list.length > cur.count || (list.length === cur.count && tripId < cur.tripId)) {
       longestPatterns.set(key, { tripId, count: list.length })
     }
 
@@ -385,19 +381,20 @@ export function parsePaceGtfs(zip: AdmZip): ParsePaceResult {
         dirDoc = { weekday: [], saturday: [], sunday: [] }
         routeDoc.directions[direction] = dirDoc
       }
-      const [h, m] = entry.departure.split(':').map(Number)
+      const [h, m] = (entry.departure ?? '').split(':').map(Number)
       const minutes = h * 60 + m
+      if (!Number.isFinite(minutes)) continue
       dirDoc[serviceType].push(minutes)
     }
   }
 
-  // Sort schedule times
+  // Sort schedule times and dedupe duplicate departures (loop-route safety)
   for (const doc of schedules.values()) {
     for (const r of Object.values(doc.routes)) {
       for (const d of Object.values(r.directions)) {
-        d.weekday.sort((a, b) => a - b)
-        d.saturday.sort((a, b) => a - b)
-        d.sunday.sort((a, b) => a - b)
+        d.weekday = [...new Set(d.weekday)].sort((a, b) => a - b)
+        d.saturday = [...new Set(d.saturday)].sort((a, b) => a - b)
+        d.sunday = [...new Set(d.sunday)].sort((a, b) => a - b)
       }
     }
   }
