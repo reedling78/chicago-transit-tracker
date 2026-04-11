@@ -105,4 +105,35 @@ describe('getMetraLineTrips', () => {
     const result = await getMetraLineTrips('bnsf')
     expect(result).toEqual([])
   })
+
+  it('propagates Firestore errors to the caller', async () => {
+    mockWhereGet.mockRejectedValue(new Error('PERMISSION_DENIED'))
+    await expect(getMetraLineTrips('bnsf')).rejects.toThrow('PERMISSION_DENIED')
+  })
+
+  it('preserves stop fields even when optional fields are missing from the doc', async () => {
+    mockWhereGet.mockResolvedValue({
+      docs: [
+        {
+          data: () => ({
+            trainNumber: '55',
+            headsign: 'Somewhere',
+            serviceType: 'saturday',
+            stops: [
+              {
+                sequence: 1,
+                stationName: 'Aurora',
+                slug: null,
+                arrival: '6:00 AM',
+                departure: '6:00 AM',
+              },
+            ],
+          }),
+        },
+      ],
+    })
+    const result = await getMetraLineTrips('bnsf')
+    expect(result[0].stops[0].slug).toBeNull()
+    expect(result[0].directionId).toBe(0)
+  })
 })

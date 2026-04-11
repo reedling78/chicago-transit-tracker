@@ -20,6 +20,25 @@ describe('extractMetraTrainNumber', () => {
   it('returns the original input when the second segment has no digits', () => {
     expect(extractMetraTrainNumber('BNSF_noDigitsHere_V1')).toBe('BNSF_noDigitsHere_V1')
   })
+
+  it('returns the original input when given a single segment with no underscore', () => {
+    expect(extractMetraTrainNumber('BNSF1200')).toBe('BNSF1200')
+  })
+
+  it('returns the original input for an empty string', () => {
+    expect(extractMetraTrainNumber('')).toBe('')
+  })
+
+  it('extracts digits from a trip id that has extra leading underscores', () => {
+    // The current implementation splits on underscore and looks at segments[1].
+    // An empty leading segment still yields the same behavior as any other
+    // non-digit second segment — return the input unchanged.
+    expect(extractMetraTrainNumber('_BN1200_V4_A')).toBe('1200')
+  })
+
+  it('prefers the first run of digits in the second segment', () => {
+    expect(extractMetraTrainNumber('BNSF_BN1200extra55_V4')).toBe('1200')
+  })
 })
 
 describe('routeIdToLineSlug', () => {
@@ -44,5 +63,13 @@ describe('routeIdToLineSlug', () => {
   it('returns null for null or undefined', () => {
     expect(routeIdToLineSlug(null)).toBeNull()
     expect(routeIdToLineSlug(undefined)).toBeNull()
+  })
+
+  it('returns null for an empty string route id', () => {
+    expect(routeIdToLineSlug('')).toBeNull()
+  })
+
+  it('is case-sensitive — a lowercased id is not in the map', () => {
+    expect(routeIdToLineSlug('bnsf')).toBeNull()
   })
 })
