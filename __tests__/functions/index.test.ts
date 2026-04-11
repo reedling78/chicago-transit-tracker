@@ -41,8 +41,10 @@ jest.mock('firebase-admin/firestore', () => ({
 jest.mock('@functions/lib/change-detection', () => ({
   hasCtaFeedChanged: jest.fn(),
   hasMetraFeedChanged: jest.fn(),
+  hasPaceFeedChanged: jest.fn(),
   updateCtaMeta: jest.fn().mockResolvedValue(undefined),
   updateMetraMeta: jest.fn().mockResolvedValue(undefined),
+  updatePaceMeta: jest.fn().mockResolvedValue(undefined),
 }))
 
 jest.mock('@functions/lib/gtfs-utils', () => ({
@@ -69,17 +71,29 @@ jest.mock('@functions/lib/parsers/metra-trips', () => ({
   }),
 }))
 
+jest.mock('@functions/lib/parsers/pace-schedules', () => ({
+  parsePaceGtfs: jest.fn().mockReturnValue({
+    routes: new Map(),
+    stops: new Map(),
+    routeStops: new Map(),
+    schedules: new Map(),
+  }),
+}))
+
 jest.mock('adm-zip', () => jest.fn().mockImplementation(() => ({})))
 
 // Dynamic imports after mocks are registered
 let syncCtaGtfs: () => Promise<void>
 let syncMetraGtfs: () => Promise<void>
+let syncPaceGtfs: () => Promise<void>
 let mockHasCtaChanged: jest.Mock
 let mockHasMetraChanged: jest.Mock
+let mockHasPaceChanged: jest.Mock
 let mockDownload: jest.Mock
 let mockBatchWrite: jest.Mock
 let mockUpdateCtaMeta: jest.Mock
 let mockUpdateMetraMeta: jest.Mock
+let mockUpdatePaceMeta: jest.Mock
 let mockParseCtaSchedules: jest.Mock
 
 beforeAll(async () => {
@@ -87,12 +101,15 @@ beforeAll(async () => {
   // onSchedule mock returns the handler directly
   syncCtaGtfs = indexMod.syncCtaGtfs as unknown as () => Promise<void>
   syncMetraGtfs = indexMod.syncMetraGtfs as unknown as () => Promise<void>
+  syncPaceGtfs = indexMod.syncPaceGtfs as unknown as () => Promise<void>
 
   const changeDet = await import('@functions/lib/change-detection')
   mockHasCtaChanged = changeDet.hasCtaFeedChanged as jest.Mock
   mockHasMetraChanged = changeDet.hasMetraFeedChanged as jest.Mock
+  mockHasPaceChanged = changeDet.hasPaceFeedChanged as jest.Mock
   mockUpdateCtaMeta = changeDet.updateCtaMeta as jest.Mock
   mockUpdateMetraMeta = changeDet.updateMetraMeta as jest.Mock
+  mockUpdatePaceMeta = changeDet.updatePaceMeta as jest.Mock
 
   const utils = await import('@functions/lib/gtfs-utils')
   mockDownload = utils.downloadBuffer as jest.Mock
@@ -166,5 +183,36 @@ describe('syncMetraGtfs', () => {
     expect(mockBatchWrite).toHaveBeenCalledWith('metra-trip-indexes', expect.any(Map))
     expect(mockBatchWrite).toHaveBeenCalledWith('metra-station-trips', expect.any(Map))
     expect(mockUpdateMetraMeta).toHaveBeenCalledWith('03/06/26 02:20:03 AM')
+  })
+})
+
+describe('syncPaceGtfs', () => {
+  it('skips sync when feed is unchanged', async () => {
+    mockHasPaceChanged.mockResolvedValue({ changed: false })
+
+    await syncPaceGtfs()
+
+    expect(mockDownload).not.toHaveBeenCalled()
+    expect(mockBatchWrite).not.toHaveBeenCalled()
+    expect(mockUpdatePaceMeta).not.toHaveBeenCalled()
+  })
+
+  it('downloads, parses, and writes all four pace collections when feed has changed', async () => {
+    mockHasPaceChanged.mockResolvedValue({
+      changed: true,
+      lastModified: 'Mon, 01 Jan 2024 00:00:00 GMT',
+      etag: 'abc',
+    })
+    mockBatchWrite.mockResolvedValue(0)
+
+    await syncPaceGtfs()
+
+    expect(mockDownload).toHaveBeenCalled()
+    expect(mockBatchWrite).toHaveBeenCalledTimes(4)
+    expect(mockBatchWrite).toHaveBeenCalledWith('pace-routes', expect.any(Map))
+    expect(mockBatchWrite).toHaveBeenCalledWith('pace-stops', expect.any(Map))
+    expect(mockBatchWrite).toHaveBeenCalledWith('pace-route-stops', expect.any(Map))
+    expect(mockBatchWrite).toHaveBeenCalledWith('pace-schedules', expect.any(Map))
+    expect(mockUpdatePaceMeta).toHaveBeenCalledWith('Mon, 01 Jan 2024 00:00:00 GMT', 'abc')
   })
 })
