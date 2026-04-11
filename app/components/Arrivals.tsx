@@ -67,6 +67,14 @@ function formatTime(minutes: number): string {
   return `${hour}:${String(m).padStart(2, '0')} ${period}`
 }
 
+export function formatMinutesAway(minutesAway: number): string {
+  if (minutesAway < 1) return 'Due'
+  if (minutesAway < 60) return `${minutesAway} min`
+  const hours = Math.floor(minutesAway / 60)
+  const mins = minutesAway % 60
+  return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`
+}
+
 function computeArrivals(schedule: StationSchedule, trips: StationTrips | null): Arrival[] {
   const dayType = getCurrentDayType()
   const nowMinutes = getCurrentMinutes()
@@ -252,11 +260,7 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <span className="text-2xl font-bold text-white tabular-nums">
-                        {arrival.minutesAway < 1
-                          ? 'Due'
-                          : arrival.minutesAway > 120
-                            ? formatTime(arrival.departureMinutes)
-                            : `${arrival.minutesAway} min`}
+                        {formatMinutesAway(arrival.minutesAway)}
                       </span>
                       {/* Approximate indicator — distinguishes schedule from live data */}
                       <span className="text-lg text-white/60" title="Scheduled estimate">

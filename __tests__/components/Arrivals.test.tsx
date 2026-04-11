@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
-import Arrivals from '@components/Arrivals'
+import Arrivals, { formatMinutesAway } from '@components/Arrivals'
 
 // Fix current time to Monday 01:00 AM local so arrival times are stable in snapshots.
 // Fake only Date (not setTimeout/setInterval) so waitFor's internal polling still works.
@@ -83,6 +83,32 @@ function mockFetchByUrl(routes: Record<string, unknown>) {
     return Promise.resolve({ ok: false })
   }) as jest.Mock
 }
+
+describe('formatMinutesAway', () => {
+  it('returns "Due" when less than 1 minute away', () => {
+    expect(formatMinutesAway(0)).toBe('Due')
+  })
+
+  it('returns "X min" for values under an hour', () => {
+    expect(formatMinutesAway(1)).toBe('1 min')
+    expect(formatMinutesAway(13)).toBe('13 min')
+    expect(formatMinutesAway(56)).toBe('56 min')
+    expect(formatMinutesAway(59)).toBe('59 min')
+  })
+
+  it('returns "Xh" when the value is an exact hour', () => {
+    expect(formatMinutesAway(60)).toBe('1h')
+    expect(formatMinutesAway(120)).toBe('2h')
+    expect(formatMinutesAway(180)).toBe('3h')
+  })
+
+  it('returns "Xh Ym" for values over an hour with remainder minutes', () => {
+    expect(formatMinutesAway(75)).toBe('1h 15m')
+    expect(formatMinutesAway(116)).toBe('1h 56m')
+    expect(formatMinutesAway(150)).toBe('2h 30m')
+    expect(formatMinutesAway(237)).toBe('3h 57m')
+  })
+})
 
 describe('Arrivals', () => {
   it('renders nothing when hasSchedule is false', () => {
