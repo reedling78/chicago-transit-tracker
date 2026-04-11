@@ -38,19 +38,19 @@ All routes are statically exported at build time. `generateStaticParams` fetches
 
 ## Components
 
-| Component          | Description                                                         |
-| ------------------ | ------------------------------------------------------------------- |
-| `Navbar`           | Top navigation with CTA / Metra links, theme toggle, mobile menu    |
-| `MobileMenuToggle` | Hamburger menu for mobile viewports                                 |
-| `ThemeToggle`      | Light/dark mode button — persisted to `localStorage`                |
-| `Hero`             | Home page banner with service cards linking to CTA and Metra        |
-| `PageHeader`       | Full-bleed photo hero with breadcrumb, badges, title, description   |
-| `Breadcrumb`       | Semantic breadcrumb trail — rendered inside `PageHeader`            |
-| `LineChipList`     | Clickable line color chips linking to each line's detail page       |
-| `LinkCard`         | Clickable card used in service and line listing pages               |
-| `LineDetail`       | Full line detail layout — stats, schedule, operations, station list |
-| `StationDetail`    | Full station detail layout — location, service, accessibility, IDs  |
-| `CurrentServiceList` | Presentational list of active/upcoming trains with status pills   |
+| Component             | Description                                                            |
+| --------------------- | ---------------------------------------------------------------------- |
+| `Navbar`              | Top navigation with CTA / Metra links, theme toggle, mobile menu       |
+| `MobileMenuToggle`    | Hamburger menu for mobile viewports                                    |
+| `ThemeToggle`         | Light/dark mode button — persisted to `localStorage`                   |
+| `Hero`                | Home page banner with service cards linking to CTA and Metra           |
+| `PageHeader`          | Full-bleed photo hero with breadcrumb, badges, title, description      |
+| `Breadcrumb`          | Semantic breadcrumb trail — rendered inside `PageHeader`               |
+| `LineChipList`        | Clickable line color chips linking to each line's detail page          |
+| `LinkCard`            | Clickable card used in service and line listing pages                  |
+| `LineDetail`          | Full line detail layout — stats, schedule, operations, station list    |
+| `StationDetail`       | Full station detail layout — location, service, accessibility, IDs     |
+| `CurrentServiceList`  | Presentational list of active/upcoming trains with status pills        |
 | `MetraCurrentService` | Metra data wrapper — polls realtime feeds and feeds CurrentServiceList |
 
 ---
