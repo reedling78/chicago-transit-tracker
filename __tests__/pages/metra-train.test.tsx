@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 
 const mockTripDetail = {
-  tripId: 'bnsf_bn1234',
+  tripId: 'bnsf_1234',
   trainNumber: '1234',
   headsign: 'Chicago Union Station',
   line: 'BNSF',
@@ -43,13 +43,13 @@ jest.mock('@lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([{ slug: 'bnsf', shortName: 'BNSF' }]),
 }))
 
-import MetraTripPage from '@/app/metra/[line]/train/[tripId]/page'
+import MetraTripPage from '@/app/metra/[line]/train/[trainNumber]/page'
 
 describe('Metra train detail page', () => {
   it('renders the train number and stops', async () => {
     mockGetDoc.mockResolvedValue({ exists: true, data: () => mockTripDetail })
 
-    const params = Promise.resolve({ line: 'bnsf', tripId: 'bnsf_bn1234' })
+    const params = Promise.resolve({ line: 'bnsf', trainNumber: '1234' })
     const ui = await MetraTripPage({ params })
     render(ui)
 
@@ -61,7 +61,7 @@ describe('Metra train detail page', () => {
   it('uses the Metra hero background image', async () => {
     mockGetDoc.mockResolvedValue({ exists: true, data: () => mockTripDetail })
 
-    const params = Promise.resolve({ line: 'bnsf', tripId: 'bnsf_bn1234' })
+    const params = Promise.resolve({ line: 'bnsf', trainNumber: '1234' })
     const ui = await MetraTripPage({ params })
     const { container } = render(ui)
     const img = container.querySelector('img')
@@ -71,7 +71,7 @@ describe('Metra train detail page', () => {
   it('renders not found when trip does not exist', async () => {
     mockGetDoc.mockResolvedValue({ exists: false })
 
-    const params = Promise.resolve({ line: 'bnsf', tripId: 'nonexistent' })
+    const params = Promise.resolve({ line: 'bnsf', trainNumber: '9999' })
     const ui = await MetraTripPage({ params })
     render(ui)
 

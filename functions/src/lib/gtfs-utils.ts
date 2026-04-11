@@ -166,6 +166,26 @@ export function safeTripId(tripId: string): string {
   return tripId.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase()
 }
 
+/**
+ * Extract the human-facing Metra train number from a GTFS trip_id.
+ *
+ * Metra trip IDs look like `{LINE}_{PREFIX}{NUMBER}_V{version}_{suffix}`, e.g.
+ * `MD-W_MW2222_V2_A`, `BNSF_BN1200_V4_A`, `NCS_NC100_V1_A`. The train number
+ * is the digits in the second underscore-delimited segment. Returns the
+ * original trip_id if the pattern doesn't match.
+ */
+export function extractMetraTrainNumber(tripId: string): string {
+  const segments = tripId.split('_')
+  if (segments.length < 2) return tripId
+  const match = segments[1].match(/(\d+)/)
+  return match ? match[1] : tripId
+}
+
+/** Build a deduplicated Firestore doc key for a Metra train on a given line. */
+export function metraTrainDocId(lineSlug: string, trainNumber: string): string {
+  return `${lineSlug}_${trainNumber}`
+}
+
 // ---------------------------------------------------------------------------
 // Calendar / service type helpers
 // ---------------------------------------------------------------------------

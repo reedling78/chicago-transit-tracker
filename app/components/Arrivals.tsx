@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { LINE_COLORS } from './StationDetail'
 
@@ -15,11 +16,29 @@ interface StationSchedule {
   directions: DirectionSchedule[]
 }
 
+interface StationTripEntry {
+  tripId: string
+  trainNumber: string
+  headsign: string
+  departure: string // e.g. "7:30 AM"
+  line: string
+  lineSlug: string
+  directionId: number
+}
+
+interface StationTrips {
+  weekday: StationTripEntry[]
+  saturday: StationTripEntry[]
+  sunday: StationTripEntry[]
+}
+
 interface Arrival {
   headsign: string
   line: string
   departureMinutes: number // minutes since midnight
   minutesAway: number
+  tripId?: string
+  lineSlug?: string
 }
 
 interface ArrivalsProps {
@@ -48,10 +67,19 @@ function formatTime(minutes: number): string {
   return `${hour}:${String(m).padStart(2, '0')} ${period}`
 }
 
-function computeArrivals(schedule: StationSchedule): Arrival[] {
+function computeArrivals(schedule: StationSchedule, trips: StationTrips | null): Arrival[] {
   const dayType = getCurrentDayType()
   const nowMinutes = getCurrentMinutes()
   const arrivals: Arrival[] = []
+
+  // Build a (headsign|line|formattedTime) → { tripId, lineSlug } map for the current day type
+  const tripLookup = new Map<string, { tripId: string; lineSlug: string }>()
+  if (trips) {
+    for (const entry of trips[dayType]) {
+      const key = `${entry.headsign}|${entry.line}|${entry.departure}`
+      tripLookup.set(key, { tripId: entry.tripId, lineSlug: entry.lineSlug })
+    }
+  }
 
   for (const dir of schedule.directions) {
     const times = dir[dayType]
@@ -59,11 +87,15 @@ function computeArrivals(schedule: StationSchedule): Arrival[] {
     const upcoming = times.filter((t) => t > nowMinutes).slice(0, 3)
 
     for (const t of upcoming) {
+      const key = `${dir.headsign}|${dir.line}|${formatTime(t)}`
+      const match = tripLookup.get(key)
       arrivals.push({
         headsign: dir.headsign,
         line: dir.line,
         departureMinutes: t,
         minutesAway: t - nowMinutes,
+        tripId: match?.tripId,
+        lineSlug: match?.lineSlug,
       })
     }
   }
@@ -94,17 +126,31 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const scheduleRef = useRef<StationSchedule | null>(null)
+  const tripsRef = useRef<StationTrips | null>(null)
 
   useEffect(() => {
     if (!hasSchedule) return
-    fetch(`/api/schedules/${slug}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
-        return r.json() as Promise<StationSchedule>
-      })
-      .then((data) => {
-        scheduleRef.current = data
-        setArrivals(computeArrivals(data))
+
+    const schedulePromise = fetch(`/api/schedules/${slug}`).then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      return r.json() as Promise<StationSchedule>
+    })
+
+    // For Metra stations, also fetch station-trips so we can link each row to
+    // its train detail page. A failure here is non-fatal — we still render
+    // arrivals, just without links.
+    const tripsPromise: Promise<StationTrips | null> =
+      service === 'metra'
+        ? fetch(`/api/metra/station-trips/${slug}`)
+            .then((r) => (r.ok ? (r.json() as Promise<StationTrips>) : null))
+            .catch(() => null)
+        : Promise.resolve(null)
+
+    Promise.all([schedulePromise, tripsPromise])
+      .then(([schedule, trips]) => {
+        scheduleRef.current = schedule
+        tripsRef.current = trips
+        setArrivals(computeArrivals(schedule, trips))
         setLoading(false)
       })
       .catch(() => {
@@ -117,7 +163,7 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
   useEffect(() => {
     const id = setInterval(() => {
       if (scheduleRef.current) {
-        setArrivals(computeArrivals(scheduleRef.current))
+        setArrivals(computeArrivals(scheduleRef.current, tripsRef.current))
       }
     }, 60_000)
     return () => clearInterval(id)
@@ -193,35 +239,55 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
               </div>
 
               {/* Arrival rows */}
-              {group.rows.map((arrival, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between border-t border-black/10 px-4 py-3"
-                  style={{ backgroundColor: bg }}
-                >
-                  <div>
-                    <p className="text-xs text-white/80">
-                      {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
-                    </p>
-                    <p className="text-base leading-tight font-bold text-white">
-                      {arrival.headsign}
-                    </p>
+              {group.rows.map((arrival, i) => {
+                const rowContent = (
+                  <>
+                    <div>
+                      <p className="text-xs text-white/80">
+                        {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
+                      </p>
+                      <p className="text-base leading-tight font-bold text-white">
+                        {arrival.headsign}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="text-2xl font-bold text-white tabular-nums">
+                        {arrival.minutesAway < 1
+                          ? 'Due'
+                          : arrival.minutesAway > 120
+                            ? formatTime(arrival.departureMinutes)
+                            : `${arrival.minutesAway} min`}
+                      </span>
+                      {/* Approximate indicator — distinguishes schedule from live data */}
+                      <span className="text-lg text-white/60" title="Scheduled estimate">
+                        ≈
+                      </span>
+                    </div>
+                  </>
+                )
+
+                const rowClass =
+                  'flex items-center justify-between border-t border-black/10 px-4 py-3'
+
+                if (arrival.tripId && arrival.lineSlug) {
+                  return (
+                    <Link
+                      key={i}
+                      href={`/metra/${arrival.lineSlug}/train/${arrival.tripId}`}
+                      className={`${rowClass} transition-opacity hover:opacity-90`}
+                      style={{ backgroundColor: bg }}
+                    >
+                      {rowContent}
+                    </Link>
+                  )
+                }
+
+                return (
+                  <div key={i} className={rowClass} style={{ backgroundColor: bg }}>
+                    {rowContent}
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-2xl font-bold text-white tabular-nums">
-                      {arrival.minutesAway < 1
-                        ? 'Due'
-                        : arrival.minutesAway > 120
-                          ? formatTime(arrival.departureMinutes)
-                          : `${arrival.minutesAway} min`}
-                    </span>
-                    {/* Approximate indicator — distinguishes schedule from live data */}
-                    <span className="text-lg text-white/60" title="Scheduled estimate">
-                      ≈
-                    </span>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )
         })}

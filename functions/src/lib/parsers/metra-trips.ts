@@ -6,7 +6,8 @@
  *   2. Trip indexes (per-line trip lists by service type)
  *   3. Station trips (per-station trip lists by service type)
  *
- * Extracted from scripts/generate-metra-trips.ts for reuse in Cloud Functions.
+ * Used by the syncMetraGtfs Cloud Function to populate the metra-trips,
+ * metra-trip-indexes, and metra-station-trips Firestore collections.
  */
 
 import AdmZip from 'adm-zip'
@@ -15,7 +16,8 @@ import {
   readZipFile,
   timeToMinutes,
   formatGTFSTime,
-  safeTripId,
+  extractMetraTrainNumber,
+  metraTrainDocId,
   buildServiceTypeMap,
   type TripDetail,
   type TripIndex,
@@ -25,7 +27,7 @@ import {
 } from '../gtfs-utils'
 
 export interface MetraTripParseResult {
-  /** safeTripId → TripDetail */
+  /** `${lineSlug}_${trainNumber}` → TripDetail */
   tripDetails: Map<string, TripDetail>
   /** lineSlug → TripIndex */
   tripIndexes: Map<string, TripIndex>
@@ -79,6 +81,7 @@ export function parseMetraTrips(
   const trips = parseGTFS(readZipFile(zip, 'trips.txt'))
 
   const tripDetails = new Map<string, TripDetail>()
+  const seenTrainDocIds = new Set<string>()
 
   const lineIndexData = new Map<
     string,
@@ -120,8 +123,14 @@ export function parseMetraTrips(
     }
     if (!headsign) continue
 
-    const trainNumber = t.trip_short_name?.trim() || t.trip_id
-    const tripId = safeTripId(t.trip_id)
+    const trainNumber = t.trip_short_name?.trim() || extractMetraTrainNumber(t.trip_id)
+    const docId = metraTrainDocId(lineSlug, trainNumber)
+
+    // Deduplicate: Metra emits multiple trip_id variants (_A, _AA, _B) per
+    // train number representing different calendar periods. They share the
+    // same stops, times, and headsigns, so we only keep the first one.
+    if (seenTrainDocIds.has(docId)) continue
+    seenTrainDocIds.add(docId)
 
     // Build stop sequence
     const stops = stopRows.map((st) => ({
@@ -132,8 +141,8 @@ export function parseMetraTrips(
       departure: formatGTFSTime(st.departure_time || st.arrival_time),
     }))
 
-    tripDetails.set(tripId, {
-      tripId,
+    tripDetails.set(docId, {
+      tripId: docId,
       trainNumber,
       headsign,
       line: lineCode,
@@ -154,7 +163,7 @@ export function parseMetraTrips(
       }
       const depRaw = st.departure_time || st.arrival_time
       stationTripsData.get(stationSlug)![serviceType].push({
-        tripId,
+        tripId: trainNumber,
         trainNumber,
         headsign,
         departure: formatGTFSTime(depRaw),
@@ -171,7 +180,7 @@ export function parseMetraTrips(
     }
     const firstDepRaw = stopRows[0].departure_time || stopRows[0].arrival_time
     lineIndexData.get(lineSlug)![serviceType].push({
-      tripId,
+      tripId: trainNumber,
       trainNumber,
       headsign,
       firstDeparture: formatGTFSTime(firstDepRaw),

@@ -64,7 +64,7 @@ exports[`StationTimetable matches snapshot 1`] = `
       >
         <a
           class="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-          href="/metra/bnsf/train/trip-1"
+          href="/metra/bnsf/train/1234"
         >
           <span
             class="w-20 shrink-0 text-sm font-semibold text-gray-900 tabular-nums dark:text-white"
@@ -91,7 +91,7 @@ exports[`StationTimetable matches snapshot 1`] = `
         </a>
         <a
           class="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-          href="/metra/bnsf/train/trip-2"
+          href="/metra/bnsf/train/1235"
         >
           <span
             class="w-20 shrink-0 text-sm font-semibold text-gray-900 tabular-nums dark:text-white"
