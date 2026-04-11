@@ -1,5 +1,9 @@
 import { render, screen } from '@testing-library/react'
 
+jest.mock('@lib/metra-realtime', () => ({
+  fetchMetraFeed: jest.fn(() => new Promise(() => {})),
+}))
+
 const mockTripDetail = {
   tripId: 'bnsf_1234',
   trainNumber: '1234',

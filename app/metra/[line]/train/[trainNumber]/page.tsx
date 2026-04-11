@@ -1,33 +1,9 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getFirestore } from '@lib/firebase-admin'
 import { getLinesForService } from '@lib/transit'
 import PageHeader from '@components/PageHeader'
+import MetraTripRealtime, { type TripDetail } from '@components/MetraTripRealtime'
 import { siteConfig } from '@lib/siteConfig'
-
-// ---------------------------------------------------------------------------
-// Data types (mirrors Firestore metra-trips / metra-trip-indexes documents)
-// ---------------------------------------------------------------------------
-
-interface TripStop {
-  sequence: number
-  stationName: string
-  slug: string | null
-  arrival: string
-  departure: string
-}
-
-interface TripDetail {
-  tripId: string
-  trainNumber: string
-  headsign: string
-  line: string
-  lineSlug: string
-  lineName: string
-  serviceType: 'weekday' | 'saturday' | 'sunday'
-  directionId: number
-  stops: TripStop[]
-}
 
 interface TripIndexEntry {
   tripId: string
@@ -162,65 +138,7 @@ export default async function MetraTripPage({ params }: Props) {
         }
       />
 
-      {/* Stop sequence table */}
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <div className="border-b border-gray-100 px-5 py-3 dark:border-gray-800">
-          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
-            Stop Schedule — {trip.stops.length} stops
-          </p>
-        </div>
-        <div className="divide-y divide-gray-50 dark:divide-gray-800">
-          {trip.stops.map((stop) => (
-            <div key={stop.sequence} className="flex items-center gap-4 px-5 py-3">
-              {/* Stop number */}
-              <span className="w-6 shrink-0 text-center text-xs font-medium text-gray-400 dark:text-gray-500">
-                {stop.sequence}
-              </span>
-
-              {/* Station name */}
-              <span className="flex-1 text-sm font-medium text-gray-900 dark:text-white">
-                {stop.slug ? (
-                  <Link
-                    href={`/metra/${lineSlug}/${stop.slug}`}
-                    className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
-                  >
-                    {stop.stationName}
-                  </Link>
-                ) : (
-                  stop.stationName
-                )}
-              </span>
-
-              {/* Times */}
-              <div className="flex shrink-0 items-center gap-6">
-                {stop.arrival !== stop.departure ? (
-                  <>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400 dark:text-gray-500">Arr</p>
-                      <p className="text-sm font-medium text-gray-900 tabular-nums dark:text-white">
-                        {stop.arrival}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400 dark:text-gray-500">Dep</p>
-                      <p className="text-sm font-medium text-gray-900 tabular-nums dark:text-white">
-                        {stop.departure}
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-right">
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Time</p>
-                    <p className="text-sm font-medium text-gray-900 tabular-nums dark:text-white">
-                      {stop.departure}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <MetraTripRealtime trip={trip} lineSlug={lineSlug} />
     </main>
   )
 }
