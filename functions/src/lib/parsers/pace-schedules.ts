@@ -94,3 +94,12 @@ export function deriveColor(input: DeriveColorInput): { color: string; textColor
 
   return { color: PACE_CORPORATE_BLUE, textColor: DEFAULT_TEXT_COLOR }
 }
+
+/** Normalize a Pace route short name into a URL-safe slug. */
+export function routeSlug(shortName: string): string {
+  return shortName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}

@@ -2,6 +2,7 @@ import {
   deriveColor,
   deriveRegion,
   deriveServiceType,
+  routeSlug,
 } from '@functions/lib/parsers/pace-schedules'
 
 describe('deriveServiceType', () => {
@@ -92,5 +93,20 @@ describe('deriveColor', () => {
     expect(
       deriveColor({ shortName: 'Dempster Pulse', gtfsColor: '', gtfsTextColor: '' }),
     ).toEqual({ color: '#00A3A1', textColor: '#FFFFFF' })
+  })
+})
+
+describe('routeSlug', () => {
+  it('returns the numeric short name as slug', () => {
+    expect(routeSlug('208')).toBe('208')
+  })
+
+  it('slugifies Pulse route names', () => {
+    expect(routeSlug('Milwaukee Pulse')).toBe('milwaukee-pulse')
+    expect(routeSlug('Dempster Pulse')).toBe('dempster-pulse')
+  })
+
+  it('handles mixed case and punctuation', () => {
+    expect(routeSlug('Route 208A')).toBe('route-208a')
   })
 })
