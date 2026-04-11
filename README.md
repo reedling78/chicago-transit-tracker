@@ -52,6 +52,8 @@ All routes are statically exported at build time. `generateStaticParams` fetches
 | `StationDetail`       | Full station detail layout — location, service, accessibility, IDs     |
 | `CurrentServiceList`  | Presentational list of active/upcoming trains with status pills        |
 | `MetraCurrentService` | Metra data wrapper — polls realtime feeds and feeds CurrentServiceList |
+| `CtaServicePulse`     | Presentational card row — one card per terminal with health indicator   |
+| `CtaServicePulseContainer` | CTA data wrapper — polls ttpositions + alerts, feeds CtaServicePulse |
 
 ---
 

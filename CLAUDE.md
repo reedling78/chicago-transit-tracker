@@ -50,6 +50,8 @@ app/
   api/
     cta/alerts/
       route.ts                Server-side proxy for CTA Customer Alerts API
+    cta/train-locations/
+      route.ts                Server-side proxy for CTA Train Tracker ttpositions
     metra/[...path]/
       route.ts                Server-side proxy for Metra GTFS Realtime API
     metra/station-trips/[slug]/
@@ -72,6 +74,8 @@ app/
     MetraTripRealtime.tsx     Train detail client component — schedule table + hero status card, polls tripupdates/positions
     CurrentServiceList.tsx    Presentational list of active/upcoming trains with status pills (service-agnostic)
     MetraCurrentService.tsx   Line detail client component — polls realtime feeds, applies selection rules, renders CurrentServiceList
+    CtaServicePulse.tsx       Presentational card row for CTA service health per terminal
+    CtaServicePulseContainer.tsx  CTA data wrapper — polls ttpositions + alerts
     PageHeader.tsx            Full-bleed photo hero with breadcrumb, badges, title
     Breadcrumb.tsx            Semantic breadcrumb — rendered inside PageHeader
     LineChipList.tsx          Clickable line color chips linking to line pages
@@ -84,6 +88,8 @@ app/
     metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
     metra-trip-matching.ts    Helpers for matching a Metra realtime entity to (lineSlug, trainNumber)
     metra-status.ts           Shared status derivation for Metra trips (deriveStopState, computeHeroStatus, TONE_CLASSES)
+    cta-train-tracker.ts      Client-side fetch + types for CTA Train Tracker positions
+    cta-pulse.ts              Pure aggregation + health helpers for CTA service pulse
     transit.ts                Data access — getLinesForService, getLine, getMetraLineTrips, etc.
     types.ts                  Line and Station TypeScript interfaces
 scripts/
