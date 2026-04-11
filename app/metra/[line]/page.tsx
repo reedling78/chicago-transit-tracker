@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getLinesForService, getLine, getStationsForLine } from '@lib/transit'
+import { getLinesForService, getLine, getMetraLineTrips, getStationsForLine } from '@lib/transit'
 import LineDetail from '@components/LineDetail'
 import MetraAlerts from '@components/MetraAlerts'
+import MetraCurrentService from '@components/MetraCurrentService'
 import PageHeader from '@components/PageHeader'
 import StationList from '@components/StationList'
 import { siteConfig } from '@lib/siteConfig'
@@ -47,7 +48,10 @@ export default async function MetraLinePage({ params }: Props) {
       </main>
     )
 
-  const stationList = await getStationsForLine(line.shortName)
+  const [stationList, lineTrips] = await Promise.all([
+    getStationsForLine(line.shortName),
+    getMetraLineTrips(line.slug),
+  ])
 
   return (
     <main>
@@ -91,6 +95,7 @@ export default async function MetraLinePage({ params }: Props) {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
+          <MetraCurrentService lineSlug={line.slug} lineColor={line.color} trips={lineTrips} />
           <LineDetail line={line} />
           <MetraAlerts line={line} limit={3} hideChips />
         </div>

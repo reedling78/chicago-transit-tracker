@@ -50,6 +50,8 @@ All routes are statically exported at build time. `generateStaticParams` fetches
 | `LinkCard`         | Clickable card used in service and line listing pages               |
 | `LineDetail`       | Full line detail layout — stats, schedule, operations, station list |
 | `StationDetail`    | Full station detail layout — location, service, accessibility, IDs  |
+| `CurrentServiceList` | Presentational list of active/upcoming trains with status pills   |
+| `MetraCurrentService` | Metra data wrapper — polls realtime feeds and feeds CurrentServiceList |
 
 ---
 

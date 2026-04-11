@@ -5,11 +5,18 @@ jest.mock('@lib/transit', () => ({
   getLinesForService: jest.fn().mockResolvedValue([mockMetraLine]),
   getLine: jest.fn().mockResolvedValue(mockMetraLine),
   getStationsForLine: jest.fn().mockResolvedValue([mockMetraStation]),
+  getMetraLineTrips: jest.fn().mockResolvedValue([]),
 }))
 
 jest.mock('@components/MetraAlerts', () => {
   return function MockMetraAlerts() {
     return <div data-testid="metra-alerts-mock" />
+  }
+})
+
+jest.mock('@components/MetraCurrentService', () => {
+  return function MockMetraCurrentService(props: { lineSlug: string }) {
+    return <div data-testid="metra-current-service-mock" data-line-slug={props.lineSlug} />
   }
 })
 
@@ -50,6 +57,22 @@ describe('Metra line detail page', () => {
     const { container } = render(ui)
     const img = container.querySelector('img')
     expect(img?.getAttribute('src')).toContain('hero-header-metra.jpg')
+  })
+
+  it('renders the CurrentService component with the line slug', async () => {
+    const ui = await MetraLinePage({ params })
+    render(ui)
+    const mock = screen.getByTestId('metra-current-service-mock')
+    expect(mock).toBeInTheDocument()
+    expect(mock.getAttribute('data-line-slug')).toBe('bnsf')
+  })
+
+  it('fetches Metra line trips server-side', async () => {
+    const { getMetraLineTrips } = await import('@lib/transit')
+    ;(getMetraLineTrips as jest.Mock).mockClear()
+    const ui = await MetraLinePage({ params })
+    render(ui)
+    expect(getMetraLineTrips).toHaveBeenCalledWith('bnsf')
   })
 
   it('matches snapshot', async () => {
