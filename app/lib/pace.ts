@@ -35,3 +35,10 @@ export const getAllPaceRoutes = cache(async (): Promise<PaceRoute[]> => {
     .map((d) => toPaceRoute(d.id, d.data()))
     .sort((a, b) => a.shortName.localeCompare(b.shortName, undefined, { numeric: true }))
 })
+
+export const getPaceRoute = cache(async (slug: string): Promise<PaceRoute | null> => {
+  const db = getFirestore()
+  const doc = await db.collection('pace-routes').doc(slug).get()
+  if (!doc.exists) return null
+  return toPaceRoute(doc.id, doc.data()!)
+})

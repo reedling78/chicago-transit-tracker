@@ -58,3 +58,39 @@ describe('getAllPaceRoutes', () => {
     expect(routes[0].region).toBe('north')
   })
 })
+
+describe('getPaceRoute', () => {
+  it('returns the route for a valid slug', async () => {
+    mockGet.mockResolvedValue({
+      exists: true,
+      id: '208',
+      data: () => ({
+        slug: '208',
+        shortName: '208',
+        longName: 'Golf Road',
+        serviceType: 'local',
+        region: 'north',
+        color: '#005DAA',
+        textColor: '#FFFFFF',
+        description: null,
+        directions: [],
+      }),
+    })
+
+    const { getPaceRoute } = await import('@lib/pace')
+    const route = await getPaceRoute('208')
+
+    expect(mockCollection).toHaveBeenCalledWith('pace-routes')
+    expect(route).not.toBeNull()
+    expect(route?.slug).toBe('208')
+  })
+
+  it('returns null for a missing slug', async () => {
+    mockGet.mockResolvedValue({ exists: false })
+
+    const { getPaceRoute } = await import('@lib/pace')
+    const route = await getPaceRoute('nonexistent')
+
+    expect(route).toBeNull()
+  })
+})
