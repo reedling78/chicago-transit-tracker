@@ -131,3 +131,40 @@ export function buildStopSlugMap(stops: GtfsStopRow[]): Map<string, string> {
   }
   return result
 }
+
+export interface PaceDirection {
+  id: string
+  name: string
+}
+
+interface GtfsTripRow {
+  route_id: string
+  direction_id: string
+  trip_headsign: string
+}
+
+/** Derive the two most common (direction_id, headsign) pairs for a route. */
+export function extractDirections(routeId: string, trips: GtfsTripRow[]): PaceDirection[] {
+  const counts = new Map<string, { id: string; name: string; count: number }>()
+  for (const t of trips) {
+    if (t.route_id !== routeId) continue
+    const headsign = t.trip_headsign?.trim()
+    if (!headsign) continue
+    const key = `${t.direction_id}|${headsign}`
+    const cur = counts.get(key)
+    if (cur) cur.count++
+    else counts.set(key, { id: t.direction_id, name: headsign, count: 1 })
+  }
+
+  const sorted = [...counts.values()].sort((a, b) => b.count - a.count)
+
+  // Pick the highest-count entry per direction id.
+  const byDir = new Map<string, { id: string; name: string }>()
+  for (const entry of sorted) {
+    if (!byDir.has(entry.id)) {
+      byDir.set(entry.id, { id: entry.id, name: entry.name })
+    }
+  }
+
+  return [...byDir.values()]
+}

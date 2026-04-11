@@ -3,6 +3,7 @@ import {
   deriveColor,
   deriveRegion,
   deriveServiceType,
+  extractDirections,
   routeSlug,
 } from '@functions/lib/parsers/pace-schedules'
 
@@ -133,5 +134,35 @@ describe('buildStopSlugMap', () => {
     expect(map.get('1001')).toBe('main-st')
     expect(map.get('1002')).toBe('main-st-2')
     expect(map.get('1003')).toBe('main-st-3')
+  })
+})
+
+describe('extractDirections', () => {
+  it('returns the two most common (direction_id, headsign) pairs for a route', () => {
+    const trips = [
+      { route_id: '208', direction_id: '0', trip_headsign: 'Evanston' },
+      { route_id: '208', direction_id: '0', trip_headsign: 'Evanston' },
+      { route_id: '208', direction_id: '0', trip_headsign: 'Evanston' },
+      { route_id: '208', direction_id: '1', trip_headsign: 'Schaumburg' },
+      { route_id: '208', direction_id: '1', trip_headsign: 'Schaumburg' },
+      { route_id: '208', direction_id: '0', trip_headsign: 'Skokie' },
+    ]
+
+    const directions = extractDirections('208', trips)
+    expect(directions).toHaveLength(2)
+    expect(directions).toContainEqual({ id: '0', name: 'Evanston' })
+    expect(directions).toContainEqual({ id: '1', name: 'Schaumburg' })
+  })
+
+  it('handles single-direction routes', () => {
+    const trips = [
+      { route_id: '999', direction_id: '0', trip_headsign: 'Loop' },
+      { route_id: '999', direction_id: '0', trip_headsign: 'Loop' },
+    ]
+    expect(extractDirections('999', trips)).toEqual([{ id: '0', name: 'Loop' }])
+  })
+
+  it('returns empty array when no trips match', () => {
+    expect(extractDirections('208', [])).toEqual([])
   })
 })
