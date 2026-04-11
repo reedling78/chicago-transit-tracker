@@ -2,28 +2,22 @@
  * @jest-environment node
  */
 
-jest.mock('@lib/firebase-admin', () => {
-  const mockGet = jest.fn()
-  const mockWhere = jest.fn().mockReturnValue({ get: mockGet })
-  const mockDoc = jest.fn().mockReturnValue({ get: mockGet })
-  const mockCollection = jest.fn().mockReturnValue({
-    get: mockGet,
-    where: mockWhere,
-    doc: mockDoc,
-  })
-  return {
-    getFirestore: jest.fn().mockReturnValue({ collection: mockCollection }),
-    db: { collection: mockCollection },
-    __mocks: { mockGet, mockWhere, mockDoc, mockCollection },
-  }
-})
+const mockGet = jest.fn()
+const mockWhere = jest.fn()
+const mockDoc = jest.fn()
+const mockCollection = jest.fn()
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { __mocks } = require('@lib/firebase-admin')
-const { mockGet, mockCollection } = __mocks
+jest.mock('@lib/firebase-admin', () => ({
+  getFirestore: jest.fn().mockReturnValue({ collection: mockCollection }),
+  db: { collection: mockCollection },
+}))
 
 beforeEach(() => {
+  jest.resetModules()
   jest.clearAllMocks()
+  mockDoc.mockReturnValue({ get: mockGet })
+  mockWhere.mockReturnValue({ get: mockGet })
+  mockCollection.mockReturnValue({ get: mockGet, where: mockWhere, doc: mockDoc })
 })
 
 describe('getAllPaceRoutes', () => {
