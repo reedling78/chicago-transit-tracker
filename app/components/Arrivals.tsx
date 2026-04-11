@@ -2,35 +2,8 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { LINE_COLORS } from './StationDetail'
-
-interface DirectionSchedule {
-  headsign: string
-  line: string
-  weekday: number[]
-  saturday: number[]
-  sunday: number[]
-}
-
-interface StationSchedule {
-  directions: DirectionSchedule[]
-}
-
-interface StationTripEntry {
-  tripId: string
-  trainNumber: string
-  headsign: string
-  departure: string // e.g. "7:30 AM"
-  line: string
-  lineSlug: string
-  directionId: number
-}
-
-interface StationTrips {
-  weekday: StationTripEntry[]
-  saturday: StationTripEntry[]
-  sunday: StationTripEntry[]
-}
+import { LINE_COLORS } from '@lib/constants'
+import type { StationSchedule, StationTrips } from '@lib/gtfs-types'
 
 interface Arrival {
   headsign: string

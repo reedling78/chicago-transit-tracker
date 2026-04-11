@@ -11,19 +11,7 @@
  *      the Firestore line slug used in URLs (e.g. "md-w")
  */
 
-const ROUTE_ID_TO_LINE_SLUG: Record<string, string> = {
-  BNSF: 'bnsf',
-  'UP-N': 'up-n',
-  'UP-NW': 'up-nw',
-  'UP-W': 'up-w',
-  'MD-N': 'md-n',
-  'MD-W': 'md-w',
-  RI: 'ri',
-  SWS: 'sws',
-  HC: 'hc',
-  ME: 'me',
-  NCS: 'ncs',
-}
+import { METRA_ROUTE_ID_TO_LINE_SLUG } from './constants'
 
 export function extractMetraTrainNumber(tripId: string): string {
   const segments = tripId.split('_')
@@ -34,5 +22,5 @@ export function extractMetraTrainNumber(tripId: string): string {
 
 export function routeIdToLineSlug(routeId: string | null | undefined): string | null {
   if (!routeId) return null
-  return ROUTE_ID_TO_LINE_SLUG[routeId] ?? null
+  return METRA_ROUTE_ID_TO_LINE_SLUG[routeId] ?? null
 }

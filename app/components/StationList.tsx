@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Station } from '@lib/types'
-import { LINE_COLORS } from './StationDetail'
+import { LINE_COLORS } from '@lib/constants'
 
 interface StationListProps {
   stations: Station[]

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LINE_COLORS } from './StationDetail'
+import { LINE_COLORS } from '@lib/constants'
 
 export interface LineLinkInfo {
   slug: string

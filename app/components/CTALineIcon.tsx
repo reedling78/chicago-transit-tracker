@@ -15,18 +15,9 @@
  *   <CTALineIcon line="Yellow" size={56} rounded />
  */
 
-// Official CTA 'L' route colors — Appendix A of the CTA Branding Guide.
-// fg is the icon/foreground color: white on dark lines, near-black on Yellow.
-export const CTA_LINE_COLORS: Record<string, { bg: string; fg: string; label: string }> = {
-  Red: { bg: '#c60c30', fg: '#ffffff', label: 'Red Line' },
-  Blue: { bg: '#00a1de', fg: '#ffffff', label: 'Blue Line' },
-  Brown: { bg: '#62361b', fg: '#ffffff', label: 'Brown Line' },
-  Green: { bg: '#009b3a', fg: '#ffffff', label: 'Green Line' },
-  Orange: { bg: '#f9461c', fg: '#ffffff', label: 'Orange Line' },
-  Purple: { bg: '#522398', fg: '#ffffff', label: 'Purple Line' },
-  Pink: { bg: '#e27ea6', fg: '#ffffff', label: 'Pink Line' },
-  Yellow: { bg: '#f9e300', fg: '#1a1a1a', label: 'Yellow Line' },
-}
+import { CTA_LINE_COLORS } from '@lib/constants'
+
+export { CTA_LINE_COLORS }
 
 interface TrainSVGProps {
   fg: string

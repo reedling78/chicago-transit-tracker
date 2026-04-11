@@ -5,28 +5,7 @@ import Link from 'next/link'
 import { fetchCTAAlerts, getRailServices } from '@lib/cta-alerts'
 import type { CTAAlert } from '@lib/cta-alerts'
 import type { Line } from '@lib/types'
-
-const SLUG_TO_ROUTE_ID: Record<string, string> = {
-  red: 'Red',
-  blue: 'Blue',
-  brown: 'Brn',
-  green: 'G',
-  orange: 'Org',
-  purple: 'P',
-  pink: 'Pink',
-  yellow: 'Y',
-}
-
-const ROUTE_ID_TO_NAME: Record<string, string> = {
-  Red: 'Red Line',
-  Blue: 'Blue Line',
-  Brn: 'Brown Line',
-  G: 'Green Line',
-  Org: 'Orange Line',
-  P: 'Purple Line',
-  Pink: 'Pink Line',
-  Y: 'Yellow Line',
-}
+import { CTA_SLUG_TO_ROUTE_ID, CTA_ROUTE_ID_TO_NAME } from '@lib/constants'
 
 function AlertCard({ alert }: { alert: CTAAlert }) {
   const railServices = getRailServices(alert)
@@ -130,7 +109,7 @@ export default function CTAAlerts({
   limit?: number
   hideChips?: boolean
 }) {
-  const fixedRouteId = line ? (SLUG_TO_ROUTE_ID[line.slug] ?? null) : null
+  const fixedRouteId = line ? (CTA_SLUG_TO_ROUTE_ID[line.slug] ?? null) : null
   const [data, setData] = useState<CTAAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -221,7 +200,7 @@ export default function CTAAlerts({
               <button
                 key={routeId}
                 onClick={() => setSelectedRoute(routeId)}
-                title={ROUTE_ID_TO_NAME[routeId] ?? routeId}
+                title={CTA_ROUTE_ID_TO_NAME[routeId] ?? routeId}
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                   isSelected
                     ? 'shadow-sm ring-2 ring-offset-1 dark:ring-offset-gray-950'
@@ -240,7 +219,7 @@ export default function CTAAlerts({
                       }
                 }
               >
-                {ROUTE_ID_TO_NAME[routeId] ?? routeId}
+                {CTA_ROUTE_ID_TO_NAME[routeId] ?? routeId}
               </button>
             )
           })}
@@ -292,7 +271,7 @@ export default function CTAAlerts({
           ) : (
             <>
               <p className="text-sm text-gray-500 dark:text-white/50">
-                No alerts for {ROUTE_ID_TO_NAME[selectedRoute] ?? selectedRoute}
+                No alerts for {CTA_ROUTE_ID_TO_NAME[selectedRoute] ?? selectedRoute}
               </p>
               {!fixedRouteId && (
                 <button

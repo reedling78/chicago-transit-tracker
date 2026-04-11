@@ -1,27 +1,5 @@
 import Link from 'next/link'
 import type { Station } from '@lib/types'
-import { CTA_LINE_COLORS } from './CTALineIcon'
-
-// Combined color map — CTA colors from the official branding guide (via CTALineIcon),
-// plus Metra line colors. Used for line chips on station pages.
-export const LINE_COLORS: Record<string, { bg: string; text: string }> = {
-  // CTA lines — sourced from CTALineIcon (official branding guide colors)
-  ...Object.fromEntries(
-    Object.entries(CTA_LINE_COLORS).map(([name, { bg, fg }]) => [name, { bg, text: fg }]),
-  ),
-  // Metra lines
-  BNSF: { bg: '#1A3D7A', text: '#fff' },
-  'UP-N': { bg: '#007B40', text: '#fff' },
-  'UP-NW': { bg: '#007B40', text: '#fff' },
-  'UP-W': { bg: '#007B40', text: '#fff' },
-  'MD-N': { bg: '#C8872A', text: '#fff' },
-  'MD-W': { bg: '#C8872A', text: '#fff' },
-  RI: { bg: '#BE0000', text: '#fff' },
-  SWS: { bg: '#7B3F97', text: '#fff' },
-  HC: { bg: '#4A7729', text: '#fff' },
-  ME: { bg: '#003DA5', text: '#fff' },
-  NCS: { bg: '#8B4513', text: '#fff' },
-}
 
 export const SERVICE_LABEL: Record<string, string> = {
   cta: 'CTA',
