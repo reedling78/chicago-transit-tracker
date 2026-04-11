@@ -121,3 +121,64 @@ describe('getAllPaceStops', () => {
     expect(stops[0].name).toBe('Golf Rd & Waukegan Rd')
   })
 })
+
+describe('getPaceStop', () => {
+  it('returns the stop for a valid slug', async () => {
+    mockGet.mockResolvedValue({
+      exists: true,
+      id: 'golf-rd-waukegan-rd',
+      data: () => ({
+        slug: 'golf-rd-waukegan-rd',
+        name: 'Golf Rd & Waukegan Rd',
+        lat: 42.0586,
+        lon: -87.7972,
+        routes: ['208'],
+        wheelchairBoarding: true,
+      }),
+    })
+
+    const { getPaceStop } = await import('@lib/pace')
+    const stop = await getPaceStop('golf-rd-waukegan-rd')
+    expect(stop?.name).toBe('Golf Rd & Waukegan Rd')
+  })
+
+  it('returns null for a missing slug', async () => {
+    mockGet.mockResolvedValue({ exists: false })
+    const { getPaceStop } = await import('@lib/pace')
+    expect(await getPaceStop('nope')).toBeNull()
+  })
+})
+
+describe('getPaceRouteStops', () => {
+  it('returns the direction-specific stop sequence for a route', async () => {
+    mockGet.mockResolvedValue({
+      exists: true,
+      data: () => ({
+        directions: {
+          '0': [
+            { slug: 'stop-a', name: 'Stop A', lat: 0, lon: 0, sequence: 1 },
+            { slug: 'stop-b', name: 'Stop B', lat: 0, lon: 0, sequence: 2 },
+          ],
+          '1': [
+            { slug: 'stop-b', name: 'Stop B', lat: 0, lon: 0, sequence: 1 },
+            { slug: 'stop-a', name: 'Stop A', lat: 0, lon: 0, sequence: 2 },
+          ],
+        },
+      }),
+    })
+
+    const { getPaceRouteStops } = await import('@lib/pace')
+    const stops = await getPaceRouteStops('208', '0')
+
+    expect(mockCollection).toHaveBeenCalledWith('pace-route-stops')
+    expect(stops).toHaveLength(2)
+    expect(stops[0].slug).toBe('stop-a')
+    expect(stops[1].slug).toBe('stop-b')
+  })
+
+  it('returns empty array when route has no stops for the direction', async () => {
+    mockGet.mockResolvedValue({ exists: true, data: () => ({ directions: {} }) })
+    const { getPaceRouteStops } = await import('@lib/pace')
+    expect(await getPaceRouteStops('208', '0')).toEqual([])
+  })
+})

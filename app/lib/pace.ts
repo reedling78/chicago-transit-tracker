@@ -50,3 +50,28 @@ export const getAllPaceStops = cache(async (): Promise<PaceStop[]> => {
     .map((d) => toPaceStop(d.id, d.data()))
     .sort((a, b) => a.name.localeCompare(b.name))
 })
+
+export const getPaceStop = cache(async (slug: string): Promise<PaceStop | null> => {
+  const db = getFirestore()
+  const doc = await db.collection('pace-stops').doc(slug).get()
+  if (!doc.exists) return null
+  return toPaceStop(doc.id, doc.data()!)
+})
+
+export interface PaceRouteStopEntry {
+  slug: string
+  name: string
+  lat: number
+  lon: number
+  sequence: number
+}
+
+export const getPaceRouteStops = cache(
+  async (routeSlug: string, directionId: string): Promise<PaceRouteStopEntry[]> => {
+    const db = getFirestore()
+    const doc = await db.collection('pace-route-stops').doc(routeSlug).get()
+    if (!doc.exists) return []
+    const data = doc.data() as { directions?: Record<string, PaceRouteStopEntry[]> }
+    return data.directions?.[directionId] ?? []
+  },
+)

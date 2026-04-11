@@ -1,12 +1,6 @@
 export type PaceRouteServiceType = 'pulse' | 'local' | 'express' | 'feeder'
 
-export type PaceRegion =
-  | 'north'
-  | 'northwest'
-  | 'west'
-  | 'southwest'
-  | 'south'
-  | 'heritage'
+export type PaceRegion = 'north' | 'northwest' | 'west' | 'southwest' | 'south' | 'heritage'
 
 export interface PaceDirection {
   id: string
