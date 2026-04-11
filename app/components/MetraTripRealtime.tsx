@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { fetchMetraFeed } from '@lib/metra-realtime'
+import { useMetraFeed, type FeedData } from '@lib/hooks/useMetraFeed'
 import { extractMetraTrainNumber, routeIdToLineSlug } from '@lib/metra-trip-matching'
 import {
   computeHeroStatus,
@@ -35,8 +35,7 @@ export interface TripDetail {
   stops: TripStop[]
 }
 
-type FeedData = Awaited<ReturnType<typeof fetchMetraFeed>>
-type FeedEntity = FeedData['entity'][number]
+type FeedEntity = NonNullable<FeedData['entity']>[number]
 
 const POLL_INTERVAL_MS = 30_000
 const MAX_POLLING_DURATION_MS = 4 * 60 * 60 * 1000
@@ -185,94 +184,99 @@ export default function MetraTripRealtime({
   lineSlug: string
 }) {
   const [realtime, setRealtime] = useState<RealtimeState | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [stopped, setStopped] = useState(false)
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
 
   const mountTimeRef = useRef<number | null>(null)
   const emptyCountRef = useRef<number>(0)
-  const stoppedRef = useRef<boolean>(false)
+  const lastProcessedFetchRef = useRef<number | null>(null)
 
-  const load = useCallback(async () => {
-    try {
-      const [tripUpdates, positions] = await Promise.all([
-        fetchMetraFeed('tripupdates'),
-        fetchMetraFeed('positions'),
-      ])
-      const tu = filterFeedForTrip(tripUpdates, lineSlug, trip.trainNumber)
-      const vp = filterFeedForTrip(positions, lineSlug, trip.trainNumber)
-      const tripUpdate = tu.tripUpdate
-      const vehiclePosition = vp.vehiclePosition
+  const tripUpdatesFeed = useMetraFeed('tripupdates', {
+    intervalMs: POLL_INTERVAL_MS,
+    enabled: !stopped,
+  })
+  const positionsFeed = useMetraFeed('positions', {
+    intervalMs: POLL_INTERVAL_MS,
+    enabled: !stopped,
+  })
 
-      const hasAny = Boolean(tripUpdate || vehiclePosition)
-      if (hasAny) {
-        emptyCountRef.current = 0
-      } else {
-        emptyCountRef.current += 1
-      }
-
-      const nowMinutes = minutesSinceMidnight(new Date())
-      const scheduledEndPast = isTripScheduledEndPast(trip.stops, nowMinutes)
-
-      const nonSkipped =
-        tripUpdate?.stopTimeUpdate?.filter((u) => u.scheduleRelationship !== 1) ?? []
-      const completedByStu = Boolean(tripUpdate) && nonSkipped.length === 0
-      const completedByEmpty =
-        emptyCountRef.current >= COMPLETION_EMPTY_THRESHOLD && scheduledEndPast
-      const stopped = completedByStu || completedByEmpty
-      if (stopped) stoppedRef.current = true
-
-      setRealtime({
-        tripUpdate,
-        vehiclePosition,
-        fetchedAt: Date.now(),
-        stopped,
-      })
-      setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    }
-  }, [lineSlug, trip.trainNumber, trip.stops])
+  const error = tripUpdatesFeed.error ?? positionsFeed.error
 
   useEffect(() => {
-    const id = setInterval(() => setNowMs(Date.now()), 30_000)
+    const id = setInterval(() => setNowMs(Date.now()), POLL_INTERVAL_MS)
     return () => clearInterval(id)
   }, [])
 
+  // Enforce max polling duration: after the threshold, stop consuming
+  // realtime feeds regardless of their state. Delayed state update driven
+  // by wall-clock time, not by another piece of React state.
+  /* eslint-disable react-hooks/set-state-in-effect -- time-based one-shot handoff */
   useEffect(() => {
-    let active = true
-    mountTimeRef.current = Date.now()
+    if (mountTimeRef.current == null) mountTimeRef.current = Date.now()
+    const mountedAt = mountTimeRef.current
+    const remaining = MAX_POLLING_DURATION_MS - (Date.now() - mountedAt)
+    if (remaining <= 0) {
+      setStopped(true)
+      setRealtime((prev) => (prev ? { ...prev, stopped: true } : prev))
+      return
+    }
+    const id = setTimeout(() => {
+      setStopped(true)
+      setRealtime((prev) => (prev ? { ...prev, stopped: true } : prev))
+    }, remaining)
+    return () => clearTimeout(id)
+  }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
-    const tick = () => {
-      if (!active) return
-      if (stoppedRef.current) return
-      const mountedAt = mountTimeRef.current ?? Date.now()
-      if (Date.now() - mountedAt > MAX_POLLING_DURATION_MS) {
-        stoppedRef.current = true
-        setRealtime((prev) => (prev ? { ...prev, stopped: true } : prev))
-        return
-      }
-      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
-      load()
+  // React to new fetches from the shared hook: filter to this trip, update
+  // the derived realtime state, and decide whether we should stop polling
+  // because the train has completed its run. This is a classic subscriber
+  // pattern on top of useMetraFeed — `lastProcessedFetchRef` guarantees one
+  // state update per distinct fetch event, so no render cascades.
+  /* eslint-disable react-hooks/set-state-in-effect -- subscriber bridge from useMetraFeed */
+  useEffect(() => {
+    const latestFetchedAt = Math.max(tripUpdatesFeed.fetchedAt ?? 0, positionsFeed.fetchedAt ?? 0)
+    if (latestFetchedAt === 0) return
+    if (lastProcessedFetchRef.current === latestFetchedAt) return
+    lastProcessedFetchRef.current = latestFetchedAt
+
+    const tu = filterFeedForTrip(tripUpdatesFeed.data, lineSlug, trip.trainNumber)
+    const vp = filterFeedForTrip(positionsFeed.data, lineSlug, trip.trainNumber)
+    const tripUpdate = tu.tripUpdate
+    const vehiclePosition = vp.vehiclePosition
+
+    const hasAny = Boolean(tripUpdate || vehiclePosition)
+    if (hasAny) {
+      emptyCountRef.current = 0
+    } else {
+      emptyCountRef.current += 1
     }
 
-    tick()
-    const interval = setInterval(tick, POLL_INTERVAL_MS)
+    const nowMinutes = minutesSinceMidnight(new Date())
+    const scheduledEndPast = isTripScheduledEndPast(trip.stops, nowMinutes)
 
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') tick()
-    }
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', onVisibility)
-    }
+    const nonSkipped = tripUpdate?.stopTimeUpdate?.filter((u) => u.scheduleRelationship !== 1) ?? []
+    const completedByStu = Boolean(tripUpdate) && nonSkipped.length === 0
+    const completedByEmpty = emptyCountRef.current >= COMPLETION_EMPTY_THRESHOLD && scheduledEndPast
+    const isStopped = completedByStu || completedByEmpty
 
-    return () => {
-      active = false
-      clearInterval(interval)
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', onVisibility)
-      }
-    }
-  }, [load])
+    setRealtime({
+      tripUpdate,
+      vehiclePosition,
+      fetchedAt: latestFetchedAt,
+      stopped: isStopped,
+    })
+    if (isStopped) setStopped(true)
+  }, [
+    tripUpdatesFeed.fetchedAt,
+    positionsFeed.fetchedAt,
+    tripUpdatesFeed.data,
+    positionsFeed.data,
+    lineSlug,
+    trip.trainNumber,
+    trip.stops,
+  ])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const derivation = useMemo(() => deriveStopState(trip.stops, realtime), [trip.stops, realtime])
 
@@ -423,9 +427,11 @@ export default function MetraTripRealtime({
           <span>Last updated {formatClockTime(new Date(realtime.fetchedAt))}</span>
           <button
             onClick={() => {
-              stoppedRef.current = false
               emptyCountRef.current = 0
-              load()
+              lastProcessedFetchRef.current = null
+              mountTimeRef.current = Date.now()
+              setStopped(false)
+              setRealtime((prev) => (prev ? { ...prev, stopped: false } : prev))
             }}
             className="rounded-full border border-gray-200 px-3 py-1 font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
           >
