@@ -1,4 +1,4 @@
-import { deriveServiceType } from '@functions/lib/parsers/pace-schedules'
+import { deriveRegion, deriveServiceType } from '@functions/lib/parsers/pace-schedules'
 
 describe('deriveServiceType', () => {
   it('classifies Pulse routes by short name suffix', () => {
@@ -27,5 +27,39 @@ describe('deriveServiceType', () => {
     expect(deriveServiceType({ route_short_name: '626', route_long_name: 'Evanston CTA' })).toBe(
       'local',
     )
+  })
+})
+
+describe('deriveRegion', () => {
+  it('maps route 208 to north', () => {
+    expect(deriveRegion('208')).toBe('north')
+  })
+
+  it('maps route 353 to northwest', () => {
+    expect(deriveRegion('353')).toBe('northwest')
+  })
+
+  it('maps route 423 to west', () => {
+    expect(deriveRegion('423')).toBe('west')
+  })
+
+  it('maps route 513 to southwest', () => {
+    expect(deriveRegion('513')).toBe('southwest')
+  })
+
+  it('maps route 633 to south', () => {
+    expect(deriveRegion('633')).toBe('south')
+  })
+
+  it('maps 9xx routes to heritage', () => {
+    expect(deriveRegion('904')).toBe('heritage')
+  })
+
+  it('defaults to north for unrecognized patterns', () => {
+    expect(deriveRegion('ABC')).toBe('north')
+  })
+
+  it('defaults 8xx feeder routes to north', () => {
+    expect(deriveRegion('890')).toBe('north')
   })
 })
