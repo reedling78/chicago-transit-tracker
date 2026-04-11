@@ -103,3 +103,31 @@ export function routeSlug(shortName: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
+
+interface GtfsStopRow {
+  stop_id: string
+  stop_name: string
+}
+
+/**
+ * Build a map of GTFS stop_id → unique slug. When the same name appears
+ * multiple times, append a -2, -3, ... suffix in stop_id order.
+ */
+export function buildStopSlugMap(stops: GtfsStopRow[]): Map<string, string> {
+  const slugCounts = new Map<string, number>()
+  const result = new Map<string, string>()
+
+  const baseSlug = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+
+  for (const stop of stops) {
+    const base = baseSlug(stop.stop_name)
+    const count = (slugCounts.get(base) ?? 0) + 1
+    slugCounts.set(base, count)
+    result.set(stop.stop_id, count === 1 ? base : `${base}-${count}`)
+  }
+  return result
+}

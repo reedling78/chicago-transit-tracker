@@ -1,4 +1,5 @@
 import {
+  buildStopSlugMap,
   deriveColor,
   deriveRegion,
   deriveServiceType,
@@ -108,5 +109,29 @@ describe('routeSlug', () => {
 
   it('handles mixed case and punctuation', () => {
     expect(routeSlug('Route 208A')).toBe('route-208a')
+  })
+})
+
+describe('buildStopSlugMap', () => {
+  it('generates unique slugs from stop names', () => {
+    const stops = [
+      { stop_id: '1001', stop_name: 'Golf Rd & Waukegan Rd' },
+      { stop_id: '1002', stop_name: 'Dempster St & Skokie Blvd' },
+    ]
+    const map = buildStopSlugMap(stops)
+    expect(map.get('1001')).toBe('golf-rd-waukegan-rd')
+    expect(map.get('1002')).toBe('dempster-st-skokie-blvd')
+  })
+
+  it('disambiguates duplicate names with a numeric suffix', () => {
+    const stops = [
+      { stop_id: '1001', stop_name: 'Main St' },
+      { stop_id: '1002', stop_name: 'Main St' },
+      { stop_id: '1003', stop_name: 'Main St' },
+    ]
+    const map = buildStopSlugMap(stops)
+    expect(map.get('1001')).toBe('main-st')
+    expect(map.get('1002')).toBe('main-st-2')
+    expect(map.get('1003')).toBe('main-st-3')
   })
 })
