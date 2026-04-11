@@ -8,3 +8,7 @@ env:
     secret: metra-api-token
     availability:
       - RUNTIME
+  - variable: CTA_TRAIN_TRACKER_KEY
+    secret: cta-train-tracker-key
+    availability:
+      - RUNTIME
