@@ -13,6 +13,12 @@ jest.mock('@components/CTAAlerts', () => {
   }
 })
 
+jest.mock('@components/CtaServicePulseContainer', () => {
+  return function MockCtaServicePulseContainer(props: { line: { slug: string } }) {
+    return <div data-testid="cta-service-pulse-container-mock" data-line-slug={props.line.slug} />
+  }
+})
+
 import CTALinePage from '@/app/cta/[line]/page'
 
 describe('CTA line detail page', () => {
@@ -43,6 +49,14 @@ describe('CTA line detail page', () => {
     const ui = await CTALinePage({ params })
     render(ui)
     expect(screen.getByText('Line not found.')).toBeInTheDocument()
+  })
+
+  it('renders the CtaServicePulseContainer wired to the line', async () => {
+    const ui = await CTALinePage({ params })
+    render(ui)
+    const mock = screen.getByTestId('cta-service-pulse-container-mock')
+    expect(mock).toBeInTheDocument()
+    expect(mock.getAttribute('data-line-slug')).toBe('red')
   })
 
   it('matches snapshot', async () => {

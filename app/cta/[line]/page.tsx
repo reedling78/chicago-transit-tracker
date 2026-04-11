@@ -3,6 +3,7 @@ import { getLinesForService, getLine, getStationsForLine } from '@lib/transit'
 import Link from 'next/link'
 import CTALineIcon from '@components/CTALineIcon'
 import CTAAlerts from '@components/CTAAlerts'
+import CtaServicePulseContainer from '@components/CtaServicePulseContainer'
 import LineDetail from '@components/LineDetail'
 import PageHeader from '@components/PageHeader'
 import StationList from '@components/StationList'
@@ -86,6 +87,7 @@ export default async function CTALinePage({ params }: Props) {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
+          <CtaServicePulseContainer line={line} />
           <LineDetail line={line} />
           <CTAAlerts line={line} hideChips />
         </div>

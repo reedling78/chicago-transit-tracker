@@ -160,6 +160,10 @@ exports[`CTA line detail page matches snapshot 1`] = `
       <div
         class="lg:col-span-2"
       >
+        <div
+          data-line-slug="red"
+          data-testid="cta-service-pulse-container-mock"
+        />
         <div>
           <div
             class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
