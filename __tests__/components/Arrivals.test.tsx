@@ -37,9 +37,52 @@ const mockSchedule = {
   ],
 }
 
+// Metra schedule: Mondays at 01:00 means the next two weekday departures are
+// 62 (=1:02 AM) and 125 (=2:05 AM). The station-trips mock below matches the
+// first by (headsign, line, formatted departure) so it should render as a Link.
+const mockMetraSchedule = {
+  directions: [
+    {
+      headsign: 'Aurora',
+      line: 'BNSF',
+      weekday: [62, 125],
+      saturday: [],
+      sunday: [],
+    },
+  ],
+}
+
+const mockMetraStationTrips = {
+  weekday: [
+    {
+      tripId: 'bnsf_1234',
+      trainNumber: '1234',
+      headsign: 'Aurora',
+      departure: '1:02 AM',
+      line: 'BNSF',
+      lineSlug: 'bnsf',
+      directionId: 0,
+    },
+  ],
+  saturday: [],
+  sunday: [],
+}
+
 beforeEach(() => {
   jest.clearAllMocks()
 })
+
+// Helper: route fetch mocks by URL so schedule + station-trips can both be stubbed.
+function mockFetchByUrl(routes: Record<string, unknown>) {
+  global.fetch = jest.fn((url: string) => {
+    for (const [prefix, payload] of Object.entries(routes)) {
+      if (url.startsWith(prefix)) {
+        return Promise.resolve({ ok: true, json: async () => payload })
+      }
+    }
+    return Promise.resolve({ ok: false })
+  }) as jest.Mock
+}
 
 describe('Arrivals', () => {
   it('renders nothing when hasSchedule is false', () => {
@@ -120,5 +163,59 @@ describe('Arrivals', () => {
     })
 
     expect(container).toMatchSnapshot()
+  })
+
+  it('renders CTA arrival rows as plain divs, never as links', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockSchedule,
+    }) as jest.Mock
+
+    render(<Arrivals slug="clark-lake" service="cta" hasSchedule={true} />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('95th/Dan Ryan').length).toBeGreaterThanOrEqual(1)
+    })
+
+    // No anchor tags — CTA has no train detail page
+    expect(document.querySelectorAll('a[href^="/metra/"]')).toHaveLength(0)
+  })
+
+  it('links Metra arrival rows to the train detail page when a trip match exists', async () => {
+    mockFetchByUrl({
+      '/api/schedules/': mockMetraSchedule,
+      '/api/metra/station-trips/': mockMetraStationTrips,
+    })
+
+    render(<Arrivals slug="union-station-metra" service="metra" hasSchedule={true} />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
+    })
+
+    // The 1:02 AM row should be wrapped in a Link
+    const link = document.querySelector('a[href="/metra/bnsf/train/bnsf_1234"]')
+    expect(link).not.toBeNull()
+
+    // The 2:05 AM row has no matching trip entry, so it should remain a plain div
+    expect(document.querySelectorAll('a[href^="/metra/"]')).toHaveLength(1)
+  })
+
+  it('still renders Metra arrivals when station-trips fetch fails', async () => {
+    global.fetch = jest.fn((url: string) => {
+      if (url.startsWith('/api/schedules/')) {
+        return Promise.resolve({ ok: true, json: async () => mockMetraSchedule })
+      }
+      // station-trips fetch fails — arrivals should still render, just unlinked
+      return Promise.resolve({ ok: false })
+    }) as jest.Mock
+
+    render(<Arrivals slug="union-station-metra" service="metra" hasSchedule={true} />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
+    })
+
+    expect(document.querySelectorAll('a[href^="/metra/"]')).toHaveLength(0)
   })
 })

@@ -5,6 +5,8 @@ import {
   parseGTFS,
   buildServiceTypeMap,
   readZipFile,
+  extractMetraTrainNumber,
+  metraTrainDocId,
 } from '@functions/lib/gtfs-utils'
 import AdmZip from 'adm-zip'
 
@@ -59,6 +61,46 @@ describe('safeTripId', () => {
 
   it('preserves hyphens and underscores', () => {
     expect(safeTripId('up-n_1234')).toBe('up-n_1234')
+  })
+})
+
+describe('extractMetraTrainNumber', () => {
+  it('extracts the number from a Milwaukee District West trip ID', () => {
+    expect(extractMetraTrainNumber('MD-W_MW2222_V2_A')).toBe('2222')
+  })
+
+  it('extracts the number from a BNSF trip ID', () => {
+    expect(extractMetraTrainNumber('BNSF_BN1200_V4_A')).toBe('1200')
+  })
+
+  it('extracts the number from a North Central Service trip ID', () => {
+    expect(extractMetraTrainNumber('NCS_NC100_V1_A')).toBe('100')
+  })
+
+  it('handles the AA variant suffix', () => {
+    expect(extractMetraTrainNumber('BNSF_BN1200_V4_AA')).toBe('1200')
+  })
+
+  it('handles the B variant suffix', () => {
+    expect(extractMetraTrainNumber('BNSF_BN1200_V4_B')).toBe('1200')
+  })
+
+  it('falls back to the full trip ID if the pattern does not match', () => {
+    expect(extractMetraTrainNumber('weirdid')).toBe('weirdid')
+  })
+
+  it('falls back to the full trip ID if the second segment has no digits', () => {
+    expect(extractMetraTrainNumber('BNSF_NODIGITS_V4_A')).toBe('BNSF_NODIGITS_V4_A')
+  })
+})
+
+describe('metraTrainDocId', () => {
+  it('joins line slug and train number with an underscore', () => {
+    expect(metraTrainDocId('bnsf', '1200')).toBe('bnsf_1200')
+  })
+
+  it('preserves hyphens in the line slug', () => {
+    expect(metraTrainDocId('md-w', '2222')).toBe('md-w_2222')
   })
 })
 

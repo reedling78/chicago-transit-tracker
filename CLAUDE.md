@@ -56,8 +56,8 @@ app/
       route.ts                Metra station trips from Firestore
     metra/trip-index/[line]/
       route.ts                Metra trip index by line from Firestore
-    metra/trips/[tripId]/
-      route.ts                Metra trip detail from Firestore
+    metra/trips/[trainNumber]/
+      route.ts                Metra trip detail from Firestore (requires ?line= query param)
     schedules/[slug]/
       route.ts                Station schedule data from Firestore
   components/
@@ -85,6 +85,7 @@ scripts/
   seed-lines.ts               Seeds 19 lines into Firestore
   seed-stations.ts            Seeds stations from CTA API + Metra GTFS
   upload-station-image.ts     Check/upload station hero photo to Firebase Storage
+  cleanup-metra-trips.ts      One-time cleanup of stale metra-trips docs (dry-run by default)
   tsconfig.json               CommonJS tsconfig for ts-node script execution
 functions/
   src/
@@ -179,7 +180,7 @@ When a feed changes, the function downloads the zip, parses it using the shared 
 | Collection            | Contents                                                        | Doc count |
 | --------------------- | --------------------------------------------------------------- | --------- |
 | `schedules`           | Per-station departure times by direction + service type         | ~336      |
-| `metra-trips`         | Individual trip stop sequences                                  | ~3,431    |
+| `metra-trips`         | Individual trip stop sequences (one per train number per line)  | ~1,000    |
 | `metra-trip-indexes`  | Trip lists per line by service type                             | 11        |
 | `metra-station-trips` | Trips per station by service type                               | ~237      |
 | `gtfs-meta`           | Change detection state (lastModified, etag, publishedTimestamp) | 2         |
@@ -205,9 +206,9 @@ Client components fetch schedule data through API routes (`/api/schedules/[slug]
 
 Per-station departure times grouped by direction and service type. Populated automatically by `syncCtaGtfs` and `syncMetraGtfs` Cloud Functions.
 
-### `metra-trips` — doc ID = safe trip ID
+### `metra-trips` — doc ID = `{lineSlug}_{trainNumber}` (e.g. `bnsf_1200`)
 
-Individual Metra trip stop sequences. Populated automatically by `syncMetraGtfs`.
+Individual Metra trip stop sequences, one document per train number per line. Populated automatically by `syncMetraGtfs`, which extracts the train number from the GTFS `trip_id` (e.g. `BNSF_BN1200_V4_A` → `1200`) and deduplicates the `_A` / `_AA` / `_B` calendar variants into a single document. The page at `/metra/[line]/train/[trainNumber]` reads this collection directly.
 
 ### `metra-trip-indexes` — doc ID = line slug
 

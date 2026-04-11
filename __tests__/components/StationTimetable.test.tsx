@@ -24,7 +24,7 @@ afterAll(() => {
 const mockTrips = {
   weekday: [
     {
-      tripId: 'trip-1',
+      tripId: '1234',
       trainNumber: '1234',
       headsign: 'Aurora',
       departure: '6:10 AM',
@@ -33,7 +33,7 @@ const mockTrips = {
       directionId: 0,
     },
     {
-      tripId: 'trip-2',
+      tripId: '1235',
       trainNumber: '1235',
       headsign: 'Union Station',
       departure: '7:00 AM',
@@ -44,7 +44,7 @@ const mockTrips = {
   ],
   saturday: [
     {
-      tripId: 'trip-3',
+      tripId: '2001',
       trainNumber: '2001',
       headsign: 'Aurora',
       departure: '8:00 AM',
@@ -132,7 +132,7 @@ describe('StationTimetable', () => {
     await waitFor(() => screen.getByText('6:10 AM'))
 
     const links = screen.getAllByRole('link')
-    expect(links[0]).toHaveAttribute('href', '/metra/bnsf/train/trip-1')
+    expect(links[0]).toHaveAttribute('href', '/metra/bnsf/train/1234')
   })
 
   it('matches snapshot', async () => {
