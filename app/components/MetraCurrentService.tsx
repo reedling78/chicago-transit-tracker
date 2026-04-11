@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { fetchMetraFeed } from '@lib/metra-realtime'
+import { useEffect, useMemo, useState } from 'react'
+import { useMetraFeed, type FeedData } from '@lib/hooks/useMetraFeed'
 import { extractMetraTrainNumber, routeIdToLineSlug } from '@lib/metra-trip-matching'
 import {
   computeHeroStatus,
@@ -15,8 +15,6 @@ import {
 } from '@lib/metra-status'
 import type { MetraLineTrip } from '@lib/transit'
 import CurrentServiceList, { type CurrentServiceTrain } from './CurrentServiceList'
-
-type FeedData = Awaited<ReturnType<typeof fetchMetraFeed>>
 
 const POLL_INTERVAL_MS = 30_000
 const MAX_TRAINS_SHOWN = 8
@@ -183,53 +181,19 @@ export default function MetraCurrentService({
   lineColor,
   trips,
 }: MetraCurrentServiceProps) {
-  const [tripUpdates, setTripUpdates] = useState<FeedData | null>(null)
-  const [positions, setPositions] = useState<FeedData | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const tripUpdatesFeed = useMetraFeed('tripupdates', { intervalMs: POLL_INTERVAL_MS })
+  const positionsFeed = useMetraFeed('positions', { intervalMs: POLL_INTERVAL_MS })
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
-  const [hasFetched, setHasFetched] = useState(false)
-
-  const mountedRef = useRef<boolean>(false)
-
-  const load = useCallback(async () => {
-    try {
-      const [tu, vp] = await Promise.all([
-        fetchMetraFeed('tripupdates'),
-        fetchMetraFeed('positions'),
-      ])
-      setTripUpdates(tu)
-      setPositions(vp)
-      setError(null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setHasFetched(true)
-    }
-  }, [])
 
   useEffect(() => {
-    mountedRef.current = true
-    load()
-    const interval = setInterval(() => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
-      load()
-    }, POLL_INTERVAL_MS)
     const nowInterval = setInterval(() => setNowMs(Date.now()), POLL_INTERVAL_MS)
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') load()
-    }
-    if (typeof document !== 'undefined') {
-      document.addEventListener('visibilitychange', onVisibility)
-    }
-    return () => {
-      mountedRef.current = false
-      clearInterval(interval)
-      clearInterval(nowInterval)
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', onVisibility)
-      }
-    }
-  }, [load])
+    return () => clearInterval(nowInterval)
+  }, [])
+
+  const tripUpdates: FeedData | null = tripUpdatesFeed.data
+  const positions: FeedData | null = positionsFeed.data
+  const error = tripUpdatesFeed.error ?? positionsFeed.error
+  const hasFetched = tripUpdatesFeed.fetchedAt != null || positionsFeed.fetchedAt != null
 
   const annotated = useMemo(() => annotate(trips), [trips])
 

@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import MetraTripRealtime, { type TripDetail } from '@components/MetraTripRealtime'
 import { fetchMetraFeed } from '@lib/metra-realtime'
+import { __resetMetraFeedCache } from '@lib/hooks/useMetraFeed'
 
 jest.mock('@lib/metra-realtime')
 const mockFetch = fetchMetraFeed as jest.MockedFunction<typeof fetchMetraFeed>
@@ -86,6 +87,7 @@ function tripUpdateFeed(stops: StuInput[]) {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  __resetMetraFeedCache()
   jest.useFakeTimers({
     doNotFake: [
       'setTimeout',
@@ -103,6 +105,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  __resetMetraFeedCache()
   jest.useRealTimers()
 })
 
