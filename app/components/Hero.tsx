@@ -76,6 +76,15 @@ const METRA_LINES = [
   { name: 'HC', color: '#4A7729' },
 ]
 
+const PACE_LINES = [
+  { name: 'Pulse', color: '#814C9E' },
+  { name: '208', color: '#00539F' },
+  { name: '250', color: '#00539F' },
+  { name: '353', color: '#00539F' },
+  { name: '530', color: '#00539F' },
+  { name: '755', color: '#00539F' },
+]
+
 export default function Hero() {
   return (
     <section className="relative -mx-4 overflow-hidden bg-gray-50 px-4 py-20 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-950">
@@ -104,20 +113,27 @@ export default function Hero() {
         </div>
 
         {/* Service cards */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <ServiceCard
             href="/cta"
             label="CTA"
-            description="8 color-coded rapid transit lines serving Chicago, with 24-hour service on the Red and Blue lines."
+            description="Live Tracking & Schedules — 8 color-coded rapid transit lines serving Chicago, with 24-hour service on the Red and Blue lines."
             accent="#C60C30"
             lines={CTA_LINES}
           />
           <ServiceCard
             href="/metra"
             label="Metra"
-            description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties and 243 stations."
+            description="Live Tracking & Schedules — 11 commuter rail lines connecting Chicago to the suburbs across 6 counties and 243 stations."
             accent="#1A3D7A"
             lines={METRA_LINES}
+          />
+          <ServiceCard
+            href="/pace"
+            label="Pace"
+            description="Schedules & Routes — explore Pace Suburban Bus's 130+ routes across the Chicago suburbs."
+            accent="#00539F"
+            lines={PACE_LINES}
           />
         </div>
       </div>

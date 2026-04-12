@@ -31,7 +31,7 @@ exports[`Home page matches snapshot 1`] = `
           </p>
         </div>
         <div
-          class="grid grid-cols-1 gap-6 sm:grid-cols-2"
+          class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <a
             class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition duration-300 hover:scale-[1.02] hover:border-gray-300 hover:shadow-lg dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-sm dark:hover:bg-white/10 dark:hover:shadow-2xl"
@@ -55,7 +55,7 @@ exports[`Home page matches snapshot 1`] = `
               <p
                 class="text-base text-gray-500 dark:text-white/60"
               >
-                8 color-coded rapid transit lines serving Chicago, with 24-hour service on the Red and Blue lines.
+                Live Tracking & Schedules — 8 color-coded rapid transit lines serving Chicago, with 24-hour service on the Red and Blue lines.
               </p>
             </div>
             <div
@@ -148,7 +148,7 @@ exports[`Home page matches snapshot 1`] = `
               <p
                 class="text-base text-gray-500 dark:text-white/60"
               >
-                11 commuter rail lines connecting Chicago to the suburbs across 6 counties and 243 stations.
+                Live Tracking & Schedules — 11 commuter rail lines connecting Chicago to the suburbs across 6 counties and 243 stations.
               </p>
             </div>
             <div
@@ -229,6 +229,87 @@ exports[`Home page matches snapshot 1`] = `
               >
                 Explore 
                 Metra
+                <span
+                  class="transition-transform group-hover:translate-x-1"
+                >
+                  →
+                </span>
+              </div>
+            </div>
+          </a>
+          <a
+            class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition duration-300 hover:scale-[1.02] hover:border-gray-300 hover:shadow-lg dark:border-white/10 dark:bg-white/5 dark:backdrop-blur-sm dark:hover:bg-white/10 dark:hover:shadow-2xl"
+            href="/pace"
+          >
+            <div
+              class="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full opacity-10 blur-3xl transition duration-300 group-hover:opacity-25 dark:opacity-20 dark:group-hover:opacity-40"
+              style="background-color: rgb(0, 83, 159);"
+            />
+            <div>
+              <p
+                class="mb-2 text-sm font-semibold tracking-widest text-gray-400 uppercase dark:text-white/50"
+              >
+                Chicago
+              </p>
+              <h2
+                class="mb-3 text-4xl font-bold text-gray-900 dark:text-white"
+              >
+                Pace
+              </h2>
+              <p
+                class="text-base text-gray-500 dark:text-white/60"
+              >
+                Schedules & Routes — explore Pace Suburban Bus's 130+ routes across the Chicago suburbs.
+              </p>
+            </div>
+            <div
+              class="mt-8 flex flex-col gap-4"
+            >
+              <div
+                class="flex flex-wrap gap-2"
+              >
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                  style="background-color: rgb(129, 76, 158);"
+                >
+                  Pulse
+                </span>
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                  style="background-color: rgb(0, 83, 159);"
+                >
+                  208
+                </span>
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                  style="background-color: rgb(0, 83, 159);"
+                >
+                  250
+                </span>
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                  style="background-color: rgb(0, 83, 159);"
+                >
+                  353
+                </span>
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                  style="background-color: rgb(0, 83, 159);"
+                >
+                  530
+                </span>
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-semibold text-white/90"
+                  style="background-color: rgb(0, 83, 159);"
+                >
+                  755
+                </span>
+              </div>
+              <div
+                class="flex items-center gap-2 text-sm font-medium text-gray-400 transition group-hover:text-gray-900 dark:text-white/70 dark:group-hover:text-white"
+              >
+                Explore 
+                Pace
                 <span
                   class="transition-transform group-hover:translate-x-1"
                 >
