@@ -36,6 +36,14 @@ export default function Footer() {
                   Privacy
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/sitemap"
+                  className="text-sm text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                >
+                  Site Map
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

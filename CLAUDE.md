@@ -28,7 +28,9 @@ app/
   layout.tsx                  Root layout — Navbar, GA scripts, dark mode init
   page.tsx                    Home page — Hero component
   globals.css                 Tailwind imports + dark mode custom variant
-  sitemap.ts                  Dynamic sitemap — fetches all routes from Firestore
+  sitemap.ts                  Dynamic XML sitemap — fetches all routes from Firestore
+  sitemap/
+    page.tsx                  Human-facing HTML site map at /sitemap
   robots.ts                   Robots.txt config
   not-found.tsx               Custom 404 page — transit-themed with navigation cards
   cta/

@@ -64,6 +64,13 @@ describe('sitemap()', () => {
     })
   })
 
+  it('includes the /sitemap human-facing page URL', async () => {
+    const sitemap = (await import('@/app/sitemap')).default
+    const entries = await sitemap()
+    const urls = entries.map((e) => e.url)
+    expect(urls).toContain('https://chicagotransittracker.com/sitemap')
+  })
+
   it('includes the /pace and /pace/pulse landing URLs', async () => {
     const sitemap = (await import('@/app/sitemap')).default
     const entries = await sitemap()
