@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@lib/firebase-admin'
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ slug: string }> },
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const doc = await db.collection('pace-schedules').doc(slug).get()
 

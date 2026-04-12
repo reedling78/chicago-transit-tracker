@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@lib/firebase-admin'
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ route: string }> },
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ route: string }> }) {
   const { route } = await params
   const doc = await db.collection('pace-route-stops').doc(route).get()
 
