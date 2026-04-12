@@ -2,6 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['firebase-admin'],
+  transpilePackages: ['@ctt/shared'],
   images: {
     remotePatterns: [
       {

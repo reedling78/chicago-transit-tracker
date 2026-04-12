@@ -16,23 +16,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: npm run lint
+        run: pnpm -w run lint
 
       - name: Run tests
-        run: npm test
+        run: pnpm -w run test
         env:
           TZ: America/Chicago
 
 # Deployment is handled automatically by Firebase App Hosting.
 # Push to main triggers a build and deploy via GitHub integration.
 # Secrets (METRA_API_TOKEN) are managed in apphosting.yaml via Cloud Secret Manager.
+# Mobile builds are handled via EAS Build, not in this CI workflow.

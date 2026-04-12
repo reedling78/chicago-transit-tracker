@@ -11,12 +11,14 @@ const config: Config = {
   moduleNameMapper: {
     '^@components/(.*)$': '<rootDir>/app/components/$1',
     '^@lib/(.*)$': '<rootDir>/app/lib/$1',
-    '^@functions/(.*)$': '<rootDir>/functions/src/$1',
+    '^@functions/(.*)$': '<rootDir>/../../apps/functions/src/$1',
+    '^@ctt/shared$': '<rootDir>/../../packages/shared/src',
+    '^@ctt/shared/(.*)$': '<rootDir>/../../packages/shared/src/$1',
   },
   resolver: '<rootDir>/jest.resolver.js',
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',
-    'functions/src/**/*.ts',
+    '../functions/src/**/*.ts',
     '!app/**/*.d.ts',
     '!app/lib/firebase-admin.ts',
     '!app/lib/transit.ts',

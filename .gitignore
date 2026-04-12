@@ -29,5 +29,17 @@ service-account.json
 .firebase/hosting.b3V0.cache
 
 # cloud functions build output
-functions/lib/
-functions/node_modules/
+apps/functions/lib/
+apps/functions/node_modules/
+
+# expo / react native
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# turbo
+.turbo/

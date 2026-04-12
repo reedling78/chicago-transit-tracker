@@ -1,7 +1,7 @@
 {
   "functions": [
     {
-      "source": "functions",
+      "source": "apps/functions",
       "codebase": "gtfs-sync",
       "runtime": "nodejs22"
     }
@@ -12,18 +12,12 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "hosting": {
-    "public": "out",
-    "cleanUrls": true,
-    "trailingSlash": false,
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
-  },
-  "apphosting": {
+"apphosting": {
     "backends": [
       {
         "backendId": "default",
         "codebase": {
-          "root": "."
+          "root": "apps/web"
         }
       }
     ]

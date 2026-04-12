@@ -35,7 +35,7 @@ Both arguments are required. If either is missing, stop and ask the user for it.
 Run:
 
 ```bash
-npx ts-node --project scripts/tsconfig.json scripts/upload-station-image.ts --check <slug>
+npx ts-node --project apps/web/scripts/tsconfig.json apps/web/scripts/upload-station-image.ts --check <slug>
 ```
 
 - If the command exits non-zero, the station isn't in Firestore — stop and report `"Station <slug> not found in Firestore"`.
@@ -83,7 +83,7 @@ Confirm the output file exists before continuing.
 Run:
 
 ```bash
-npx ts-node --project scripts/tsconfig.json scripts/upload-station-image.ts --upload <slug> /tmp/station-<slug>.jpg
+npx ts-node --project apps/web/scripts/tsconfig.json apps/web/scripts/upload-station-image.ts --upload <slug> /tmp/station-<slug>.jpg
 ```
 
 This uploads the file to `stations/<slug>/hero.jpg` in the `chicago-transit-tracker.firebasestorage.app` bucket, calls `makePublic()`, and updates the station's `photoUrl` field in Firestore.
@@ -97,6 +97,6 @@ The script prints the resulting public URL on success. Show it to the user.
 1. Delete the temp file: `rm /tmp/station-<slug>.jpg`
 2. Tell the user:
 
-   > "Uploaded. The station page will pick up the new hero automatically. Run `npm run dev` and visit the station page to verify it renders."
+   > "Uploaded. The station page will pick up the new hero automatically. Run `pnpm -w run dev` and visit the station page to verify it renders."
 
 That's the whole skill.

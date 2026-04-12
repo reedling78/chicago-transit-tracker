@@ -3,9 +3,11 @@ out
 build
 node_modules
 package-lock.json
+pnpm-lock.yaml
 public
 .claude
 .superpowers
 docs
 *.md
 **/*.md
+next-env.d.ts
