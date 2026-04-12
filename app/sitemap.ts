@@ -1,6 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from 'next'
 import { getLinesForService, getStationsForLine } from '@lib/transit'
+import { getAllPaceRoutes, getAllPaceStops } from '@lib/pace'
 import { getFirestore } from '@lib/firebase-admin'
 
 export const dynamic = 'force-static'
@@ -22,6 +23,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getLinesForService('cta'),
     getLinesForService('metra'),
   ])
+
+  const [paceRoutes, paceStops] = await Promise.all([getAllPaceRoutes(), getAllPaceStops()])
 
   const ctaStationEntries = (
     await Promise.all(
@@ -93,6 +96,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...ctaStationEntries,
     ...metraStationEntries,
+    {
+      url: `${baseUrl}/pace`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/pace/pulse`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    ...paceRoutes.map((r) => ({
+      url: `${baseUrl}/pace/${r.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
+    ...paceRoutes.flatMap((r) =>
+      paceStops
+        .filter((s) => s.routes.includes(r.slug))
+        .map((s) => ({
+          url: `${baseUrl}/pace/${r.slug}/${s.slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'monthly' as const,
+          priority: 0.5,
+        })),
+    ),
     ...(
       await Promise.all(
         metraLines.map(async (line) => {
