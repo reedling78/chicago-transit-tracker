@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { mockPaceRoute, mockPaceStop } from '../fixtures'
+import { mockPaceRoute, mockPacePulseRoute, mockPaceStop } from '../fixtures'
 
 jest.mock('@lib/pace', () => ({
   getAllPaceRoutes: jest.fn(),
@@ -19,7 +19,12 @@ const { getPaceRoute, getPaceStop } = require('@lib/pace')
 
 describe('/pace/[route]/[stop] stop detail page', () => {
   beforeEach(() => {
-    ;(getPaceRoute as jest.Mock).mockResolvedValue(mockPaceRoute)
+    // Stop is served by '208' and 'milwaukee-pulse' per mockPaceStop.routes
+    ;(getPaceRoute as jest.Mock).mockImplementation((slug: string) => {
+      if (slug === '208') return Promise.resolve(mockPaceRoute)
+      if (slug === 'milwaukee-pulse') return Promise.resolve(mockPacePulseRoute)
+      return Promise.resolve(null)
+    })
     ;(getPaceStop as jest.Mock).mockResolvedValue(mockPaceStop)
   })
 
@@ -29,6 +34,16 @@ describe('/pace/[route]/[stop] stop detail page', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: /Golf Rd & Waukegan Rd/i }),
     ).toBeInTheDocument()
+    expect(screen.getByText('208')).toBeInTheDocument()
+  })
+
+  it('renders the served-route chips using resolved shortName, not raw slugs', async () => {
+    const Page = (await import('@/app/pace/[route]/[stop]/page')).default
+    render(await Page({ params: Promise.resolve({ route: '208', stop: 'golf-rd-waukegan-rd' }) }))
+
+    // Displays the human-readable shortName, not the raw slug
+    expect(screen.getByText('Milwaukee Pulse')).toBeInTheDocument()
+    expect(screen.queryByText('milwaukee-pulse')).not.toBeInTheDocument()
     expect(screen.getByText('208')).toBeInTheDocument()
   })
 

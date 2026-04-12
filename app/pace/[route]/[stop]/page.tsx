@@ -4,6 +4,7 @@ import PageHeader from '@components/PageHeader'
 import PaceRouteChip from '@components/PaceRouteChip'
 import PaceScheduleTable from '@components/PaceScheduleTable'
 import { siteConfig } from '@lib/siteConfig'
+import type { PaceRoute } from '@lib/pace-types'
 
 type Props = { params: Promise<{ route: string; stop: string }> }
 
@@ -58,6 +59,9 @@ export default async function PaceStopPage({ params }: Props) {
     )
   }
 
+  const servedRoutes = await Promise.all(stop.routes.map((s) => getPaceRoute(s)))
+  const validServedRoutes = servedRoutes.filter((r): r is PaceRoute => r !== null)
+
   return (
     <main>
       <PageHeader
@@ -70,13 +74,13 @@ export default async function PaceStopPage({ params }: Props) {
         ]}
         badges={
           <div className="flex flex-wrap gap-2">
-            {stop.routes.map((r) => (
+            {validServedRoutes.map((r) => (
               <PaceRouteChip
-                key={r}
-                shortName={r}
-                color={r === route.slug ? route.color : '#005DAA'}
-                textColor="#FFFFFF"
-                href={`/pace/${r}/${stop.slug}`}
+                key={r.slug}
+                shortName={r.shortName}
+                color={r.color}
+                textColor={r.textColor}
+                href={`/pace/${r.slug}/${stop.slug}`}
               />
             ))}
           </div>
