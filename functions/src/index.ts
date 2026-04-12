@@ -16,16 +16,20 @@ import { downloadBuffer } from './lib/gtfs-utils'
 import {
   hasCtaFeedChanged,
   hasMetraFeedChanged,
+  hasPaceFeedChanged,
   updateCtaMeta,
   updateMetraMeta,
+  updatePaceMeta,
 } from './lib/change-detection'
 import { batchWrite } from './lib/firestore-writer'
 import { parseCtaSchedules } from './lib/parsers/cta-schedules'
 import { parseMetraSchedules } from './lib/parsers/metra-schedules'
 import { parseMetraTrips } from './lib/parsers/metra-trips'
+import { parsePaceGtfs } from './lib/parsers/pace-schedules'
 
 const CTA_GTFS_URL = 'https://www.transitchicago.com/downloads/sch_data/google_transit.zip'
 const METRA_GTFS_URL = 'https://schedules.metrarail.com/gtfs/schedule.zip'
+const PACE_GTFS_URL = 'https://www.pacebus.com/gtfsdownload'
 
 initializeApp()
 
@@ -179,5 +183,61 @@ export const syncMetraGtfs = onSchedule(
     })
 
     await updateMetraMeta(publishedTimestamp)
+  },
+)
+
+// ---------------------------------------------------------------------------
+// Pace Sync — runs at :10 past every hour
+// ---------------------------------------------------------------------------
+
+export const syncPaceGtfs = onSchedule(
+  {
+    schedule: '10 * * * *',
+    region: 'us-central1',
+    memory: '2GiB',
+    timeoutSeconds: 540,
+  },
+  async () => {
+    const { changed, lastModified, etag } = await hasPaceFeedChanged()
+
+    if (!changed) {
+      logger.info('Pace GTFS feed unchanged, skipping sync')
+      return
+    }
+
+    logger.info('Pace GTFS feed changed, starting sync', { lastModified, etag })
+
+    const buf = await downloadBuffer(PACE_GTFS_URL)
+    const zip = new AdmZip(buf)
+    logger.info('Pace GTFS downloaded, parsing')
+
+    const { routes, stops, routeStops, schedules } = parsePaceGtfs(zip)
+
+    const routeDocs = new Map<string, Record<string, unknown>>()
+    for (const [slug, r] of routes) routeDocs.set(slug, r as unknown as Record<string, unknown>)
+    const routesWritten = await batchWrite('pace-routes', routeDocs)
+
+    const stopDocs = new Map<string, Record<string, unknown>>()
+    for (const [slug, s] of stops) stopDocs.set(slug, s as unknown as Record<string, unknown>)
+    const stopsWritten = await batchWrite('pace-stops', stopDocs)
+
+    const routeStopsDocs = new Map<string, Record<string, unknown>>()
+    for (const [slug, rs] of routeStops)
+      routeStopsDocs.set(slug, rs as unknown as Record<string, unknown>)
+    const routeStopsWritten = await batchWrite('pace-route-stops', routeStopsDocs)
+
+    const scheduleDocs = new Map<string, Record<string, unknown>>()
+    for (const [slug, sc] of schedules)
+      scheduleDocs.set(slug, sc as unknown as Record<string, unknown>)
+    const schedulesWritten = await batchWrite('pace-schedules', scheduleDocs)
+
+    logger.info('Pace sync complete', {
+      routesWritten,
+      stopsWritten,
+      routeStopsWritten,
+      schedulesWritten,
+    })
+
+    await updatePaceMeta(lastModified, etag)
   },
 )

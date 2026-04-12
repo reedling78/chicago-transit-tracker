@@ -18,8 +18,10 @@ jest.mock('@functions/lib/gtfs-utils', () => ({
 import {
   hasCtaFeedChanged,
   hasMetraFeedChanged,
+  hasPaceFeedChanged,
   updateCtaMeta,
   updateMetraMeta,
+  updatePaceMeta,
 } from '@functions/lib/change-detection'
 import { fetchText, headRequest } from '@functions/lib/gtfs-utils'
 
@@ -147,6 +149,52 @@ describe('updateMetraMeta', () => {
     expect(mockSet).toHaveBeenCalledWith(
       expect.objectContaining({
         publishedTimestamp: '03/06/26 02:20:03 AM America/Chicago',
+      }),
+      { merge: true },
+    )
+  })
+})
+
+describe('hasPaceFeedChanged', () => {
+  it('reports changed when no prior meta exists', async () => {
+    mockHeadRequest.mockResolvedValue({
+      'last-modified': 'Mon, 01 Jan 2024 00:00:00 GMT',
+      etag: 'abc',
+    })
+    mockGet.mockResolvedValue({ data: () => undefined })
+
+    const result = await hasPaceFeedChanged()
+
+    expect(result.changed).toBe(true)
+    expect(result.lastModified).toBe('Mon, 01 Jan 2024 00:00:00 GMT')
+    expect(result.etag).toBe('abc')
+  })
+
+  it('reports unchanged when headers match stored meta', async () => {
+    mockHeadRequest.mockResolvedValue({
+      'last-modified': 'Mon, 01 Jan 2024 00:00:00 GMT',
+      etag: 'abc',
+    })
+    mockGet.mockResolvedValue({
+      data: () => ({ lastModified: 'Mon, 01 Jan 2024 00:00:00 GMT', etag: 'abc' }),
+    })
+
+    const result = await hasPaceFeedChanged()
+
+    expect(result.changed).toBe(false)
+  })
+})
+
+describe('updatePaceMeta', () => {
+  it('writes Pace metadata to Firestore', async () => {
+    await updatePaceMeta('Mon, 01 Jan 2024 00:00:00 GMT', 'abc')
+
+    expect(mockCollection).toHaveBeenCalledWith('gtfs-meta')
+    expect(mockDoc).toHaveBeenCalledWith('pace')
+    expect(mockSet).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lastModified: 'Mon, 01 Jan 2024 00:00:00 GMT',
+        etag: 'abc',
       }),
       { merge: true },
     )
