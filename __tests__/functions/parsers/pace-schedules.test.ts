@@ -186,6 +186,26 @@ describe('extractDirections', () => {
     ]
     expect(extractDirections('999', trips)).toHaveLength(3)
   })
+
+  it('falls back to direction_text when trip_headsign is absent (Pace GTFS)', () => {
+    const trips = [
+      { route_id: '208', direction_id: '0', direction_text: 'East' },
+      { route_id: '208', direction_id: '0', direction_text: 'East' },
+      { route_id: '208', direction_id: '1', direction_text: 'West' },
+    ]
+    const directions = extractDirections('208', trips)
+    expect(directions).toHaveLength(2)
+    expect(directions).toContainEqual({ id: '0', name: 'East' })
+    expect(directions).toContainEqual({ id: '1', name: 'West' })
+  })
+
+  it('prefers trip_headsign over direction_text when both are present', () => {
+    const trips = [
+      { route_id: '208', direction_id: '0', trip_headsign: 'Evanston', direction_text: 'East' },
+    ]
+    const directions = extractDirections('208', trips)
+    expect(directions).toEqual([{ id: '0', name: 'Evanston' }])
+  })
 })
 
 function makePaceGtfsZip(): AdmZip {
@@ -393,5 +413,61 @@ TA,S3,2,07:10:00`,
     const seq = result.routeStops.get('208')!.directions['0']
     // TA wins the tie → sequence should end at Charlie, not Bravo
     expect(seq.map((s) => s.slug)).toEqual(['alpha', 'charlie'])
+  })
+})
+
+describe('parsePaceGtfs with Pace-format direction_text', () => {
+  it('populates PaceRoute.directions from direction_text when trip_headsign is absent', () => {
+    const zip = new AdmZip()
+    zip.addFile(
+      'routes.txt',
+      Buffer.from(
+        `route_id,route_short_name,route_long_name,route_desc,route_color,route_text_color
+R208,208,Golf Road,,005DAA,FFFFFF`,
+      ),
+    )
+    zip.addFile(
+      'stops.txt',
+      Buffer.from(
+        `stop_id,stop_name,stop_lat,stop_lon,wheelchair_boarding
+S1,Golf Rd & Waukegan Rd,42.0586,-87.7972,1
+S2,Skokie Blvd & Dempster,42.0401,-87.7336,1`,
+      ),
+    )
+    zip.addFile(
+      'calendar.txt',
+      Buffer.from(
+        `service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday
+WK,1,1,1,1,1,0,0`,
+      ),
+    )
+    // Pace's real trips.txt layout: direction_text instead of trip_headsign
+    zip.addFile(
+      'trips.txt',
+      Buffer.from(
+        `route_id,service_id,trip_id,direction_id,block_id,bikes_allowed,direction_text,wheelchair_accessible,shape_id
+R208,WK,14950796,0,2444561,1,East,1,2080696
+R208,WK,14950797,0,2444561,1,East,1,2080696
+R208,WK,14950798,1,2444562,1,West,1,2080697`,
+      ),
+    )
+    zip.addFile(
+      'stop_times.txt',
+      Buffer.from(
+        `trip_id,stop_id,stop_sequence,departure_time
+14950796,S1,1,06:30:00
+14950796,S2,2,06:45:00
+14950797,S1,1,07:30:00
+14950797,S2,2,07:45:00
+14950798,S2,1,08:00:00
+14950798,S1,2,08:15:00`,
+      ),
+    )
+
+    const result = parsePaceGtfs(zip)
+    const route208 = result.routes.get('208')!
+    expect(route208.directions).toHaveLength(2)
+    expect(route208.directions).toContainEqual({ id: '0', name: 'East' })
+    expect(route208.directions).toContainEqual({ id: '1', name: 'West' })
   })
 })

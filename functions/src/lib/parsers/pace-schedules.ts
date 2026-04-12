@@ -142,6 +142,9 @@ export interface PaceDirection {
 /**
  * Derive one canonical PaceDirection per distinct direction_id for a route.
  * For each direction_id, pick the headsign with the highest trip count.
+ *
+ * Pace's non-standard `direction_text` field is used as a fallback when the
+ * standard `trip_headsign` is absent.
  */
 export function extractDirections(
   routeId: string,
@@ -150,7 +153,7 @@ export function extractDirections(
   const counts = new Map<string, { id: string; name: string; count: number }>()
   for (const t of trips) {
     if (t.route_id !== routeId) continue
-    const headsign = t.trip_headsign?.trim()
+    const headsign = t.trip_headsign?.trim() || t.direction_text?.trim() || ''
     if (!headsign) continue
     const key = `${t.direction_id}|${headsign}`
     const cur = counts.get(key)
