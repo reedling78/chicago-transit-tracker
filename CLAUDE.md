@@ -17,115 +17,157 @@ When introducing a new feature or workflow pattern, consider whether it would ma
 
 ## Repository State
 
-A Next.js 16 / Tailwind CSS v4 / TypeScript web app for exploring CTA and Metra transit lines and stations. Data is stored in Firebase Firestore and read at build time via Firebase Admin SDK. Metra GTFS Realtime data (alerts, positions, trip updates) is fetched live via a server-side API proxy. The site is deployed to Firebase App Hosting (SSR).
+A pnpm workspaces monorepo containing:
+
+- **`apps/web/`** — Next.js 16 / Tailwind CSS v4 / TypeScript web app for exploring CTA and Metra transit lines and stations. Deployed to Firebase App Hosting (SSR).
+- **`apps/mobile/`** — React Native Expo app replicating the web experience on iOS/Android. Uses Firebase JS SDK for client-side Firestore reads.
+- **`apps/functions/`** — Firebase Cloud Functions (2nd gen) for automated GTFS schedule sync.
+- **`packages/shared/`** — Shared TypeScript types, constants, and pure helpers used by both web and mobile.
+
+Data is stored in Firebase Firestore. The web app reads at build time via Firebase Admin SDK. The mobile app reads at runtime via Firebase JS SDK. Metra GTFS Realtime data (alerts, positions, trip updates) is fetched live via a server-side API proxy (web only).
 
 ---
 
 ## Project Structure
 
 ```
-app/
-  layout.tsx                  Root layout — Navbar, GA scripts, dark mode init
-  page.tsx                    Home page — Hero component
-  globals.css                 Tailwind imports + dark mode custom variant
-  sitemap.ts                  Dynamic XML sitemap — fetches all routes from Firestore
-  sitemap/
-    page.tsx                  Human-facing HTML site map at /sitemap
-  robots.ts                   Robots.txt config
-  not-found.tsx               Custom 404 page — transit-themed with navigation cards
-  cta/
-    page.tsx                  CTA service list page
-    alerts/
-      page.tsx                CTA service alerts page
-    [line]/
-      page.tsx                CTA line detail page
-      [station]/
-        page.tsx              CTA station detail page
-  metra/
-    page.tsx                  Metra service list page
-    alerts/
-      page.tsx                Metra service alerts page
-    [line]/
-      page.tsx                Metra line detail page
-      [station]/
-        page.tsx              Metra station detail page
-  api/
-    cta/alerts/
-      route.ts                Server-side proxy for CTA Customer Alerts API
-    cta/train-locations/
-      route.ts                Server-side proxy for CTA Train Tracker ttpositions
-    metra/[...path]/
-      route.ts                Server-side proxy for Metra GTFS Realtime API
-    metra/station-trips/[slug]/
-      route.ts                Metra station trips from Firestore
-    metra/trip-index/[line]/
-      route.ts                Metra trip index by line from Firestore
-    metra/trips/[trainNumber]/
-      route.ts                Metra trip detail from Firestore (requires ?line= query param)
-    schedules/[slug]/
-      route.ts                Station schedule data from Firestore
-  components/
-    Navbar.tsx                Top nav — links, ThemeToggle, MobileMenuToggle
-    MobileMenuToggle.tsx      Hamburger menu (client component)
-    ThemeToggle.tsx           Light/dark toggle — persisted to localStorage
-    Hero.tsx                  Home page banner with CTA and Metra service cards
-    CTAAlerts.tsx             CTA realtime rail alerts feed (client component)
-    MetraAlerts.tsx           Metra realtime alerts feed (client component)
-    MetraPositions.tsx        Metra realtime vehicle positions (client component, debug)
-    MetraTripUpdates.tsx      Metra realtime trip updates (client component, debug)
-    MetraTripRealtime.tsx     Train detail client component — schedule table + hero status card, polls tripupdates/positions
-    CurrentServiceList.tsx    Presentational list of active/upcoming trains with status pills (service-agnostic)
-    MetraCurrentService.tsx   Line detail client component — polls realtime feeds, applies selection rules, renders CurrentServiceList
-    CtaServicePulse.tsx       Presentational card row for CTA service health per terminal
-    CtaServicePulseContainer.tsx  CTA data wrapper — polls ttpositions + alerts
-    PageHeader.tsx            Full-bleed photo hero with breadcrumb, badges, title
-    Breadcrumb.tsx            Semantic breadcrumb — rendered inside PageHeader
-    LineChipList.tsx          Clickable line color chips linking to line pages
-    LinkCard.tsx              Clickable list card used on service and line pages
-    LineDetail.tsx            Full line detail layout
-    StationDetail.tsx         Full station detail layout
-  lib/
-    firebase-admin.ts         Firestore singleton (Admin SDK)
-    cta-alerts.ts             Client-side fetch + types for CTA Customer Alerts API
-    metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
-    metra-trip-matching.ts    Helpers for matching a Metra realtime entity to (lineSlug, trainNumber)
-    metra-status.ts           Shared status derivation for Metra trips (deriveStopState, computeHeroStatus, TONE_CLASSES)
-    cta-train-tracker.ts      Client-side fetch + types for CTA Train Tracker positions
-    cta-pulse.ts              Pure aggregation + health helpers for CTA service pulse
-    transit.ts                Data access — getLinesForService, getLine, getMetraLineTrips, etc.
-    types.ts                  Line and Station TypeScript interfaces
-scripts/
-  seed-lines.ts               Seeds 19 lines into Firestore
-  seed-stations.ts            Seeds stations from CTA API + Metra GTFS
-  upload-station-image.ts     Check/upload station hero photo to Firebase Storage
-  cleanup-metra-trips.ts      One-time cleanup of stale metra-trips docs (dry-run by default)
-  tsconfig.json               CommonJS tsconfig for ts-node script execution
-functions/
-  src/
-    index.ts                  Cloud Functions entry — syncCtaGtfs, syncMetraGtfs
+apps/
+  web/
+    app/
+      layout.tsx                  Root layout — Navbar, GA scripts, dark mode init
+      page.tsx                    Home page — Hero component
+      globals.css                 Tailwind imports + dark mode custom variant
+      sitemap.ts                  Dynamic XML sitemap — fetches all routes from Firestore
+      sitemap/
+        page.tsx                  Human-facing HTML site map at /sitemap
+      robots.ts                   Robots.txt config
+      not-found.tsx               Custom 404 page — transit-themed with navigation cards
+      cta/
+        page.tsx                  CTA service list page
+        alerts/
+          page.tsx                CTA service alerts page
+        [line]/
+          page.tsx                CTA line detail page
+          [station]/
+            page.tsx              CTA station detail page
+      metra/
+        page.tsx                  Metra service list page
+        alerts/
+          page.tsx                Metra service alerts page
+        [line]/
+          page.tsx                Metra line detail page
+          [station]/
+            page.tsx              Metra station detail page
+      api/
+        cta/alerts/
+          route.ts                Server-side proxy for CTA Customer Alerts API
+        cta/train-locations/
+          route.ts                Server-side proxy for CTA Train Tracker ttpositions
+        metra/[...path]/
+          route.ts                Server-side proxy for Metra GTFS Realtime API
+        metra/station-trips/[slug]/
+          route.ts                Metra station trips from Firestore
+        metra/trip-index/[line]/
+          route.ts                Metra trip index by line from Firestore
+        metra/trips/[trainNumber]/
+          route.ts                Metra trip detail from Firestore (requires ?line= query param)
+        schedules/[slug]/
+          route.ts                Station schedule data from Firestore
+      components/
+        Navbar.tsx                Top nav — links, ThemeToggle, MobileMenuToggle
+        MobileMenuToggle.tsx      Hamburger menu (client component)
+        ThemeToggle.tsx           Light/dark toggle — persisted to localStorage
+        Hero.tsx                  Home page banner with CTA and Metra service cards
+        CTAAlerts.tsx             CTA realtime rail alerts feed (client component)
+        MetraAlerts.tsx           Metra realtime alerts feed (client component)
+        MetraPositions.tsx        Metra realtime vehicle positions (client component, debug)
+        MetraTripUpdates.tsx      Metra realtime trip updates (client component, debug)
+        MetraTripRealtime.tsx     Train detail client component — schedule table + hero status card, polls tripupdates/positions
+        CurrentServiceList.tsx    Presentational list of active/upcoming trains with status pills (service-agnostic)
+        MetraCurrentService.tsx   Line detail client component — polls realtime feeds, applies selection rules, renders CurrentServiceList
+        CtaServicePulse.tsx       Presentational card row for CTA service health per terminal
+        CtaServicePulseContainer.tsx  CTA data wrapper — polls ttpositions + alerts
+        PageHeader.tsx            Full-bleed photo hero with breadcrumb, badges, title
+        Breadcrumb.tsx            Semantic breadcrumb — rendered inside PageHeader
+        LineChipList.tsx          Clickable line color chips linking to line pages
+        LinkCard.tsx              Clickable list card used on service and line pages
+        LineDetail.tsx            Full line detail layout
+        StationDetail.tsx         Full station detail layout
+      lib/
+        firebase-admin.ts         Firestore singleton (Admin SDK) — web only
+        cta-alerts.ts             Client-side fetch + types for CTA Customer Alerts API
+        metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
+        metra-status.ts           Shared status derivation for Metra trips
+        cta-train-tracker.ts      Client-side fetch + types for CTA Train Tracker positions
+        transit.ts                Data access — getLinesForService, getLine, getMetraLineTrips, etc.
+        types.ts                  Re-exports from @ctt/shared
+        constants.ts              Re-exports from @ctt/shared
+        siteConfig.ts             Re-exports from @ctt/shared
+        cta-pulse.ts              Re-exports from @ctt/shared
+        metra-trip-matching.ts    Re-exports from @ctt/shared
+    __tests__/                    Jest + React Testing Library test suites
+    scripts/
+      seed-lines.ts               Seeds 19 lines into Firestore
+      seed-stations.ts            Seeds stations from CTA API + Metra GTFS
+      upload-station-image.ts     Check/upload station hero photo to Firebase Storage
+      cleanup-metra-trips.ts      One-time cleanup of stale metra-trips docs (dry-run by default)
+      tsconfig.json               CommonJS tsconfig for ts-node script execution
+  mobile/
+    app/
+      _layout.tsx                 Root layout — Stack navigator
+      index.tsx                   Home screen
+      cta/
+        index.tsx                 CTA line list
+        [line].tsx                CTA line detail
+        station/[station].tsx     CTA station detail
+      metra/
+        index.tsx                 Metra line list
+        [line].tsx                Metra line detail
+        station/[station].tsx     Metra station detail
+    components/
+      ScheduleTable.tsx           Schedule display component
     lib/
-      gtfs-utils.ts           Shared GTFS parsing utilities
-      change-detection.ts     CTA/Metra feed change detection (HEAD + published.txt)
-      firestore-writer.ts     Batched Firestore writer (500-op chunks)
-      parsers/
-        cta-schedules.ts      CTA GTFS → per-station schedule data
-        metra-schedules.ts    Metra GTFS → per-station schedule data
-        metra-trips.ts        Metra GTFS → trip details, indexes, station trips
-  package.json                Separate deps for Cloud Functions runtime
-  tsconfig.json               TypeScript config for Cloud Functions
-__tests__/                    Jest + React Testing Library test suites
+      firebase.ts                 Firebase JS SDK init (client-side)
+      hooks.ts                    Firestore data hooks (useLines, useStation, etc.)
+  functions/
+    src/
+      index.ts                    Cloud Functions entry — syncCtaGtfs, syncMetraGtfs
+      lib/
+        gtfs-utils.ts             Shared GTFS parsing utilities
+        change-detection.ts       CTA/Metra feed change detection (HEAD + published.txt)
+        firestore-writer.ts       Batched Firestore writer (500-op chunks)
+        parsers/
+          cta-schedules.ts        CTA GTFS → per-station schedule data
+          metra-schedules.ts      Metra GTFS → per-station schedule data
+          metra-trips.ts          Metra GTFS → trip details, indexes, station trips
+    package.json                  Separate deps for Cloud Functions runtime
+    tsconfig.json                 TypeScript config for Cloud Functions
+packages/
+  shared/
+    src/
+      index.ts                    Barrel export of all shared modules
+      types.ts                    Line and Station TypeScript interfaces
+      gtfs-types.ts               Schedule and trip type definitions
+      pace-types.ts               Pace transit types
+      constants.ts                CTA/Metra line colors, names, route mappings
+      siteConfig.ts               Site name, URL, OG image config
+      cta-pulse.ts                Pure aggregation + health helpers for CTA service pulse
+      metra-trip-matching.ts      Helpers for matching Metra realtime entities
 ```
 
 ---
 
 ## Tech Stack
 
-- Next.js 16 (App Router, SSR with `generateStaticParams` for pre-rendering)
+- **Monorepo:** pnpm workspaces + Turborepo
+- **Web:** Next.js 16 (App Router, SSR with `generateStaticParams` for pre-rendering)
+- **Mobile:** React Native Expo (SDK 54) with expo-router
 - React 19
 - TypeScript 5
-- Tailwind CSS v4 (class-based dark mode via `@custom-variant dark`)
-- Firebase Admin SDK (build-time Firestore reads)
-- Firebase App Hosting (SSR deployment target)
+- Tailwind CSS v4 (web, class-based dark mode via `@custom-variant dark`)
+- Firebase Admin SDK (build-time Firestore reads, web only)
+- Firebase JS SDK v11 (client-side Firestore reads, mobile)
+- Firebase App Hosting (SSR deployment target for web)
 - gtfs-realtime-bindings (protobuf decode for Metra GTFS Realtime feeds)
 - Google Analytics 4 (G-KQ1MNGBQP2, loaded via `next/script afterInteractive`)
 - Firebase Cloud Functions (2nd gen) with Cloud Scheduler (automated GTFS sync)
@@ -136,34 +178,61 @@ __tests__/                    Jest + React Testing Library test suites
 ## Commands
 
 ```bash
-npm run dev            # Dev server at http://localhost:3000
-npm run build          # Production build (SSR + static pre-rendering)
-npm run lint           # ESLint
-npm test               # Jest
-npm run test:watch     # Jest watch mode
-npm run seed:lines     # Seed Firestore lines collection
-npm run seed:stations  # Seed Firestore stations collection
-firebase deploy --only firestore # Deploy Firestore rules
-# App deploys automatically via Firebase App Hosting on push to main
+# Root (via Turborepo)
+pnpm -w run dev            # Dev server for web at http://localhost:3000
+pnpm -w run build          # Production build (all packages)
+pnpm -w run lint           # Lint all packages
+pnpm -w run test           # Run all test suites
 
-# Cloud Functions (GTFS auto-sync)
-cd functions && npm install && npm run build  # Build Cloud Functions
-firebase deploy --only functions              # Deploy Cloud Functions
-firebase functions:log                        # View function logs
+# Web (from apps/web/)
+pnpm run dev               # Dev server directly
+pnpm run lint:fix          # Auto-fix lint issues
+pnpm test                  # Jest tests
+pnpm run seed:lines        # Seed Firestore lines collection
+pnpm run seed:stations     # Seed Firestore stations collection
+
+# Mobile (from apps/mobile/)
+npx expo start             # Start Expo dev server
+npx expo start --ios       # Launch iOS simulator
+npx expo start --android   # Launch Android emulator
+
+# Firebase
+firebase deploy --only firestore         # Deploy Firestore rules
+firebase deploy --only functions         # Deploy Cloud Functions
+cd apps/functions && npm run build       # Build Cloud Functions
+firebase functions:log                   # View function logs
+# Web deploys automatically via Firebase App Hosting on push to main
 ```
 
 ---
 
 ## Key Architecture Decisions
 
+### Monorepo with pnpm workspaces
+
+The repo uses pnpm workspaces with Turborepo for task orchestration. Key config files:
+- `pnpm-workspace.yaml` — declares `apps/*` and `packages/*` as workspace packages
+- `turbo.json` — defines `build`, `lint`, `test`, `dev` task pipelines
+- `.npmrc` — `node-linker=hoisted` + `shamefully-hoist=true` for compatibility
+- Root `package.json` has `pnpm.overrides` to pin React version across workspaces
+
+### Shared package (`packages/shared`)
+
+Platform-agnostic types, constants, and pure helpers consumed by both web and mobile. No build step — consumed as TypeScript source via `transpilePackages` (Next.js) and Metro (Expo). **Must never import** `firebase-admin`, `next`, `next/*`, or `react-dom`.
+
 ### SSR with static pre-rendering + Firestore at build time
 
-The site runs as a server-side rendered Next.js app deployed to Firebase App Hosting. Pages with `generateStaticParams` are pre-rendered at build time (SSG). API routes (`app/api/`) run server-side on Cloud Run.
+The web app runs as a server-side rendered Next.js app deployed to Firebase App Hosting. Pages with `generateStaticParams` are pre-rendered at build time (SSG). API routes (`apps/web/app/api/`) run server-side on Cloud Run.
 
 - `generateStaticParams` enumerates slugs for all dynamic routes (pre-rendered as static HTML)
 - Server components fetch line/station data as props
 - `serverExternalPackages: ['firebase-admin']` prevents Next.js from bundling the Admin SDK client-side
-- `app/api/metra/[...path]/route.ts` proxies Metra GTFS Realtime requests server-side (avoids CORS, hides API key)
+- `apps/web/app/api/metra/[...path]/route.ts` proxies Metra GTFS Realtime requests server-side (avoids CORS, hides API key)
+- `apps/web/next.config.ts` includes `transpilePackages: ['@ctt/shared']` for shared code
+
+### Mobile app (Expo)
+
+The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing).
 
 ### Dark mode
 
@@ -171,7 +240,7 @@ Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` appl
 
 ### Firestore credentials
 
-`app/lib/firebase-admin.ts` checks for `service-account.json` first, then falls back to `applicationDefault()`. `service-account.json` is gitignored.
+`apps/web/app/lib/firebase-admin.ts` checks for `service-account.json` first, then falls back to `applicationDefault()`. `service-account.json` is gitignored. For local dev, it's symlinked from the repo root into `apps/web/`.
 
 ### Duplicate station slugs
 
@@ -179,7 +248,7 @@ Some stations share names across CTA and Metra (e.g. Rosemont). The seed script 
 
 ### Station hero photos
 
-Stations can have a custom hero photo. The `Station.photoUrl` field (Firestore) is read by the station page server component and passed to `PageHeader`'s `imageSrc` prop — when `null`, `PageHeader` falls back to the default CTA hero or the Metra-specific hero. Photos live in Firebase Storage at `stations/{slug}/hero.jpg` in the `chicago-transit-tracker.firebasestorage.app` bucket and are served publicly via `makePublic()`. The `storage.googleapis.com` bucket path is allowlisted in `next.config.ts` under `images.remotePatterns` so `next/image` accepts it. Photos are added via the `/station-image` skill, which shells out to ImageMagick to center-crop to 1600×900 and calls `scripts/upload-station-image.ts` to handle the upload + Firestore write.
+Stations can have a custom hero photo. The `Station.photoUrl` field (Firestore) is read by the station page server component and passed to `PageHeader`'s `imageSrc` prop — when `null`, `PageHeader` falls back to the default CTA hero or the Metra-specific hero. Photos live in Firebase Storage at `stations/{slug}/hero.jpg` in the `chicago-transit-tracker.firebasestorage.app` bucket and are served publicly via `makePublic()`. The `storage.googleapis.com` bucket path is allowlisted in `apps/web/next.config.ts` under `images.remotePatterns` so `next/image` accepts it. Photos are added via the `/station-image` skill, which shells out to ImageMagick to center-crop to 1600×900 and calls `apps/web/scripts/upload-station-image.ts` to handle the upload + Firestore write.
 
 ### Automated GTFS schedule sync
 
@@ -188,7 +257,7 @@ Two Cloud Functions (2nd gen) check CTA and Metra GTFS static feeds hourly for u
 - **`syncCtaGtfs`** — runs at `:00`, checks `Last-Modified`/`ETag` headers via HEAD request on the CTA GTFS zip (~99MB). Only downloads if changed.
 - **`syncMetraGtfs`** — runs at `:05`, checks Metra's `published.txt` timestamp file. Only downloads if changed.
 
-When a feed changes, the function downloads the zip, parses it using the shared library in `functions/src/lib/`, and writes results to these Firestore collections:
+When a feed changes, the function downloads the zip, parses it using the shared library in `apps/functions/src/lib/`, and writes results to these Firestore collections:
 
 | Collection            | Contents                                                        | Doc count |
 | --------------------- | --------------------------------------------------------------- | --------- |
@@ -206,11 +275,11 @@ Client components fetch schedule data through API routes (`/api/schedules/[slug]
 
 ### `lines` — doc ID = slug (e.g. `red`, `bnsf`, `up-n`)
 
-19 documents total (8 CTA rapid transit + 11 Metra commuter rail). Seeded by `scripts/seed-lines.ts`.
+19 documents total (8 CTA rapid transit + 11 Metra commuter rail). Seeded by `apps/web/scripts/seed-lines.ts`.
 
 ### `stations` — doc ID = slug (e.g. `clark-lake`, `union-station-metra`)
 
-~388 documents. Seeded by `scripts/seed-stations.ts` using:
+~388 documents. Seeded by `apps/web/scripts/seed-stations.ts` using:
 
 - CTA: Chicago Open Data Portal Socrata API (no auth required)
 - Metra: GTFS static zip from Metra's public schedule feed (no auth required)
@@ -258,7 +327,7 @@ All CTA-related UI must comply with the CTA Trademark Guidelines for Developers.
 | Yellow    | `#f9e300` | 012C    |
 | Sign Grey | `#565a5c` | 425C    |
 
-These are already correctly set in `scripts/seed-lines.ts` and `app/components/StationDetail.tsx`.
+These are already correctly set in `packages/shared/src/constants.ts` and `apps/web/app/components/StationDetail.tsx`.
 
 ### Attribution
 
@@ -287,13 +356,15 @@ These are already correctly set in `scripts/seed-lines.ts` and `app/components/S
 
 ## CI / CD
 
-**Deployment** is handled by Firebase App Hosting. Pushing to `main` (via merged PR) triggers an automatic build and deploy through Firebase's GitHub integration. No manual deploy step needed.
+**Deployment** is handled by Firebase App Hosting. Pushing to `main` (via merged PR) triggers an automatic build and deploy through Firebase's GitHub integration. The `rootDirectory: apps/web` setting in `apphosting.yaml` tells Firebase where to find the Next.js app. No manual deploy step needed.
 
 **CI checks** run via GitHub Actions (`.github/workflows/deploy.yml`) on every push to `main` and on PRs:
 
-1. `npm ci` — install dependencies
-2. `npm run lint` — ESLint + Prettier
-3. `npm test` — Jest test suite
+1. `pnpm install --frozen-lockfile` — install dependencies
+2. `pnpm -w run lint` — ESLint + Prettier (via Turborepo)
+3. `pnpm -w run test` — Jest test suite (via Turborepo)
+
+**Mobile builds** are handled via EAS Build, not in CI.
 
 **Secrets and environment variables:**
 
@@ -328,15 +399,17 @@ git checkout main && git pull && git branch -d your-feature-branch
 
 ## Standing Rules
 
-**Sitemap:** Any time a new page route is added, `app/sitemap.ts` must be updated to include it. No exceptions.
+**Sitemap:** Any time a new page route is added, `apps/web/app/sitemap.ts` must be updated to include it. No exceptions.
 
-**SSR compatibility:** The site runs as a server-side rendered app. API routes are available under `app/api/`. Dynamic routes should use `generateStaticParams` for pre-rendering where possible.
+**SSR compatibility:** The web app runs as a server-side rendered app. API routes are available under `apps/web/app/api/`. Dynamic routes should use `generateStaticParams` for pre-rendering where possible.
 
-**Firebase Admin in server components only:** Never import `firebase-admin` or anything from `app/lib/firebase-admin.ts` in a client component (`'use client'`).
+**Firebase Admin in server components only:** Never import `firebase-admin` or anything from `apps/web/app/lib/firebase-admin.ts` in a client component (`'use client'`) or in `packages/shared/`.
 
 **CTA branding:** All CTA UI must use the official hex colors above and follow the trademark rules. Full guidelines at `https://www.transitchicago.com/developers/branding/`.
 
 **Planning and spec documents:** All planning documents go in `docs/superpowers/plans/YYYY-MM-DD-topic.md` and all design specs go in `docs/superpowers/specs/YYYY-MM-DD-topic-design.md`. Never save these only to Claude's internal plans directory — always write them to the repo so they are versioned with the code.
+
+**Shared package guardrails:** `packages/shared/` must never import from `firebase-admin`, `next`, `next/*`, or `react-dom`. It must remain platform-agnostic so both web and mobile can consume it.
 
 ---
 
@@ -353,7 +426,7 @@ These rules must be applied whenever a new page is added or an existing page's c
 - `openGraph` — must include `title`, `description`, `url`, `images`, and `type: 'website'`
 - `twitter` — must include `card: 'summary_large_image'`, `title`, `description`, and `images`
 
-**Site constants:** Always import from `app/lib/siteConfig.ts`. Never hardcode the site name, canonical URL, or default OG image path directly in a page file.
+**Site constants:** Always import from `@lib/siteConfig` (which re-exports from `@ctt/shared`). Never hardcode the site name, canonical URL, or default OG image path directly in a page file.
 
 ```typescript
 import { siteConfig } from '@lib/siteConfig'
@@ -370,4 +443,4 @@ import { siteConfig } from '@lib/siteConfig'
 
 1. Add `generateStaticParams` (for pre-rendering at build time)
 2. Add `generateMetadata` with all required fields above
-3. Update `app/sitemap.ts` to include the new route
+3. Update `apps/web/app/sitemap.ts` to include the new route

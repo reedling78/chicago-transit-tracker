@@ -15,9 +15,10 @@ These rules protect API keys, service credentials, and user-facing data integrit
 
 ## Firebase Admin SDK
 
-- **Server components and API routes only** — never import `firebase-admin` or `app/lib/firebase-admin.ts` in a `'use client'` file
-- The Admin SDK is listed in `serverExternalPackages` in `next.config.ts` to prevent client-side bundling
-- `app/lib/firebase-admin.ts` checks for `service-account.json` first, then falls back to `applicationDefault()` — this is intentional for local dev vs. deployed environments
+- **Server components and API routes only** — never import `firebase-admin` or `apps/web/app/lib/firebase-admin.ts` in a `'use client'` file
+- The Admin SDK is listed in `serverExternalPackages` in `apps/web/next.config.ts` to prevent client-side bundling
+- `apps/web/app/lib/firebase-admin.ts` checks for `service-account.json` first, then falls back to `applicationDefault()` — this is intentional for local dev vs. deployed environments
+- **Never import `firebase-admin` in `packages/shared/`** — the shared package must remain platform-agnostic for the mobile app
 
 ---
 
@@ -32,10 +33,10 @@ These rules protect API keys, service credentials, and user-facing data integrit
 
 ## External API Proxying
 
-All external API calls must go through server-side API routes (`app/api/`):
+All external API calls must go through server-side API routes (`apps/web/app/api/`):
 
-- **CTA alerts**: `app/api/cta/alerts/route.ts` proxies to `transitchicago.com`
-- **Metra feeds**: `app/api/metra/[...path]/route.ts` proxies authenticated requests to Metra's GTFS endpoint
+- **CTA alerts**: `apps/web/app/api/cta/alerts/route.ts` proxies to `transitchicago.com`
+- **Metra feeds**: `apps/web/app/api/metra/[...path]/route.ts` proxies authenticated requests to Metra's GTFS endpoint
 
 This pattern prevents CORS issues and keeps API credentials out of client-side code. Never call external transit APIs directly from client components.
 

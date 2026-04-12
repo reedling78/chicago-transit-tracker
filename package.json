@@ -1,57 +1,25 @@
 {
-  "name": "nextjs-scaffold",
-  "version": "0.1.0",
+  "name": "chicago-transit-tracker",
   "private": true,
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint && prettier --check .",
-    "lint:fix": "eslint --fix && prettier --write .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:snapshots": "jest --updateSnapshot",
-    "seed:stations": "ts-node --project scripts/tsconfig.json scripts/seed-stations.ts",
-    "seed:lines": "ts-node --project scripts/tsconfig.json scripts/seed-lines.ts",
-    "seed:storage": "ts-node --project scripts/tsconfig.json scripts/seed-storage.ts",
-    "upload:schedules": "ts-node --project scripts/tsconfig.json scripts/upload-schedules.ts",
-    "fetch:station-images": "ts-node --project scripts/tsconfig.json scripts/fetch-station-images.ts",
-    "generate:schedules": "ts-node --project scripts/tsconfig.json scripts/generate-cta-schedules.ts",
-    "generate:metra-schedules": "ts-node --project scripts/tsconfig.json scripts/generate-metra-schedules.ts",
-    "add:metra-links": "ts-node --project scripts/tsconfig.json scripts/add-metra-links.ts"
-  },
-  "dependencies": {
-    "adm-zip": "^0.5.16",
-    "csv-parse": "^6.2.1",
-    "firebase-admin": "^13.7.0",
-    "gtfs-realtime-bindings": "^1.1.1",
-    "maplibre-gl": "^4.7.1",
-    "next": "16.2.1",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "dev": "turbo run dev --filter=@ctt/web",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/adm-zip": "^0.5.8",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.1",
-    "eslint-config-prettier": "^10.1.8",
-    "jest": "^30.3.0",
-    "jest-environment-jsdom": "^30.3.0",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "tailwindcss": "^4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "turbo": "^2"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0",
+      "react-dom": "19.1.0",
+      "@types/react": "~19.1.0",
+      "ansi-regex": "5.0.1",
+      "strip-ansi": "6.0.1",
+      "string-width": "4.2.3",
+      "wrap-ansi": "7.0.0"
+    }
   }
 }

@@ -8,19 +8,19 @@ All source file changes must include corresponding test updates. This is enforce
 
 - **Jest 30** with `jest-environment-jsdom` for component tests
 - **React Testing Library** (`@testing-library/react` + `@testing-library/jest-dom`)
-- Config: `jest.config.ts` and `jest.setup.ts`
+- Config: `apps/web/jest.config.ts` and `apps/web/jest.setup.ts`
 
 ---
 
 ## File Organization
 
-- All tests live in `__tests__/`, mirroring the source structure:
-  - `__tests__/components/` — React component tests
-  - `__tests__/api/` — API route handler tests
-  - `__tests__/pages/` — Page component tests
-  - `__tests__/functions/` — Cloud Functions tests (parsers, utilities)
+- All tests live in `apps/web/__tests__/`, mirroring the source structure:
+  - `apps/web/__tests__/components/` — React component tests
+  - `apps/web/__tests__/api/` — API route handler tests
+  - `apps/web/__tests__/pages/` — Page component tests
+  - `apps/web/__tests__/functions/` — Cloud Functions tests (parsers, utilities)
 - Test files are named `*.test.ts` or `*.test.tsx`
-- Shared mock data lives in `__tests__/fixtures.ts` — use `mockLine`, `mockMetraLine`, `mockStation`, `mockMetraStation` instead of creating inline mocks
+- Shared mock data lives in `apps/web/__tests__/fixtures.ts` — use `mockLine`, `mockMetraLine`, `mockStation`, `mockMetraStation` instead of creating inline mocks
 
 ---
 
@@ -53,8 +53,8 @@ All source file changes must include corresponding test updates. This is enforce
 
 ## CI Requirements
 
-- `npm test` must pass with **zero warnings and zero errors** before pushing
-- `npm run lint` must also be fully clean
+- `pnpm -w run test` must pass with **zero warnings and zero errors** before pushing
+- `pnpm -w run lint` must also be fully clean
 - Both checks run in GitHub Actions on every PR and push to `main`
 
 ---
@@ -62,8 +62,9 @@ All source file changes must include corresponding test updates. This is enforce
 ## Commands
 
 ```bash
-npm test               # Run full test suite
-npm run test:watch     # Watch mode for development
-npm run test:coverage  # Generate coverage report
-npm run test:snapshots # Update Jest snapshots
+pnpm -w run test           # Run full test suite (via turbo)
+cd apps/web && pnpm test   # Run web tests directly
+pnpm run test:watch        # Watch mode for development (from apps/web)
+pnpm run test:coverage     # Generate coverage report (from apps/web)
+pnpm run test:snapshots    # Update Jest snapshots (from apps/web)
 ```
