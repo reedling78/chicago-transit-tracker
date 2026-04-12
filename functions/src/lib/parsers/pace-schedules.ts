@@ -21,10 +21,16 @@ const REGION_OVERRIDES: Record<string, PaceRegion> = {
   // Example: '890': 'north',
 }
 
-/** Known Pulse routes with hardcoded regions (overrides digit heuristic). */
-const PULSE_REGIONS: Record<string, PaceRegion> = {
+/**
+ * Slug-based region overrides, applied at the call site after deriveRegion.
+ * Primarily for routes with empty `route_short_name` in Pace's feed (Pulse
+ * lines, the Schaumburg Trolley) where the digit heuristic has nothing to
+ * work with.
+ */
+const SLUG_REGION_OVERRIDES: Record<string, PaceRegion> = {
   'pulse-milwaukee-line': 'northwest',
   'pulse-dempster-line': 'north',
+  'schaumburg-trolley': 'northwest',
 }
 
 const PACE_CORPORATE_BLUE = '#005DAA'
@@ -231,7 +237,7 @@ export function parsePaceGtfs(zip: AdmZip): ParsePaceResult {
     })
 
     const baseRegion = deriveRegion(r.route_short_name)
-    const region = PULSE_REGIONS[slug] ?? baseRegion
+    const region = SLUG_REGION_OVERRIDES[slug] ?? baseRegion
 
     const longName = r.route_long_name ?? ''
     routes.set(slug, {

@@ -318,6 +318,51 @@ describe('parsePaceGtfs', () => {
     expect(pulse.shortName).toBe('Pulse Milwaukee Line')
   })
 
+  it('applies SLUG_REGION_OVERRIDES for the Schaumburg Trolley', () => {
+    const zip = new AdmZip()
+    zip.addFile(
+      'routes.txt',
+      Buffer.from(
+        `route_id,route_short_name,route_long_name,route_desc,route_color,route_text_color
+905,,Schaumburg Trolley,,00539F,FFFFFF`,
+      ),
+    )
+    zip.addFile(
+      'stops.txt',
+      Buffer.from(
+        `stop_id,stop_name,stop_lat,stop_lon,wheelchair_boarding
+S1,Woodfield Mall,42.0,-88.0,`,
+      ),
+    )
+    zip.addFile(
+      'calendar.txt',
+      Buffer.from(
+        `service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday
+WK,1,1,1,1,1,0,0`,
+      ),
+    )
+    zip.addFile(
+      'trips.txt',
+      Buffer.from(
+        `route_id,service_id,trip_id,direction_id,direction_text
+905,WK,T1,0,Loop`,
+      ),
+    )
+    zip.addFile(
+      'stop_times.txt',
+      Buffer.from(
+        `trip_id,stop_id,stop_sequence,departure_time
+T1,S1,1,10:00:00`,
+      ),
+    )
+
+    const result = parsePaceGtfs(zip)
+    const trolley = result.routes.get('schaumburg-trolley')
+    expect(trolley).toBeDefined()
+    expect(trolley!.shortName).toBe('Schaumburg Trolley')
+    expect(trolley!.region).toBe('northwest')
+  })
+
   it('tolerates missing/empty departure_time without emitting NaN', () => {
     const zip = new AdmZip()
     zip.addFile(
