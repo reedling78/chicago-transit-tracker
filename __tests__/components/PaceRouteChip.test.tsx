@@ -14,4 +14,11 @@ describe('PaceRouteChip', () => {
     const link = screen.getByRole('link', { name: '208' })
     expect(link).toHaveAttribute('href', '/pace/208')
   })
+
+  it('applies 44x44 touch target minimum when used as a standalone link', () => {
+    render(<PaceRouteChip shortName="208" color="#005DAA" textColor="#FFFFFF" href="/pace/208" />)
+    const link = screen.getByRole('link', { name: '208' })
+    expect(link.className).toContain('min-h-[44px]')
+    expect(link.className).toContain('min-w-[44px]')
+  })
 })

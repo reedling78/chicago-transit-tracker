@@ -42,6 +42,14 @@ export default function PaceScheduleTable({
   const [serviceType, setServiceType] = useState<ServiceType>(initialServiceType)
   const [activeDir, setActiveDir] = useState(directions[0]?.id ?? '0')
 
+  /* eslint-disable react-hooks/set-state-in-effect -- reset activeDir when directions prop no longer contains current selection */
+  useEffect(() => {
+    if (directions.length > 0 && !directions.some((d) => d.id === activeDir)) {
+      setActiveDir(directions[0].id)
+    }
+  }, [directions, activeDir])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   /* eslint-disable react-hooks/set-state-in-effect -- reset loading/error state when stopSlug changes */
   useEffect(() => {
     let cancelled = false

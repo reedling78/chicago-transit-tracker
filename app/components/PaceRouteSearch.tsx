@@ -30,7 +30,6 @@ export default function PaceRouteSearch({ routes }: Props) {
       <input
         id="pace-route-search"
         type="search"
-        role="searchbox"
         placeholder="Search by route number or street name…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}

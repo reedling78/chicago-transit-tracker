@@ -66,7 +66,9 @@ export default async function PaceRoutePage({ params }: Props) {
               textColor={route.textColor}
             />
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-              {route.serviceType === 'pulse' ? 'Pulse BRT' : route.serviceType}
+              {route.serviceType === 'pulse'
+                ? 'Pulse BRT'
+                : route.serviceType.charAt(0).toUpperCase() + route.serviceType.slice(1)}
             </span>
           </>
         }
