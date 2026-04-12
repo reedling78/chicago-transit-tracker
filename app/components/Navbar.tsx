@@ -5,6 +5,7 @@ import ThemeToggle from './ThemeToggle'
 const navLinks = [
   { href: '/cta', label: 'CTA' },
   { href: '/metra', label: 'Metra' },
+  { href: '/pace', label: 'Pace' },
 ]
 
 export default function Navbar() {
