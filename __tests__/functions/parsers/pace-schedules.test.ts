@@ -19,6 +19,15 @@ describe('deriveServiceType', () => {
     )
   })
 
+  it('classifies Pulse routes by long name when short name is empty', () => {
+    expect(
+      deriveServiceType({ route_short_name: '', route_long_name: 'Pulse Milwaukee Line' }),
+    ).toBe('pulse')
+    expect(
+      deriveServiceType({ route_short_name: '', route_long_name: 'Pulse Dempster Line' }),
+    ).toBe('pulse')
+  })
+
   it('classifies express routes by long name', () => {
     expect(
       deriveServiceType({ route_short_name: '755', route_long_name: 'Plainfield-IMD Express' }),
@@ -87,26 +96,11 @@ describe('deriveColor', () => {
     })
   })
 
-  it('hardcodes Milwaukee Pulse to its branded orange', () => {
-    expect(deriveColor({ shortName: 'Milwaukee Pulse', gtfsColor: '', gtfsTextColor: '' })).toEqual(
-      { color: '#FF6C0C', textColor: '#FFFFFF' },
-    )
-  })
-
-  it('hardcodes Dempster Pulse to its branded teal', () => {
-    expect(deriveColor({ shortName: 'Dempster Pulse', gtfsColor: '', gtfsTextColor: '' })).toEqual({
-      color: '#00A3A1',
+  it('uses feed-provided Pulse colors when route_color is populated', () => {
+    expect(deriveColor({ shortName: '', gtfsColor: '814C9E', gtfsTextColor: 'FFFFFF' })).toEqual({
+      color: '#814C9E',
       textColor: '#FFFFFF',
     })
-  })
-
-  it('hardcodes Pulse colors case-insensitively', () => {
-    expect(deriveColor({ shortName: 'MILWAUKEE PULSE', gtfsColor: '', gtfsTextColor: '' })).toEqual(
-      { color: '#FF6C0C', textColor: '#FFFFFF' },
-    )
-    expect(deriveColor({ shortName: 'milwaukee pulse', gtfsColor: '', gtfsTextColor: '' })).toEqual(
-      { color: '#FF6C0C', textColor: '#FFFFFF' },
-    )
   })
 })
 
@@ -216,7 +210,7 @@ function makePaceGtfsZip(): AdmZip {
     Buffer.from(
       `route_id,route_short_name,route_long_name,route_desc,route_color,route_text_color
 R208,208,Golf Road,,005DAA,FFFFFF
-R_MIL,Milwaukee Pulse,Milwaukee Avenue,BRT service,,
+R_MIL,,Pulse Milwaukee Line,BRT service,814C9E,FFFFFF
 R755,755,Plainfield-IMD Express,,,`,
     ),
   )
@@ -283,9 +277,10 @@ describe('parsePaceGtfs', () => {
     expect(route208.color).toBe('#005DAA')
     expect(route208.directions).toHaveLength(2)
 
-    const milwaukee = result.routes.get('milwaukee-pulse')!
+    const milwaukee = result.routes.get('pulse-milwaukee-line')!
+    expect(milwaukee.shortName).toBe('Pulse Milwaukee Line')
     expect(milwaukee.serviceType).toBe('pulse')
-    expect(milwaukee.color).toBe('#FF6C0C')
+    expect(milwaukee.color).toBe('#814C9E')
     expect(milwaukee.region).toBe('northwest')
 
     const r755 = result.routes.get('755')!
@@ -302,7 +297,7 @@ describe('parsePaceGtfs', () => {
     const route208Stops = result.routeStops.get('208')!
     expect(route208Stops.directions['0']).toHaveLength(2)
     expect(route208Stops.directions['1']).toHaveLength(2)
-    expect(result.routeStops.get('milwaukee-pulse')!.directions['0']).toHaveLength(1)
+    expect(result.routeStops.get('pulse-milwaukee-line')!.directions['0']).toHaveLength(1)
 
     expect(result.schedules.size).toBe(3)
     const s1Schedule = result.schedules.get('golf-rd-waukegan-rd')!
@@ -310,6 +305,17 @@ describe('parsePaceGtfs', () => {
     expect(s1Schedule.routes['208']).toBeDefined()
     // 06:30:00 → 390 minutes after midnight
     expect(s1Schedule.routes['208'].directions['0'].weekday).toEqual([390])
+  })
+
+  it('populates Pulse routes from empty short_name routes using long_name fallback', () => {
+    const zip = makePaceGtfsZip()
+    const result = parsePaceGtfs(zip)
+    expect(result.routes.has('pulse-milwaukee-line')).toBe(true)
+    const pulse = result.routes.get('pulse-milwaukee-line')!
+    expect(pulse.serviceType).toBe('pulse')
+    expect(pulse.region).toBe('northwest')
+    expect(pulse.color).toBe('#814C9E')
+    expect(pulse.shortName).toBe('Pulse Milwaukee Line')
   })
 
   it('tolerates missing/empty departure_time without emitting NaN', () => {
