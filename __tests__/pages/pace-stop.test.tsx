@@ -25,9 +25,7 @@ describe('/pace/[route]/[stop] stop detail page', () => {
 
   it('renders the stop name and route chip', async () => {
     const Page = (await import('@/app/pace/[route]/[stop]/page')).default
-    render(
-      await Page({ params: Promise.resolve({ route: '208', stop: 'golf-rd-waukegan-rd' }) }),
-    )
+    render(await Page({ params: Promise.resolve({ route: '208', stop: 'golf-rd-waukegan-rd' }) }))
     expect(
       screen.getByRole('heading', { level: 1, name: /Golf Rd & Waukegan Rd/i }),
     ).toBeInTheDocument()

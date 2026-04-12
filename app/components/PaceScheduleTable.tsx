@@ -42,6 +42,7 @@ export default function PaceScheduleTable({
   const [serviceType, setServiceType] = useState<ServiceType>(initialServiceType)
   const [activeDir, setActiveDir] = useState(directions[0]?.id ?? '0')
 
+  /* eslint-disable react-hooks/set-state-in-effect -- reset loading/error state when stopSlug changes */
   useEffect(() => {
     let cancelled = false
     setLoading(true)
@@ -67,6 +68,7 @@ export default function PaceScheduleTable({
       cancelled = true
     }
   }, [stopSlug])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (loading) return <p className="text-sm text-gray-500">Loading schedule…</p>
   if (error) return <p className="text-sm text-red-500">Unable to load schedule.</p>

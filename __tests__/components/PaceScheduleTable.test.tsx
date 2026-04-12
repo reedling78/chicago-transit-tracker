@@ -70,8 +70,6 @@ describe('PaceScheduleTable', () => {
   it('shows an error state if fetch fails', async () => {
     ;(global.fetch as jest.Mock).mockRejectedValue(new Error('network'))
     render(<PaceScheduleTable stopSlug="golf" routeSlug="208" directions={directions} />)
-    await waitFor(() =>
-      expect(screen.getByText(/Unable to load schedule/i)).toBeInTheDocument(),
-    )
+    await waitFor(() => expect(screen.getByText(/Unable to load schedule/i)).toBeInTheDocument())
   })
 })

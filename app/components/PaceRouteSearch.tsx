@@ -40,9 +40,7 @@ export default function PaceRouteSearch({ routes }: Props) {
       {query.trim() && (
         <div className="mt-4">
           {filtered.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              No routes match your search.
-            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">No routes match your search.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {filtered.map((r) => (

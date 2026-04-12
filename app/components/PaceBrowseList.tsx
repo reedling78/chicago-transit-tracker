@@ -6,14 +6,7 @@ interface Props {
   routes: PaceRoute[]
 }
 
-const REGION_ORDER: PaceRegion[] = [
-  'north',
-  'northwest',
-  'west',
-  'southwest',
-  'south',
-  'heritage',
-]
+const REGION_ORDER: PaceRegion[] = ['north', 'northwest', 'west', 'southwest', 'south', 'heritage']
 
 const REGION_LABELS: Record<PaceRegion, string> = {
   north: 'North',

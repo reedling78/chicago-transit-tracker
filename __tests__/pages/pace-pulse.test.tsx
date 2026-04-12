@@ -16,9 +16,7 @@ describe('/pace/pulse page', () => {
   it('renders a Pulse-specific hero', async () => {
     const PulsePage = (await import('@/app/pace/pulse/page')).default
     render(await PulsePage())
-    expect(
-      screen.getByRole('heading', { level: 1, name: /Pulse/i }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: /Pulse/i })).toBeInTheDocument()
   })
 
   it('lists only Pulse routes', async () => {
