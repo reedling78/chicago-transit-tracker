@@ -21,27 +21,27 @@ const REGION_OVERRIDES: Record<string, PaceRegion> = {
   // Example: '890': 'north',
 }
 
-/** Known Pulse routes with hardcoded regions (overrides digit heuristic). */
-const PULSE_REGIONS: Record<string, PaceRegion> = {
-  'milwaukee-pulse': 'northwest',
-  'dempster-pulse': 'north',
+/**
+ * Slug-based region overrides, applied at the call site after deriveRegion.
+ * Primarily for routes with empty `route_short_name` in Pace's feed (Pulse
+ * lines, the Schaumburg Trolley) where the digit heuristic has nothing to
+ * work with.
+ */
+const SLUG_REGION_OVERRIDES: Record<string, PaceRegion> = {
+  'pulse-milwaukee-line': 'northwest',
+  'pulse-dempster-line': 'north',
+  'schaumburg-trolley': 'northwest',
 }
 
 const PACE_CORPORATE_BLUE = '#005DAA'
 const DEFAULT_TEXT_COLOR = '#FFFFFF'
-
-/** Branded colors for known Pulse routes, keyed by route slug — overrides GTFS. */
-const PULSE_COLORS: Record<string, { color: string; textColor: string }> = {
-  'milwaukee-pulse': { color: '#FF6C0C', textColor: '#FFFFFF' },
-  'dempster-pulse': { color: '#00A3A1', textColor: '#FFFFFF' },
-}
 
 /** Classify a Pace route's service type from its GTFS row. */
 export function deriveServiceType(row: Record<string, string>): PaceRouteServiceType {
   const short = row.route_short_name?.trim() ?? ''
   const long = row.route_long_name?.trim() ?? ''
 
-  if (/\bpulse\b/i.test(short)) return 'pulse'
+  if (/\bpulse\b/i.test(short) || /\bpulse\b/i.test(long)) return 'pulse'
   if (/express/i.test(long)) return 'express'
   if (/^8\d{2}$/.test(short)) return 'feeder'
   return 'local'
@@ -83,14 +83,6 @@ interface DeriveColorInput {
 
 /** Compute the route's display color and text color. */
 export function deriveColor(input: DeriveColorInput): { color: string; textColor: string } {
-  const key = input.shortName
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-  const override = PULSE_COLORS[key]
-  if (override) return override
-
   const raw = input.gtfsColor?.trim() ?? ''
   if (raw && raw.toUpperCase() !== '005DAA') {
     return {
@@ -232,23 +224,25 @@ export function parsePaceGtfs(zip: AdmZip): ParsePaceResult {
   const routes = new Map<string, ParsedPaceRoute>()
   const routeIdToSlug = new Map<string, string>()
   for (const r of rawRoutes) {
-    const slug = routeSlug(r.route_short_name)
+    const slug = routeSlug(r.route_short_name) || routeSlug(r.route_long_name)
     if (!slug) continue
     routeIdToSlug.set(r.route_id, slug)
 
+    const shortName = r.route_short_name?.trim() || r.route_long_name?.trim() || slug
+
     const { color, textColor } = deriveColor({
-      shortName: r.route_short_name,
+      shortName,
       gtfsColor: r.route_color ?? '',
       gtfsTextColor: r.route_text_color ?? '',
     })
 
     const baseRegion = deriveRegion(r.route_short_name)
-    const region = PULSE_REGIONS[slug] ?? baseRegion
+    const region = SLUG_REGION_OVERRIDES[slug] ?? baseRegion
 
     const longName = r.route_long_name ?? ''
     routes.set(slug, {
       slug,
-      shortName: r.route_short_name,
+      shortName,
       longName,
       serviceType: deriveServiceType({
         route_short_name: r.route_short_name,
