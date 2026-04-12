@@ -17,6 +17,11 @@ describe('Footer', () => {
     expect(screen.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy')
   })
 
+  it('renders a Site Map link to /sitemap', () => {
+    render(<Footer />)
+    expect(screen.getByRole('link', { name: 'Site Map' })).toHaveAttribute('href', '/sitemap')
+  })
+
   it('renders the not-affiliated disclaimer', () => {
     render(<Footer />)
     expect(screen.getByText(/not affiliated with CTA or Metra/i)).toBeInTheDocument()
