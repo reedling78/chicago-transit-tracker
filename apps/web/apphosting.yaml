@@ -1,5 +1,3 @@
-rootDirectory: apps/web
-
 runConfig:
   cpu: 1
   memoryMiB: 512
