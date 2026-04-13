@@ -356,7 +356,7 @@ These are already correctly set in `packages/shared/src/constants.ts` and `apps/
 
 ## CI / CD
 
-**Deployment** is handled by Firebase App Hosting. Pushing to `main` (via merged PR) triggers an automatic build and deploy through Firebase's GitHub integration. The `rootDirectory: apps/web` setting in `apphosting.yaml` tells Firebase where to find the Next.js app. No manual deploy step needed.
+**Deployment** is handled by Firebase App Hosting. Pushing to `main` (via merged PR) triggers an automatic build and deploy through Firebase's GitHub integration. The backend's **`rootDirectory`** is set to `apps/web` (managed in the Firebase console, NOT in `apphosting.yaml`) — Firebase looks for `apps/web/apphosting.yaml`, `apps/web/package.json`, and `apps/web/next.config.ts` when building. No manual deploy step needed.
 
 **CI checks** run via GitHub Actions (`.github/workflows/deploy.yml`) on every push to `main` and on PRs:
 
@@ -373,7 +373,7 @@ These are already correctly set in `packages/shared/src/constants.ts` and `apps/
 | `METRA_API_TOKEN` | Cloud Secret Manager | Metra GTFS Realtime API key (server-only) |
 | Firebase SA creds | Firebase App Hosting | Managed automatically by App Hosting      |
 
-Secrets are configured in `apphosting.yaml` and managed via `firebase apphosting:secrets:set`.
+Secrets are configured in `apps/web/apphosting.yaml` and managed via `firebase apphosting:secrets:set`.
 
 ---
 

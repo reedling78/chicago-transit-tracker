@@ -7,7 +7,7 @@ These rules protect API keys, service credentials, and user-facing data integrit
 ## Secrets Management
 
 - **Never commit** `service-account.json`, `.env*.local`, or any file containing API tokens
-- All secrets are managed via **Firebase Secret Manager** and configured in `apphosting.yaml`
+- All secrets are managed via **Firebase Secret Manager** and configured in `apps/web/apphosting.yaml`
 - `METRA_API_TOKEN` is injected at runtime only (`availability: RUNTIME`) — it is never available at build time
 - Before using any environment variable for an API token, validate that it exists and return a 500 error if missing
 
