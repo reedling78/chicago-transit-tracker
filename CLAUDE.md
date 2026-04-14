@@ -196,6 +196,11 @@ npx expo start             # Start Expo dev server
 npx expo start --ios       # Launch iOS simulator
 npx expo start --android   # Launch Android emulator
 
+# Mobile distribution (Firebase App Distribution — from repo root)
+pnpm --filter mobile run distribute:android   # Build + upload Android APK to testers
+pnpm --filter mobile run distribute:ios       # Build + upload iOS IPA to testers
+pnpm --filter mobile run distribute           # Both platforms, sequential
+
 # Firebase
 firebase deploy --only firestore         # Deploy Firestore rules
 firebase deploy --only functions         # Deploy Cloud Functions
