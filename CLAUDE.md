@@ -142,6 +142,8 @@ apps/
           metra-trips.ts          Metra GTFS → trip details, indexes, station trips
     package.json                  Separate deps for Cloud Functions runtime
     tsconfig.json                 TypeScript config for Cloud Functions
+scripts/
+  generate-icons.sh               Regenerate all web + mobile app icons from apps/web/public/logo.svg (ImageMagick)
 packages/
   shared/
     src/

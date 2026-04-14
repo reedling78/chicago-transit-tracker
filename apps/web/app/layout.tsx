@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     default: siteConfig.name,
   },
   description: siteConfig.description,
+  manifest: '/site.webmanifest',
   alternates: {
     canonical: './',
   },
