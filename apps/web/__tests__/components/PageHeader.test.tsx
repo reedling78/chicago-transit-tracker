@@ -92,6 +92,19 @@ describe('PageHeader', () => {
     expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()
   })
 
+  it('renders icon inline with the title when provided', () => {
+    render(<PageHeader title="Brown Line" icon={<span data-testid="line-icon">icon</span>} />)
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading).toHaveTextContent('Brown Line')
+    expect(heading.querySelector('[data-testid="line-icon"]')).toBeInTheDocument()
+  })
+
+  it('does not render icon wrapper when icon is omitted', () => {
+    const { container } = render(<PageHeader title="CTA Lines" />)
+    const heading = container.querySelector('h1')
+    expect(heading?.querySelectorAll('span')).toHaveLength(0)
+  })
+
   it('matches snapshot', () => {
     const { container } = render(
       <PageHeader
