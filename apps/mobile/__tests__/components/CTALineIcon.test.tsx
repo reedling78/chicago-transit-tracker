@@ -1,14 +1,17 @@
-import { View } from 'react-native'
 import { render } from '@testing-library/react-native'
 import CTALineIcon from '../../components/CTALineIcon'
 
-jest.mock('react-native-svg', () => ({
-  __esModule: true,
-  default: (props: Record<string, unknown>) => <View {...props} />,
-  Path: (props: Record<string, unknown>) => <View {...props} />,
-  Rect: (props: Record<string, unknown>) => <View {...props} />,
-  G: (props: Record<string, unknown>) => <View {...props} />,
-}))
+jest.mock('react-native-svg', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    __esModule: true,
+    default: (props: Record<string, unknown>) => <View {...props} />,
+    Path: (props: Record<string, unknown>) => <View {...props} />,
+    Rect: (props: Record<string, unknown>) => <View {...props} />,
+    G: (props: Record<string, unknown>) => <View {...props} />,
+  }
+})
 
 describe('CTALineIcon', () => {
   it('renders for a valid CTA line', () => {
