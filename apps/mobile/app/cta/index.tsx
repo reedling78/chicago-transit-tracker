@@ -23,12 +23,8 @@ export default function CtaLinesScreen() {
         const colors = CTA_LINE_COLORS[item.shortName]
         return (
           <Link href={`/cta/${item.slug}`} asChild>
-            <Pressable
-              style={[styles.card, { backgroundColor: colors?.bg ?? item.color }]}
-            >
-              <Text style={[styles.cardTitle, { color: colors?.fg ?? '#fff' }]}>
-                {item.name}
-              </Text>
+            <Pressable style={[styles.card, { backgroundColor: colors?.bg ?? item.color }]}>
+              <Text style={[styles.cardTitle, { color: colors?.fg ?? '#fff' }]}>{item.name}</Text>
               <Text style={[styles.cardSub, { color: colors?.fg ?? '#fff' }]}>
                 {item.stationCount} stations · {item.termini.join(' — ')}
               </Text>

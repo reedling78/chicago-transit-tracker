@@ -1,0 +1,175 @@
+import { Text } from 'react-native'
+import { render, waitFor } from '@testing-library/react-native'
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
+import { useLine, useLines, useLineStations, useSchedule, useStation } from '../../lib/hooks'
+import { mockLine, mockMetraLine, mockStation, mockMetraStation, mockSchedule } from '../fixtures'
+
+jest.mock('firebase/firestore', () => ({
+  collection: jest.fn((_db, name: string) => ({ __collection: name })),
+  query: jest.fn((coll, ...constraints) => ({ __query: coll, constraints })),
+  where: jest.fn((field, op, value) => ({ __where: { field, op, value } })),
+  orderBy: jest.fn((field) => ({ __orderBy: field })),
+  doc: jest.fn((_db, coll: string, id: string) => ({ __doc: { coll, id } })),
+  getDocs: jest.fn(),
+  getDoc: jest.fn(),
+  getFirestore: jest.fn(() => ({})),
+}))
+
+jest.mock('../../lib/firebase', () => ({ db: {} }))
+
+const mockGetDocs = getDocs as jest.MockedFunction<typeof getDocs>
+const mockGetDoc = getDoc as jest.MockedFunction<typeof getDoc>
+const mockCollection = collection as jest.MockedFunction<typeof collection>
+const mockDoc = doc as jest.MockedFunction<typeof doc>
+const mockQuery = query as jest.MockedFunction<typeof query>
+const mockWhere = where as jest.MockedFunction<typeof where>
+
+afterEach(() => {
+  jest.clearAllMocks()
+})
+
+function snapOfDocs<T extends { slug: string }>(items: T[]): any {
+  return {
+    docs: items.map((item) => ({
+      id: item.slug,
+      data: () => item,
+    })),
+  }
+}
+
+function singleDocSnap<T>(data: T | null): any {
+  return {
+    id: (data as any)?.slug ?? 'missing',
+    exists: () => data !== null,
+    data: () => data,
+  }
+}
+
+function LinesProbe({ service }: { service: 'cta' | 'metra' }) {
+  const { lines, loading } = useLines(service)
+  if (loading) return <Text>loading</Text>
+  return <Text>lines:{lines.map((l) => l.slug).join(',')}</Text>
+}
+
+function StationProbe({ slug }: { slug: string }) {
+  const { station, loading } = useStation(slug)
+  if (loading) return <Text>loading</Text>
+  return <Text>station:{station?.slug ?? 'null'}</Text>
+}
+
+function LineProbe({ slug }: { slug: string }) {
+  const { line, loading } = useLine(slug)
+  if (loading) return <Text>loading</Text>
+  return <Text>line:{line?.slug ?? 'null'}</Text>
+}
+
+function LineStationsProbe({ line, short }: { line: string; short: string }) {
+  const { stations, loading } = useLineStations(line, short)
+  if (loading) return <Text>loading</Text>
+  return <Text>stations:{stations.map((s) => s.slug).join(',')}</Text>
+}
+
+function ScheduleProbe({ slug }: { slug: string }) {
+  const { schedule, loading } = useSchedule(slug)
+  if (loading) return <Text>loading</Text>
+  return <Text>schedule:{schedule?.directions.length ?? 'null'}</Text>
+}
+
+describe('useLines', () => {
+  it('queries the lines collection filtered by service and returns the results', async () => {
+    mockGetDocs.mockResolvedValueOnce(snapOfDocs([mockLine]))
+    const { getByText } = render(<LinesProbe service="cta" />)
+    expect(getByText('loading')).toBeOnTheScreen()
+    await waitFor(() => expect(getByText('lines:red')).toBeOnTheScreen())
+
+    expect(mockCollection).toHaveBeenCalledWith({}, 'lines')
+    expect(mockWhere).toHaveBeenCalledWith('service', '==', 'cta')
+    expect(mockQuery).toHaveBeenCalled()
+  })
+
+  it('filters by metra service when requested', async () => {
+    mockGetDocs.mockResolvedValueOnce(snapOfDocs([mockMetraLine]))
+    const { getByText } = render(<LinesProbe service="metra" />)
+    await waitFor(() => expect(getByText('lines:bnsf')).toBeOnTheScreen())
+    expect(mockWhere).toHaveBeenCalledWith('service', '==', 'metra')
+  })
+})
+
+describe('useStation', () => {
+  it('returns the station document when it exists', async () => {
+    mockGetDoc.mockResolvedValueOnce(singleDocSnap(mockStation))
+    const { getByText } = render(<StationProbe slug="clark-lake" />)
+    await waitFor(() => expect(getByText('station:clark-lake')).toBeOnTheScreen())
+    expect(mockDoc).toHaveBeenCalledWith({}, 'stations', 'clark-lake')
+  })
+
+  it('returns null when the station document does not exist', async () => {
+    mockGetDoc.mockResolvedValueOnce(singleDocSnap(null))
+    const { getByText } = render(<StationProbe slug="missing" />)
+    await waitFor(() => expect(getByText('station:null')).toBeOnTheScreen())
+  })
+})
+
+describe('useLine', () => {
+  it('returns the line document when it exists', async () => {
+    mockGetDoc.mockResolvedValueOnce(singleDocSnap(mockLine))
+    const { getByText } = render(<LineProbe slug="red" />)
+    await waitFor(() => expect(getByText('line:red')).toBeOnTheScreen())
+    expect(mockDoc).toHaveBeenCalledWith({}, 'lines', 'red')
+  })
+
+  it('returns null when the line document does not exist', async () => {
+    mockGetDoc.mockResolvedValueOnce(singleDocSnap(null))
+    const { getByText } = render(<LineProbe slug="ghost" />)
+    await waitFor(() => expect(getByText('line:null')).toBeOnTheScreen())
+  })
+})
+
+describe('useLineStations', () => {
+  it('queries stations with array-contains and sorts by lineOrder for that line', async () => {
+    const a = { ...mockStation, slug: 'a', lineOrder: { Red: 5 } }
+    const b = { ...mockStation, slug: 'b', lineOrder: { Red: 1 } }
+    const c = { ...mockStation, slug: 'c', lineOrder: { Red: 3 } }
+    mockGetDocs.mockResolvedValueOnce(snapOfDocs([a, b, c]))
+
+    const { getByText } = render(<LineStationsProbe line="red" short="Red" />)
+    await waitFor(() => expect(getByText('stations:b,c,a')).toBeOnTheScreen())
+
+    expect(mockWhere).toHaveBeenCalledWith('lines', 'array-contains', 'Red')
+  })
+
+  it('places stations without a lineOrder entry at the end', async () => {
+    const known = { ...mockStation, slug: 'known', lineOrder: { Red: 2 } }
+    const unknown = { ...mockStation, slug: 'unknown', lineOrder: {} }
+    mockGetDocs.mockResolvedValueOnce(snapOfDocs([unknown, known]))
+
+    const { getByText } = render(<LineStationsProbe line="red" short="Red" />)
+    await waitFor(() => expect(getByText('stations:known,unknown')).toBeOnTheScreen())
+  })
+
+  it('handles metra line queries using the metra shortName', async () => {
+    mockGetDocs.mockResolvedValueOnce(snapOfDocs([mockMetraStation]))
+    const { getByText } = render(<LineStationsProbe line="bnsf" short="BNSF" />)
+    await waitFor(() => expect(getByText('stations:aurora')).toBeOnTheScreen())
+    expect(mockWhere).toHaveBeenCalledWith('lines', 'array-contains', 'BNSF')
+  })
+})
+
+describe('useSchedule', () => {
+  it('returns the schedule document when it exists', async () => {
+    mockGetDoc.mockResolvedValueOnce({
+      id: 'clark-lake',
+      exists: () => true,
+      data: () => mockSchedule,
+    } as any)
+    const { getByText } = render(<ScheduleProbe slug="clark-lake" />)
+    await waitFor(() => expect(getByText('schedule:2')).toBeOnTheScreen())
+    expect(mockDoc).toHaveBeenCalledWith({}, 'schedules', 'clark-lake')
+  })
+
+  it('returns null when the schedule document does not exist', async () => {
+    mockGetDoc.mockResolvedValueOnce(singleDocSnap(null))
+    const { getByText } = render(<ScheduleProbe slug="missing" />)
+    await waitFor(() => expect(getByText('schedule:null')).toBeOnTheScreen())
+  })
+})

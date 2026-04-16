@@ -129,6 +129,7 @@ apps/
     lib/
       firebase.ts                 Firebase JS SDK init (client-side)
       hooks.ts                    Firestore data hooks (useLines, useStation, etc.)
+    __tests__/                    Jest + React Native Testing Library test suites
   functions/
     src/
       index.ts                    Cloud Functions entry — syncCtaGtfs, syncMetraGtfs
@@ -195,6 +196,8 @@ pnpm run seed:stations     # Seed Firestore stations collection
 npx expo start             # Start Expo dev server
 npx expo start --ios       # Launch iOS simulator
 npx expo start --android   # Launch Android emulator
+pnpm test                  # Jest tests (jest-expo preset)
+pnpm run lint              # ESLint (eslint-config-expo) + Prettier
 
 # Mobile distribution (Firebase App Distribution — from repo root)
 pnpm --filter mobile run distribute:android   # Build + upload Android APK to testers

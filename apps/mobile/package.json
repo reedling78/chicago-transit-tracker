@@ -11,7 +11,15 @@
     "build:ios": "eas build --profile preview --platform ios --non-interactive",
     "distribute:android": "node --env-file=.env.local ./scripts/distribute.mjs android",
     "distribute:ios": "node --env-file=.env.local ./scripts/distribute.mjs ios",
-    "distribute": "pnpm run distribute:android && pnpm run distribute:ios"
+    "distribute": "pnpm run distribute:android && pnpm run distribute:ios",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:snapshots": "jest --updateSnapshot",
+    "lint": "eslint && prettier --check .",
+    "lint:fix": "eslint --fix && prettier --write .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@ctt/shared": "workspace:*",
@@ -27,7 +35,17 @@
     "react-native-screens": "~4.16.0"
   },
   "devDependencies": {
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.1",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.1.0",
+    "eslint": "^9",
+    "eslint-config-expo": "~10.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "jest": "^30.3.0",
+    "jest-expo": "~54.0.0",
+    "prettier": "^3.8.1",
+    "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   },
   "private": true
