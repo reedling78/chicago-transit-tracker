@@ -28,13 +28,8 @@ export default function CtaStationDetailScreen() {
             {station.lines.map((line) => {
               const colors = LINE_COLORS[line]
               return (
-                <View
-                  key={line}
-                  style={[styles.chip, { backgroundColor: colors?.bg ?? '#555' }]}
-                >
-                  <Text style={[styles.chipText, { color: colors?.text ?? '#fff' }]}>
-                    {line}
-                  </Text>
+                <View key={line} style={[styles.chip, { backgroundColor: colors?.bg ?? '#555' }]}>
+                  <Text style={[styles.chipText, { color: colors?.text ?? '#fff' }]}>{line}</Text>
                 </View>
               )
             })}

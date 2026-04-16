@@ -1,0 +1,444 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`ScheduleTable matches snapshot 1`] = `
+<View
+  style={
+    {
+      "gap": 20,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "backgroundColor": "#1a1a2e",
+        "borderRadius": 10,
+        "padding": 16,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#fff",
+          "fontSize": 16,
+          "fontWeight": "600",
+          "marginBottom": 12,
+        }
+      }
+    >
+      To 
+      Howard
+    </Text>
+    <View
+      style={
+        {
+          "gap": 12,
+        }
+      }
+    >
+      <View
+        style={{}}
+      >
+        <Text
+          style={
+            {
+              "color": "#888",
+              "fontSize": 13,
+              "fontWeight": "600",
+              "marginBottom": 6,
+            }
+          }
+        >
+          Weekday
+        </Text>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "gap": 6,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            6:32 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            7:15 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            8:00 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            12:00 PM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            11:45 PM
+          </Text>
+        </View>
+      </View>
+      <View
+        style={{}}
+      >
+        <Text
+          style={
+            {
+              "color": "#888",
+              "fontSize": 13,
+              "fontWeight": "600",
+              "marginBottom": 6,
+            }
+          }
+        >
+          Saturday
+        </Text>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "gap": 6,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            8:00 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            10:00 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            12:00 PM
+          </Text>
+        </View>
+      </View>
+      <View
+        style={{}}
+      >
+        <Text
+          style={
+            {
+              "color": "#888",
+              "fontSize": 13,
+              "fontWeight": "600",
+              "marginBottom": 6,
+            }
+          }
+        >
+          Sunday
+        </Text>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "gap": 6,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            9:00 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            12:00 PM
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "backgroundColor": "#1a1a2e",
+        "borderRadius": 10,
+        "padding": 16,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#fff",
+          "fontSize": 16,
+          "fontWeight": "600",
+          "marginBottom": 12,
+        }
+      }
+    >
+      To 
+      95th/Dan Ryan
+    </Text>
+    <View
+      style={
+        {
+          "gap": 12,
+        }
+      }
+    >
+      <View
+        style={{}}
+      >
+        <Text
+          style={
+            {
+              "color": "#888",
+              "fontSize": 13,
+              "fontWeight": "600",
+              "marginBottom": 6,
+            }
+          }
+        >
+          Weekday
+        </Text>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "gap": 6,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            6:40 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            7:25 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            8:10 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            12:10 PM
+          </Text>
+        </View>
+      </View>
+      <View
+        style={{}}
+      >
+        <Text
+          style={
+            {
+              "color": "#888",
+              "fontSize": 13,
+              "fontWeight": "600",
+              "marginBottom": 6,
+            }
+          }
+        >
+          Saturday
+        </Text>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "gap": 6,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            8:10 AM
+          </Text>
+          <Text
+            style={
+              {
+                "backgroundColor": "#252540",
+                "borderRadius": 4,
+                "color": "#ddd",
+                "fontSize": 12,
+                "overflow": "hidden",
+                "paddingHorizontal": 8,
+                "paddingVertical": 3,
+              }
+            }
+          >
+            10:10 AM
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</View>
+`;

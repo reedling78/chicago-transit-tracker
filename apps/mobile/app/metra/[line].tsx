@@ -5,10 +5,7 @@ import { useLine, useLineStations } from '../../lib/hooks'
 export default function MetraLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()
   const { line, loading: lineLoading } = useLine(lineSlug)
-  const { stations, loading: stationsLoading } = useLineStations(
-    lineSlug,
-    line?.shortName ?? '',
-  )
+  const { stations, loading: stationsLoading } = useLineStations(lineSlug, line?.shortName ?? '')
 
   if (lineLoading || !line) {
     return (

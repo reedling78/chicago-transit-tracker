@@ -23,9 +23,7 @@ export default function MetraLinesScreen() {
         const colors = LINE_COLORS[item.shortName]
         return (
           <Link href={`/metra/${item.slug}`} asChild>
-            <Pressable
-              style={[styles.card, { backgroundColor: colors?.bg ?? item.color }]}
-            >
+            <Pressable style={[styles.card, { backgroundColor: colors?.bg ?? item.color }]}>
               <Text style={styles.cardTitle}>{item.name}</Text>
               <Text style={styles.cardSub}>
                 {item.stationCount} stations · {item.termini.join(' — ')}

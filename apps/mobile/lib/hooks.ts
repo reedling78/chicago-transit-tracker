@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  getDoc,
-  doc,
-  orderBy,
-} from 'firebase/firestore'
+import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore'
 import { db } from './firebase'
 import type { Line, Station, StationSchedule } from '@ctt/shared'
 
@@ -47,10 +39,7 @@ export function useLineStations(lineSlug: string, lineShortName: string) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'stations'),
-      where('lines', 'array-contains', lineShortName),
-    )
+    const q = query(collection(db, 'stations'), where('lines', 'array-contains', lineShortName))
     getDocs(q).then((snap) => {
       const results = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Station)
       results.sort(

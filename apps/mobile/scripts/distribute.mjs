@@ -89,4 +89,6 @@ run('firebase', [
   releaseNotes,
 ])
 
-console.log(`\nDone. Firebase Console: https://console.firebase.google.com/project/_/appdistribution`)
+console.log(
+  `\nDone. Firebase Console: https://console.firebase.google.com/project/_/appdistribution`,
+)
