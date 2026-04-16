@@ -25,6 +25,7 @@ describe('MetraLinesScreen', () => {
     mockUseLines.mockReturnValue({ lines: [mockMetraLine], loading: false })
     render(<MetraLinesScreen />)
     expect(screen.getByText('BNSF Railway')).toBeOnTheScreen()
-    expect(screen.getByText(/24 stations/)).toBeOnTheScreen()
+    expect(screen.getByText('Union Station — Aurora')).toBeOnTheScreen()
+    expect(screen.queryByText(/stations/)).toBeNull()
   })
 })

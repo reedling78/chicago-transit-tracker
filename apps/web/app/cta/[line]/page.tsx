@@ -57,9 +57,9 @@ export default async function CTALinePage({ params }: Props) {
         title={line.name}
         description={line.description}
         breadcrumbItems={[{ label: 'CTA Lines', href: '/cta' }, { label: line.name }]}
+        icon={<CTALineIcon line={line.shortName} size={40} />}
         badges={
           <>
-            <CTALineIcon line={line.shortName} size={40} />
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               Rapid Transit
             </span>

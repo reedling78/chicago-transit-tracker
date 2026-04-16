@@ -26,6 +26,7 @@ describe('CtaLinesScreen', () => {
     mockUseLines.mockReturnValue({ lines: [mockLine], loading: false })
     render(<CtaLinesScreen />)
     expect(screen.getByText('Red Line')).toBeOnTheScreen()
-    expect(screen.getByText(/33 stations/)).toBeOnTheScreen()
+    expect(screen.getByText('Howard — 95th/Dan Ryan')).toBeOnTheScreen()
+    expect(screen.queryByText(/stations/)).toBeNull()
   })
 })

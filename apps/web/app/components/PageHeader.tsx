@@ -8,6 +8,8 @@ interface PageHeaderProps {
   breadcrumbItems?: BreadcrumbItem[]
   /** Pill badges rendered above the title */
   badges?: React.ReactNode
+  /** Icon rendered inline next to the title */
+  icon?: React.ReactNode
   /** Background hero image — defaults to the CTA/Chicago photo */
   imageSrc?: string
   /** Extra content rendered below the description — e.g. line colour chips */
@@ -19,6 +21,7 @@ export default function PageHeader({
   description,
   breadcrumbItems,
   badges,
+  icon,
   imageSrc = '/hero-header.jpg',
   children,
 }: PageHeaderProps) {
@@ -54,9 +57,14 @@ export default function PageHeader({
       <div className="relative z-10 mx-auto mt-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         {badges && <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>}
         <h1
-          className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl"
+          className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl"
           style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}
         >
+          {icon && (
+            <span className="shrink-0" aria-hidden="true">
+              {icon}
+            </span>
+          )}
           {title}
         </h1>
         {description && (

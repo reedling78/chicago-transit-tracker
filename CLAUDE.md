@@ -125,6 +125,8 @@ apps/
         [line].tsx                Metra line detail
         station/[station].tsx     Metra station detail
     components/
+      CTALineIcon.tsx             CTA 'L' train icon (react-native-svg)
+      LineListItem.tsx             Reusable line list card with accent border
       ScheduleTable.tsx           Schedule display component
     lib/
       firebase.ts                 Firebase JS SDK init (client-side)
