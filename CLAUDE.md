@@ -183,11 +183,16 @@ packages/
 ## Commands
 
 ```bash
-# Root (via Turborepo)
-pnpm -w run dev            # Dev server for web at http://localhost:3000
-pnpm -w run build          # Production build (all packages)
-pnpm -w run lint           # Lint all packages
-pnpm -w run test           # Run all test suites
+# Root
+pnpm run:web               # Dev server for web at http://localhost:3000
+pnpm run:ios               # Launch iOS simulator via Expo
+pnpm run:android           # Launch Android emulator via Expo
+pnpm test                  # Run all test suites (via Turborepo)
+pnpm test:web              # Run web tests only
+pnpm test:mobile           # Run mobile tests only
+pnpm lint                  # Lint all packages (via Turborepo)
+pnpm lint:web              # Lint web only
+pnpm lint:mobile           # Lint mobile only
 
 # Web (from apps/web/)
 pnpm run dev               # Dev server directly

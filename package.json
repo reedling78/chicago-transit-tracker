@@ -3,10 +3,15 @@
   "private": true,
   "packageManager": "pnpm@10.26.2",
   "scripts": {
-    "dev": "turbo run dev --filter=@ctt/web",
-    "build": "turbo run build",
+    "run:web": "pnpm --filter @ctt/web dev",
+    "run:ios": "pnpm --filter @ctt/mobile exec expo run:ios",
+    "run:android": "pnpm --filter @ctt/mobile exec expo run:android",
+    "test": "turbo run test",
+    "test:web": "pnpm --filter @ctt/web test",
+    "test:mobile": "pnpm --filter @ctt/mobile test",
     "lint": "turbo run lint",
-    "test": "turbo run test"
+    "lint:web": "pnpm --filter @ctt/web lint",
+    "lint:mobile": "pnpm --filter @ctt/mobile lint"
   },
   "devDependencies": {
     "turbo": "^2"
