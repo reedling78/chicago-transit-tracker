@@ -2,6 +2,7 @@ import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLines } from '../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
 import LineListItem from '../../components/LineListItem'
+import PageHeader from '../../components/PageHeader'
 
 export default function MetraLinesScreen() {
   const { lines, loading } = useLines('metra')
@@ -20,6 +21,13 @@ export default function MetraLinesScreen() {
         data={lines}
         keyExtractor={(item) => item.slug}
         contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <PageHeader
+            title="Metra Lines"
+            description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties."
+            imageSrc={require('../../assets/hero-header-metra.jpg')}
+          />
+        }
         renderItem={({ item }) => {
           const accentColor = LINE_COLORS[item.shortName]?.bg ?? item.color
           return (
@@ -39,5 +47,5 @@ export default function MetraLinesScreen() {
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f23' },
   container: { flex: 1, backgroundColor: '#0f0f23' },
-  list: { padding: 16, gap: 12 },
+  list: { paddingHorizontal: 16, paddingBottom: 16, gap: 12 },
 })

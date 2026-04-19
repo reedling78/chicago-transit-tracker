@@ -8,6 +8,14 @@ jest.mock('expo-router', () => ({
   Link: ({ children }: { children: ReactNode }) => children,
 }))
 
+jest.mock('expo-linear-gradient', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    LinearGradient: (props: any) => <View {...props} />,
+  }
+})
+
 jest.mock('../../lib/hooks', () => ({
   useLines: jest.fn(),
 }))
@@ -27,5 +35,16 @@ describe('MetraLinesScreen', () => {
     expect(screen.getByText('BNSF Railway')).toBeOnTheScreen()
     expect(screen.getByText('Union Station — Aurora')).toBeOnTheScreen()
     expect(screen.queryByText(/stations/)).toBeNull()
+  })
+
+  it('renders the PageHeader with Metra title and description', () => {
+    mockUseLines.mockReturnValue({ lines: [mockMetraLine], loading: false })
+    render(<MetraLinesScreen />)
+    expect(screen.getByText('Metra Lines')).toBeOnTheScreen()
+    expect(
+      screen.getByText(
+        '11 commuter rail lines connecting Chicago to the suburbs across 6 counties.',
+      ),
+    ).toBeOnTheScreen()
   })
 })
