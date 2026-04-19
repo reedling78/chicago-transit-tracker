@@ -9,12 +9,12 @@ const mockSignInWithApple = jest.fn()
 const mockSignInWithFacebook = jest.fn()
 
 jest.mock('../../app/lib/auth', () => ({
-  signInWithEmail: (...args: unknown[]) => mockSignInWithEmail(...args),
-  signUpWithEmail: (...args: unknown[]) => mockSignUpWithEmail(...args),
-  resetPassword: (...args: unknown[]) => mockResetPassword(...args),
-  signInWithGoogle: (...args: unknown[]) => mockSignInWithGoogle(...args),
-  signInWithApple: (...args: unknown[]) => mockSignInWithApple(...args),
-  signInWithFacebook: (...args: unknown[]) => mockSignInWithFacebook(...args),
+  signInWithEmail: jest.fn((...args) => mockSignInWithEmail(...args)),
+  signUpWithEmail: jest.fn((...args) => mockSignUpWithEmail(...args)),
+  resetPassword: jest.fn((...args) => mockResetPassword(...args)),
+  signInWithGoogle: jest.fn((...args) => mockSignInWithGoogle(...args)),
+  signInWithApple: jest.fn((...args) => mockSignInWithApple(...args)),
+  signInWithFacebook: jest.fn((...args) => mockSignInWithFacebook(...args)),
 }))
 
 jest.mock('../../app/lib/firebase-client', () => ({
@@ -120,6 +120,12 @@ describe('AuthModal', () => {
   it('closes when close button is clicked', () => {
     render(<AuthModal onClose={onClose} />)
     fireEvent.click(screen.getByLabelText('Close'))
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('closes when Escape key is pressed', () => {
+    render(<AuthModal onClose={onClose} />)
+    fireEvent.keyDown(document, { key: 'Escape' })
     expect(onClose).toHaveBeenCalled()
   })
 })

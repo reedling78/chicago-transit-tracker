@@ -34,37 +34,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let currentUid: string | null = null
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      const uid = firebaseUser?.uid ?? null
+      currentUid = uid
       setUser(firebaseUser)
 
-      if (firebaseUser) {
-        const profileRef = doc(db, 'profiles', firebaseUser.uid)
-        const snap = await getDoc(profileRef)
+      try {
+        if (firebaseUser) {
+          const profileRef = doc(db, 'profiles', firebaseUser.uid)
+          const snap = await getDoc(profileRef)
 
-        if (snap.exists()) {
-          setProfile(snap.data() as UserProfile)
-        } else {
-          const newProfile = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoUrl: firebaseUser.photoURL,
-            provider: resolveProvider(firebaseUser),
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
+          if (currentUid !== uid) return
+
+          if (snap.exists()) {
+            const data = snap.data()
+            setProfile({
+              ...data,
+              createdAt: data.createdAt?.toDate?.()
+                ? data.createdAt.toDate().toISOString()
+                : data.createdAt,
+              updatedAt: data.updatedAt?.toDate?.()
+                ? data.updatedAt.toDate().toISOString()
+                : data.updatedAt,
+            } as UserProfile)
+          } else {
+            const now = new Date().toISOString()
+            await setDoc(profileRef, {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              photoUrl: firebaseUser.photoURL,
+              provider: resolveProvider(firebaseUser),
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            })
+
+            if (currentUid !== uid) return
+
+            setProfile({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              photoUrl: firebaseUser.photoURL,
+              provider: resolveProvider(firebaseUser),
+              createdAt: now,
+              updatedAt: now,
+            })
           }
-          await setDoc(profileRef, newProfile)
-          setProfile({
-            ...newProfile,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          })
+        } else {
+          setProfile(null)
         }
-      } else {
+      } catch (err) {
+        console.error('Failed to load/create profile:', err)
         setProfile(null)
+      } finally {
+        if (currentUid === uid) {
+          setLoading(false)
+        }
       }
-
-      setLoading(false)
     })
 
     return unsubscribe

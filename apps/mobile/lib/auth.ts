@@ -16,8 +16,14 @@ import { auth } from './firebase'
 
 WebBrowser.maybeCompleteAuthSession()
 
-// Google OAuth client ID from Firebase Console
+// Google OAuth client ID from Firebase Console — must be set before Google sign-in works
 const GOOGLE_WEB_CLIENT_ID = '' // TODO: set from Firebase Console
+
+function requireClientId(id: string, provider: string): string {
+  if (!id)
+    throw new Error(`${provider} client ID is not configured. Set it in apps/mobile/lib/auth.ts`)
+  return id
+}
 
 export function signInWithEmail(email: string, password: string) {
   return signInWithEmailAndPassword(auth, email, password)
@@ -63,7 +69,7 @@ export async function signInWithGoogle() {
   }
 
   const request = new AuthSession.AuthRequest({
-    clientId: GOOGLE_WEB_CLIENT_ID,
+    clientId: requireClientId(GOOGLE_WEB_CLIENT_ID, 'Google'),
     redirectUri,
     scopes: ['openid', 'profile', 'email'],
     responseType: AuthSession.ResponseType.IdToken,
@@ -88,7 +94,7 @@ export async function signInWithFacebook() {
   const FACEBOOK_APP_ID = '' // TODO: set from Facebook Developer Console
 
   const request = new AuthSession.AuthRequest({
-    clientId: FACEBOOK_APP_ID,
+    clientId: requireClientId(FACEBOOK_APP_ID, 'Facebook'),
     redirectUri,
     scopes: ['public_profile', 'email'],
     responseType: AuthSession.ResponseType.Token,
