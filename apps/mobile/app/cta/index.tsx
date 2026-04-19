@@ -3,6 +3,7 @@ import { useLines } from '../../lib/hooks'
 import { CTA_LINE_COLORS } from '@ctt/shared'
 import LineListItem from '../../components/LineListItem'
 import CTALineIcon from '../../components/CTALineIcon'
+import PageHeader from '../../components/PageHeader'
 
 export default function CtaLinesScreen() {
   const { lines, loading } = useLines('cta')
@@ -21,6 +22,9 @@ export default function CtaLinesScreen() {
         data={lines}
         keyExtractor={(item) => item.slug}
         contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <PageHeader title="CTA Lines" description="Chicago 'L' rapid transit lines" />
+        }
         renderItem={({ item }) => {
           const accentColor = CTA_LINE_COLORS[item.shortName]?.bg ?? item.color
           return (
@@ -41,5 +45,5 @@ export default function CtaLinesScreen() {
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f23' },
   container: { flex: 1, backgroundColor: '#0f0f23' },
-  list: { padding: 16, gap: 12 },
+  list: { paddingHorizontal: 16, paddingBottom: 16, gap: 12 },
 })

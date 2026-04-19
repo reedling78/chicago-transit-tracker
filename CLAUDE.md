@@ -127,6 +127,7 @@ apps/
     components/
       CTALineIcon.tsx             CTA 'L' train icon (react-native-svg)
       LineListItem.tsx             Reusable line list card with accent border
+      PageHeader.tsx              Full-bleed photo hero with overlays, title, badges (matches web)
       ScheduleTable.tsx           Schedule display component
     lib/
       firebase.ts                 Firebase JS SDK init (client-side)
