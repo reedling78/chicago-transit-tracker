@@ -8,6 +8,14 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ station: 'aurora' }),
 }))
 
+jest.mock('expo-linear-gradient', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    LinearGradient: (props: any) => <View {...props} />,
+  }
+})
+
 jest.mock('../../lib/hooks', () => ({
   useStation: jest.fn(),
   useSchedule: jest.fn(),
@@ -32,5 +40,34 @@ describe('MetraStationDetailScreen', () => {
     expect(screen.getByText('233 N Broadway, Aurora, IL')).toBeOnTheScreen()
     expect(screen.getByText('Parking')).toBeOnTheScreen()
     expect(screen.getByText('Schedule')).toBeOnTheScreen()
+  })
+
+  it('renders Metra service badge', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByText('Metra')).toBeOnTheScreen()
+  })
+
+  it('renders Terminal badge when station is a terminal', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByText('Terminal')).toBeOnTheScreen()
+  })
+
+  it('renders CTA + Metra service badge for dual-service stations', () => {
+    const dualStation = { ...mockMetraStation, service: 'both' as const }
+    mockUseStation.mockReturnValue({ station: dualStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByText('CTA + Metra')).toBeOnTheScreen()
+  })
+
+  it('renders line chips for all lines the station serves', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByText('BNSF')).toBeOnTheScreen()
   })
 })
