@@ -1,4 +1,11 @@
 import { render, screen } from '@testing-library/react'
+
+jest.mock('../../app/components/UserMenu', () => {
+  return function MockUserMenu() {
+    return <div data-testid="user-menu" />
+  }
+})
+
 import Navbar from '@components/Navbar'
 
 describe('Navbar', () => {

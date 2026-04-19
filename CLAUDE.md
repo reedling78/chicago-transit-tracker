@@ -74,7 +74,7 @@ apps/
         schedules/[slug]/
           route.ts                Station schedule data from Firestore
       components/
-        Navbar.tsx                Top nav — links, ThemeToggle, MobileMenuToggle
+        Navbar.tsx                Top nav — links, ThemeToggle, UserMenu, MobileMenuToggle
         MobileMenuToggle.tsx      Hamburger menu (client component)
         ThemeToggle.tsx           Light/dark toggle — persisted to localStorage
         Hero.tsx                  Home page banner with CTA and Metra service cards
@@ -93,8 +93,16 @@ apps/
         LinkCard.tsx              Clickable list card used on service and line pages
         LineDetail.tsx            Full line detail layout
         StationDetail.tsx         Full station detail layout
+        AuthProvider.tsx          Auth context + useAuth hook (client component)
+        UserMenu.tsx              Navbar user icon / avatar dropdown (client component)
+        AuthModal.tsx             Sign in/up/reset modal (client component)
+      profile/
+        page.tsx                  User profile page (server shell + metadata)
+        ProfileContent.tsx        Profile display (client component)
       lib/
         firebase-admin.ts         Firestore singleton (Admin SDK) — web only
+        firebase-client.ts        Firebase client SDK init — Auth + Firestore (client-side)
+        auth.ts                   Auth helpers — sign in/up/out, reset, social providers
         cta-alerts.ts             Client-side fetch + types for CTA Customer Alerts API
         metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
         metra-status.ts           Shared status derivation for Metra trips
@@ -114,8 +122,10 @@ apps/
       tsconfig.json               CommonJS tsconfig for ts-node script execution
   mobile/
     app/
-      _layout.tsx                 Root layout — Stack navigator
+      _layout.tsx                 Root layout — Stack navigator, AuthProvider, headerRight icon
       index.tsx                   Home screen
+      auth.tsx                    Sign in/up/reset screen (modal presentation)
+      profile.tsx                 User profile screen
       cta/
         index.tsx                 CTA line list
         [line].tsx                CTA line detail
@@ -129,9 +139,12 @@ apps/
       LineListItem.tsx             Reusable line list card with accent border
       PageHeader.tsx              Full-bleed photo hero with overlays, title, badges (matches web)
       ScheduleTable.tsx           Schedule display component
+      HeaderUserIcon.tsx          Stack header user icon — navigates to auth/profile
     lib/
-      firebase.ts                 Firebase JS SDK init (client-side)
+      firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
       hooks.ts                    Firestore data hooks (useLines, useStation, etc.)
+      auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
+      AuthContext.tsx              Auth context + useAuth hook, profile auto-creation
     __tests__/                    Jest + React Native Testing Library test suites
   functions/
     src/
@@ -152,7 +165,7 @@ packages/
   shared/
     src/
       index.ts                    Barrel export of all shared modules
-      types.ts                    Line and Station TypeScript interfaces
+      types.ts                    Line, Station, and UserProfile TypeScript interfaces
       gtfs-types.ts               Schedule and trip type definitions
       pace-types.ts               Pace transit types
       constants.ts                CTA/Metra line colors, names, route mappings
@@ -172,7 +185,8 @@ packages/
 - TypeScript 5
 - Tailwind CSS v4 (web, class-based dark mode via `@custom-variant dark`)
 - Firebase Admin SDK (build-time Firestore reads, web only)
-- Firebase JS SDK v11 (client-side Firestore reads, mobile)
+- Firebase JS SDK v11 (client-side Firestore reads + Auth, web and mobile)
+- Firebase Authentication (Email/Password, Apple, Google, Facebook)
 - Firebase App Hosting (SSR deployment target for web)
 - gtfs-realtime-bindings (protobuf decode for Metra GTFS Realtime feeds)
 - Google Analytics 4 (G-KQ1MNGBQP2, loaded via `next/script afterInteractive`)
@@ -256,6 +270,15 @@ The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore re
 
 Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` applies `.dark` to `<html>` before first paint to prevent flash. `suppressHydrationWarning` is set on `<html>`. `ThemeToggle` uses a mount-only render pattern to avoid hydration mismatch.
 
+### Firebase Authentication
+
+Both web and mobile use Firebase Auth with four providers: Email/Password, Apple, Google, and Facebook. Auth state is managed via a React context (`AuthProvider` + `useAuth()` hook) on each platform.
+
+- **Web:** `apps/web/app/lib/firebase-client.ts` initializes the Firebase client SDK (separate from the Admin SDK in `firebase-admin.ts`). Auth helpers in `apps/web/app/lib/auth.ts` use popup-based OAuth for social providers. `AuthProvider` wraps `<body>` children in the root layout.
+- **Mobile:** `apps/mobile/lib/firebase.ts` initializes Auth with `getReactNativePersistence(AsyncStorage)` so auth state persists between app sessions. Auth helpers in `apps/mobile/lib/auth.ts` use `expo-apple-authentication` (iOS) and `expo-auth-session` (Google/Facebook). `AuthProvider` wraps the app in `_layout.tsx`.
+- **Profile auto-creation:** When a user signs in for the first time, `AuthProvider` automatically creates a `profiles/{uid}` document in Firestore.
+- **Firestore rules:** The `profiles` collection uses owner-only access (`request.auth.uid == userId`). All other transit collections use explicit rules (no wildcard) to prevent accidental exposure.
+
 ### Firestore credentials
 
 `apps/web/app/lib/firebase-admin.ts` checks for `service-account.json` first, then falls back to `applicationDefault()`. `service-account.json` is gitignored. For local dev, it's symlinked from the repo root into `apps/web/`.
@@ -317,6 +340,10 @@ Trip lists per Metra line, grouped by service type. Populated automatically by `
 ### `metra-station-trips` — doc ID = station slug
 
 Trips stopping at each Metra station, grouped by service type. Populated automatically by `syncMetraGtfs`.
+
+### `profiles` — doc ID = Firebase Auth UID
+
+User profile documents, auto-created on first sign-in. Fields: `uid`, `email`, `displayName`, `photoUrl`, `provider` (`'apple' | 'google' | 'facebook' | 'password'`), `createdAt`, `updatedAt`. Protected by owner-only Firestore rules — users can only read/write their own profile.
 
 ### `gtfs-meta` — doc ID = `cta` or `metra`
 

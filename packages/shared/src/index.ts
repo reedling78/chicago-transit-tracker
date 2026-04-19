@@ -1,4 +1,4 @@
-export type { Line, Station } from './types'
+export type { Line, Station, UserProfile } from './types'
 export type {
   ServiceType,
   DirectionSchedule,
