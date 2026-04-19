@@ -8,6 +8,14 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ station: 'clark-lake' }),
 }))
 
+jest.mock('expo-linear-gradient', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    LinearGradient: (props: any) => <View {...props} />,
+  }
+})
+
 jest.mock('../../lib/hooks', () => ({
   useStation: jest.fn(),
   useSchedule: jest.fn(),
@@ -33,5 +41,28 @@ describe('CtaStationDetailScreen', () => {
     expect(screen.getByText('ADA')).toBeOnTheScreen()
     expect(screen.getByText('Schedule')).toBeOnTheScreen()
     expect(screen.getByText('To Howard')).toBeOnTheScreen()
+  })
+
+  it('renders 24 Hours badge when station is open 24 hours', () => {
+    mockUseStation.mockReturnValue({ station: mockStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<CtaStationDetailScreen />)
+    expect(screen.getByText('24 Hours')).toBeOnTheScreen()
+  })
+
+  it('renders Terminal badge when station is a terminal', () => {
+    const terminalStation = { ...mockStation, terminal: true }
+    mockUseStation.mockReturnValue({ station: terminalStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<CtaStationDetailScreen />)
+    expect(screen.getByText('Terminal')).toBeOnTheScreen()
+  })
+
+  it('renders line chips for all lines the station serves', () => {
+    mockUseStation.mockReturnValue({ station: mockStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<CtaStationDetailScreen />)
+    expect(screen.getByText('Red')).toBeOnTheScreen()
+    expect(screen.getByText('Blue')).toBeOnTheScreen()
   })
 })

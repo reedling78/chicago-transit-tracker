@@ -3,6 +3,9 @@ import { useLocalSearchParams, Stack } from 'expo-router'
 import { useStation, useSchedule } from '../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
 import { ScheduleTable } from '../../../components/ScheduleTable'
+import PageHeader from '../../../components/PageHeader'
+
+const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
 
 export default function MetraStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()
@@ -20,10 +23,21 @@ export default function MetraStationDetailScreen() {
   return (
     <>
       <Stack.Screen options={{ title: station.name }} />
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.name}>{station.name}</Text>
-          <Text style={styles.address}>{station.address}</Text>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <PageHeader
+          title={station.name}
+          description={station.address}
+          imageSrc={station.photoUrl ? { uri: station.photoUrl } : metraHeroImage}
+          badges={
+            <>
+              <Text style={badgeStyles.service}>
+                {station.service === 'both' ? 'CTA + Metra' : 'Metra'}
+              </Text>
+              {station.terminal && <Text style={badgeStyles.terminal}>Terminal</Text>}
+              {station.open24Hours && <Text style={badgeStyles.open24}>24 Hours</Text>}
+            </>
+          }
+        >
           <View style={styles.chips}>
             {station.lines.map((line) => {
               const colors = LINE_COLORS[line]
@@ -34,7 +48,7 @@ export default function MetraStationDetailScreen() {
               )
             })}
           </View>
-        </View>
+        </PageHeader>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Info</Text>
@@ -55,16 +69,47 @@ export default function MetraStationDetailScreen() {
   )
 }
 
+const badgeStyles = StyleSheet.create({
+  service: {
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    color: '#60a5fa',
+    fontSize: 12,
+    fontWeight: '600',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    overflow: 'hidden',
+  },
+  terminal: {
+    backgroundColor: 'rgba(251, 191, 36, 0.15)',
+    color: '#fbbf24',
+    fontSize: 12,
+    fontWeight: '600',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    overflow: 'hidden',
+  },
+  open24: {
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    color: '#22c55e',
+    fontSize: 12,
+    fontWeight: '600',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    overflow: 'hidden',
+  },
+})
+
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f23' },
   container: { flex: 1, backgroundColor: '#0f0f23' },
-  header: { padding: 24 },
-  name: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-  address: { fontSize: 14, color: '#888', marginTop: 4 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  contentContainer: { padding: 16, gap: 16 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { borderRadius: 16, paddingHorizontal: 12, paddingVertical: 4 },
   chipText: { fontSize: 13, fontWeight: '600' },
-  section: { paddingHorizontal: 24, paddingBottom: 24 },
+  section: { paddingBottom: 8 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#fff', marginBottom: 12 },
   amenities: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   badge: {
