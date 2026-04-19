@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     height: 200,
     overflow: 'hidden',
     marginHorizontal: -16,
-    marginTop: -12,
+    marginTop: -12, // counteracts FlatList gap
     marginBottom: 16,
   },
   backgroundImage: {

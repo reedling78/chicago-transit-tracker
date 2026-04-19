@@ -24,7 +24,7 @@ export default function MetraLinesScreen() {
         ListHeaderComponent={
           <PageHeader
             title="Metra Lines"
-            description="Chicagoland commuter rail lines"
+            description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties."
             imageSrc={require('../../assets/hero-header-metra.jpg')}
           />
         }

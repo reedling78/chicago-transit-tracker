@@ -42,6 +42,8 @@ describe('CtaLinesScreen', () => {
     mockUseLines.mockReturnValue({ lines: [mockLine], loading: false })
     render(<CtaLinesScreen />)
     expect(screen.getByText('CTA Lines')).toBeOnTheScreen()
-    expect(screen.getByText("Chicago 'L' rapid transit lines")).toBeOnTheScreen()
+    expect(
+      screen.getByText('8 colour-coded rapid transit lines serving Chicago and the inner suburbs.'),
+    ).toBeOnTheScreen()
   })
 })

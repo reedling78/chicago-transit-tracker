@@ -41,6 +41,10 @@ describe('MetraLinesScreen', () => {
     mockUseLines.mockReturnValue({ lines: [mockMetraLine], loading: false })
     render(<MetraLinesScreen />)
     expect(screen.getByText('Metra Lines')).toBeOnTheScreen()
-    expect(screen.getByText('Chicagoland commuter rail lines')).toBeOnTheScreen()
+    expect(
+      screen.getByText(
+        '11 commuter rail lines connecting Chicago to the suburbs across 6 counties.',
+      ),
+    ).toBeOnTheScreen()
   })
 })

@@ -23,7 +23,10 @@ export default function CtaLinesScreen() {
         keyExtractor={(item) => item.slug}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
-          <PageHeader title="CTA Lines" description="Chicago 'L' rapid transit lines" />
+          <PageHeader
+            title="CTA Lines"
+            description="8 colour-coded rapid transit lines serving Chicago and the inner suburbs."
+          />
         }
         renderItem={({ item }) => {
           const accentColor = CTA_LINE_COLORS[item.shortName]?.bg ?? item.color
