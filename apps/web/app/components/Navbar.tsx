@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import MobileMenuToggle from './MobileMenuToggle'
 import ThemeToggle from './ThemeToggle'
+import UserMenu from './UserMenu'
 
 const navLinks = [
   { href: '/cta', label: 'CTA' },
@@ -36,6 +37,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <UserMenu />
           <MobileMenuToggle links={navLinks} />
         </div>
       </nav>

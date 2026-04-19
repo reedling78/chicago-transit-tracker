@@ -27,6 +27,7 @@
     "@ctt/shared": "workspace:*",
     "adm-zip": "^0.5.16",
     "csv-parse": "^6.2.1",
+    "firebase": "^11.10.0",
     "firebase-admin": "^13.7.0",
     "gtfs-realtime-bindings": "^1.1.1",
     "maplibre-gl": "^4.7.1",

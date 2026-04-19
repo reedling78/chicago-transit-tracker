@@ -50,3 +50,13 @@ export interface Station {
   /** Position of this station on each line it serves, keyed by line shortName (e.g. { "Red": 3, "Purple": 7 }) */
   lineOrder: Record<string, number>
 }
+
+export interface UserProfile {
+  uid: string
+  email: string | null
+  displayName: string | null
+  photoUrl: string | null
+  provider: 'apple' | 'google' | 'facebook' | 'password'
+  createdAt: string // ISO 8601
+  updatedAt: string // ISO 8601
+}

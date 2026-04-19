@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import './globals.css'
 import Navbar from '@components/Navbar'
 import Footer from '@components/Footer'
+import AuthProvider from '@components/AuthProvider'
 import Analytics from '@components/Analytics'
 import { siteConfig } from '@lib/siteConfig'
 
@@ -60,11 +61,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${geist.className} flex min-h-screen flex-col bg-gray-50 transition-colors dark:bg-gray-950`}
       >
-        <Navbar />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-          {children}
-        </main>
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
         <Suspense fallback={null}>
           <Analytics />
         </Suspense>
