@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react-native'
 import { mockStation, mockSchedule } from '../fixtures'
 import { useStation, useSchedule } from '../../lib/hooks'
-import CtaStationDetailScreen from '../../app/cta/station/[station]'
+import CtaStationDetailScreen from '../../app/(tabs)/cta/station/[station]'
 
 jest.mock('expo-router', () => ({
   Stack: { Screen: () => null },

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockMetraLine } from '../fixtures'
 import { useLines } from '../../lib/hooks'
-import MetraLinesScreen from '../../app/metra/index'
+import MetraLinesScreen from '../../app/(tabs)/metra/index'
 
 jest.mock('expo-router', () => ({
   Link: ({ children }: { children: ReactNode }) => children,

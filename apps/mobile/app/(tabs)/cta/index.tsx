@@ -1,10 +1,10 @@
 import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
-import { useLines } from '../../lib/hooks'
+import { useLines } from '../../../lib/hooks'
 import { CTA_LINE_COLORS } from '@ctt/shared'
-import LineListItem from '../../components/LineListItem'
-import AlertBanner from '../../components/AlertBanner'
-import CTALineIcon from '../../components/CTALineIcon'
-import PageHeader from '../../components/PageHeader'
+import LineListItem from '../../../components/LineListItem'
+import AlertBanner from '../../../components/AlertBanner'
+import CTALineIcon from '../../../components/CTALineIcon'
+import PageHeader from '../../../components/PageHeader'
 
 export default function CtaLinesScreen() {
   const { lines, loading } = useLines('cta')
@@ -29,14 +29,14 @@ export default function CtaLinesScreen() {
               title="CTA Lines"
               description="8 color-coded rapid transit lines serving Chicago and the inner suburbs."
             />
-            <AlertBanner service="cta" href="/cta/alerts" />
+            <AlertBanner service="cta" href="/(tabs)/cta/alerts" />
           </>
         }
         renderItem={({ item }) => {
           const accentColor = CTA_LINE_COLORS[item.shortName]?.bg ?? item.color
           return (
             <LineListItem
-              href={`/cta/${item.slug}`}
+              href={`/(tabs)/cta/${item.slug}`}
               title={item.name}
               subtitle={item.termini.join(' — ')}
               accentColor={accentColor}

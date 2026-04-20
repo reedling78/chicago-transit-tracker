@@ -70,7 +70,7 @@ export default function ProfileScreen() {
         style={styles.signOutButton}
         onPress={async () => {
           await signOut()
-          router.replace('/')
+          router.replace('/(tabs)/my-trains')
         }}
       >
         <Text style={styles.signOutText}>Sign Out</Text>

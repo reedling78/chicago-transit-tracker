@@ -1,11 +1,11 @@
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useStation, useSchedule } from '../../../lib/hooks'
+import { useStation, useSchedule } from '../../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
-import { ScheduleTable } from '../../../components/ScheduleTable'
-import PageHeader from '../../../components/PageHeader'
+import { ScheduleTable } from '../../../../components/ScheduleTable'
+import PageHeader from '../../../../components/PageHeader'
 
-const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
+const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
 export default function MetraStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()

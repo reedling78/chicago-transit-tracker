@@ -8,7 +8,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <SafeAreaProvider>
-        <StatusBar style="auto" />
+        <StatusBar style="light" />
         <Stack
           screenOptions={{
             headerStyle: { backgroundColor: '#1a1a2e' },
@@ -17,9 +17,7 @@ export default function RootLayout() {
             headerRight: () => <HeaderUserIcon />,
           }}
         >
-          <Stack.Screen name="index" options={{ title: 'Chicago Transit Tracker' }} />
-          <Stack.Screen name="cta/index" options={{ title: 'CTA Lines' }} />
-          <Stack.Screen name="metra/index" options={{ title: 'Metra Lines' }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="auth" options={{ title: 'Sign In', presentation: 'modal' }} />
           <Stack.Screen name="profile" options={{ title: 'Profile' }} />
         </Stack>

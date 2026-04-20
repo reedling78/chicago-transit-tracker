@@ -1,19 +1,17 @@
-import type { ReactNode } from 'react'
-import { render, screen } from '@testing-library/react-native'
+import { render } from '@testing-library/react-native'
 import HomeScreen from '../../app/index'
 
 jest.mock('expo-router', () => ({
-  Link: ({ children }: { children: ReactNode }) => children,
+  Redirect: ({ href }: { href: string }) => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Text } = require('react-native')
+    return <Text>{`Redirect:${href}`}</Text>
+  },
 }))
 
 describe('HomeScreen', () => {
-  it('renders the title, subtitle, and service cards', () => {
-    render(<HomeScreen />)
-    expect(screen.getByText('Chicago Transit Tracker')).toBeOnTheScreen()
-    expect(screen.getByText('Explore CTA and Metra transit lines and stations')).toBeOnTheScreen()
-    expect(screen.getByText('CTA')).toBeOnTheScreen()
-    expect(screen.getByText('Metra')).toBeOnTheScreen()
-    expect(screen.getByText('Rapid Transit Lines')).toBeOnTheScreen()
-    expect(screen.getByText('Commuter Rail Lines')).toBeOnTheScreen()
+  it('redirects to the My Trains tab', () => {
+    const { getByText } = render(<HomeScreen />)
+    expect(getByText('Redirect:/(tabs)/my-trains')).toBeOnTheScreen()
   })
 })
