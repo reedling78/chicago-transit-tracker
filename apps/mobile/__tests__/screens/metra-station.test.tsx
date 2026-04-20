@@ -1,12 +1,21 @@
 import { render, screen } from '@testing-library/react-native'
-import { mockMetraStation, mockStationTrips } from '../fixtures'
-import { useStation, useStationTrips } from '../../lib/hooks'
+import { mockMetraStation, mockSchedule, mockStationTrips } from '../fixtures'
+import { useStation, useSchedule, useStationTrips } from '../../lib/hooks'
 import MetraStationDetailScreen from '../../app/(tabs)/metra/station/[station]'
 
 jest.mock('expo-router', () => ({
   Stack: { Screen: () => null },
   useLocalSearchParams: () => ({ station: 'aurora' }),
 }))
+
+jest.mock('@expo/vector-icons/Ionicons', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require('react-native')
+  return {
+    __esModule: true,
+    default: ({ name }: { name: string }) => <Text>{name}</Text>,
+  }
+})
 
 jest.mock('expo-linear-gradient', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -18,15 +27,18 @@ jest.mock('expo-linear-gradient', () => {
 
 jest.mock('../../lib/hooks', () => ({
   useStation: jest.fn(),
+  useSchedule: jest.fn(),
   useStationTrips: jest.fn(),
 }))
 
 const mockUseStation = useStation as jest.MockedFunction<typeof useStation>
+const mockUseSchedule = useSchedule as jest.MockedFunction<typeof useSchedule>
 const mockUseStationTrips = useStationTrips as jest.MockedFunction<typeof useStationTrips>
 
 describe('MetraStationDetailScreen', () => {
   it('shows loading state while the station is loading', () => {
     mockUseStation.mockReturnValue({ station: null, loading: true })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
     render(<MetraStationDetailScreen />)
     expect(screen.queryByText('Aurora')).toBeNull()
@@ -34,6 +46,7 @@ describe('MetraStationDetailScreen', () => {
 
   it('renders station details, info, and schedule when data is loaded', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: mockSchedule, loading: false })
     mockUseStationTrips.mockReturnValue({ stationTrips: mockStationTrips, loading: false })
     render(<MetraStationDetailScreen />)
     expect(screen.getByText('Aurora')).toBeOnTheScreen()
@@ -44,6 +57,7 @@ describe('MetraStationDetailScreen', () => {
 
   it('renders Metra service badge', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
     render(<MetraStationDetailScreen />)
     expect(screen.getByText('Metra')).toBeOnTheScreen()
@@ -51,6 +65,7 @@ describe('MetraStationDetailScreen', () => {
 
   it('renders Terminal badge when station is a terminal', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
     render(<MetraStationDetailScreen />)
     expect(screen.getByText('Terminal')).toBeOnTheScreen()
@@ -59,6 +74,7 @@ describe('MetraStationDetailScreen', () => {
   it('renders CTA + Metra service badge for dual-service stations', () => {
     const dualStation = { ...mockMetraStation, service: 'both' as const }
     mockUseStation.mockReturnValue({ station: dualStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
     render(<MetraStationDetailScreen />)
     expect(screen.getByText('CTA + Metra')).toBeOnTheScreen()
@@ -66,8 +82,17 @@ describe('MetraStationDetailScreen', () => {
 
   it('renders line chips for all lines the station serves', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
     render(<MetraStationDetailScreen />)
     expect(screen.getByText('BNSF')).toBeOnTheScreen()
+  })
+
+  it('renders ArrivalsCard when schedule data is loaded', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: mockSchedule, loading: false })
+    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByText(/Metra timetable/)).toBeOnTheScreen()
   })
 })

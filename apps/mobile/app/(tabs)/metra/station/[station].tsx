@@ -1,7 +1,8 @@
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useStation, useStationTrips } from '../../../../lib/hooks'
+import { useStation, useSchedule, useStationTrips } from '../../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
+import { ArrivalsCard } from '../../../../components/ArrivalsCard'
 import { MetraTimetable } from '../../../../components/MetraTimetable'
 import PageHeader from '../../../../components/PageHeader'
 
@@ -10,6 +11,7 @@ const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 export default function MetraStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()
   const { station, loading: stationLoading } = useStation(stationSlug)
+  const { schedule, loading: scheduleLoading } = useSchedule(stationSlug)
   const { stationTrips, loading: tripsLoading } = useStationTrips(stationSlug)
 
   if (stationLoading || !station) {
@@ -49,6 +51,8 @@ export default function MetraStationDetailScreen() {
             })}
           </View>
         </PageHeader>
+
+        <ArrivalsCard schedule={schedule} service="metra" loading={scheduleLoading} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Info</Text>

@@ -120,12 +120,16 @@ export function useSchedule(stationSlug: string) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getDoc(doc(db, 'schedules', stationSlug)).then((snap) => {
-      if (snap.exists()) {
-        setSchedule(snap.data() as StationSchedule)
-      }
-      setLoading(false)
-    })
+    getDoc(doc(db, 'schedules', stationSlug))
+      .then((snap) => {
+        if (snap.exists()) {
+          setSchedule(snap.data() as StationSchedule)
+        }
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
   }, [stationSlug])
 
   return { schedule, loading }
@@ -136,12 +140,16 @@ export function useStationTrips(stationSlug: string) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getDoc(doc(db, 'metra-station-trips', stationSlug)).then((snap) => {
-      if (snap.exists()) {
-        setStationTrips(snap.data() as StationTrips)
-      }
-      setLoading(false)
-    })
+    getDoc(doc(db, 'metra-station-trips', stationSlug))
+      .then((snap) => {
+        if (snap.exists()) {
+          setStationTrips(snap.data() as StationTrips)
+        }
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
   }, [stationSlug])
 
   return { stationTrips, loading }

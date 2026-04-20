@@ -2,6 +2,7 @@ import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-nat
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { useStation, useSchedule } from '../../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
+import { ArrivalsCard } from '../../../../components/ArrivalsCard'
 import { CTAScheduleTable } from '../../../../components/CTAScheduleTable'
 import PageHeader from '../../../../components/PageHeader'
 
@@ -44,6 +45,8 @@ export default function CtaStationDetailScreen() {
             })}
           </View>
         </PageHeader>
+
+        <ArrivalsCard schedule={schedule} service="cta" loading={scheduleLoading} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Amenities</Text>
