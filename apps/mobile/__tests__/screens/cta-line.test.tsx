@@ -4,6 +4,17 @@ import { mockLine, mockStation } from '../fixtures'
 import { useLine, useLineStations } from '../../lib/hooks'
 import CtaLineDetailScreen from '../../app/cta/[line]'
 
+jest.mock('react-native-svg', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    __esModule: true,
+    default: (props: Record<string, unknown>) => <View {...props} />,
+    Circle: () => null,
+    Path: () => null,
+  }
+})
+
 jest.mock('expo-router', () => ({
   Link: ({ children }: { children: ReactNode }) => children,
   Stack: { Screen: () => null },
