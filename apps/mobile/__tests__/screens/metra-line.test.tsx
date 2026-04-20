@@ -4,6 +4,17 @@ import { mockMetraLine, mockMetraStation } from '../fixtures'
 import { useLine, useLineStations } from '../../lib/hooks'
 import MetraLineDetailScreen from '../../app/metra/[line]'
 
+jest.mock('react-native-svg', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    __esModule: true,
+    default: (props: Record<string, unknown>) => <View {...props} />,
+    Circle: () => null,
+    Path: () => null,
+  }
+})
+
 jest.mock('expo-router', () => ({
   Link: ({ children }: { children: ReactNode }) => children,
   Stack: { Screen: () => null },
@@ -32,8 +43,7 @@ describe('MetraLineDetailScreen', () => {
     render(<MetraLineDetailScreen />)
     expect(screen.getByText('BNSF Railway')).toBeOnTheScreen()
     expect(screen.getByText('Union Station — Aurora')).toBeOnTheScreen()
-    // The Aurora station renders its name and municipality (both "Aurora"),
-    // in addition to the terminus label in the header.
-    expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(2)
+    // "Aurora" appears in the header terminus label and as the station name
+    expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
   })
 })

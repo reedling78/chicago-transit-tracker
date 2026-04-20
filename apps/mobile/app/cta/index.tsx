@@ -27,7 +27,7 @@ export default function CtaLinesScreen() {
           <>
             <PageHeader
               title="CTA Lines"
-              description="8 colour-coded rapid transit lines serving Chicago and the inner suburbs."
+              description="8 color-coded rapid transit lines serving Chicago and the inner suburbs."
             />
             <AlertBanner service="cta" href="/cta/alerts" />
           </>
