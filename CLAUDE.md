@@ -147,12 +147,14 @@ apps/
       LineListItem.tsx             Reusable line list card with accent border
       MetraAlerts.tsx             Metra alerts list with filter chips (client component)
       PageHeader.tsx              Full-bleed photo hero with overlays, title, badges (matches web)
-      ScheduleTable.tsx           Schedule display component
+      TimetableFilterBar.tsx      Shared direction + service type toggle bar
+      CTAScheduleTable.tsx        CTA timetable with direction filtering and service type tabs
+      MetraTimetable.tsx          Metra timetable with trip rows, direction + service type filters
       HeaderUserIcon.tsx          Stack header user icon — navigates to auth/profile
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
-      hooks.ts                    Firestore data hooks (useLines, useStation, useAlerts, etc.)
+      hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, etc.)
       auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
       AuthContext.tsx              Auth context + useAuth hook, profile auto-creation
     __tests__/                    Jest + React Native Testing Library test suites

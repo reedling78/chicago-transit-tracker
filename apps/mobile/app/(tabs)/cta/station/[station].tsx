@@ -3,7 +3,7 @@ import { useLocalSearchParams, Stack } from 'expo-router'
 import { useStation, useSchedule } from '../../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
 import { ArrivalsCard } from '../../../../components/ArrivalsCard'
-import { ScheduleTable } from '../../../../components/ScheduleTable'
+import { CTAScheduleTable } from '../../../../components/CTAScheduleTable'
 import PageHeader from '../../../../components/PageHeader'
 
 export default function CtaStationDetailScreen() {
@@ -61,7 +61,7 @@ export default function CtaStationDetailScreen() {
         {!scheduleLoading && schedule && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Schedule</Text>
-            <ScheduleTable schedule={schedule} />
+            <CTAScheduleTable schedule={schedule} />
           </View>
         )}
       </ScrollView>

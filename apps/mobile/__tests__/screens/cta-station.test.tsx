@@ -49,7 +49,7 @@ describe('CtaStationDetailScreen', () => {
     expect(screen.getByText('100 W Lake St, Chicago, IL')).toBeOnTheScreen()
     expect(screen.getByText('ADA')).toBeOnTheScreen()
     expect(screen.getByText('Schedule')).toBeOnTheScreen()
-    expect(screen.getByText('To Howard')).toBeOnTheScreen()
+    expect(screen.getAllByText('To Howard').length).toBeGreaterThan(0)
   })
 
   it('renders 24 Hours badge when station is open 24 hours', () => {
