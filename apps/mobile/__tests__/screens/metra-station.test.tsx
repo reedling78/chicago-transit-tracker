@@ -36,12 +36,9 @@ const mockUseSchedule = useSchedule as jest.MockedFunction<typeof useSchedule>
 const mockUseStationTrips = useStationTrips as jest.MockedFunction<typeof useStationTrips>
 
 describe('MetraStationDetailScreen', () => {
-  beforeEach(() => {
-    mockUseSchedule.mockReturnValue({ schedule: mockSchedule, loading: false })
-  })
-
   it('shows loading state while the station is loading', () => {
     mockUseStation.mockReturnValue({ station: null, loading: true })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
     render(<MetraStationDetailScreen />)
     expect(screen.queryByText('Aurora')).toBeNull()
@@ -49,6 +46,7 @@ describe('MetraStationDetailScreen', () => {
 
   it('renders station details, info, and schedule when data is loaded', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: mockSchedule, loading: false })
     mockUseStationTrips.mockReturnValue({ stationTrips: mockStationTrips, loading: false })
     render(<MetraStationDetailScreen />)
     expect(screen.getByText('Aurora')).toBeOnTheScreen()
