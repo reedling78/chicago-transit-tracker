@@ -2,17 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { fetchCTAAlerts, getRailServices } from '@lib/cta-alerts'
-import type { CTAAlert } from '@lib/cta-alerts'
+import { fetchCTAAlerts } from '@lib/cta-alerts'
+import type { NormalizedAlert } from '@lib/types'
 import type { Line } from '@lib/types'
 import { CTA_SLUG_TO_ROUTE_ID, CTA_ROUTE_ID_TO_NAME } from '@lib/constants'
 
-function AlertCard({ alert }: { alert: CTAAlert }) {
-  const railServices = getRailServices(alert)
-  const primaryService = railServices[0]
-  const borderColor = primaryService ? `#${primaryService.ServiceBackColor}` : '#6b7280'
-
-  const alertUrl = typeof alert.AlertURL === 'object' ? alert.AlertURL['#cdata-section'] : null
+function AlertCard({ alert }: { alert: NormalizedAlert }) {
+  const borderColor = alert.routes[0]?.color ?? '#6b7280'
 
   return (
     <div
@@ -21,38 +17,38 @@ function AlertCard({ alert }: { alert: CTAAlert }) {
     >
       {/* Line badges */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        {railServices.map((svc) => (
+        {alert.routes.map((route) => (
           <span
-            key={svc.ServiceId}
+            key={route.routeId}
             className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
             style={{
-              backgroundColor: `#${svc.ServiceBackColor}`,
-              color: `#${svc.ServiceTextColor}`,
+              backgroundColor: route.color,
+              color: route.textColor,
             }}
           >
-            {svc.ServiceName}
+            {route.routeName}
           </span>
         ))}
       </div>
 
       {/* Headline */}
-      {alert.Headline && (
+      {alert.headline && (
         <h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-white">
-          {alert.Headline}
+          {alert.headline}
         </h4>
       )}
 
       {/* Description */}
-      {alert.ShortDescription && (
+      {alert.description && (
         <p className="mb-3 text-sm leading-relaxed text-gray-600 dark:text-white/60">
-          {alert.ShortDescription}
+          {alert.description}
         </p>
       )}
 
       {/* Link */}
-      {alertUrl && (
+      {alert.url && (
         <a
-          href={alertUrl}
+          href={alert.url}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -110,7 +106,7 @@ export default function CTAAlerts({
   hideChips?: boolean
 }) {
   const fixedRouteId = line ? (CTA_SLUG_TO_ROUTE_ID[line.slug] ?? null) : null
-  const [data, setData] = useState<CTAAlert[]>([])
+  const [data, setData] = useState<NormalizedAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedRoute, setSelectedRoute] = useState<string>(fixedRouteId ?? 'all')
@@ -155,11 +151,11 @@ export default function CTAAlerts({
   const activeRoutes = useMemo(() => {
     const map = new Map<string, { color: string; textColor: string }>()
     for (const alert of data) {
-      for (const svc of getRailServices(alert)) {
-        if (!map.has(svc.ServiceId)) {
-          map.set(svc.ServiceId, {
-            color: `#${svc.ServiceBackColor}`,
-            textColor: `#${svc.ServiceTextColor}`,
+      for (const route of alert.routes) {
+        if (!map.has(route.routeId)) {
+          map.set(route.routeId, {
+            color: route.color,
+            textColor: route.textColor,
           })
         }
       }
@@ -170,7 +166,7 @@ export default function CTAAlerts({
   const filteredAlerts =
     selectedRoute === 'all'
       ? data
-      : data.filter((a) => getRailServices(a).some((s) => s.ServiceId === selectedRoute))
+      : data.filter((a) => a.routes.some((r) => r.routeId === selectedRoute))
 
   return (
     <div>
@@ -290,7 +286,7 @@ export default function CTAAlerts({
       {!loading && !error && filteredAlerts.length > 0 && (
         <div className="grid grid-cols-1 gap-4">
           {(limit ? filteredAlerts.slice(0, limit) : filteredAlerts).map((alert) => (
-            <AlertCard key={alert.AlertId} alert={alert} />
+            <AlertCard key={alert.id} alert={alert} />
           ))}
           {limit && filteredAlerts.length > limit && (
             <Link

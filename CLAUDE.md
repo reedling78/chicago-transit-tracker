@@ -24,7 +24,7 @@ A pnpm workspaces monorepo containing:
 - **`apps/functions/`** — Firebase Cloud Functions (2nd gen) for automated GTFS schedule sync.
 - **`packages/shared/`** — Shared TypeScript types, constants, and pure helpers used by both web and mobile.
 
-Data is stored in Firebase Firestore. The web app reads at build time via Firebase Admin SDK. The mobile app reads at runtime via Firebase JS SDK. Metra GTFS Realtime data (alerts, positions, trip updates) is fetched live via a server-side API proxy (web only).
+Data is stored in Firebase Firestore. The web app reads at build time via Firebase Admin SDK. The mobile app reads at runtime via Firebase JS SDK. CTA and Metra service alerts are fetched via Cloud Function HTTP proxies (`ctaAlerts`, `metraAlerts`) that normalize data into a shared `NormalizedAlert` format — used by both web and mobile. Metra positions and trip updates are still fetched via a server-side API proxy (web only).
 
 ---
 
@@ -59,12 +59,10 @@ apps/
           [station]/
             page.tsx              Metra station detail page
       api/
-        cta/alerts/
-          route.ts                Server-side proxy for CTA Customer Alerts API
         cta/train-locations/
           route.ts                Server-side proxy for CTA Train Tracker ttpositions
         metra/[...path]/
-          route.ts                Server-side proxy for Metra GTFS Realtime API
+          route.ts                Server-side proxy for Metra GTFS Realtime (positions + tripupdates only)
         metra/station-trips/[slug]/
           route.ts                Metra station trips from Firestore
         metra/trip-index/[line]/
@@ -128,32 +126,43 @@ apps/
       profile.tsx                 User profile screen
       cta/
         index.tsx                 CTA line list
+        alerts.tsx                CTA service alerts screen
         [line].tsx                CTA line detail
         station/[station].tsx     CTA station detail
       metra/
         index.tsx                 Metra line list
+        alerts.tsx                Metra service alerts screen
         [line].tsx                Metra line detail
         station/[station].tsx     Metra station detail
     components/
+      AlertBanner.tsx             Alert link banner with live count (used on index pages)
+      AlertCard.tsx               Single alert card with route badges and link
+      CTAAlerts.tsx               CTA alerts list with filter chips (client component)
       CTALineIcon.tsx             CTA 'L' train icon (react-native-svg)
       LineListItem.tsx             Reusable line list card with accent border
+      MetraAlerts.tsx             Metra alerts list with filter chips (client component)
       PageHeader.tsx              Full-bleed photo hero with overlays, title, badges (matches web)
       ScheduleTable.tsx           Schedule display component
       HeaderUserIcon.tsx          Stack header user icon — navigates to auth/profile
     lib/
+      config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
-      hooks.ts                    Firestore data hooks (useLines, useStation, etc.)
+      hooks.ts                    Firestore data hooks (useLines, useStation, useAlerts, etc.)
       auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
       AuthContext.tsx              Auth context + useAuth hook, profile auto-creation
     __tests__/                    Jest + React Native Testing Library test suites
   functions/
     src/
-      index.ts                    Cloud Functions entry — syncCtaGtfs, syncMetraGtfs
+      index.ts                    Cloud Functions entry — syncCtaGtfs, syncMetraGtfs, ctaAlerts, metraAlerts
       lib/
+        alert-constants.ts        Alert-related constants (local copy from shared, for CommonJS compat)
         gtfs-utils.ts             Shared GTFS parsing utilities
         change-detection.ts       CTA/Metra feed change detection (HEAD + published.txt)
         firestore-writer.ts       Batched Firestore writer (500-op chunks)
         parsers/
+          alert-types.ts          NormalizedAlert types (local copy from shared)
+          cta-alerts.ts           CTA alerts API → NormalizedAlert[] normalizer
+          metra-alerts.ts         Metra GTFS-RT alerts → NormalizedAlert[] normalizer
           cta-schedules.ts        CTA GTFS → per-station schedule data
           metra-schedules.ts      Metra GTFS → per-station schedule data
           metra-trips.ts          Metra GTFS → trip details, indexes, station trips

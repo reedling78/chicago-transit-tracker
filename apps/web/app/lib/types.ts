@@ -1,1 +1,1 @@
-export type { Line, Station } from '@ctt/shared'
+export type { Line, Station, NormalizedAlert, NormalizedAlertRoute } from '@ctt/shared'

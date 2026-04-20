@@ -4,7 +4,7 @@ const METRA_BASE = 'https://gtfspublic.metrarr.com/gtfs/public'
 
 // Only these feed paths are proxied. Anything else is rejected at the edge
 // so the upstream URL can never be influenced by an arbitrary client path.
-const ALLOWED_PATHS: ReadonlySet<string> = new Set(['alerts', 'positions', 'tripupdates'])
+const ALLOWED_PATHS: ReadonlySet<string> = new Set(['positions', 'tripupdates'])
 
 export async function GET(
   request: NextRequest,

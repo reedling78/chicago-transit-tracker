@@ -1,127 +1,62 @@
-import { fetchCTAAlerts, getRailServices } from '@lib/cta-alerts'
-import type { CTAAlert } from '@lib/cta-alerts'
+import { fetchCTAAlerts } from '@lib/cta-alerts'
+import type { NormalizedAlert } from '@lib/types'
+
+const mockAlert: NormalizedAlert = {
+  id: '1',
+  headline: 'Red Line Delays',
+  description: 'Expect delays',
+  url: 'https://transitchicago.com/alert/1',
+  routes: [{ routeId: 'Red', routeName: 'Red Line', color: '#c60c30', textColor: '#ffffff' }],
+  severity: '25',
+  impact: 'Planned Work',
+  startTime: '2026-04-01T00:00:00',
+  endTime: null,
+  service: 'cta',
+}
+
+const originalFetch = global.fetch
 
 beforeEach(() => {
   jest.clearAllMocks()
 })
 
-function makeAlert(
-  id: string,
-  services: { ServiceId: string; ServiceName: string }[],
-  headline = 'Test Alert',
-): CTAAlert {
-  return {
-    AlertId: id,
-    Headline: headline,
-    ShortDescription: 'Test description',
-    FullDescription: { '#cdata-section': '<p>Test</p>' },
-    SeverityScore: '25',
-    SeverityColor: '#ff0000',
-    SeverityCSS: 'planned',
-    Impact: 'Planned Work',
-    EventStart: '2026-04-01T00:00:00',
-    EventEnd: null,
-    TBD: '0',
-    MajorAlert: '1',
-    AlertURL: { '#cdata-section': 'https://transitchicago.com/alert' },
-    ImpactedService: {
-      Service: services.map((s) => ({
-        ServiceType: 'R',
-        ServiceTypeDescription: 'Route',
-        ServiceName: s.ServiceName,
-        ServiceId: s.ServiceId,
-        ServiceBackColor: '#c60c30',
-        ServiceTextColor: '#ffffff',
-        ServiceURL: { '#cdata-section': 'https://transitchicago.com' },
-      })),
-    },
-  }
-}
-
-describe('getRailServices', () => {
-  it('returns rail services from an alert', () => {
-    const alert = makeAlert('1', [
-      { ServiceId: 'Red', ServiceName: 'Red Line' },
-      { ServiceId: '22', ServiceName: 'Clark' },
-    ])
-    const rail = getRailServices(alert)
-    expect(rail).toHaveLength(1)
-    expect(rail[0].ServiceId).toBe('Red')
-  })
-
-  it('handles single service object (not array)', () => {
-    const alert = makeAlert('1', [{ ServiceId: 'Blue', ServiceName: 'Blue Line' }])
-    // Simulate CTA API returning a single object instead of array
-    alert.ImpactedService.Service = (alert.ImpactedService.Service as unknown[])[0] as never
-    const rail = getRailServices(alert)
-    expect(rail).toHaveLength(1)
-    expect(rail[0].ServiceId).toBe('Blue')
-  })
-
-  it('returns empty array for bus-only alerts', () => {
-    const alert = makeAlert('1', [{ ServiceId: '22', ServiceName: 'Clark' }])
-    expect(getRailServices(alert)).toHaveLength(0)
-  })
+afterEach(() => {
+  global.fetch = originalFetch
 })
 
 describe('fetchCTAAlerts', () => {
-  it('fetches from /api/cta/alerts', async () => {
-    const alerts = [makeAlert('1', [{ ServiceId: 'Red', ServiceName: 'Red Line' }])]
+  it('fetches from the Cloud Function endpoint', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ CTAAlerts: { Alert: alerts } }),
+      json: () => Promise.resolve([mockAlert]),
     })
 
     const result = await fetchCTAAlerts()
-    expect(global.fetch).toHaveBeenCalledWith('/api/cta/alerts')
+    expect(global.fetch).toHaveBeenCalledWith('/ctaAlerts')
     expect(result).toHaveLength(1)
-    expect(result[0].AlertId).toBe('1')
+    expect(result[0].id).toBe('1')
   })
 
-  it('passes routeid query param when provided', async () => {
+  it('passes routeId query param when provided', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ CTAAlerts: { Alert: [] } }),
+      json: () => Promise.resolve([]),
     })
 
     await fetchCTAAlerts('Red')
-    expect(global.fetch).toHaveBeenCalledWith('/api/cta/alerts?routeid=Red')
+    expect(global.fetch).toHaveBeenCalledWith('/ctaAlerts?routeId=Red')
   })
 
-  it('filters out bus-only alerts', async () => {
-    const alerts = [
-      makeAlert('1', [{ ServiceId: 'Red', ServiceName: 'Red Line' }]),
-      makeAlert('2', [{ ServiceId: '22', ServiceName: 'Clark' }]),
-    ]
+  it('returns NormalizedAlert array', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ CTAAlerts: { Alert: alerts } }),
+      json: () => Promise.resolve([mockAlert]),
     })
 
     const result = await fetchCTAAlerts()
-    expect(result).toHaveLength(1)
-    expect(result[0].AlertId).toBe('1')
-  })
-
-  it('handles single alert object (not array)', async () => {
-    const alert = makeAlert('1', [{ ServiceId: 'Red', ServiceName: 'Red Line' }])
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ CTAAlerts: { Alert: alert } }),
-    })
-
-    const result = await fetchCTAAlerts()
-    expect(result).toHaveLength(1)
-  })
-
-  it('returns empty array when no alerts', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ CTAAlerts: { Alert: null } }),
-    })
-
-    const result = await fetchCTAAlerts()
-    expect(result).toHaveLength(0)
+    expect(result[0].headline).toBe('Red Line Delays')
+    expect(result[0].routes[0].routeId).toBe('Red')
+    expect(result[0].service).toBe('cta')
   })
 
   it('throws on HTTP error', async () => {
@@ -130,6 +65,6 @@ describe('fetchCTAAlerts', () => {
       status: 500,
     })
 
-    await expect(fetchCTAAlerts()).rejects.toThrow('CTA API error: 500')
+    await expect(fetchCTAAlerts()).rejects.toThrow('CTA Alerts API error: 500')
   })
 })

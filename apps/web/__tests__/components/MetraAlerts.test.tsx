@@ -1,37 +1,39 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import MetraAlerts from '@components/MetraAlerts'
-import { fetchMetraFeed } from '@lib/metra-realtime'
+import { fetchMetraAlerts } from '@lib/metra-realtime'
+import type { NormalizedAlert } from '@lib/types'
 
-jest.mock('@lib/metra-realtime')
-const mockFetch = fetchMetraFeed as jest.MockedFunction<typeof fetchMetraFeed>
+jest.mock('@lib/metra-realtime', () => ({
+  fetchMetraAlerts: jest.fn(),
+}))
+const mockFetch = fetchMetraAlerts as jest.MockedFunction<typeof fetchMetraAlerts>
 
-function makeAlert(id: string, routeId: string, header: string, description: string) {
+function makeAlert(
+  id: string,
+  routeId: string,
+  headline: string,
+  description: string,
+): NormalizedAlert {
   return {
     id,
-    alert: {
-      informedEntity: [{ agencyId: 'METRA', routeId }],
-      cause: 'UNKNOWN_CAUSE',
-      effect: 'UNKNOWN_EFFECT',
-      url: {
-        translation: [{ text: `https://metrarail.com/${routeId}`, language: 'en' }],
-      },
-      headerText: { translation: [{ text: header, language: 'en' }] },
-      descriptionText: {
-        translation: [{ text: description, language: 'en' }],
-      },
-    },
+    headline,
+    description,
+    url: `https://metrarail.com/${routeId}`,
+    routes: [{ routeId, routeName: routeId, color: '#1A3D7A', textColor: '#fff' }],
+    severity: null,
+    impact: null,
+    startTime: null,
+    endTime: null,
+    service: 'metra',
   }
 }
 
-const sampleFeed = {
-  header: { gtfsRealtimeVersion: '2.0', incrementality: 'FULL_DATASET', timestamp: '1775272310' },
-  entity: [
-    makeAlert('1', 'MD-N', 'MD-N Construction', 'Platform closed for rehab'),
-    makeAlert('2', 'UP-N', 'UPN Elevator Out', 'Kenosha elevator out of service'),
-    makeAlert('3', 'UP-N', 'Track Construction', 'Trains may incur delays'),
-    makeAlert('4', 'ME', 'MED Power Outage', 'Train traffic halted'),
-  ],
-}
+const sampleAlerts: NormalizedAlert[] = [
+  makeAlert('1', 'MD-N', 'MD-N Construction', 'Platform closed for rehab'),
+  makeAlert('2', 'UP-N', 'UPN Elevator Out', 'Kenosha elevator out of service'),
+  makeAlert('3', 'UP-N', 'Track Construction', 'Trains may incur delays'),
+  makeAlert('4', 'ME', 'MED Power Outage', 'Train traffic halted'),
+]
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -61,7 +63,7 @@ describe('MetraAlerts', () => {
   })
 
   it('renders alert cards after successful fetch', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
     await waitFor(() => {
       expect(screen.getByText('MD-N Construction')).toBeInTheDocument()
@@ -71,7 +73,7 @@ describe('MetraAlerts', () => {
   })
 
   it('shows alert count in header', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
     await waitFor(() => {
       expect(screen.getByText('4 Service Alerts')).toBeInTheDocument()
@@ -79,7 +81,7 @@ describe('MetraAlerts', () => {
   })
 
   it('shows description text in cards', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
     await waitFor(() => {
       expect(screen.getByText('Platform closed for rehab')).toBeInTheDocument()
@@ -88,7 +90,7 @@ describe('MetraAlerts', () => {
   })
 
   it('renders filter chips for active routes', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument()
@@ -99,7 +101,7 @@ describe('MetraAlerts', () => {
   })
 
   it('filters alerts when a line chip is clicked', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
 
     await waitFor(() => {
@@ -114,7 +116,7 @@ describe('MetraAlerts', () => {
   })
 
   it('shows all alerts when All chip is clicked after filtering', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
 
     await waitFor(() => {
@@ -130,7 +132,7 @@ describe('MetraAlerts', () => {
   })
 
   it('shows empty state when no alerts exist', async () => {
-    mockFetch.mockResolvedValue({ header: sampleFeed.header, entity: [] } as never)
+    mockFetch.mockResolvedValue([])
     render(<MetraAlerts />)
     await waitFor(() => {
       expect(screen.getByText('No active service alerts')).toBeInTheDocument()
@@ -138,24 +140,26 @@ describe('MetraAlerts', () => {
   })
 
   it('shows error message and retry button on failure', async () => {
-    mockFetch.mockRejectedValue(new Error('Metra API error: 401'))
+    mockFetch.mockRejectedValue(new Error('Metra Alerts API error: 401'))
     render(<MetraAlerts />)
     await waitFor(() => {
-      expect(screen.getByText('Failed to load alerts: Metra API error: 401')).toBeInTheDocument()
+      expect(
+        screen.getByText('Failed to load alerts: Metra Alerts API error: 401'),
+      ).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument()
     })
   })
 
-  it('calls fetchMetraFeed with alerts', async () => {
-    mockFetch.mockResolvedValue({ header: {}, entity: [] } as never)
+  it('calls fetchMetraAlerts without routeId', async () => {
+    mockFetch.mockResolvedValue([])
     render(<MetraAlerts />)
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('alerts')
+      expect(mockFetch).toHaveBeenCalledWith(undefined)
     })
   })
 
   it('renders More info links', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
     await waitFor(() => {
       const links = screen.getAllByText('More info')
@@ -165,7 +169,7 @@ describe('MetraAlerts', () => {
   })
 
   it('shows friendly line name next to badge', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts />)
     await waitFor(() => {
       expect(screen.getByText('Milwaukee District North')).toBeInTheDocument()
@@ -181,7 +185,7 @@ const metraLine = {
 
 describe('MetraAlerts with line prop', () => {
   it('pre-filters to the given line', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts line={metraLine} />)
     await waitFor(() => {
       expect(screen.getByText('UPN Elevator Out')).toBeInTheDocument()
@@ -192,7 +196,7 @@ describe('MetraAlerts with line prop', () => {
   })
 
   it('shows filtered count in header', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts line={metraLine} />)
     await waitFor(() => {
       expect(screen.getByText('2 Service Alerts')).toBeInTheDocument()
@@ -200,7 +204,7 @@ describe('MetraAlerts with line prop', () => {
   })
 
   it('still renders filter chips when line is passed without hideChips', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts line={metraLine} />)
     await waitFor(() => {
       expect(screen.getByText('UPN Elevator Out')).toBeInTheDocument()
@@ -209,7 +213,7 @@ describe('MetraAlerts with line prop', () => {
   })
 
   it('hides filter chips when hideChips is set', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts line={metraLine} hideChips />)
     await waitFor(() => {
       expect(screen.getByText('UPN Elevator Out')).toBeInTheDocument()
@@ -220,7 +224,7 @@ describe('MetraAlerts with line prop', () => {
 
   it('shows empty state without Show all button when line has no alerts', async () => {
     const noMatchLine = { metraLineCode: 'HC' } as Parameters<typeof MetraAlerts>[0]['line']
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts line={noMatchLine} />)
     await waitFor(() => {
       expect(screen.getByText('No alerts for Heritage Corridor')).toBeInTheDocument()
@@ -231,7 +235,7 @@ describe('MetraAlerts with line prop', () => {
 
 describe('MetraAlerts with limit prop', () => {
   it('shows only the limited number of cards', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts limit={2} />)
     await waitFor(() => {
       expect(screen.getByText('MD-N Construction')).toBeInTheDocument()
@@ -242,7 +246,7 @@ describe('MetraAlerts with limit prop', () => {
   })
 
   it('renders a "View all" link when alerts exceed the limit', async () => {
-    mockFetch.mockResolvedValue(sampleFeed as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<MetraAlerts limit={2} />)
     await waitFor(() => {
       const link = screen.getByText(/View all 4 alerts/)
@@ -251,10 +255,7 @@ describe('MetraAlerts with limit prop', () => {
   })
 
   it('does not render a "View all" link when alerts fit within the limit', async () => {
-    mockFetch.mockResolvedValue({
-      header: sampleFeed.header,
-      entity: [sampleFeed.entity[0]],
-    } as never)
+    mockFetch.mockResolvedValue([sampleAlerts[0]])
     render(<MetraAlerts limit={3} />)
     await waitFor(() => {
       expect(screen.getByText('MD-N Construction')).toBeInTheDocument()

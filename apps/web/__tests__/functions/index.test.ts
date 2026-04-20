@@ -16,6 +16,22 @@ beforeAll(() => {
   )
 
   jest.doMock(
+    'firebase-functions/v2/https',
+    () => ({
+      onRequest: jest.fn((_opts: unknown, handler: unknown) => handler),
+    }),
+    { virtual: true },
+  )
+
+  jest.doMock(
+    'firebase-functions/params',
+    () => ({
+      defineSecret: jest.fn(() => ({ value: () => 'test-token' })),
+    }),
+    { virtual: true },
+  )
+
+  jest.doMock(
     'firebase-functions/v2',
     () => ({
       logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
@@ -78,6 +94,14 @@ jest.mock('@functions/lib/parsers/pace-schedules', () => ({
     routeStops: new Map(),
     schedules: new Map(),
   }),
+}))
+
+jest.mock('@functions/lib/parsers/cta-alerts', () => ({
+  normalizeCtaAlerts: jest.fn().mockReturnValue([]),
+}))
+
+jest.mock('@functions/lib/parsers/metra-alerts', () => ({
+  normalizeMetraAlerts: jest.fn().mockReturnValue([]),
 }))
 
 jest.mock('adm-zip', () => jest.fn().mockImplementation(() => ({})))

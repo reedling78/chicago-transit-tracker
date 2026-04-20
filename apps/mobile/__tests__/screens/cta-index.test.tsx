@@ -18,6 +18,9 @@ jest.mock('expo-linear-gradient', () => {
 
 jest.mock('../../lib/hooks', () => ({
   useLines: jest.fn(),
+  useAlerts: jest
+    .fn()
+    .mockReturnValue({ alerts: [], loading: false, error: null, retry: jest.fn() }),
 }))
 
 const mockUseLines = useLines as jest.MockedFunction<typeof useLines>
@@ -45,5 +48,11 @@ describe('CtaLinesScreen', () => {
     expect(
       screen.getByText('8 colour-coded rapid transit lines serving Chicago and the inner suburbs.'),
     ).toBeOnTheScreen()
+  })
+
+  it('renders a Service Alerts link', () => {
+    mockUseLines.mockReturnValue({ lines: [mockLine], loading: false })
+    render(<CtaLinesScreen />)
+    expect(screen.getByText('Service Alerts')).toBeOnTheScreen()
   })
 })

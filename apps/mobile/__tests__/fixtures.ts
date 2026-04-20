@@ -1,4 +1,4 @@
-import type { Line, Station, StationSchedule } from '@ctt/shared'
+import type { Line, Station, StationSchedule, NormalizedAlert } from '@ctt/shared'
 
 export const mockLine: Line = {
   id: 'red',
@@ -102,6 +102,32 @@ export const mockMetraStation: Station = {
   wikipediaUrl: null,
   metraLink: 'https://metra.com/stations/aurora',
   lineOrder: { BNSF: 24 },
+}
+
+export const mockCtaAlert: NormalizedAlert = {
+  id: '1',
+  headline: 'Red Line Signal Work',
+  description: 'Expect delays near Clark/Division',
+  url: 'https://transitchicago.com/alert/1',
+  routes: [{ routeId: 'Red', routeName: 'Red Line', color: '#c60c30', textColor: '#ffffff' }],
+  severity: '25',
+  impact: 'Planned Work',
+  startTime: '2026-04-01T00:00:00',
+  endTime: null,
+  service: 'cta',
+}
+
+export const mockMetraAlert: NormalizedAlert = {
+  id: '2',
+  headline: 'BNSF Delays',
+  description: 'Expect delays due to construction',
+  url: 'https://metrarail.com/alert/2',
+  routes: [{ routeId: 'BNSF', routeName: 'BNSF Railway', color: '#1A3D7A', textColor: '#fff' }],
+  severity: null,
+  impact: null,
+  startTime: null,
+  endTime: null,
+  service: 'metra',
 }
 
 export const mockSchedule: StationSchedule = {

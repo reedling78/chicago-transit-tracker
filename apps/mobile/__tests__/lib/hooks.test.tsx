@@ -1,8 +1,22 @@
 import { Text } from 'react-native'
 import { render, waitFor } from '@testing-library/react-native'
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
-import { useLine, useLines, useLineStations, useSchedule, useStation } from '../../lib/hooks'
-import { mockLine, mockMetraLine, mockStation, mockMetraStation, mockSchedule } from '../fixtures'
+import {
+  useAlerts,
+  useLine,
+  useLines,
+  useLineStations,
+  useSchedule,
+  useStation,
+} from '../../lib/hooks'
+import {
+  mockCtaAlert,
+  mockLine,
+  mockMetraLine,
+  mockStation,
+  mockMetraStation,
+  mockSchedule,
+} from '../fixtures'
 
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn((_db, name: string) => ({ __collection: name })),
@@ -16,6 +30,9 @@ jest.mock('firebase/firestore', () => ({
 }))
 
 jest.mock('../../lib/firebase', () => ({ db: {} }))
+jest.mock('../../lib/config', () => ({
+  FUNCTIONS_BASE_URL: 'https://test.cloudfunctions.net',
+}))
 
 const mockGetDocs = getDocs as jest.MockedFunction<typeof getDocs>
 const mockGetDoc = getDoc as jest.MockedFunction<typeof getDoc>
@@ -152,6 +169,58 @@ describe('useLineStations', () => {
     const { getByText } = render(<LineStationsProbe line="bnsf" short="BNSF" />)
     await waitFor(() => expect(getByText('stations:aurora')).toBeOnTheScreen())
     expect(mockWhere).toHaveBeenCalledWith('lines', 'array-contains', 'BNSF')
+  })
+})
+
+function AlertsProbe({ service, routeId }: { service: 'cta' | 'metra'; routeId?: string }) {
+  const { alerts, loading, error } = useAlerts(service, routeId)
+  if (loading) return <Text>loading</Text>
+  if (error) return <Text>error:{error}</Text>
+  return <Text>alerts:{alerts.map((a) => a.id).join(',')}</Text>
+}
+
+const originalFetch = global.fetch
+
+describe('useAlerts', () => {
+  afterEach(() => {
+    global.fetch = originalFetch
+  })
+
+  it('fetches CTA alerts and returns results', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([mockCtaAlert]),
+    }) as unknown as typeof fetch
+
+    const { getByText } = render(<AlertsProbe service="cta" />)
+    expect(getByText('loading')).toBeOnTheScreen()
+    await waitFor(() => expect(getByText('alerts:1')).toBeOnTheScreen())
+
+    expect(global.fetch).toHaveBeenCalledWith('https://test.cloudfunctions.net/ctaAlerts')
+  })
+
+  it('fetches Metra alerts with routeId', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    }) as unknown as typeof fetch
+
+    const { getByText } = render(<AlertsProbe service="metra" routeId="BNSF" />)
+    await waitFor(() => expect(getByText('alerts:')).toBeOnTheScreen())
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://test.cloudfunctions.net/metraAlerts?routeId=BNSF',
+    )
+  })
+
+  it('shows error when fetch fails', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    }) as unknown as typeof fetch
+
+    const { getByText } = render(<AlertsProbe service="cta" />)
+    await waitFor(() => expect(getByText('error:Alert API error: 500')).toBeOnTheScreen())
   })
 })
 

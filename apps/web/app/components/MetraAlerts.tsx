@@ -2,26 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { fetchMetraFeed } from '@lib/metra-realtime'
+import { fetchMetraAlerts } from '@lib/metra-realtime'
+import type { NormalizedAlert } from '@lib/types'
 import type { Line } from '@lib/types'
 import { LINE_COLORS, METRA_LINE_NAMES } from '@lib/constants'
 
-type FeedData = Awaited<ReturnType<typeof fetchMetraFeed>>
-
-function AlertCard({ entity }: { entity: NonNullable<FeedData['entity']>[number] }) {
-  const alert = entity.alert
-  if (!alert) return null
-
-  const routes = (alert.informedEntity ?? [])
-    .map((ie) => ie.routeId)
-    .filter((r): r is string => Boolean(r))
-
-  const primaryRoute = routes[0]
-  const headerText = alert.headerText?.translation?.[0]?.text
-  const descriptionText = alert.descriptionText?.translation?.[0]?.text
-  const url = alert.url?.translation?.[0]?.text
-
-  const borderColor = primaryRoute ? (LINE_COLORS[primaryRoute]?.bg ?? '#6b7280') : '#6b7280'
+function AlertCard({ alert }: { alert: NormalizedAlert }) {
+  const borderColor = alert.routes[0]?.color ?? '#6b7280'
 
   return (
     <div
@@ -30,44 +17,43 @@ function AlertCard({ entity }: { entity: NonNullable<FeedData['entity']>[number]
     >
       {/* Line badges */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        {routes.map((routeId) => {
-          const colors = LINE_COLORS[routeId]
-          return (
-            <span
-              key={routeId}
-              className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-              style={{
-                backgroundColor: colors?.bg ?? '#6b7280',
-                color: colors?.text ?? '#fff',
-              }}
-            >
-              {routeId}
-            </span>
-          )
-        })}
-        {primaryRoute && METRA_LINE_NAMES[primaryRoute] && (
+        {alert.routes.map((route) => (
+          <span
+            key={route.routeId}
+            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+            style={{
+              backgroundColor: route.color,
+              color: route.textColor,
+            }}
+          >
+            {route.routeId}
+          </span>
+        ))}
+        {alert.routes[0] && METRA_LINE_NAMES[alert.routes[0].routeId] && (
           <span className="text-xs text-gray-500 dark:text-white/50">
-            {METRA_LINE_NAMES[primaryRoute]}
+            {METRA_LINE_NAMES[alert.routes[0].routeId]}
           </span>
         )}
       </div>
 
       {/* Header */}
-      {headerText && (
-        <h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-white">{headerText}</h4>
+      {alert.headline && (
+        <h4 className="mb-2 text-base font-semibold text-gray-900 dark:text-white">
+          {alert.headline}
+        </h4>
       )}
 
       {/* Description */}
-      {descriptionText && (
+      {alert.description && (
         <p className="mb-3 text-sm leading-relaxed text-gray-600 dark:text-white/60">
-          {descriptionText}
+          {alert.description}
         </p>
       )}
 
       {/* Link */}
-      {url && (
+      {alert.url && (
         <a
-          href={url}
+          href={alert.url}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -124,15 +110,15 @@ export default function MetraAlerts({
   hideChips?: boolean
 }) {
   const fixedRoute = line?.metraLineCode ?? null
-  const [data, setData] = useState<FeedData | null>(null)
+  const [data, setData] = useState<NormalizedAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedLine, setSelectedLine] = useState<string>(fixedRoute ?? 'all')
 
   const load = async () => {
     try {
-      const feed = await fetchMetraFeed('alerts')
-      setData(feed)
+      const alerts = await fetchMetraAlerts(fixedRoute ?? undefined)
+      setData(alerts)
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
@@ -146,9 +132,9 @@ export default function MetraAlerts({
 
     async function poll() {
       try {
-        const feed = await fetchMetraFeed('alerts')
+        const alerts = await fetchMetraAlerts(fixedRoute ?? undefined)
         if (!active) return
-        setData(feed)
+        setData(alerts)
         setError(null)
       } catch (err) {
         if (!active) return
@@ -164,24 +150,22 @@ export default function MetraAlerts({
       active = false
       clearInterval(interval)
     }
-  }, [])
-
-  const alerts = useMemo(() => data?.entity ?? [], [data])
+  }, [fixedRoute])
 
   const activeRoutes = useMemo(() => {
     const set = new Set<string>()
-    for (const e of alerts) {
-      for (const ie of e.alert?.informedEntity ?? []) {
-        if (ie.routeId) set.add(ie.routeId)
+    for (const alert of data) {
+      for (const route of alert.routes) {
+        set.add(route.routeId)
       }
     }
     return Array.from(set).sort()
-  }, [alerts])
+  }, [data])
 
   const filteredAlerts =
     selectedLine === 'all'
-      ? alerts
-      : alerts.filter((e) => e.alert?.informedEntity?.some((ie) => ie.routeId === selectedLine))
+      ? data
+      : data.filter((a) => a.routes.some((r) => r.routeId === selectedLine))
 
   return (
     <div>
@@ -301,8 +285,8 @@ export default function MetraAlerts({
       {/* Alert cards */}
       {!loading && !error && filteredAlerts.length > 0 && (
         <div className="grid grid-cols-1 gap-4">
-          {(limit ? filteredAlerts.slice(0, limit) : filteredAlerts).map((entity) => (
-            <AlertCard key={entity.id} entity={entity} />
+          {(limit ? filteredAlerts.slice(0, limit) : filteredAlerts).map((alert) => (
+            <AlertCard key={alert.id} alert={alert} />
           ))}
           {limit && filteredAlerts.length > limit && (
             <Link

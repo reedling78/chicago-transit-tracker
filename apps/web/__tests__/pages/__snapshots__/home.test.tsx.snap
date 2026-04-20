@@ -335,86 +335,19 @@ exports[`Home page matches snapshot 1`] = `
           </h2>
         </div>
         <div
-          class="grid grid-cols-1 gap-4"
+          class="rounded-xl border border-red-200 bg-red-50 p-6 dark:border-red-900/30 dark:bg-red-950/20"
         >
-          <div
-            class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
+          <p
+            class="mb-3 text-sm font-medium text-red-700 dark:text-red-400"
           >
-            <div
-              class="mb-3 flex gap-2"
-            >
-              <div
-                class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
-              />
-              <div
-                class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
-              />
-            </div>
-            <div
-              class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
-            />
-            <div
-              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
-            />
-            <div
-              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
-            />
-            <div
-              class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
-            />
-          </div>
-          <div
-            class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
+            Failed to load alerts: 
+            (0 , _metrarealtime.fetchMetraAlerts) is not a function
+          </p>
+          <button
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
           >
-            <div
-              class="mb-3 flex gap-2"
-            >
-              <div
-                class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
-              />
-              <div
-                class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
-              />
-            </div>
-            <div
-              class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
-            />
-            <div
-              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
-            />
-            <div
-              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
-            />
-            <div
-              class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
-            />
-          </div>
-          <div
-            class="animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5"
-          >
-            <div
-              class="mb-3 flex gap-2"
-            >
-              <div
-                class="h-5 w-12 rounded-full bg-gray-200 dark:bg-white/10"
-              />
-              <div
-                class="h-5 w-32 rounded bg-gray-200 dark:bg-white/10"
-              />
-            </div>
-            <div
-              class="mb-2 h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10"
-            />
-            <div
-              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
-            />
-            <div
-              class="mb-1 h-4 w-full rounded bg-gray-100 dark:bg-white/5"
-            />
-            <div
-              class="h-4 w-2/3 rounded bg-gray-100 dark:bg-white/5"
-            />
-          </div>
+            Retry
+          </button>
         </div>
       </div>
     </section>
