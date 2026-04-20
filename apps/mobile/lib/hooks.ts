@@ -74,10 +74,12 @@ export function useAlerts(service: 'cta' | 'metra', routeId?: string) {
   const [alerts, setAlerts] = useState<NormalizedAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   const retry = useCallback(() => {
     setLoading(true)
     setError(null)
+    setRetryCount((c) => c + 1)
   }, [])
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export function useAlerts(service: 'cta' | 'metra', routeId?: string) {
       active = false
       clearInterval(interval)
     }
-  }, [service, routeId, loading])
+  }, [service, routeId, retryCount])
 
   return { alerts, loading, error, retry }
 }
