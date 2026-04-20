@@ -1,4 +1,4 @@
-import type { Line, Station, StationSchedule, NormalizedAlert } from '@ctt/shared'
+import type { Line, Station, StationSchedule, StationTrips, NormalizedAlert } from '@ctt/shared'
 
 export const mockLine: Line = {
   id: 'red',
@@ -128,6 +128,50 @@ export const mockMetraAlert: NormalizedAlert = {
   startTime: null,
   endTime: null,
   service: 'metra',
+}
+
+export const mockStationTrips: StationTrips = {
+  weekday: [
+    {
+      tripId: 'BNSF_BN1200_V4_A',
+      trainNumber: '1200',
+      headsign: 'Chicago Union Station',
+      departure: '5:30 AM',
+      line: 'BNSF',
+      lineSlug: 'bnsf',
+      directionId: 1,
+    },
+    {
+      tripId: 'BNSF_BN1205_V4_A',
+      trainNumber: '1205',
+      headsign: 'Aurora',
+      departure: '6:00 AM',
+      line: 'BNSF',
+      lineSlug: 'bnsf',
+      directionId: 0,
+    },
+    {
+      tripId: 'BNSF_BN1210_V4_A',
+      trainNumber: '1210',
+      headsign: 'Chicago Union Station',
+      departure: '6:30 AM',
+      line: 'BNSF',
+      lineSlug: 'bnsf',
+      directionId: 1,
+    },
+  ],
+  saturday: [
+    {
+      tripId: 'BNSF_BN2000_V4_A',
+      trainNumber: '2000',
+      headsign: 'Chicago Union Station',
+      departure: '7:00 AM',
+      line: 'BNSF',
+      lineSlug: 'bnsf',
+      directionId: 1,
+    },
+  ],
+  sunday: [],
 }
 
 export const mockSchedule: StationSchedule = {

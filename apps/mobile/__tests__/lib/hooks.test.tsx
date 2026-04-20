@@ -8,6 +8,7 @@ import {
   useLineStations,
   useSchedule,
   useStation,
+  useStationTrips,
 } from '../../lib/hooks'
 import {
   mockCtaAlert,
@@ -16,6 +17,7 @@ import {
   mockStation,
   mockMetraStation,
   mockSchedule,
+  mockStationTrips,
 } from '../fixtures'
 
 jest.mock('firebase/firestore', () => ({
@@ -240,5 +242,30 @@ describe('useSchedule', () => {
     mockGetDoc.mockResolvedValueOnce(singleDocSnap(null))
     const { getByText } = render(<ScheduleProbe slug="missing" />)
     await waitFor(() => expect(getByText('schedule:null')).toBeOnTheScreen())
+  })
+})
+
+function StationTripsProbe({ slug }: { slug: string }) {
+  const { stationTrips, loading } = useStationTrips(slug)
+  if (loading) return <Text>loading</Text>
+  return <Text>trips:{stationTrips?.weekday.length ?? 'null'}</Text>
+}
+
+describe('useStationTrips', () => {
+  it('returns station trips document when it exists', async () => {
+    mockGetDoc.mockResolvedValueOnce({
+      id: 'aurora',
+      exists: () => true,
+      data: () => mockStationTrips,
+    } as any)
+    const { getByText } = render(<StationTripsProbe slug="aurora" />)
+    await waitFor(() => expect(getByText('trips:3')).toBeOnTheScreen())
+    expect(mockDoc).toHaveBeenCalledWith({}, 'metra-station-trips', 'aurora')
+  })
+
+  it('returns null when the station trips document does not exist', async () => {
+    mockGetDoc.mockResolvedValueOnce(singleDocSnap(null))
+    const { getByText } = render(<StationTripsProbe slug="missing" />)
+    await waitFor(() => expect(getByText('trips:null')).toBeOnTheScreen())
   })
 })

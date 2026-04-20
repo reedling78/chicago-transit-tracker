@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore'
 import { db } from './firebase'
-import type { Line, Station, StationSchedule, NormalizedAlert } from '@ctt/shared'
+import type { Line, Station, StationSchedule, StationTrips, NormalizedAlert } from '@ctt/shared'
 import { FUNCTIONS_BASE_URL } from './config'
 
 export function useLines(service: 'cta' | 'metra') {
@@ -129,4 +129,20 @@ export function useSchedule(stationSlug: string) {
   }, [stationSlug])
 
   return { schedule, loading }
+}
+
+export function useStationTrips(stationSlug: string) {
+  const [stationTrips, setStationTrips] = useState<StationTrips | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getDoc(doc(db, 'metra-station-trips', stationSlug)).then((snap) => {
+      if (snap.exists()) {
+        setStationTrips(snap.data() as StationTrips)
+      }
+      setLoading(false)
+    })
+  }, [stationSlug])
+
+  return { stationTrips, loading }
 }
