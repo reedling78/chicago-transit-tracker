@@ -46,7 +46,7 @@ describe('CTAScheduleTable', () => {
       directions: [{ headsign: 'Loop', line: 'Red', weekday: [], saturday: [], sunday: [] }],
     }
     render(<CTAScheduleTable schedule={schedule} />)
-    expect(screen.getByText(/No weekday service/)).toBeOnTheScreen()
+    expect(screen.getByText(/No Weekday service/)).toBeOnTheScreen()
   })
 
   it('shows empty message when schedule has no directions', () => {

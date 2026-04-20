@@ -12,7 +12,7 @@ function formatTime(minutesSinceMidnight: number): string {
 }
 
 const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
-  weekday: 'weekday',
+  weekday: 'Weekday',
   saturday: 'Saturday',
   sunday: 'Sunday',
 }
