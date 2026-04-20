@@ -1,6 +1,6 @@
 import { View, ScrollView, StyleSheet } from 'react-native'
 import { Stack } from 'expo-router'
-import CTAAlerts from '../../components/CTAAlerts'
+import CTAAlerts from '../../../components/CTAAlerts'
 
 export default function CtaAlertsScreen() {
   return (

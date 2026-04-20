@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockMetraLine, mockMetraStation } from '../fixtures'
 import { useLine, useLineStations } from '../../lib/hooks'
-import MetraLineDetailScreen from '../../app/metra/[line]'
+import MetraLineDetailScreen from '../../app/(tabs)/metra/[line]'
 
 jest.mock('react-native-svg', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

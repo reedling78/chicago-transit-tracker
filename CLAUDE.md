@@ -121,19 +121,24 @@ apps/
   mobile/
     app/
       _layout.tsx                 Root layout — Stack navigator, AuthProvider, headerRight icon
-      index.tsx                   Home screen
+      index.tsx                   Redirect to /(tabs)/my-trains
       auth.tsx                    Sign in/up/reset screen (modal presentation)
       profile.tsx                 User profile screen
-      cta/
-        index.tsx                 CTA line list
-        alerts.tsx                CTA service alerts screen
-        [line].tsx                CTA line detail
-        station/[station].tsx     CTA station detail
-      metra/
-        index.tsx                 Metra line list
-        alerts.tsx                Metra service alerts screen
-        [line].tsx                Metra line detail
-        station/[station].tsx     Metra station detail
+      (tabs)/
+        _layout.tsx               Bottom tab bar — My Trains, CTA, Metra
+        my-trains.tsx             My Trains placeholder screen
+        cta/
+          _layout.tsx             CTA tab Stack layout
+          index.tsx               CTA line list
+          alerts.tsx              CTA service alerts screen
+          [line].tsx              CTA line detail
+          station/[station].tsx   CTA station detail
+        metra/
+          _layout.tsx             Metra tab Stack layout
+          index.tsx               Metra line list
+          alerts.tsx              Metra service alerts screen
+          [line].tsx              Metra line detail
+          station/[station].tsx   Metra station detail
     components/
       AlertBanner.tsx             Alert link banner with live count (used on index pages)
       AlertCard.tsx               Single alert card with route badges and link
@@ -273,7 +278,7 @@ The web app runs as a server-side rendered Next.js app deployed to Firebase App 
 
 ### Mobile app (Expo)
 
-The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing).
+The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing) with a bottom tab bar (`(tabs)` route group) containing three tabs: My Trains, CTA, and Metra. CTA and Metra tabs each have their own nested Stack layout so sub-routes push within the tab while the tab bar remains visible. Auth and profile screens live outside the tabs at the root Stack level.
 
 ### Dark mode
 

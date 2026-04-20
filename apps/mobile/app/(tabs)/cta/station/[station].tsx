@@ -1,9 +1,9 @@
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useStation, useSchedule } from '../../../lib/hooks'
+import { useStation, useSchedule } from '../../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
-import { ScheduleTable } from '../../../components/ScheduleTable'
-import PageHeader from '../../../components/PageHeader'
+import { ScheduleTable } from '../../../../components/ScheduleTable'
+import PageHeader from '../../../../components/PageHeader'
 
 export default function CtaStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()

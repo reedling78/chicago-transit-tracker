@@ -1,6 +1,6 @@
 import { View, ScrollView, StyleSheet } from 'react-native'
 import { Stack } from 'expo-router'
-import MetraAlerts from '../../components/MetraAlerts'
+import MetraAlerts from '../../../components/MetraAlerts'
 
 export default function MetraAlertsScreen() {
   return (
