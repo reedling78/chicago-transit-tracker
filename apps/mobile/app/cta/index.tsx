@@ -2,6 +2,7 @@ import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLines } from '../../lib/hooks'
 import { CTA_LINE_COLORS } from '@ctt/shared'
 import LineListItem from '../../components/LineListItem'
+import AlertBanner from '../../components/AlertBanner'
 import CTALineIcon from '../../components/CTALineIcon'
 import PageHeader from '../../components/PageHeader'
 
@@ -23,10 +24,13 @@ export default function CtaLinesScreen() {
         keyExtractor={(item) => item.slug}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
-          <PageHeader
-            title="CTA Lines"
-            description="8 colour-coded rapid transit lines serving Chicago and the inner suburbs."
-          />
+          <>
+            <PageHeader
+              title="CTA Lines"
+              description="8 colour-coded rapid transit lines serving Chicago and the inner suburbs."
+            />
+            <AlertBanner service="cta" href="/cta/alerts" />
+          </>
         }
         renderItem={({ item }) => {
           const accentColor = CTA_LINE_COLORS[item.shortName]?.bg ?? item.color

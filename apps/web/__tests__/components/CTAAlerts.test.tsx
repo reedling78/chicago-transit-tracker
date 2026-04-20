@@ -1,74 +1,57 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import CTAAlerts from '@components/CTAAlerts'
 import { fetchCTAAlerts } from '@lib/cta-alerts'
+import type { NormalizedAlert } from '@lib/types'
 
-jest.mock('@lib/cta-alerts', () => {
-  const actual = jest.requireActual('@lib/cta-alerts')
-  return {
-    ...actual,
-    fetchCTAAlerts: jest.fn(),
-  }
-})
+jest.mock('@lib/cta-alerts', () => ({
+  fetchCTAAlerts: jest.fn(),
+}))
 const mockFetch = fetchCTAAlerts as jest.MockedFunction<typeof fetchCTAAlerts>
 
 function makeAlert(
   id: string,
-  services: { ServiceId: string; ServiceName: string; ServiceBackColor: string }[],
+  routes: { routeId: string; routeName: string; color: string }[],
   headline: string,
   description: string,
-) {
+): NormalizedAlert {
   return {
-    AlertId: id,
-    Headline: headline,
-    ShortDescription: description,
-    FullDescription: { '#cdata-section': '<p>Test</p>' },
-    SeverityScore: '25',
-    SeverityColor: '#ff0000',
-    SeverityCSS: 'planned',
-    Impact: 'Planned Work',
-    EventStart: '2026-04-01T00:00:00',
-    EventEnd: null,
-    TBD: '0',
-    MajorAlert: '1',
-    AlertURL: { '#cdata-section': `https://transitchicago.com/alert/${id}` },
-    ImpactedService: {
-      Service: services.map((s) => ({
-        ServiceType: 'R',
-        ServiceTypeDescription: 'Route',
-        ServiceName: s.ServiceName,
-        ServiceId: s.ServiceId,
-        ServiceBackColor: s.ServiceBackColor,
-        ServiceTextColor: 'ffffff',
-        ServiceURL: { '#cdata-section': 'https://transitchicago.com' },
-      })),
-    },
+    id,
+    headline,
+    description,
+    url: `https://transitchicago.com/alert/${id}`,
+    routes: routes.map((r) => ({ ...r, textColor: '#ffffff' })),
+    severity: '25',
+    impact: 'Planned Work',
+    startTime: '2026-04-01T00:00:00',
+    endTime: null,
+    service: 'cta',
   }
 }
 
-const sampleAlerts = [
+const sampleAlerts: NormalizedAlert[] = [
   makeAlert(
     '1',
-    [{ ServiceId: 'Red', ServiceName: 'Red Line', ServiceBackColor: 'c60c30' }],
+    [{ routeId: 'Red', routeName: 'Red Line', color: '#c60c30' }],
     'Red Line Signal Work',
     'Expect delays near Clark/Division',
   ),
   makeAlert(
     '2',
-    [{ ServiceId: 'Blue', ServiceName: 'Blue Line', ServiceBackColor: '00a1de' }],
+    [{ routeId: 'Blue', routeName: 'Blue Line', color: '#00a1de' }],
     'Blue Line Track Maintenance',
     "Shuttle buses between Rosemont and O'Hare",
   ),
   makeAlert(
     '3',
-    [{ ServiceId: 'Brn', ServiceName: 'Brown Line', ServiceBackColor: '62361b' }],
+    [{ routeId: 'Brn', routeName: 'Brown Line', color: '#62361b' }],
     'Brown Line Station Work',
     'Armitage station closed for rehab',
   ),
   makeAlert(
     '4',
     [
-      { ServiceId: 'Red', ServiceName: 'Red Line', ServiceBackColor: 'c60c30' },
-      { ServiceId: 'Blue', ServiceName: 'Blue Line', ServiceBackColor: '00a1de' },
+      { routeId: 'Red', routeName: 'Red Line', color: '#c60c30' },
+      { routeId: 'Blue', routeName: 'Blue Line', color: '#00a1de' },
     ],
     'Systemwide Alert',
     'Service changes this weekend',
@@ -103,7 +86,7 @@ describe('CTAAlerts', () => {
   })
 
   it('renders alert cards after successful fetch', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
     await waitFor(() => {
       expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
@@ -113,7 +96,7 @@ describe('CTAAlerts', () => {
   })
 
   it('shows alert count in header', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
     await waitFor(() => {
       expect(screen.getByText('4 Service Alerts')).toBeInTheDocument()
@@ -121,7 +104,7 @@ describe('CTAAlerts', () => {
   })
 
   it('shows description text in cards', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
     await waitFor(() => {
       expect(screen.getByText('Expect delays near Clark/Division')).toBeInTheDocument()
@@ -130,7 +113,7 @@ describe('CTAAlerts', () => {
   })
 
   it('renders filter chips for active routes', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument()
@@ -141,7 +124,7 @@ describe('CTAAlerts', () => {
   })
 
   it('filters alerts when a line chip is clicked', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
 
     await waitFor(() => {
@@ -155,7 +138,7 @@ describe('CTAAlerts', () => {
   })
 
   it('shows all alerts when All chip is clicked after filtering', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
 
     await waitFor(() => {
@@ -179,16 +162,18 @@ describe('CTAAlerts', () => {
   })
 
   it('shows error message and retry button on failure', async () => {
-    mockFetch.mockRejectedValue(new Error('CTA API error: 500'))
+    mockFetch.mockRejectedValue(new Error('CTA Alerts API error: 500'))
     render(<CTAAlerts />)
     await waitFor(() => {
-      expect(screen.getByText('Failed to load alerts: CTA API error: 500')).toBeInTheDocument()
+      expect(
+        screen.getByText('Failed to load alerts: CTA Alerts API error: 500'),
+      ).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument()
     })
   })
 
   it('renders More info links', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
     await waitFor(() => {
       const links = screen.getAllByText('More info')
@@ -198,10 +183,9 @@ describe('CTAAlerts', () => {
   })
 
   it('shows line badge pills with service names', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts />)
     await waitFor(() => {
-      // The systemwide alert should show both Red Line and Blue Line badges
       const redBadges = screen.getAllByText('Red Line')
       expect(redBadges.length).toBeGreaterThanOrEqual(1)
     })
@@ -215,8 +199,8 @@ const redLine = {
 } as Parameters<typeof CTAAlerts>[0]['line']
 
 describe('CTAAlerts with line prop', () => {
-  it('pre-filters to the given line via routeid', async () => {
-    mockFetch.mockResolvedValue([sampleAlerts[0], sampleAlerts[3]] as never)
+  it('pre-filters to the given line via routeId', async () => {
+    mockFetch.mockResolvedValue([sampleAlerts[0], sampleAlerts[3]])
     render(<CTAAlerts line={redLine} />)
     await waitFor(() => {
       expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
@@ -225,7 +209,7 @@ describe('CTAAlerts with line prop', () => {
   })
 
   it('shows filtered count in header', async () => {
-    mockFetch.mockResolvedValue([sampleAlerts[0], sampleAlerts[3]] as never)
+    mockFetch.mockResolvedValue([sampleAlerts[0], sampleAlerts[3]])
     render(<CTAAlerts line={redLine} />)
     await waitFor(() => {
       expect(screen.getByText('2 Service Alerts')).toBeInTheDocument()
@@ -233,7 +217,7 @@ describe('CTAAlerts with line prop', () => {
   })
 
   it('still renders filter chips when line is passed without hideChips', async () => {
-    mockFetch.mockResolvedValue([sampleAlerts[0], sampleAlerts[3]] as never)
+    mockFetch.mockResolvedValue([sampleAlerts[0], sampleAlerts[3]])
     render(<CTAAlerts line={redLine} />)
     await waitFor(() => {
       expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
@@ -242,7 +226,7 @@ describe('CTAAlerts with line prop', () => {
   })
 
   it('hides filter chips when hideChips is set', async () => {
-    mockFetch.mockResolvedValue([sampleAlerts[0]] as never)
+    mockFetch.mockResolvedValue([sampleAlerts[0]])
     render(<CTAAlerts line={redLine} hideChips />)
     await waitFor(() => {
       expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
@@ -265,7 +249,7 @@ describe('CTAAlerts with line prop', () => {
 
 describe('CTAAlerts with limit prop', () => {
   it('shows only the limited number of cards', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts limit={2} />)
     await waitFor(() => {
       expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()
@@ -275,7 +259,7 @@ describe('CTAAlerts with limit prop', () => {
   })
 
   it('renders a "View all" link when alerts exceed the limit', async () => {
-    mockFetch.mockResolvedValue(sampleAlerts as never)
+    mockFetch.mockResolvedValue(sampleAlerts)
     render(<CTAAlerts limit={2} />)
     await waitFor(() => {
       const link = screen.getByText(/View all 4 alerts/)
@@ -284,7 +268,7 @@ describe('CTAAlerts with limit prop', () => {
   })
 
   it('does not render a "View all" link when alerts fit within the limit', async () => {
-    mockFetch.mockResolvedValue([sampleAlerts[0]] as never)
+    mockFetch.mockResolvedValue([sampleAlerts[0]])
     render(<CTAAlerts limit={3} />)
     await waitFor(() => {
       expect(screen.getByText('Red Line Signal Work')).toBeInTheDocument()

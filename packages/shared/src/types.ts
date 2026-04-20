@@ -51,6 +51,26 @@ export interface Station {
   lineOrder: Record<string, number>
 }
 
+export interface NormalizedAlertRoute {
+  routeId: string
+  routeName: string
+  color: string
+  textColor: string
+}
+
+export interface NormalizedAlert {
+  id: string
+  headline: string
+  description: string
+  url: string | null
+  routes: NormalizedAlertRoute[]
+  severity: string | null
+  impact: string | null
+  startTime: string | null
+  endTime: string | null
+  service: 'cta' | 'metra'
+}
+
 export interface UserProfile {
   uid: string
   email: string | null

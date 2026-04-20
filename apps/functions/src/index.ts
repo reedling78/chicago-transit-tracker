@@ -1,18 +1,21 @@
 /**
- * Cloud Functions for automated GTFS schedule sync.
+ * Cloud Functions for automated GTFS schedule sync and realtime alert proxies.
  *
- * Two scheduled functions check CTA and Metra GTFS feeds hourly for updates.
- * When a feed has changed, the function downloads the new zip, parses it,
- * and writes the results to Firestore collections.
+ * Scheduled functions check CTA and Metra GTFS feeds hourly for updates.
+ * HTTP functions proxy and normalize CTA/Metra realtime alerts for web and mobile.
  */
 
 import { onSchedule } from 'firebase-functions/v2/scheduler'
+import { onRequest } from 'firebase-functions/v2/https'
+import { defineSecret } from 'firebase-functions/params'
 import { logger } from 'firebase-functions/v2'
 import { initializeApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import AdmZip from 'adm-zip'
 
 import { downloadBuffer } from './lib/gtfs-utils'
+import { normalizeCtaAlerts } from './lib/parsers/cta-alerts'
+import { normalizeMetraAlerts } from './lib/parsers/metra-alerts'
 import {
   hasCtaFeedChanged,
   hasMetraFeedChanged,
@@ -27,11 +30,85 @@ import { parseMetraSchedules } from './lib/parsers/metra-schedules'
 import { parseMetraTrips } from './lib/parsers/metra-trips'
 import { parsePaceGtfs } from './lib/parsers/pace-schedules'
 
+const metraApiToken = defineSecret('metra-api-token')
+
+const CTA_ALERTS_URL = 'https://www.transitchicago.com/api/1.0/alerts.aspx?outputType=JSON'
+const METRA_ALERTS_URL = 'https://gtfspublic.metrarr.com/gtfs/public/alerts'
+
 const CTA_GTFS_URL = 'https://www.transitchicago.com/downloads/sch_data/google_transit.zip'
 const METRA_GTFS_URL = 'https://schedules.metrarail.com/gtfs/schedule.zip'
 const PACE_GTFS_URL = 'https://www.pacebus.com/gtfsdownload'
 
 initializeApp()
+
+// ---------------------------------------------------------------------------
+// CTA Alerts — HTTP proxy with normalization
+// ---------------------------------------------------------------------------
+
+export const ctaAlerts = onRequest(
+  { region: 'us-central1', cors: true },
+  async (req, res) => {
+    try {
+      const routeId = (req.query.routeId as string) || undefined
+      const url = routeId
+        ? `${CTA_ALERTS_URL}&routeid=${encodeURIComponent(routeId)}`
+        : CTA_ALERTS_URL
+
+      const upstream = await fetch(url)
+      if (!upstream.ok) {
+        res.status(502).json({ error: `CTA API returned ${upstream.status}` })
+        return
+      }
+
+      const json = await upstream.json()
+      const alerts = normalizeCtaAlerts(json as Record<string, unknown>, routeId)
+
+      res.set('Cache-Control', 'public, max-age=30')
+      res.json(alerts)
+    } catch (err) {
+      logger.error('ctaAlerts error', err)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  },
+)
+
+// ---------------------------------------------------------------------------
+// Metra Alerts — HTTP proxy with normalization
+// ---------------------------------------------------------------------------
+
+export const metraAlerts = onRequest(
+  { region: 'us-central1', cors: true, secrets: [metraApiToken] },
+  async (req, res) => {
+    try {
+      const token = metraApiToken.value()
+      if (!token) {
+        res.status(500).json({ error: 'METRA_API_TOKEN not configured' })
+        return
+      }
+
+      const routeId = (req.query.routeId as string) || undefined
+      const url = `${METRA_ALERTS_URL}?api_token=${encodeURIComponent(token)}`
+
+      const upstream = await fetch(url)
+      if (!upstream.ok) {
+        res.status(502).json({ error: `Metra API returned ${upstream.status}` })
+        return
+      }
+
+      const buffer = await upstream.arrayBuffer()
+      const { transit_realtime } = await import('gtfs-realtime-bindings')
+      const feed = transit_realtime.FeedMessage.decode(new Uint8Array(buffer))
+
+      const alerts = normalizeMetraAlerts(feed, routeId)
+
+      res.set('Cache-Control', 'public, max-age=30')
+      res.json(alerts)
+    } catch (err) {
+      logger.error('metraAlerts error', err)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  },
+)
 
 // ---------------------------------------------------------------------------
 // CTA Sync — runs at the top of every hour

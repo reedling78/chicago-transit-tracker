@@ -87,21 +87,12 @@ describe('GET /api/metra/[...path]', () => {
     expect(res.status).toBe(503)
   })
 
-  it('proxies the alerts feed path', async () => {
+  it('rejects alerts path (now handled by Cloud Function)', async () => {
     process.env.METRA_API_TOKEN = 'test-token'
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      arrayBuffer: async () => new ArrayBuffer(4),
-    }) as unknown as typeof fetch
-
     const { GET } = await loadRoute()
     const res = await GET(makeReq('alerts') as never, {
       params: Promise.resolve({ path: ['alerts'] }),
     })
-    expect(res.status).toBe(200)
-
-    const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>
-    const calledUrl = String(fetchMock.mock.calls[0][0])
-    expect(calledUrl).toContain('/alerts')
+    expect(res.status).toBe(400)
   })
 })

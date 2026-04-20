@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore'
 import { db } from './firebase'
-import type { Line, Station, StationSchedule } from '@ctt/shared'
+import type { Line, Station, StationSchedule, NormalizedAlert } from '@ctt/shared'
+import { FUNCTIONS_BASE_URL } from './config'
 
 export function useLines(service: 'cta' | 'metra') {
   const [lines, setLines] = useState<Line[]>([])
@@ -67,6 +68,51 @@ export function useLine(slug: string) {
   }, [slug])
 
   return { line, loading }
+}
+
+export function useAlerts(service: 'cta' | 'metra', routeId?: string) {
+  const [alerts, setAlerts] = useState<NormalizedAlert[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
+
+  const retry = useCallback(() => {
+    setLoading(true)
+    setError(null)
+    setRetryCount((c) => c + 1)
+  }, [])
+
+  useEffect(() => {
+    let active = true
+
+    async function poll() {
+      try {
+        const endpoint = service === 'cta' ? 'ctaAlerts' : 'metraAlerts'
+        const params = routeId ? `?routeId=${encodeURIComponent(routeId)}` : ''
+        const url = `${FUNCTIONS_BASE_URL}/${endpoint}${params}`
+        const res = await fetch(url)
+        if (!res.ok) throw new Error(`Alert API error: ${res.status}`)
+        const data: NormalizedAlert[] = await res.json()
+        if (active) {
+          setAlerts(data)
+          setError(null)
+        }
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : 'Unknown error')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+
+    poll()
+    const interval = setInterval(poll, 30_000)
+    return () => {
+      active = false
+      clearInterval(interval)
+    }
+  }, [service, routeId, retryCount])
+
+  return { alerts, loading, error, retry }
 }
 
 export function useSchedule(stationSlug: string) {

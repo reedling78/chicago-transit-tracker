@@ -12,3 +12,5 @@ env:
     secret: cta-train-tracker-key
     availability:
       - RUNTIME
+  - variable: NEXT_PUBLIC_FUNCTIONS_BASE_URL
+    value: https://us-central1-chicago-transit-tracker.cloudfunctions.net
