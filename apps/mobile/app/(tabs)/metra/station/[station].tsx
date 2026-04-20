@@ -2,6 +2,7 @@ import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-nat
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { useStation, useSchedule } from '../../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
+import { ArrivalsCard } from '../../../../components/ArrivalsCard'
 import { ScheduleTable } from '../../../../components/ScheduleTable'
 import PageHeader from '../../../../components/PageHeader'
 
@@ -49,6 +50,8 @@ export default function MetraStationDetailScreen() {
             })}
           </View>
         </PageHeader>
+
+        <ArrivalsCard schedule={schedule} service="metra" loading={scheduleLoading} />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Info</Text>

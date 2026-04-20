@@ -8,6 +8,15 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ station: 'clark-lake' }),
 }))
 
+jest.mock('@expo/vector-icons/Ionicons', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require('react-native')
+  return {
+    __esModule: true,
+    default: ({ name }: { name: string }) => <Text>{name}</Text>,
+  }
+})
+
 jest.mock('expo-linear-gradient', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native')
@@ -64,5 +73,12 @@ describe('CtaStationDetailScreen', () => {
     render(<CtaStationDetailScreen />)
     expect(screen.getByText('Red')).toBeOnTheScreen()
     expect(screen.getByText('Blue')).toBeOnTheScreen()
+  })
+
+  it('renders ArrivalsCard when schedule data is loaded', () => {
+    mockUseStation.mockReturnValue({ station: mockStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: mockSchedule, loading: false })
+    render(<CtaStationDetailScreen />)
+    expect(screen.getByText(/CTA timetable/)).toBeOnTheScreen()
   })
 })
