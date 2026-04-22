@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useLine, useLineStations } from '../../../lib/hooks'
-import StationTimeline from '../../../components/StationTimeline'
+import { useLine, useLineStations } from '../../../../lib/hooks'
+import StationTimeline from '../../../../components/StationTimeline'
 
 export default function MetraLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()
@@ -40,9 +40,9 @@ export default function MetraLineDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f23' },
-  container: { flex: 1, backgroundColor: '#0f0f23' },
-  header: { padding: 24, alignItems: 'center' },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-  headerSub: { fontSize: 14, marginTop: 4, color: 'rgba(255,255,255,0.85)' },
+  container: { flex: 1, backgroundColor: '#0f0f1e' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f0f1e' },
+  header: { padding: 20 },
+  headerTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
+  headerSub: { color: '#fff', opacity: 0.9, marginTop: 4 },
 })

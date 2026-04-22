@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { useRouter } from 'expo-router'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import type { StationTrips, ServiceType } from '@ctt/shared'
 import { TimetableFilterBar, todayServiceType } from './TimetableFilterBar'
 
@@ -22,6 +24,7 @@ interface Props {
 }
 
 export function MetraTimetable({ stationTrips }: Props) {
+  const router = useRouter()
   const [serviceType, setServiceType] = useState<ServiceType>(todayServiceType())
   const [direction, setDirection] = useState<Direction>('all')
 
@@ -47,15 +50,26 @@ export function MetraTimetable({ stationTrips }: Props) {
         </Text>
       ) : (
         <View style={styles.list}>
-          {trips.map((trip) => (
-            <View key={`${trip.tripId}-${trip.departure}`} style={styles.row}>
-              <Text style={styles.time}>{trip.departure}</Text>
-              <Text style={styles.headsign} numberOfLines={1}>
-                To {trip.headsign}
-              </Text>
-              <Text style={styles.trainNumber}>Train {trip.trainNumber}</Text>
-            </View>
-          ))}
+          {trips.map((trip) => {
+            const href = `/(tabs)/metra/${trip.lineSlug}/train/${trip.tripId}` as const
+            return (
+              <Pressable
+                key={`${trip.tripId}-${trip.departure}`}
+                onPress={() => router.push(href)}
+                style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+                accessibilityRole="link"
+                accessibilityLabel={`Train ${trip.trainNumber} to ${trip.headsign} at ${trip.departure}`}
+                testID={`timetable-row:${href}`}
+              >
+                <Text style={styles.time}>{trip.departure}</Text>
+                <Text style={styles.headsign} numberOfLines={1}>
+                  To {trip.headsign}
+                </Text>
+                <Text style={styles.trainNumber}>Train {trip.trainNumber}</Text>
+                <Ionicons name="chevron-forward" size={14} color="#666" style={styles.chevron} />
+              </Pressable>
+            )
+          })}
         </View>
       )}
     </View>
@@ -75,6 +89,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#252540',
+    minHeight: 44,
+  },
+  rowPressed: {
+    backgroundColor: '#252540',
+  },
+  chevron: {
+    marginLeft: 8,
   },
   time: {
     width: 80,
