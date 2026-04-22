@@ -20,6 +20,10 @@ next-env.d.ts
 
 # worktrees
 .worktrees/
+.claude/worktrees/
+
+# claude code runtime state
+.claude/scheduled_tasks.lock
 
 # superpowers brainstorming sessions (local-only mockups)
 .superpowers/
