@@ -52,7 +52,12 @@ export default function MetraStationDetailScreen() {
           </View>
         </PageHeader>
 
-        <ArrivalsCard schedule={schedule} service="metra" loading={scheduleLoading} />
+        <ArrivalsCard
+          schedule={schedule}
+          service="metra"
+          loading={scheduleLoading}
+          trips={stationTrips}
+        />
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Info</Text>

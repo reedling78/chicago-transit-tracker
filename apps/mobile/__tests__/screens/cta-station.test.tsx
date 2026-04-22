@@ -6,6 +6,7 @@ import CtaStationDetailScreen from '../../app/(tabs)/cta/station/[station]'
 jest.mock('expo-router', () => ({
   Stack: { Screen: () => null },
   useLocalSearchParams: () => ({ station: 'clark-lake' }),
+  useRouter: () => ({ push: jest.fn() }),
 }))
 
 jest.mock('@expo/vector-icons/Ionicons', () => {

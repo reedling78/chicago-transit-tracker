@@ -137,7 +137,9 @@ apps/
           _layout.tsx             Metra tab Stack layout
           index.tsx               Metra line list
           alerts.tsx              Metra service alerts screen
-          [line].tsx              Metra line detail
+          [line]/
+            index.tsx             Metra line detail
+            train/[trainNumber].tsx  Metra train detail (blank landing screen)
           station/[station].tsx   Metra station detail
     components/
       AlertBanner.tsx             Alert link banner with live count (used on index pages)

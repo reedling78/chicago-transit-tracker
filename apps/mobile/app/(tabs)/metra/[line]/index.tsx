@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useLine, useLineStations } from '../../../lib/hooks'
-import StationTimeline from '../../../components/StationTimeline'
+import { useLine, useLineStations } from '../../../../lib/hooks'
+import StationTimeline from '../../../../components/StationTimeline'
 
 export default function MetraLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()

@@ -1,6 +1,7 @@
-import { render, screen, act } from '@testing-library/react-native'
+import { render, screen, act, fireEvent } from '@testing-library/react-native'
+import type { StationSchedule } from '@ctt/shared'
 import { ArrivalsCard, formatMinutesAway } from '../../components/ArrivalsCard'
-import { mockSchedule } from '../fixtures'
+import { mockSchedule, mockStationTrips } from '../fixtures'
 
 // Mock @expo/vector-icons/Ionicons
 jest.mock('@expo/vector-icons/Ionicons', () => {
@@ -12,11 +13,38 @@ jest.mock('@expo/vector-icons/Ionicons', () => {
   }
 })
 
+const mockPush = jest.fn()
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush }),
+}))
+
+// Metra-aligned schedule whose weekday departure minutes match mockStationTrips entries
+// (5:30 AM = 330, 6:00 AM = 360, 6:30 AM = 390)
+const metraSchedule: StationSchedule = {
+  directions: [
+    {
+      headsign: 'Chicago Union Station',
+      line: 'BNSF',
+      weekday: [330, 390],
+      saturday: [],
+      sunday: [],
+    },
+    {
+      headsign: 'Aurora',
+      line: 'BNSF',
+      weekday: [360],
+      saturday: [],
+      sunday: [],
+    },
+  ],
+}
+
 describe('ArrivalsCard', () => {
   beforeEach(() => {
     jest.useFakeTimers()
     // Wednesday at 6:00 AM (360 minutes since midnight)
     jest.setSystemTime(new Date(2026, 3, 15, 6, 0, 0))
+    mockPush.mockClear()
   })
 
   afterEach(() => {
@@ -96,6 +124,52 @@ describe('ArrivalsCard', () => {
     render(<ArrivalsCard schedule={mockSchedule} service="cta" />)
     const approxIndicators = screen.getAllByText('≈')
     expect(approxIndicators.length).toBeGreaterThan(0)
+  })
+
+  it('renders rows as tappable when trips match the scheduled departures', () => {
+    // 5:00 AM — 5:30, 6:00, 6:30 AM all upcoming
+    jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
+    render(<ArrivalsCard schedule={metraSchedule} service="metra" trips={mockStationTrips} />)
+    expect(
+      screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'),
+    ).toBeOnTheScreen()
+    expect(
+      screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1205_V4_A'),
+    ).toBeOnTheScreen()
+    expect(
+      screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1210_V4_A'),
+    ).toBeOnTheScreen()
+  })
+
+  it('pushes the train detail route when a matched row is pressed', () => {
+    jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
+    render(<ArrivalsCard schedule={metraSchedule} service="metra" trips={mockStationTrips} />)
+    fireEvent.press(screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'))
+    expect(mockPush).toHaveBeenCalledWith('/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A')
+  })
+
+  it('does not render tappable rows when trips is not provided', () => {
+    jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
+    render(<ArrivalsCard schedule={metraSchedule} service="metra" />)
+    expect(screen.getByText('30 min')).toBeOnTheScreen()
+    expect(screen.queryByTestId(/^arrival-row:/)).toBeNull()
+  })
+
+  it('does not render a tappable row when no trip matches the scheduled time', () => {
+    jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
+    const unmatchedSchedule: StationSchedule = {
+      directions: [
+        {
+          headsign: 'Chicago Union Station',
+          line: 'BNSF',
+          weekday: [345], // 5:45 AM — no matching trip
+          saturday: [],
+          sunday: [],
+        },
+      ],
+    }
+    render(<ArrivalsCard schedule={unmatchedSchedule} service="metra" trips={mockStationTrips} />)
+    expect(screen.queryByTestId(/^arrival-row:/)).toBeNull()
   })
 })
 

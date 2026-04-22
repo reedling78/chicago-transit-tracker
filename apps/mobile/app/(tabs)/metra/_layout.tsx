@@ -12,6 +12,7 @@ export default function MetraStackLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Metra Lines' }} />
+      <Stack.Screen name="[line]/train/[trainNumber]" options={{ title: 'Train' }} />
     </Stack>
   )
 }

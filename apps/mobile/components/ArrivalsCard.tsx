@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { useRouter } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { LINE_COLORS } from '@ctt/shared'
-import type { StationSchedule } from '@ctt/shared'
+import type { StationSchedule, StationTrips } from '@ctt/shared'
 
 interface Arrival {
   headsign: string
   line: string
   departureMinutes: number
   minutesAway: number
+  tripId?: string
+  lineSlug?: string
 }
 
 interface ArrivalsCardProps {
   schedule: StationSchedule | null
   service: 'cta' | 'metra'
   loading?: boolean
+  trips?: StationTrips | null
 }
 
 function getCurrentDayType(): 'weekday' | 'saturday' | 'sunday' {
@@ -45,21 +49,36 @@ export function formatMinutesAway(minutesAway: number): string {
   return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`
 }
 
-function computeArrivals(schedule: StationSchedule): Arrival[] {
+function computeArrivals(
+  schedule: StationSchedule,
+  trips: StationTrips | null | undefined,
+): Arrival[] {
   const dayType = getCurrentDayType()
   const nowMinutes = getCurrentMinutes()
   const arrivals: Arrival[] = []
+
+  const tripLookup = new Map<string, { tripId: string; lineSlug: string }>()
+  if (trips) {
+    for (const entry of trips[dayType]) {
+      const key = `${entry.headsign}|${entry.line}|${entry.departure}`
+      tripLookup.set(key, { tripId: entry.tripId, lineSlug: entry.lineSlug })
+    }
+  }
 
   for (const dir of schedule.directions) {
     const times = dir[dayType]
     const upcoming = times.filter((t) => t > nowMinutes).slice(0, 3)
 
     for (const t of upcoming) {
+      const key = `${dir.headsign}|${dir.line}|${formatTime(t)}`
+      const match = tripLookup.get(key)
       arrivals.push({
         headsign: dir.headsign,
         line: dir.line,
         departureMinutes: t,
         minutesAway: t - nowMinutes,
+        tripId: match?.tripId,
+        lineSlug: match?.lineSlug,
       })
     }
   }
@@ -84,21 +103,27 @@ function SkeletonRow({ color }: { color: string }) {
   )
 }
 
-export function ArrivalsCard({ schedule, service, loading }: ArrivalsCardProps) {
+export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCardProps) {
+  const router = useRouter()
   const [arrivals, setArrivals] = useState<Arrival[]>([])
   const scheduleRef = useRef<StationSchedule | null>(null)
+  const tripsRef = useRef<StationTrips | null | undefined>(trips)
+
+  useEffect(() => {
+    tripsRef.current = trips
+  }, [trips])
 
   useEffect(() => {
     if (schedule) {
       scheduleRef.current = schedule
-      setArrivals(computeArrivals(schedule))
+      setArrivals(computeArrivals(schedule, tripsRef.current))
     }
-  }, [schedule])
+  }, [schedule, trips])
 
   useEffect(() => {
     const id = setInterval(() => {
       if (scheduleRef.current) {
-        setArrivals(computeArrivals(scheduleRef.current))
+        setArrivals(computeArrivals(scheduleRef.current, tripsRef.current))
       }
     }, 60_000)
     return () => clearInterval(id)
@@ -170,20 +195,48 @@ export function ArrivalsCard({ schedule, service, loading }: ArrivalsCardProps) 
               <Text style={styles.directionText}>Service toward {group.headsign}</Text>
             </View>
 
-            {group.rows.map((arrival, i) => (
-              <View key={i} style={[styles.row, { backgroundColor: bg }]}>
-                <View style={styles.rowLeft}>
-                  <Text style={styles.rowSubtitle}>
-                    {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
-                  </Text>
-                  <Text style={styles.rowHeadsign}>{arrival.headsign}</Text>
+            {group.rows.map((arrival, i) => {
+              const rowContent = (
+                <>
+                  <View style={styles.rowLeft}>
+                    <Text style={styles.rowSubtitle}>
+                      {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
+                    </Text>
+                    <Text style={styles.rowHeadsign}>{arrival.headsign}</Text>
+                  </View>
+                  <View style={styles.rowRight}>
+                    <Text style={styles.rowMinutes}>{formatMinutesAway(arrival.minutesAway)}</Text>
+                    <Text style={styles.rowApprox}>≈</Text>
+                  </View>
+                </>
+              )
+
+              if (arrival.tripId && arrival.lineSlug) {
+                const href = `/(tabs)/metra/${arrival.lineSlug}/train/${arrival.tripId}` as const
+                return (
+                  <Pressable
+                    key={i}
+                    onPress={() => router.push(href)}
+                    style={({ pressed }) => [
+                      styles.row,
+                      { backgroundColor: bg },
+                      pressed && styles.rowPressed,
+                    ]}
+                    accessibilityRole="link"
+                    accessibilityLabel={`Train to ${arrival.headsign} in ${formatMinutesAway(arrival.minutesAway)}`}
+                    testID={`arrival-row:${href}`}
+                  >
+                    {rowContent}
+                  </Pressable>
+                )
+              }
+
+              return (
+                <View key={i} style={[styles.row, { backgroundColor: bg }]}>
+                  {rowContent}
                 </View>
-                <View style={styles.rowRight}>
-                  <Text style={styles.rowMinutes}>{formatMinutesAway(arrival.minutesAway)}</Text>
-                  <Text style={styles.rowApprox}>≈</Text>
-                </View>
-              </View>
-            ))}
+              )
+            })}
           </View>
         )
       })}
@@ -232,6 +285,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: 'rgba(0,0,0,0.1)',
+    minHeight: 44,
+  },
+  rowPressed: {
+    opacity: 0.85,
   },
   rowLeft: {
     flex: 1,
