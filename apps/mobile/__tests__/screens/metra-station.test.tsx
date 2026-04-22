@@ -6,6 +6,7 @@ import MetraStationDetailScreen from '../../app/(tabs)/metra/station/[station]'
 jest.mock('expo-router', () => ({
   Stack: { Screen: () => null },
   useLocalSearchParams: () => ({ station: 'aurora' }),
+  useRouter: () => ({ push: jest.fn() }),
 }))
 
 jest.mock('@expo/vector-icons/Ionicons', () => {

@@ -2,9 +2,24 @@ import { render, screen, fireEvent } from '@testing-library/react-native'
 import { MetraTimetable } from '../../components/MetraTimetable'
 import { mockStationTrips } from '../fixtures'
 
+const mockPush = jest.fn()
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush }),
+}))
+
+jest.mock('@expo/vector-icons/Ionicons', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require('react-native')
+  return {
+    __esModule: true,
+    default: ({ name }: { name: string }) => <Text>{name}</Text>,
+  }
+})
+
 // Force weekday as the default service type for deterministic tests
 beforeEach(() => {
   jest.spyOn(Date.prototype, 'getDay').mockReturnValue(1) // Monday
+  mockPush.mockClear()
 })
 afterEach(() => jest.restoreAllMocks())
 
@@ -14,6 +29,22 @@ describe('MetraTimetable', () => {
     expect(screen.getByText('5:30 AM')).toBeOnTheScreen()
     expect(screen.getAllByText('To Chicago Union Station').length).toBeGreaterThan(0)
     expect(screen.getByText('Train 1200')).toBeOnTheScreen()
+  })
+
+  it('renders a tappable row with the train detail href as a testID', () => {
+    render(<MetraTimetable stationTrips={mockStationTrips} />)
+    expect(
+      screen.getByTestId('timetable-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'),
+    ).toBeOnTheScreen()
+    expect(
+      screen.getByTestId('timetable-row:/(tabs)/metra/bnsf/train/BNSF_BN1205_V4_A'),
+    ).toBeOnTheScreen()
+  })
+
+  it('pushes the train detail route when a row is pressed', () => {
+    render(<MetraTimetable stationTrips={mockStationTrips} />)
+    fireEvent.press(screen.getByTestId('timetable-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'))
+    expect(mockPush).toHaveBeenCalledWith('/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A')
   })
 
   it('renders direction filter buttons', () => {
