@@ -92,6 +92,7 @@ export function normalizeMetraAlerts(
       url: extractText(alert.url) || null,
       routes: routeIds.map(toRoute),
       severity: null,
+      isMajor: false,
       impact: null,
       startTime: null,
       endTime: null,

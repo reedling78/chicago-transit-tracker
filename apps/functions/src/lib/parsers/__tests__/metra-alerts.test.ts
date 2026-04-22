@@ -43,6 +43,7 @@ describe('normalizeMetraAlerts', () => {
         },
       ],
       severity: null,
+      isMajor: false,
       impact: null,
       startTime: null,
       endTime: null,

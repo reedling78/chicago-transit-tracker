@@ -2,7 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import CtaServicePulseContainer from '@components/CtaServicePulseContainer'
 import { fetchCtaTrainLocations } from '@lib/cta-train-tracker'
 import { fetchCTAAlerts } from '@lib/cta-alerts'
-import type { Line } from '@lib/types'
+import type { Line, NormalizedAlert } from '@lib/types'
 
 jest.mock('@lib/cta-train-tracker')
 jest.mock('@lib/cta-alerts')
@@ -159,34 +159,20 @@ describe('CtaServicePulseContainer', () => {
         ],
       },
     })
-    mockFetchAlerts.mockResolvedValue([
-      {
-        AlertId: 'A1',
-        Headline: 'Major delay',
-        ShortDescription: 'Trains stopped',
-        FullDescription: { '#cdata-section': '' },
-        SeverityScore: '70',
-        SeverityColor: '',
-        SeverityCSS: '',
-        Impact: '',
-        EventStart: '',
-        EventEnd: null,
-        TBD: '',
-        MajorAlert: '1',
-        AlertURL: { '#cdata-section': '' },
-        ImpactedService: {
-          Service: {
-            ServiceType: '',
-            ServiceTypeDescription: '',
-            ServiceName: 'Red Line',
-            ServiceId: 'Red',
-            ServiceBackColor: '',
-            ServiceTextColor: '',
-            ServiceURL: { '#cdata-section': '' },
-          },
-        },
-      },
-    ])
+    const majorAlert: NormalizedAlert = {
+      id: 'A1',
+      headline: 'Major delay',
+      description: 'Trains stopped',
+      url: null,
+      routes: [{ routeId: 'Red', routeName: 'Red Line', color: '#c60c30', textColor: '#ffffff' }],
+      severity: '70',
+      isMajor: true,
+      impact: null,
+      startTime: null,
+      endTime: null,
+      service: 'cta',
+    }
+    mockFetchAlerts.mockResolvedValue([majorAlert])
 
     render(<CtaServicePulseContainer line={redLine} />)
 
@@ -219,7 +205,7 @@ describe('CtaServicePulseContainer', () => {
     expect(screen.getByTestId('pulse-card-95th/Dan Ryan')).toHaveAttribute('data-tone', 'nodata')
   })
 
-  it('does not bump health when a non-major alert is present (MajorAlert=0)', async () => {
+  it('does not bump health when a non-major alert is present (isMajor=false)', async () => {
     mockFetchLocations.mockResolvedValue({
       ctatt: {
         route: [
@@ -237,34 +223,20 @@ describe('CtaServicePulseContainer', () => {
         ],
       },
     })
-    mockFetchAlerts.mockResolvedValue([
-      {
-        AlertId: 'A2',
-        Headline: 'Elevator out',
-        ShortDescription: '',
-        FullDescription: { '#cdata-section': '' },
-        SeverityScore: '70',
-        SeverityColor: '',
-        SeverityCSS: '',
-        Impact: '',
-        EventStart: '',
-        EventEnd: null,
-        TBD: '',
-        MajorAlert: '0',
-        AlertURL: { '#cdata-section': '' },
-        ImpactedService: {
-          Service: {
-            ServiceType: '',
-            ServiceTypeDescription: '',
-            ServiceName: 'Red Line',
-            ServiceId: 'Red',
-            ServiceBackColor: '',
-            ServiceTextColor: '',
-            ServiceURL: { '#cdata-section': '' },
-          },
-        },
-      },
-    ])
+    const minorAlert: NormalizedAlert = {
+      id: 'A2',
+      headline: 'Elevator out',
+      description: '',
+      url: null,
+      routes: [{ routeId: 'Red', routeName: 'Red Line', color: '#c60c30', textColor: '#ffffff' }],
+      severity: '70',
+      isMajor: false,
+      impact: null,
+      startTime: null,
+      endTime: null,
+      service: 'cta',
+    }
+    mockFetchAlerts.mockResolvedValue([minorAlert])
 
     render(<CtaServicePulseContainer line={redLine} />)
 

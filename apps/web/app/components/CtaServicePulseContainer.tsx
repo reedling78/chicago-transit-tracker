@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { fetchCtaTrainLocations, type CtaTrain } from '@lib/cta-train-tracker'
-import { fetchCTAAlerts, type CTAAlert } from '@lib/cta-alerts'
+import { fetchCTAAlerts } from '@lib/cta-alerts'
 import {
   aggregateByTerminal,
   computeHealth,
   nextArrivalFor,
   type PulseInputTrain,
 } from '@lib/cta-pulse'
-import type { Line } from '@lib/types'
+import type { Line, NormalizedAlert } from '@lib/types'
 import CtaServicePulse, { type DirectionPulse } from './CtaServicePulse'
 
 const POLL_INTERVAL_MS = 30_000
@@ -24,22 +24,19 @@ function toPulseInput(train: CtaTrain): PulseInputTrain {
   }
 }
 
-function alertMatchesLine(a: CTAAlert, serviceId: string): boolean {
-  const svc = a.ImpactedService?.Service
-  if (!svc) return false
-  const services = Array.isArray(svc) ? svc : [svc]
-  return services.some((s) => s.ServiceId === serviceId)
+function alertMatchesLine(a: NormalizedAlert, serviceId: string): boolean {
+  return a.routes.some((r) => r.routeId === serviceId)
 }
 
-function hasHighSeverityAlertForLine(alerts: CTAAlert[], serviceId: string | null): boolean {
+function hasHighSeverityAlertForLine(alerts: NormalizedAlert[], serviceId: string | null): boolean {
   if (!serviceId) return false
-  return alerts.some((a) => a.MajorAlert === '1' && alertMatchesLine(a, serviceId))
+  return alerts.some((a) => a.isMajor && alertMatchesLine(a, serviceId))
 }
 
-function firstAlertSnippet(alerts: CTAAlert[], serviceId: string | null): string | null {
+function firstAlertSnippet(alerts: NormalizedAlert[], serviceId: string | null): string | null {
   if (!serviceId) return null
   const match = alerts.find((a) => alertMatchesLine(a, serviceId))
-  return match?.Headline ?? null
+  return match?.headline ?? null
 }
 
 // Scheduled service hours: 4:00 AM - 1:30 AM for non-24-hour lines.
@@ -53,7 +50,7 @@ function isInService(now: Date, operatesOvernight: boolean): boolean {
 
 export default function CtaServicePulseContainer({ line }: { line: Line }) {
   const [trains, setTrains] = useState<PulseInputTrain[] | null>(null)
-  const [alerts, setAlerts] = useState<CTAAlert[]>([])
+  const [alerts, setAlerts] = useState<NormalizedAlert[]>([])
   const [error, setError] = useState<string | null>(null)
   const [nowMs, setNowMs] = useState<number>(() => Date.now())
   const [hasFetched, setHasFetched] = useState(false)
