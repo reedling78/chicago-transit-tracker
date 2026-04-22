@@ -8,6 +8,7 @@ const mockAlert: NormalizedAlert = {
   url: 'https://transitchicago.com/alert/1',
   routes: [{ routeId: 'Red', routeName: 'Red Line', color: '#c60c30', textColor: '#ffffff' }],
   severity: '25',
+  isMajor: false,
   impact: 'Planned Work',
   startTime: '2026-04-01T00:00:00',
   endTime: null,

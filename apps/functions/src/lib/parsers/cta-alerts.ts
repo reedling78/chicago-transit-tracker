@@ -99,6 +99,7 @@ export function normalizeCtaAlerts(
       url: extractCdata(raw.AlertURL) || null,
       routes: railServices.map(toRoute),
       severity: raw.SeverityScore ?? null,
+      isMajor: raw.MajorAlert === '1',
       impact: raw.Impact ?? null,
       startTime: raw.EventStart ?? null,
       endTime: raw.EventEnd ?? null,

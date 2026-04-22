@@ -52,6 +52,7 @@ describe('normalizeCtaAlerts', () => {
         },
       ],
       severity: '25',
+      isMajor: false,
       impact: 'Planned Work',
       startTime: '2026-04-01T00:00:00',
       endTime: null,
@@ -157,5 +158,15 @@ describe('normalizeCtaAlerts', () => {
     const result = normalizeCtaAlerts(makeRawAlert())
     expect(result[0].routes[0].color).toBe('#c60c30')
     expect(result[0].routes[0].textColor).toBe('#ffffff')
+  })
+
+  it('sets isMajor to true when raw MajorAlert is "1"', () => {
+    const result = normalizeCtaAlerts(makeRawAlert({ MajorAlert: '1' }))
+    expect(result[0].isMajor).toBe(true)
+  })
+
+  it('sets isMajor to false when raw MajorAlert is "0"', () => {
+    const result = normalizeCtaAlerts(makeRawAlert({ MajorAlert: '0' }))
+    expect(result[0].isMajor).toBe(false)
   })
 })

@@ -65,6 +65,8 @@ export interface NormalizedAlert {
   url: string | null
   routes: NormalizedAlertRoute[]
   severity: string | null
+  /** CTA `MajorAlert` flag; always false for Metra (GTFS-RT has no equivalent). */
+  isMajor: boolean
   impact: string | null
   startTime: string | null
   endTime: string | null

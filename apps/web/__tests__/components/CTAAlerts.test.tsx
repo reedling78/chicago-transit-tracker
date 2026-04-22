@@ -21,6 +21,7 @@ function makeAlert(
     url: `https://transitchicago.com/alert/${id}`,
     routes: routes.map((r) => ({ ...r, textColor: '#ffffff' })),
     severity: '25',
+    isMajor: false,
     impact: 'Planned Work',
     startTime: '2026-04-01T00:00:00',
     endTime: null,

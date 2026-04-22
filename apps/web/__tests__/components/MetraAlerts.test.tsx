@@ -21,6 +21,7 @@ function makeAlert(
     url: `https://metrarail.com/${routeId}`,
     routes: [{ routeId, routeName: routeId, color: '#1A3D7A', textColor: '#fff' }],
     severity: null,
+    isMajor: false,
     impact: null,
     startTime: null,
     endTime: null,
