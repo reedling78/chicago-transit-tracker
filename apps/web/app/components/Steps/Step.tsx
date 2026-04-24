@@ -52,11 +52,15 @@ export default function StepsItem({
           className="w-[3px] flex-1"
           style={{ backgroundColor: topSegmentColor }}
         />
-        <div
-          data-steps-bullet={bullet}
-          className="h-3 w-3 shrink-0 rounded-full border-2 bg-white dark:bg-gray-950"
-          style={{ borderColor: _color }}
-        />
+        {(() => {
+          const isFilled = bullet === 'filled'
+          const bulletClass = isFilled
+            ? 'h-5 w-5 shrink-0 rounded-full border-2'
+            : 'h-3 w-3 shrink-0 rounded-full border-2 bg-white dark:bg-gray-950'
+          const bulletStyle: React.CSSProperties = { borderColor: _color }
+          if (isFilled) bulletStyle.backgroundColor = _color
+          return <div data-steps-bullet={bullet} className={bulletClass} style={bulletStyle} />
+        })()}
         <div
           data-steps-rail-bottom
           aria-hidden

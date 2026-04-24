@@ -41,4 +41,34 @@ describe('Steps', () => {
     expect(lastTop.style.backgroundColor).toBe('rgb(198, 12, 48)')
     expect(lastBottom.style.backgroundColor).toBe('transparent')
   })
+
+  it('renders an open bullet by default (12px, white/dark inner fill, colored border)', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item>A</Steps.Item>
+      </Steps>,
+    )
+    const bullet = container.querySelector('[data-steps-bullet]') as HTMLElement
+    expect(bullet.getAttribute('data-steps-bullet')).toBe('open')
+    expect(bullet.className).toContain('h-3')
+    expect(bullet.className).toContain('w-3')
+    expect(bullet.className).toContain('bg-white')
+    expect(bullet.style.borderColor).toBe('rgb(198, 12, 48)')
+    expect(bullet.style.backgroundColor).toBe('')
+  })
+
+  it('renders a filled bullet when bullet="filled"', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item bullet="filled">A</Steps.Item>
+      </Steps>,
+    )
+    const bullet = container.querySelector('[data-steps-bullet]') as HTMLElement
+    expect(bullet.getAttribute('data-steps-bullet')).toBe('filled')
+    expect(bullet.className).toContain('h-5')
+    expect(bullet.className).toContain('w-5')
+    expect(bullet.className).not.toContain('bg-white')
+    expect(bullet.style.backgroundColor).toBe('rgb(198, 12, 48)')
+    expect(bullet.style.borderColor).toBe('rgb(198, 12, 48)')
+  })
 })
