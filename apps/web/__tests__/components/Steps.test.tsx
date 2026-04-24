@@ -25,14 +25,14 @@ describe('Steps', () => {
         <Steps.Item>C</Steps.Item>
       </Steps>,
     )
-    const rows = container.querySelectorAll('[data-stop-sequence], [data-steps-item]')
+    const rows = container.querySelectorAll('[data-steps-item]')
     expect(rows.length).toBe(3)
-    const firstTop = rows[0].querySelector('[data-rail-top]') as HTMLElement
-    const firstBottom = rows[0].querySelector('[data-rail-bottom]') as HTMLElement
-    const lastTop = rows[2].querySelector('[data-rail-top]') as HTMLElement
-    const lastBottom = rows[2].querySelector('[data-rail-bottom]') as HTMLElement
-    const middleTop = rows[1].querySelector('[data-rail-top]') as HTMLElement
-    const middleBottom = rows[1].querySelector('[data-rail-bottom]') as HTMLElement
+    const firstTop = rows[0].querySelector('[data-steps-rail-top]') as HTMLElement
+    const firstBottom = rows[0].querySelector('[data-steps-rail-bottom]') as HTMLElement
+    const lastTop = rows[2].querySelector('[data-steps-rail-top]') as HTMLElement
+    const lastBottom = rows[2].querySelector('[data-steps-rail-bottom]') as HTMLElement
+    const middleTop = rows[1].querySelector('[data-steps-rail-top]') as HTMLElement
+    const middleBottom = rows[1].querySelector('[data-steps-rail-bottom]') as HTMLElement
 
     expect(firstTop.style.backgroundColor).toBe('transparent')
     expect(firstBottom.style.backgroundColor).toBe('rgb(198, 12, 48)')

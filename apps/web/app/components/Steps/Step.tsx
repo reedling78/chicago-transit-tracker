@@ -41,24 +41,24 @@ export default function StepsItem({
   return (
     <div
       data-steps-item=""
-      data-stop-status={status}
+      data-steps-status={status}
       {...rest}
       className="relative flex items-stretch gap-4"
     >
       <div className="flex w-6 shrink-0 flex-col items-center">
         <div
-          data-rail-top
+          data-steps-rail-top
           aria-hidden
           className="w-[3px] flex-1"
           style={{ backgroundColor: topSegmentColor }}
         />
         <div
-          data-stop-bullet={bullet}
+          data-steps-bullet={bullet}
           className="h-3 w-3 shrink-0 rounded-full border-2 bg-white dark:bg-gray-950"
           style={{ borderColor: _color }}
         />
         <div
-          data-rail-bottom
+          data-steps-rail-bottom
           aria-hidden
           className="w-[3px] flex-1"
           style={{ backgroundColor: bottomSegmentColor }}
