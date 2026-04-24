@@ -14,13 +14,16 @@ function Steps({ color, children, className }: StepsProps) {
   return (
     <div className={className}>
       {items.map((child, idx) =>
-        cloneElement(child as React.ReactElement<StepsItemProps>, {
-          // Internal props — cast through `as never` to bypass the public prop type.
-          _color: color,
-          _isFirst: idx === 0,
-          _isLast: idx === lastIdx,
-          key: child.key ?? idx,
-        } as never),
+        cloneElement(
+          child as React.ReactElement<StepsItemProps>,
+          {
+            // Internal props — cast through `as never` to bypass the public prop type.
+            _color: color,
+            _isFirst: idx === 0,
+            _isLast: idx === lastIdx,
+            key: child.key ?? idx,
+          } as never,
+        ),
       )}
     </div>
   )
