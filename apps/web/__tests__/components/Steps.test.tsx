@@ -139,4 +139,51 @@ describe('Steps', () => {
     )
     expect(screen.queryByRole('link', { name: /aurora/i })).not.toBeInTheDocument()
   })
+
+  it('renders trailing content on the right side of the row', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item trailing={<span data-testid="t">6:30 AM</span>}>Aurora</Steps.Item>
+      </Steps>,
+    )
+    const trailing = container.querySelector('[data-testid="t"]') as HTMLElement
+    expect(trailing).toBeInTheDocument()
+    expect(trailing.textContent).toBe('6:30 AM')
+    // The trailing cell sits to the right of the children cell.
+    const left = container.querySelector('[data-steps-left]') as HTMLElement
+    const trailingCell = trailing.parentElement as HTMLElement
+    expect(left.parentElement).toBe(trailingCell.parentElement)
+  })
+
+  it('renders below content underneath children, not inside the trailing cell', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item
+          trailing={<span data-testid="t">6:30 AM</span>}
+          below={<span data-testid="b">Transfers</span>}
+        >
+          Aurora
+        </Steps.Item>
+      </Steps>,
+    )
+    const below = container.querySelector('[data-testid="b"]') as HTMLElement
+    const trailing = container.querySelector('[data-testid="t"]') as HTMLElement
+    expect(below).toBeInTheDocument()
+    // below is NOT inside the trailing cell.
+    expect(trailing.parentElement!.contains(below)).toBe(false)
+    // below is inside the same outer content container (Link or div) as children.
+    const row = container.querySelector('[data-steps-item]') as HTMLElement
+    const contentContainer = row.querySelector('a, div.flex.min-w-0.flex-1.flex-col') as HTMLElement
+    expect(contentContainer.contains(below)).toBe(true)
+  })
+
+  it('links carry the group class so consumers can use group-hover:* on children', () => {
+    render(
+      <Steps color={RED}>
+        <Steps.Item href="/metra/bnsf/aurora">Aurora</Steps.Item>
+      </Steps>,
+    )
+    const link = screen.getByRole('link', { name: /aurora/i })
+    expect(link.className).toContain('group')
+  })
 })

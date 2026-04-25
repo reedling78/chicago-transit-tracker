@@ -17,7 +17,9 @@ export interface StepsItemProps extends Omit<React.HTMLAttributes<HTMLDivElement
   status?: StepStatus
   bullet?: StepBullet
   href?: string
+  /** Right-aligned content alongside children. Must be non-interactive when `href` is set (nested in a Link). */
   trailing?: ReactNode
+  /** Content rendered below `children` in the same column. Must be non-interactive when `href` is set. */
   below?: ReactNode
   children: ReactNode
 }
