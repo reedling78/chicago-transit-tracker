@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 // Converts a 6-digit hex color to rgba(r, g, b, alpha) for use in inline styles.
@@ -31,12 +32,8 @@ interface InternalStepsItemProps extends StepsItemProps {
 export default function StepsItem({
   status = 'default',
   bullet = 'open',
-  // Destructured to prevent leaking into ...rest — wired in later tasks
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   href,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   trailing,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   below,
   children,
   _color,
@@ -55,7 +52,19 @@ export default function StepsItem({
     rowStyle.backgroundColor = `${_color}14`
   }
 
-  const leftWrapClass = 'flex-1 min-w-0' + (status === 'skipped' ? ' line-through' : '')
+  const leftClass = 'min-w-0 flex-1' + (status === 'skipped' ? ' line-through' : '')
+
+  const innerContent = (
+    <>
+      <div className="flex items-start justify-between gap-4">
+        <div data-steps-left="" className={leftClass}>
+          {children}
+        </div>
+        {trailing && <div className="shrink-0">{trailing}</div>}
+      </div>
+      {below && <div className="mt-1.5">{below}</div>}
+    </>
+  )
 
   return (
     <div
@@ -100,9 +109,13 @@ export default function StepsItem({
         />
       </div>
 
-      <div data-steps-left="" className={leftWrapClass + ' py-4'}>
-        {children}
-      </div>
+      {href ? (
+        <Link href={href} className="group flex min-w-0 flex-1 flex-col py-4">
+          {innerContent}
+        </Link>
+      ) : (
+        <div className="flex min-w-0 flex-1 flex-col py-4">{innerContent}</div>
+      )}
     </div>
   )
 }

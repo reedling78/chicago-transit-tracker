@@ -120,4 +120,23 @@ describe('Steps', () => {
     // Halo ring is applied via box-shadow in the line color at ~30% alpha.
     expect(bullet.style.boxShadow).toContain('rgba(198, 12, 48')
   })
+
+  it('wraps row content in a Link when href is provided', () => {
+    render(
+      <Steps color={RED}>
+        <Steps.Item href="/metra/bnsf/aurora">Aurora</Steps.Item>
+      </Steps>,
+    )
+    const link = screen.getByRole('link', { name: /aurora/i })
+    expect(link).toHaveAttribute('href', '/metra/bnsf/aurora')
+  })
+
+  it('renders no link when href is absent', () => {
+    render(
+      <Steps color={RED}>
+        <Steps.Item>Aurora</Steps.Item>
+      </Steps>,
+    )
+    expect(screen.queryByRole('link', { name: /aurora/i })).not.toBeInTheDocument()
+  })
 })
