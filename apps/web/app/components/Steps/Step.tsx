@@ -1,5 +1,14 @@
 import type { ReactNode } from 'react'
 
+// Converts a 6-digit hex color to rgba(r, g, b, alpha) for use in inline styles.
+function hexWithAlpha(hex: string, alpha: number): string {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 export type StepStatus = 'default' | 'past' | 'current' | 'skipped'
 export type StepBullet = 'open' | 'filled'
 
@@ -64,13 +73,24 @@ export default function StepsItem({
           style={{ backgroundColor: topSegmentColor }}
         />
         {(() => {
+          const isCurrent = status === 'current'
           const isFilled = bullet === 'filled'
-          const bulletClass = isFilled
-            ? 'h-5 w-5 shrink-0 rounded-full border-2'
-            : 'h-3 w-3 shrink-0 rounded-full border-2 bg-white dark:bg-gray-950'
+          const variant = isCurrent ? 'halo' : bullet
+          const bulletClass = (() => {
+            if (isCurrent) return 'h-3 w-3 shrink-0 rounded-full'
+            if (isFilled) return 'h-5 w-5 shrink-0 rounded-full border-2'
+            return 'h-3 w-3 shrink-0 rounded-full border-2 bg-white dark:bg-gray-950'
+          })()
           const bulletStyle: React.CSSProperties = { borderColor: _color }
-          if (isFilled) bulletStyle.backgroundColor = _color
-          return <div data-steps-bullet={bullet} className={bulletClass} style={bulletStyle} />
+          if (isCurrent) {
+            bulletStyle.backgroundColor = _color
+            bulletStyle.borderColor = undefined
+            // Halo: 4px outer ring at ~30% alpha.
+            bulletStyle.boxShadow = _color ? `0 0 0 4px ${hexWithAlpha(_color, 0.3)}` : undefined
+          } else if (isFilled) {
+            bulletStyle.backgroundColor = _color
+          }
+          return <div data-steps-bullet={variant} className={bulletClass} style={bulletStyle} />
         })()}
         <div
           data-steps-rail-bottom

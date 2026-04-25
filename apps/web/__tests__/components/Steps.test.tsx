@@ -104,4 +104,20 @@ describe('Steps', () => {
     // `${RED}14` — 8% alpha suffix
     expect(row.style.backgroundColor).not.toBe('')
   })
+
+  it('renders a halo bullet when status="current" (overrides explicit bullet prop)', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item status="current" bullet="filled">
+          A
+        </Steps.Item>
+      </Steps>,
+    )
+    const bullet = container.querySelector('[data-steps-bullet]') as HTMLElement
+    expect(bullet.getAttribute('data-steps-bullet')).toBe('halo')
+    // Inner disc is filled with the color.
+    expect(bullet.style.backgroundColor).toBe('rgb(198, 12, 48)')
+    // Halo ring is applied via box-shadow in the line color at ~30% alpha.
+    expect(bullet.style.boxShadow).toContain('rgba(198, 12, 48')
+  })
 })
