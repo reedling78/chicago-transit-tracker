@@ -1,8 +1,27 @@
 import { useState, useEffect, useCallback } from 'react'
 import { collection, query, where, getDocs, getDoc, doc } from 'firebase/firestore'
 import { db } from './firebase'
-import type { Line, Station, StationSchedule, StationTrips, NormalizedAlert } from '@ctt/shared'
+import type {
+  Line,
+  Station,
+  StationSchedule,
+  StationTrips,
+  NormalizedAlert,
+  TripStop,
+} from '@ctt/shared'
 import { FUNCTIONS_BASE_URL } from './config'
+
+export interface MetraTripDetail {
+  tripId: string
+  trainNumber: string
+  headsign: string
+  line: string
+  lineSlug: string
+  lineName: string
+  serviceType: 'weekday' | 'saturday' | 'sunday'
+  directionId: number
+  stops: TripStop[]
+}
 
 export function useLines(service: 'cta' | 'metra') {
   const [lines, setLines] = useState<Line[]>([])
@@ -133,6 +152,33 @@ export function useSchedule(stationSlug: string) {
   }, [stationSlug])
 
   return { schedule, loading }
+}
+
+export function useMetraTrip(lineSlug: string, trainNumber: string) {
+  const [trip, setTrip] = useState<MetraTripDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!lineSlug || !trainNumber) {
+      setLoading(false)
+      return
+    }
+    const id = `${lineSlug}_${trainNumber}`
+    getDoc(doc(db, 'metra-trips', id))
+      .then((snap) => {
+        if (snap.exists()) {
+          setTrip(snap.data() as MetraTripDetail)
+        } else {
+          setTrip(null)
+        }
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+  }, [lineSlug, trainNumber])
+
+  return { trip, loading }
 }
 
 export function useStationTrips(stationSlug: string) {
