@@ -1,15 +1,34 @@
-import { View, Text, StyleSheet } from 'react-native'
-import { useLocalSearchParams } from 'expo-router'
+import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native'
+import { Stack, useLocalSearchParams } from 'expo-router'
+import { useMetraTrip } from '../../../../../lib/hooks'
+import MetraTripRealtime from '../../../../../components/MetraTripRealtime'
 
 export default function MetraTrainDetailScreen() {
   const { line, trainNumber } = useLocalSearchParams<{ line: string; trainNumber: string }>()
+  const lineSlug = line ?? ''
+  const train = trainNumber ?? ''
+  const { trip, loading } = useMetraTrip(lineSlug, train)
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Train {trainNumber}</Text>
-      <Text style={styles.subtitle}>{line?.toUpperCase()} line</Text>
-      <Text style={styles.body}>Train detail coming soon.</Text>
-    </View>
+    <>
+      <Stack.Screen options={{ title: train ? `Train ${train}` : 'Train' }} />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        {loading && (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color="#9ca3af" />
+          </View>
+        )}
+        {!loading && !trip && (
+          <View style={styles.center}>
+            <Text style={styles.title}>Train not found</Text>
+            <Text style={styles.subtitle}>
+              We couldn&apos;t find {train} on the {lineSlug.toUpperCase()} line.
+            </Text>
+          </View>
+        )}
+        {!loading && trip && <MetraTripRealtime trip={trip} lineSlug={lineSlug} />}
+      </ScrollView>
+    </>
   )
 }
 
@@ -17,11 +36,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0f0f1e',
-    padding: 20,
+  },
+  content: {
+    paddingVertical: 8,
+  },
+  center: {
+    flex: 1,
+    minHeight: 240,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 24,
   },
-  title: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
-  subtitle: { color: '#b0b0c0', fontSize: 16, marginTop: 8 },
-  body: { color: '#b0b0c0', fontSize: 14, marginTop: 24 },
+  title: {
+    color: '#ffffff',
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  subtitle: {
+    color: '#9ca3af',
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
+  },
 })

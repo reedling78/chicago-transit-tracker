@@ -141,7 +141,7 @@ apps/
           alerts.tsx              Metra service alerts screen
           [line]/
             index.tsx             Metra line detail
-            train/[trainNumber].tsx  Metra train detail (blank landing screen)
+            train/[trainNumber].tsx  Metra train detail screen — fetches via useMetraTrip + renders MetraTripRealtime
           station/[station].tsx   Metra station detail
     components/
       AlertBanner.tsx             Alert link banner with live count (used on index pages)
@@ -154,17 +154,22 @@ apps/
       TimetableFilterBar.tsx      Shared direction + service type toggle bar
       CTAScheduleTable.tsx        CTA timetable with direction filtering and service type tabs
       MetraTimetable.tsx          Metra timetable with trip rows, direction + service type filters
+      MetraTripRealtime.tsx       Train detail orchestrator — polls tripupdates+positions, derives stop state, renders hero card + Steps timeline
+      MetraTripStopTimeline.tsx   Per-stop timeline for the active trip — wraps Steps with status mapping
+      MetraTripHeroStatusCard.tsx Two-panel live status card (RN port of the web component)
+      Steps/                      Reusable vertical-step primitive (Steps + Steps.Item) — RN port; per-row segments, halo bullet for current
       HeaderUserIcon.tsx          Stack header user icon — navigates to auth/profile
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
-      hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, etc.)
+      hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, useMetraTrip)
+      useMetraFeed.ts             Metra GTFS-RT feed subscriber — polls Cloud Functions, AppState-aware
       auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
       AuthContext.tsx              Auth context + useAuth hook, profile auto-creation
     __tests__/                    Jest + React Native Testing Library test suites
   functions/
     src/
-      index.ts                    Cloud Functions entry — syncCtaGtfs, syncMetraGtfs, ctaAlerts, metraAlerts
+      index.ts                    Cloud Functions entry — syncCtaGtfs, syncMetraGtfs, ctaAlerts, metraAlerts, metraTripUpdates, metraPositions
       lib/
         alert-constants.ts        Alert-related constants (local copy from shared, for CommonJS compat)
         gtfs-utils.ts             Shared GTFS parsing utilities

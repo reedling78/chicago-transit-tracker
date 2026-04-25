@@ -6,6 +6,7 @@ import {
   useLine,
   useLines,
   useLineStations,
+  useMetraTrip,
   useSchedule,
   useStation,
   useStationTrips,
@@ -267,5 +268,51 @@ describe('useStationTrips', () => {
     mockGetDoc.mockResolvedValueOnce(singleDocSnap(null))
     const { getByText } = render(<StationTripsProbe slug="missing" />)
     await waitFor(() => expect(getByText('trips:null')).toBeOnTheScreen())
+  })
+})
+
+function MetraTripProbe({ line, train }: { line: string; train: string }) {
+  const { trip, loading } = useMetraTrip(line, train)
+  if (loading) return <Text>loading</Text>
+  return <Text>trip:{trip ? `${trip.trainNumber}-${trip.stops.length}` : 'null'}</Text>
+}
+
+describe('useMetraTrip', () => {
+  it('reads metra-trips/{lineSlug}_{trainNumber} from Firestore', async () => {
+    mockGetDoc.mockResolvedValueOnce({
+      id: 'bnsf_1200',
+      exists: () => true,
+      data: () => ({
+        tripId: 'BNSF_BN1200_V4',
+        trainNumber: '1200',
+        headsign: 'Aurora',
+        line: 'BNSF',
+        lineSlug: 'bnsf',
+        lineName: 'BNSF Railway',
+        serviceType: 'weekday',
+        directionId: 0,
+        stops: [
+          { sequence: 1, stationName: 'Union Station', slug: 'chicago-union-station-metra' },
+          { sequence: 2, stationName: 'Western Ave', slug: 'western-ave-bnsf' },
+        ],
+      }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
+
+    const { getByText } = render(<MetraTripProbe line="bnsf" train="1200" />)
+    await waitFor(() => expect(getByText('trip:1200-2')).toBeOnTheScreen())
+    expect(mockDoc).toHaveBeenCalledWith({}, 'metra-trips', 'bnsf_1200')
+  })
+
+  it('returns null when the trip document does not exist', async () => {
+    mockGetDoc.mockResolvedValueOnce(singleDocSnap(null))
+    const { getByText } = render(<MetraTripProbe line="bnsf" train="9999" />)
+    await waitFor(() => expect(getByText('trip:null')).toBeOnTheScreen())
+  })
+
+  it('skips fetching when lineSlug or trainNumber is empty', async () => {
+    const { getByText } = render(<MetraTripProbe line="" train="" />)
+    await waitFor(() => expect(getByText('trip:null')).toBeOnTheScreen())
+    expect(mockGetDoc).not.toHaveBeenCalled()
   })
 })
