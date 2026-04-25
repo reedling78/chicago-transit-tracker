@@ -1,4 +1,4 @@
-import { Text } from 'react-native'
+import { Text, AppState as RNAppState } from 'react-native'
 import { render, waitFor, act } from '@testing-library/react-native'
 import { useMetraFeed, __resetMetraFeedCache } from '../../lib/useMetraFeed'
 
@@ -10,7 +10,6 @@ jest.mock('../../lib/config', () => ({
 // leaving other RN exports (provided by jest-expo's preset) intact.
 let mockAppState: 'active' | 'background' | 'inactive' = 'active'
 const mockListeners = new Set<(s: string) => void>()
-import { AppState as RNAppState } from 'react-native'
 Object.defineProperty(RNAppState, 'currentState', {
   configurable: true,
   get: () => mockAppState,
