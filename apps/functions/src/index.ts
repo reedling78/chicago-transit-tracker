@@ -12,6 +12,7 @@ import { logger } from 'firebase-functions/v2'
 import { initializeApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import AdmZip from 'adm-zip'
+import { transit_realtime } from 'gtfs-realtime-bindings'
 
 import { downloadBuffer } from './lib/gtfs-utils'
 import { normalizeCtaAlerts } from './lib/parsers/cta-alerts'
@@ -33,7 +34,10 @@ import { parsePaceGtfs } from './lib/parsers/pace-schedules'
 const metraApiToken = defineSecret('metra-api-token')
 
 const CTA_ALERTS_URL = 'https://www.transitchicago.com/api/1.0/alerts.aspx?outputType=JSON'
-const METRA_ALERTS_URL = 'https://gtfspublic.metrarr.com/gtfs/public/alerts'
+const METRA_GTFS_RT_BASE = 'https://gtfspublic.metrarr.com/gtfs/public'
+const METRA_ALERTS_URL = `${METRA_GTFS_RT_BASE}/alerts`
+const METRA_TRIP_UPDATES_URL = `${METRA_GTFS_RT_BASE}/tripupdates`
+const METRA_POSITIONS_URL = `${METRA_GTFS_RT_BASE}/positions`
 
 const CTA_GTFS_URL = 'https://www.transitchicago.com/downloads/sch_data/google_transit.zip'
 const METRA_GTFS_URL = 'https://schedules.metrarail.com/gtfs/schedule.zip'
@@ -96,7 +100,6 @@ export const metraAlerts = onRequest(
       }
 
       const buffer = await upstream.arrayBuffer()
-      const { transit_realtime } = await import('gtfs-realtime-bindings')
       const feed = transit_realtime.FeedMessage.decode(new Uint8Array(buffer))
 
       const alerts = normalizeMetraAlerts(feed, routeId)
@@ -105,6 +108,59 @@ export const metraAlerts = onRequest(
       res.json(alerts)
     } catch (err) {
       logger.error('metraAlerts error', err)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  },
+)
+
+// ---------------------------------------------------------------------------
+// Metra Realtime Feeds (Trip Updates + Positions) — HTTP proxy returning
+// decoded JSON. Mobile cannot call the Next.js /api/metra/... route, so
+// these functions fetch the protobuf, decode, and serve the FeedMessage
+// shape that filterFeedForTrip / isTripCompleted in @ctt/shared expect.
+// ---------------------------------------------------------------------------
+
+import { fetchAndDecodeMetraFeed } from './lib/metra-realtime-proxy'
+
+const realtimeProxyDeps = {
+  decode: (buf: Uint8Array) => transit_realtime.FeedMessage.decode(buf),
+  // toObject produces a plain-JS structural copy (Long values become numbers),
+  // which is what consumers using the IFeedMessage type expect over JSON.
+  toObject: (feed: unknown) =>
+    transit_realtime.FeedMessage.toObject(feed as transit_realtime.FeedMessage, { longs: Number }),
+}
+
+export const metraTripUpdates = onRequest(
+  { region: 'us-central1', cors: true, secrets: [metraApiToken] },
+  async (_req, res) => {
+    try {
+      const result = await fetchAndDecodeMetraFeed(
+        METRA_TRIP_UPDATES_URL,
+        metraApiToken.value(),
+        realtimeProxyDeps,
+      )
+      if (result.status === 200) res.set('Cache-Control', 'public, max-age=15')
+      res.status(result.status).json(result.body)
+    } catch (err) {
+      logger.error('metraTripUpdates error', err)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  },
+)
+
+export const metraPositions = onRequest(
+  { region: 'us-central1', cors: true, secrets: [metraApiToken] },
+  async (_req, res) => {
+    try {
+      const result = await fetchAndDecodeMetraFeed(
+        METRA_POSITIONS_URL,
+        metraApiToken.value(),
+        realtimeProxyDeps,
+      )
+      if (result.status === 200) res.set('Cache-Control', 'public, max-age=15')
+      res.status(result.status).json(result.body)
+    } catch (err) {
+      logger.error('metraPositions error', err)
       res.status(500).json({ error: 'Internal server error' })
     }
   },
