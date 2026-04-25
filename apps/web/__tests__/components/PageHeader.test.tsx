@@ -121,6 +121,12 @@ describe('PageHeader', () => {
     expect(screen.queryByTestId('favorite-button')).not.toBeInTheDocument()
   })
 
+  it('still renders the FavoriteButton at the top when no breadcrumbs are provided', () => {
+    render(<PageHeader title="Red Line" favorite={{ type: 'line', id: 'red' }} />)
+    expect(screen.getByTestId('favorite-button')).toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()
+  })
+
   it('matches snapshot', () => {
     const { container } = render(
       <PageHeader

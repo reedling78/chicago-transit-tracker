@@ -14,7 +14,7 @@ interface PageHeaderProps {
   icon?: React.ReactNode
   /** Background hero image — defaults to the CTA/Chicago photo */
   imageSrc?: string
-  /** When provided, renders a FavoriteButton in the title row. */
+  /** When provided, renders a FavoriteButton at top-right (next to the breadcrumb). */
   favorite?: { type: FavoriteType; id: string }
   /** Extra content rendered below the description — e.g. line colour chips */
   children?: React.ReactNode
@@ -64,26 +64,26 @@ export default function PageHeader({
         aria-hidden="true"
       />
 
-      {/* Top: breadcrumb */}
-      {breadcrumbItems && breadcrumbItems.length > 0 && (
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pt-5 sm:px-6 lg:px-8">
-          <Breadcrumb items={breadcrumbItems} />
+      {/* Top: breadcrumb + favorite (right-aligned) */}
+      {((breadcrumbItems && breadcrumbItems.length > 0) || favorite) && (
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl items-start justify-between gap-3 px-4 pt-5 sm:px-6 lg:px-8">
+          <div className="min-w-0 flex-1">
+            {breadcrumbItems && breadcrumbItems.length > 0 && (
+              <Breadcrumb items={breadcrumbItems} />
+            )}
+          </div>
+          {favorite && (
+            <div className="-mt-2 shrink-0">
+              <FavoriteButton type={favorite.type} id={favorite.id} />
+            </div>
+          )}
         </div>
       )}
 
       {/* Bottom: main content — mt-auto pins to the bottom of the flex column */}
       <div className="relative z-10 mx-auto mt-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         {badges && <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>}
-        {favorite ? (
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">{titleHeading}</div>
-            <div className="-mt-1 shrink-0">
-              <FavoriteButton type={favorite.type} id={favorite.id} />
-            </div>
-          </div>
-        ) : (
-          titleHeading
-        )}
+        {titleHeading}
         {description && (
           <p className="mt-3 max-w-2xl text-sm text-white/85 sm:text-base">{description}</p>
         )}
