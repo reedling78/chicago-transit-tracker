@@ -296,7 +296,6 @@ describe('useMetraTrip', () => {
           { sequence: 2, stationName: 'Western Ave', slug: 'western-ave-bnsf' },
         ],
       }),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
 
     const { getByText } = render(<MetraTripProbe line="bnsf" train="1200" />)

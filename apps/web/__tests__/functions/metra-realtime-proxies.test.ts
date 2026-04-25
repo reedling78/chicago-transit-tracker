@@ -11,7 +11,8 @@ import { fetchAndDecodeMetraFeed } from '../../../functions/src/lib/metra-realti
 
 const UPSTREAM = 'https://gtfspublic.metrarr.com/gtfs/public/tripupdates'
 
-const decode = jest.fn((_: Uint8Array) => ({ entity: [{ id: 'mocked' }] }))
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const decode = jest.fn((_buffer: Uint8Array) => ({ entity: [{ id: 'mocked' }] }))
 const toObject = jest.fn((feed: unknown) => ({
   entity: [{ id: 'mocked', tripUpdate: { trip: {} } }],
   __from: feed,

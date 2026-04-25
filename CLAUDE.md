@@ -451,7 +451,9 @@ Secrets are configured in `apps/web/apphosting.yaml` and managed via `firebase a
 
 **Branch protection is enabled on `main`.** Direct pushes to `main` are blocked. All changes must be merged via a pull request. No approving review is required (solo project), so you can open and merge your own PRs.
 
-**Auto-delete is enabled.** GitHub automatically deletes the feature branch after a PR is merged — no manual cleanup needed.
+**Auto-delete is enabled.** GitHub automatically deletes the feature branch after a PR is merged.
+
+**Local cleanup:** `fetch.prune = true` is set globally, so `git pull` always prunes stale remote-tracking refs. The `git tidy` global alias force-deletes any local branch whose remote upstream is gone (i.e. any branch whose PR was merged + auto-deleted) — run it after merging a PR.
 
 Typical workflow:
 
@@ -462,7 +464,7 @@ git push origin your-feature-branch
 gh pr create --base main
 gh pr merge --squash
 # branch is deleted on GitHub automatically after merge
-git checkout main && git pull && git branch -d your-feature-branch
+git checkout main && git pull && git tidy
 ```
 
 ---
