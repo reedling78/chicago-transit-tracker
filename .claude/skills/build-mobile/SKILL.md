@@ -77,10 +77,11 @@ cd apps/mobile && pnpm run distribute:ios
 ```
 
 This runs the full pipeline:
-1. Builds via EAS cloud (`eas build --profile preview --platform ios`)
-2. Downloads the `.ipa` artifact
-3. Uploads to Firebase App Distribution (group: `internal`)
-4. Release notes are pulled from the latest git commit message
+1. **Auto-bumps `apps/mobile/app.json`** — patch-bumps `version` and increments `ios.buildNumber` + `android.versionCode` together, then commits only that file with `chore(mobile): bump to <version> (<buildNumber>)`. Each distribution lands as a uniquely-numbered row on Firebase (e.g. `1.0.1 (2)`, `1.0.2 (3)`).
+2. Builds via EAS cloud (`eas build --profile preview --platform ios`)
+3. Downloads the `.ipa` artifact
+4. Uploads to Firebase App Distribution (group: `internal`)
+5. Release notes are pulled from the latest git commit message
 
 **Requires:** `apps/mobile/.env.local` with `FIREBASE_APP_ID_IOS` set.
 
@@ -90,12 +91,33 @@ This runs the full pipeline:
 cd apps/mobile && pnpm run distribute:android
 ```
 
-Same pipeline as iOS:
-1. Builds via EAS cloud (`eas build --profile preview --platform android`)
-2. Downloads the `.apk` artifact
-3. Uploads to Firebase App Distribution (group: `internal`)
+Same pipeline as iOS (including the version + build number auto-bump in step 1):
+1. Auto-bumps and commits `apps/mobile/app.json` (see iOS path).
+2. Builds via EAS cloud (`eas build --profile preview --platform android`)
+3. Downloads the `.apk` artifact
+4. Uploads to Firebase App Distribution (group: `internal`)
 
 **Requires:** `apps/mobile/.env.local` with `FIREBASE_APP_ID_ANDROID` set.
+
+### Both platforms in one command
+
+```bash
+cd apps/mobile && pnpm run distribute
+```
+
+Bumps **once** (so iOS and Android ship with the same `(version, buildNumber)` pair), then runs Android followed by iOS.
+
+### Bumping versions manually
+
+The auto-bump always increments the patch component. For minor/major releases, edit `apps/mobile/app.json`'s `version` directly (e.g. `"1.0.0"` → `"1.1.0"`), commit, and the next `distribute:*` run will bump from there (`"1.1.0"` → `"1.1.1"`).
+
+To bump without distributing (e.g. to test the script locally):
+
+```bash
+cd apps/mobile && pnpm run bump
+```
+
+Add `--no-commit` (`node ./scripts/bump-version.mjs --no-commit`) to leave `app.json` dirty without creating a commit.
 
 ---
 
@@ -110,6 +132,8 @@ Same pipeline as iOS:
 | Metro bundler conflict | `lsof -ti:8081 \| xargs kill -9` then retry |
 | Missing Firebase app ID | Set `FIREBASE_APP_ID_IOS` or `FIREBASE_APP_ID_ANDROID` in `apps/mobile/.env.local` |
 | EAS build fails | Check `eas build:list` for error details |
+| Distribute failed *after* the bump commit landed | The `chore(mobile): bump to …` commit is harmless. Either re-run distribute (next attempt patch-bumps further), or `git reset --hard HEAD~1` to undo the bump. |
+| Want to roll the version back | Edit `apps/mobile/app.json` and revert the three fields manually, or `git revert` the bump commit. |
 
 ---
 

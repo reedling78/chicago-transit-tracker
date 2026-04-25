@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.chicagotransittracker.app",
+      "buildNumber": "1",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -27,7 +28,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.chicagotransittracker.app"
+      "package": "com.chicagotransittracker.app",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
