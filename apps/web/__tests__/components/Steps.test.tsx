@@ -186,4 +186,22 @@ describe('Steps', () => {
     const link = screen.getByRole('link', { name: /aurora/i })
     expect(link.className).toContain('group')
   })
+
+  it('renders border-bottom on every row except the last', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item>A</Steps.Item>
+        <Steps.Item>B</Steps.Item>
+        <Steps.Item>C</Steps.Item>
+      </Steps>,
+    )
+    const rows = Array.from(container.querySelectorAll('[data-steps-item]'))
+    expect(rows.length).toBe(3)
+    rows.forEach((row) => {
+      expect(row.className).toContain('border-b')
+      expect(row.className).toContain('border-gray-100')
+      expect(row.className).toContain('dark:border-gray-800')
+      expect(row.className).toContain('last:border-b-0')
+    })
+  })
 })

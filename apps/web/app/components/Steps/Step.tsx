@@ -47,7 +47,8 @@ export default function StepsItem({
   const bottomSegmentColor = _isLast ? 'transparent' : (_color ?? 'transparent')
 
   const rowStyle: React.CSSProperties = {}
-  let rowClass = 'relative flex items-stretch gap-4'
+  let rowClass =
+    'relative flex items-stretch gap-4 border-b border-gray-100 last:border-b-0 dark:border-gray-800'
   if (status === 'past' || status === 'skipped') rowClass += ' opacity-60'
   if (status === 'current' && _color) {
     // 8% alpha tint via 8-digit hex; requires _color to be a 6-digit hex (#RRGGBB).
