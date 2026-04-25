@@ -1,8 +1,17 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  serverTimestamp,
+  type Timestamp,
+} from 'firebase/firestore'
 import { auth, db } from './firebase'
-import type { UserProfile } from '@ctt/shared'
+import type { Favorite, UserProfile } from '@ctt/shared'
+import { mapToArray } from '@ctt/shared'
+import { useFavoritesStore } from './store/favorites'
 
 interface AuthState {
   user: User | null
@@ -28,75 +37,103 @@ function resolveProvider(user: User): UserProfile['provider'] {
   return 'password'
 }
 
+function toIso(value: Timestamp | string | undefined): string {
+  if (!value) return new Date(0).toISOString()
+  if (typeof value === 'string') return value
+  if (typeof (value as Timestamp).toDate === 'function') {
+    return (value as Timestamp).toDate().toISOString()
+  }
+  return String(value)
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let currentUid: string | null = null
+    let profileUnsub: (() => void) | undefined
+    let activeUid: string | null = null
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       const uid = firebaseUser?.uid ?? null
-      currentUid = uid
+      activeUid = uid
       setUser(firebaseUser)
 
+      profileUnsub?.()
+      profileUnsub = undefined
+
+      if (!firebaseUser) {
+        setProfile(null)
+        useFavoritesStore.getState().clear()
+        setLoading(false)
+        return
+      }
+
+      const profileRef = doc(db, 'profiles', firebaseUser.uid)
+
       try {
-        if (firebaseUser) {
-          const profileRef = doc(db, 'profiles', firebaseUser.uid)
-          const snap = await getDoc(profileRef)
+        const snap = await getDoc(profileRef)
+        if (activeUid !== uid) return
 
-          if (currentUid !== uid) return
-
-          if (snap.exists()) {
-            const data = snap.data()
-            setProfile({
-              ...data,
-              createdAt: data.createdAt?.toDate?.()
-                ? data.createdAt.toDate().toISOString()
-                : data.createdAt,
-              updatedAt: data.updatedAt?.toDate?.()
-                ? data.updatedAt.toDate().toISOString()
-                : data.updatedAt,
-            } as UserProfile)
-          } else {
-            const now = new Date().toISOString()
-            await setDoc(profileRef, {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName,
-              photoUrl: firebaseUser.photoURL,
-              provider: resolveProvider(firebaseUser),
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-            })
-
-            if (currentUid !== uid) return
-
-            setProfile({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName,
-              photoUrl: firebaseUser.photoURL,
-              provider: resolveProvider(firebaseUser),
-              createdAt: now,
-              updatedAt: now,
-            })
-          }
-        } else {
-          setProfile(null)
+        if (!snap.exists()) {
+          await setDoc(profileRef, {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoUrl: firebaseUser.photoURL,
+            provider: resolveProvider(firebaseUser),
+            favorites: {},
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          })
+          if (activeUid !== uid) return
         }
       } catch (err) {
         console.error('Failed to load/create profile:', err)
-        setProfile(null)
-      } finally {
-        if (currentUid === uid) {
+        if (activeUid === uid) {
+          setProfile(null)
           setLoading(false)
         }
+        return
       }
+
+      profileUnsub = onSnapshot(
+        profileRef,
+        (snapshot) => {
+          if (activeUid !== uid) return
+          if (!snapshot.exists()) {
+            setLoading(false)
+            return
+          }
+          const data = snapshot.data()
+          const favoritesMap = (data.favorites ?? {}) as Record<string, Favorite>
+          const favorites = mapToArray(favoritesMap)
+          setProfile({
+            uid: data.uid,
+            email: data.email ?? null,
+            displayName: data.displayName ?? null,
+            photoUrl: data.photoUrl ?? null,
+            provider: data.provider,
+            createdAt: toIso(data.createdAt),
+            updatedAt: toIso(data.updatedAt),
+            favorites,
+          })
+          useFavoritesStore.getState().hydrate(favorites)
+          setLoading(false)
+        },
+        (error) => {
+          if (activeUid !== uid) return
+          console.error('Profile snapshot error:', error)
+          setLoading(false)
+        },
+      )
     })
 
-    return unsubscribe
+    return () => {
+      unsubscribeAuth()
+      profileUnsub?.()
+    }
   }, [])
 
   return <AuthContext.Provider value={{ user, profile, loading }}>{children}</AuthContext.Provider>

@@ -1,4 +1,13 @@
-export type { Line, Station, UserProfile, NormalizedAlert, NormalizedAlertRoute } from './types'
+export type {
+  Line,
+  Station,
+  UserProfile,
+  NormalizedAlert,
+  NormalizedAlertRoute,
+  Favorite,
+  FavoriteType,
+} from './types'
+export { favoriteKey, arrayToMap, mapToArray } from './favorites'
 export type {
   ServiceType,
   DirectionSchedule,
