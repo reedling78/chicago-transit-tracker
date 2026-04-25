@@ -1,10 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { useFavoritesStore } from '@lib/store/favorites'
 import { useAuth } from '@components/AuthProvider'
 import { useLinesQuery } from '@lib/hooks/useDashboardQueries'
-import { LINE_COLORS } from '@lib/constants'
+import LinkCard from '@components/LinkCard'
 
 export default function FavoriteLines() {
   const { user, loading } = useAuth()
@@ -35,26 +34,23 @@ export default function FavoriteLines() {
         </p>
       )}
       {user && lineFavorites.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <ul className="space-y-2">
           {lineFavorites.map((fav) => {
             const line = lineMap.get(fav.id)
-            const colors = line ? LINE_COLORS[line.shortName] : undefined
-            const display = line?.name ?? fav.id
-            const href = line ? `/${line.service}/${line.slug}` : `#`
-            const style = colors ? { backgroundColor: colors.bg, color: colors.text } : undefined
+            if (!line) return null
             return (
-              <Link
-                key={fav.id}
-                href={href}
-                className="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:opacity-80 dark:bg-gray-800 dark:text-gray-300"
-                style={style}
-                aria-label={`${display} line`}
-              >
-                {display}
-              </Link>
+              <li key={fav.id}>
+                <LinkCard
+                  href={`/${line.service}/${line.slug}`}
+                  title={line.name}
+                  subtitle={line.termini.join(' — ')}
+                  meta={line.service === 'metra' ? 'Metra' : 'CTA'}
+                  accentColor={line.color}
+                />
+              </li>
             )
           })}
-        </div>
+        </ul>
       )}
     </section>
   )

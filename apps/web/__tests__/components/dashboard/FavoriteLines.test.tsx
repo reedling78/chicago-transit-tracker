@@ -35,24 +35,27 @@ describe('FavoriteLines', () => {
     expect(screen.getByText('Tap the heart on a line page to save it here.')).toBeInTheDocument()
   })
 
-  it('renders favorited lines as links to their detail pages', () => {
+  it('renders favorited lines as link cards with the service meta and termini subtitle', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
     useFavoritesStore
       .getState()
       .hydrate([{ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }])
     render(<FavoriteLines />)
-    const link = screen.getByRole('link', { name: 'Red Line line' })
+    const link = screen.getByRole('link')
     expect(link).toHaveAttribute('href', '/cta/red')
+    expect(screen.getByText(mockLine.name)).toBeInTheDocument()
+    expect(screen.getByText(mockLine.termini.join(' — '))).toBeInTheDocument()
+    expect(screen.getByText('CTA')).toBeInTheDocument()
   })
 
-  it('falls back to the slug when the line is not in the cache', () => {
+  it('skips a favorited line whose detail is not yet in the cache', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
     mockUseLinesQuery.mockReturnValue({ data: [] })
     useFavoritesStore
       .getState()
       .hydrate([{ type: 'line', id: 'unknown-line', addedAt: '2026-04-25T10:00:00Z' }])
     render(<FavoriteLines />)
-    expect(screen.getByText('unknown-line')).toBeInTheDocument()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 
   it('renders nothing while auth is loading', () => {
