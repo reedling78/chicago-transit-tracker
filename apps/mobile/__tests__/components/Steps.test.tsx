@@ -156,4 +156,22 @@ describe('Steps', () => {
     )
     expect(screen.getByTestId('my-row')).toBeOnTheScreen()
   })
+
+  it('vertically centers row contents with a minHeight so the bullet aligns with the station name', () => {
+    // Regression: with alignItems: 'stretch' and no minHeight, the bullet
+    // ended up centered in a tall row while the station name pinned to the
+    // top, leaving the bullet visually adrift between rows.
+    render(
+      <Steps color={RED}>
+        <Steps.Item testID="row">
+          <Text>A</Text>
+        </Steps.Item>
+      </Steps>,
+    )
+    const flatten = (s: unknown): Record<string, unknown> =>
+      Array.isArray(s) ? Object.assign({}, ...s.map(flatten)) : (s as Record<string, unknown>)
+    const flat = flatten(screen.getByTestId('row').props.style)
+    expect(flat.alignItems).toBe('center')
+    expect(flat.minHeight).toBeGreaterThanOrEqual(48)
+  })
 })

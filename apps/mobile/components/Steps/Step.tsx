@@ -119,9 +119,9 @@ export default function StepsItem({
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'stretch',
+    alignItems: 'center',
     gap: 12,
-    paddingVertical: 0,
+    minHeight: 56,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#1a1a2e',
   },
