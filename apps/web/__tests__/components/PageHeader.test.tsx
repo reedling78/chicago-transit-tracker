@@ -16,6 +16,12 @@ jest.mock('next/image', () => ({
   },
 }))
 
+jest.mock('@components/FavoriteButton', () => {
+  return function MockFavoriteButton({ type, id }: { type: string; id: string }) {
+    return <div data-testid="favorite-button">{`${type}:${id}`}</div>
+  }
+})
+
 describe('PageHeader', () => {
   it('renders the title as an h1', () => {
     render(<PageHeader title="CTA Lines" />)
@@ -103,6 +109,16 @@ describe('PageHeader', () => {
     const { container } = render(<PageHeader title="CTA Lines" />)
     const heading = container.querySelector('h1')
     expect(heading?.querySelectorAll('span')).toHaveLength(0)
+  })
+
+  it('renders FavoriteButton when favorite prop is provided', () => {
+    render(<PageHeader title="Red Line" favorite={{ type: 'line', id: 'red' }} />)
+    expect(screen.getByTestId('favorite-button')).toHaveTextContent('line:red')
+  })
+
+  it('does not render FavoriteButton when favorite prop is omitted', () => {
+    render(<PageHeader title="Privacy" />)
+    expect(screen.queryByTestId('favorite-button')).not.toBeInTheDocument()
   })
 
   it('matches snapshot', () => {

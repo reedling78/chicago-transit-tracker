@@ -10,6 +10,17 @@ jest.mock('expo-linear-gradient', () => {
   }
 })
 
+jest.mock('../../components/FavoriteButton', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require('react-native')
+  return {
+    __esModule: true,
+    default: ({ type, id }: { type: string; id: string }) => (
+      <Text testID="favorite-button">{`${type}:${id}`}</Text>
+    ),
+  }
+})
+
 describe('PageHeader', () => {
   it('renders the title', () => {
     render(<PageHeader title="CTA Lines" />)
@@ -54,5 +65,15 @@ describe('PageHeader', () => {
       />,
     )
     expect(screen.getByText('Red Line')).toBeOnTheScreen()
+  })
+
+  it('renders FavoriteButton when favorite prop is provided', () => {
+    render(<PageHeader title="Red Line" favorite={{ type: 'line', id: 'red' }} />)
+    expect(screen.getByTestId('favorite-button').props.children).toBe('line:red')
+  })
+
+  it('does not render FavoriteButton when favorite prop is omitted', () => {
+    render(<PageHeader title="Red Line" />)
+    expect(screen.queryByTestId('favorite-button')).toBeNull()
   })
 })

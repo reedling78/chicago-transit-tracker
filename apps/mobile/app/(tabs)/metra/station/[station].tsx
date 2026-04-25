@@ -30,6 +30,7 @@ export default function MetraStationDetailScreen() {
           title={station.name}
           description={station.address}
           imageSrc={station.photoUrl ? { uri: station.photoUrl } : metraHeroImage}
+          favorite={{ type: 'station', id: station.slug }}
           badges={
             <>
               <Text style={badgeStyles.service}>
