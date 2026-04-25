@@ -38,12 +38,22 @@ export default function StepsItem({
   const topSegmentColor = _isFirst ? 'transparent' : (_color ?? 'transparent')
   const bottomSegmentColor = _isLast ? 'transparent' : (_color ?? 'transparent')
 
+  const rowStyle: React.CSSProperties = {}
+  let rowClass = 'relative flex items-stretch gap-4'
+  if (status === 'past' || status === 'skipped') rowClass += ' opacity-60'
+  if (status === 'current' && _color) {
+    rowStyle.backgroundColor = `${_color}14` // 8% alpha
+  }
+
+  const leftWrapClass = 'flex-1 min-w-0' + (status === 'skipped' ? ' line-through' : '')
+
   return (
     <div
       data-steps-item=""
       data-steps-status={status}
       {...rest}
-      className="relative flex items-stretch gap-4"
+      className={rowClass}
+      style={rowStyle}
     >
       <div className="flex w-6 shrink-0 flex-col items-center">
         <div
@@ -69,7 +79,9 @@ export default function StepsItem({
         />
       </div>
 
-      <div className="min-w-0 flex-1 py-4">{children}</div>
+      <div data-steps-left="" className={leftWrapClass + ' py-4'}>
+        {children}
+      </div>
     </div>
   )
 }

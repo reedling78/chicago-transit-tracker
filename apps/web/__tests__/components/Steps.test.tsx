@@ -71,4 +71,37 @@ describe('Steps', () => {
     expect(bullet.style.backgroundColor).toBe('rgb(198, 12, 48)')
     expect(bullet.style.borderColor).toBe('rgb(198, 12, 48)')
   })
+
+  it('applies opacity-60 on past rows', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item status="past">A</Steps.Item>
+      </Steps>,
+    )
+    const row = container.querySelector('[data-steps-item]') as HTMLElement
+    expect(row.className).toContain('opacity-60')
+  })
+
+  it('applies opacity-60 and line-through wrapper on skipped rows', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item status="skipped">A</Steps.Item>
+      </Steps>,
+    )
+    const row = container.querySelector('[data-steps-item]') as HTMLElement
+    expect(row.className).toContain('opacity-60')
+    const leftWrap = row.querySelector('[data-steps-left]') as HTMLElement
+    expect(leftWrap.className).toContain('line-through')
+  })
+
+  it('tints current rows with 8% alpha of the line color', () => {
+    const { container } = render(
+      <Steps color={RED}>
+        <Steps.Item status="current">A</Steps.Item>
+      </Steps>,
+    )
+    const row = container.querySelector('[data-steps-item]') as HTMLElement
+    // `${RED}14` — 8% alpha suffix
+    expect(row.style.backgroundColor).not.toBe('')
+  })
 })
