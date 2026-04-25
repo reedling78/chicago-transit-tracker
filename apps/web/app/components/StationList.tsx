@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Steps } from '@components/Steps'
 import type { Station } from '@lib/types'
 import { LINE_COLORS } from '@lib/constants'
 
@@ -24,6 +24,40 @@ function WheelchairIcon() {
   )
 }
 
+function TransferChips({ lines }: { lines: string[] }) {
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1.5">
+      {lines.map((line) => {
+        const colors = LINE_COLORS[line]
+        return colors ? (
+          <span
+            key={line}
+            className="rounded px-2 py-0.5 text-xs font-semibold"
+            style={{ backgroundColor: colors.bg, color: colors.text }}
+          >
+            {line}
+          </span>
+        ) : (
+          <span
+            key={line}
+            className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+          >
+            {line}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
+function Arrow() {
+  return (
+    <span className="mt-0.5 text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400">
+      →
+    </span>
+  )
+}
+
 export default function StationList({
   stations,
   lineColor,
@@ -32,78 +66,25 @@ export default function StationList({
 }: StationListProps) {
   return (
     <div>
-      <div className="relative">
-        {/* Vertical timeline bar */}
-        <div
-          className="absolute top-3 bottom-3 left-[11px] w-[3px] rounded-full"
-          style={{ backgroundColor: lineColor }}
-        />
-
+      <Steps color={lineColor}>
         {stations.map((station) => {
           const otherLines = station.lines.filter((l) => l !== currentLine)
-
           return (
-            <div
+            <Steps.Item
               key={station.slug}
-              className="relative flex items-start gap-4 border-b border-gray-100 py-4 last:border-0 dark:border-gray-800"
+              bullet={station.terminal ? 'filled' : 'open'}
+              href={`${stationHrefPrefix}/${station.slug}`}
+              trailing={<Arrow />}
+              below={otherLines.length > 0 ? <TransferChips lines={otherLines} /> : undefined}
             >
-              {/* Dot */}
-              <div className="relative z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center">
-                <div
-                  className={`rounded-full border-2 ${
-                    station.terminal ? 'h-5 w-5' : 'h-3 w-3 bg-white dark:bg-gray-950'
-                  }`}
-                  style={{
-                    borderColor: lineColor,
-                    backgroundColor: station.terminal ? lineColor : undefined,
-                  }}
-                />
-              </div>
-
-              {/* Row content — entire row is a link */}
-              <Link
-                href={`${stationHrefPrefix}/${station.slug}`}
-                className="group flex min-w-0 flex-1 items-start justify-between gap-4"
-              >
-                <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 font-semibold text-gray-900 group-hover:underline dark:text-white">
-                    {station.name}
-                    {station.accessibility.ada && <WheelchairIcon />}
-                  </p>
-
-                  {otherLines.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      {otherLines.map((line) => {
-                        const colors = LINE_COLORS[line]
-                        return colors ? (
-                          <span
-                            key={line}
-                            className="rounded px-2 py-0.5 text-xs font-semibold"
-                            style={{ backgroundColor: colors.bg, color: colors.text }}
-                          >
-                            {line}
-                          </span>
-                        ) : (
-                          <span
-                            key={line}
-                            className="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                          >
-                            {line}
-                          </span>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <span className="mt-0.5 shrink-0 text-gray-300 transition group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400">
-                  →
-                </span>
-              </Link>
-            </div>
+              <p className="flex items-center gap-1.5 font-semibold text-gray-900 group-hover:underline dark:text-white">
+                {station.name}
+                {station.accessibility.ada && <WheelchairIcon />}
+              </p>
+            </Steps.Item>
           )
         })}
-      </div>
+      </Steps>
     </div>
   )
 }
