@@ -97,15 +97,29 @@ describe('StationList', () => {
     expect(screen.getByText('Howard')).toBeInTheDocument()
   })
 
-  it('matches snapshot', () => {
+  it('terminal stations render data-steps-bullet="filled"', () => {
     const { container } = render(
       <StationList
-        stations={[mockStation, terminalStation]}
+        stations={[terminalStation]}
         lineColor="#c60c30"
         stationHrefPrefix="/cta/red"
         currentLine="Red"
       />,
     )
-    expect(container).toMatchSnapshot()
+    expect(container.querySelector('[data-steps-bullet="filled"]')).toBeInTheDocument()
+    expect(container.querySelector('[data-steps-bullet="open"]')).not.toBeInTheDocument()
+  })
+
+  it('non-terminal stations render data-steps-bullet="open"', () => {
+    const { container } = render(
+      <StationList
+        stations={[mockStation]}
+        lineColor="#c60c30"
+        stationHrefPrefix="/cta/red"
+        currentLine="Red"
+      />,
+    )
+    expect(container.querySelector('[data-steps-bullet="open"]')).toBeInTheDocument()
+    expect(container.querySelector('[data-steps-bullet="filled"]')).not.toBeInTheDocument()
   })
 })

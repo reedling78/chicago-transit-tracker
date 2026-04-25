@@ -125,11 +125,11 @@ describe('MetraTripRealtime', () => {
     expect(screen.queryByText(/Delayed/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Live tracking unavailable/)).not.toBeInTheDocument()
 
-    // All stops default to "upcoming"
+    // All stops default to the Steps "default" status (maps from derived "upcoming")
     const rows = container.querySelectorAll('[data-stop-sequence]')
     expect(rows.length).toBe(4)
     rows.forEach((row) => {
-      expect(row.getAttribute('data-stop-status')).toBe('upcoming')
+      expect(row.getAttribute('data-steps-status')).toBe('default')
     })
   })
 
@@ -148,14 +148,14 @@ describe('MetraTripRealtime', () => {
     const { container } = render(<MetraTripRealtime trip={baseTrip} lineSlug="bnsf" />)
 
     await waitFor(() => {
-      expect(container.querySelector('[data-stop-status="current"]')).not.toBeNull()
+      expect(container.querySelector('[data-steps-status="current"]')).not.toBeNull()
     })
 
     const rows = container.querySelectorAll('[data-stop-sequence]')
-    expect(rows[0].getAttribute('data-stop-status')).toBe('past')
-    expect(rows[1].getAttribute('data-stop-status')).toBe('past')
-    expect(rows[2].getAttribute('data-stop-status')).toBe('current')
-    expect(rows[3].getAttribute('data-stop-status')).toBe('upcoming')
+    expect(rows[0].getAttribute('data-steps-status')).toBe('past')
+    expect(rows[1].getAttribute('data-steps-status')).toBe('past')
+    expect(rows[2].getAttribute('data-steps-status')).toBe('current')
+    expect(rows[3].getAttribute('data-steps-status')).toBe('default')
 
     // Hero card right panel shows the next stop spotlight
     expect(screen.getAllByText('Next stop').length).toBeGreaterThan(0)

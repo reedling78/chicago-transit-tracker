@@ -80,7 +80,9 @@ apps/
         MetraAlerts.tsx           Metra realtime alerts feed (client component)
         MetraPositions.tsx        Metra realtime vehicle positions (client component, debug)
         MetraTripUpdates.tsx      Metra realtime trip updates (client component, debug)
-        MetraTripRealtime.tsx     Train detail client component — schedule table + hero status card, polls tripupdates/positions
+        MetraTripRealtime.tsx     Train detail client component — Steps-based stop timeline + hero status card, polls tripupdates/positions
+        MetraTripStopTimeline.tsx Per-stop timeline for the active trip — wraps Steps with status mapping and a StopMeta trailing slot
+        Steps/                    Reusable vertical-step primitive (Steps + Steps.Item) — per-row rail segments, bullet/status/halo variants
         CurrentServiceList.tsx    Presentational list of active/upcoming trains with status pills (service-agnostic)
         MetraCurrentService.tsx   Line detail client component — polls realtime feeds, applies selection rules, renders CurrentServiceList
         CtaServicePulse.tsx       Presentational card row for CTA service health per terminal

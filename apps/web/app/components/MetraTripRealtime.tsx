@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import { useMetraFeed } from '@lib/hooks/useMetraFeed'
 import {
   computeHeroStatus,
@@ -15,6 +14,7 @@ import {
 import { LINE_COLORS } from '@lib/constants'
 import { filterFeedForTrip, isTripCompleted } from '@lib/metra-trip-realtime-helpers'
 import MetraTripHeroStatusCard from './MetraTripHeroStatusCard'
+import MetraTripStopTimeline from './MetraTripStopTimeline'
 
 export type { TripStop } from '@lib/metra-status'
 
@@ -165,119 +165,11 @@ export default function MetraTripRealtime({
         />
       )}
 
-      {/* Stop sequence table */}
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        <div className="border-b border-gray-100 px-5 py-3 dark:border-gray-800">
-          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase dark:text-gray-500">
-            Stop Schedule — {trip.stops.length} stops
-          </p>
-        </div>
-        <div className="divide-y divide-gray-50 dark:divide-gray-800">
-          {derivedStops.map(({ stop, status, delayMinutes, skipped }) => {
-            const rowStyle: React.CSSProperties = {}
-            let rowClass = 'flex items-center gap-4 px-5 py-3 border-l-4 border-transparent'
-            if (status === 'past') rowClass += ' opacity-60'
-            if (skipped) rowClass += ' opacity-60'
-            if (status === 'current') {
-              rowStyle.borderLeftColor = lineColor
-              rowStyle.backgroundColor = `${lineColor}14`
-            }
-
-            let pill: { label: string; className: string } | null = null
-            if (skipped) {
-              pill = {
-                label: 'Skipped',
-                className: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
-              }
-            } else if (status === 'current') {
-              pill = {
-                label: 'Next stop',
-                className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-              }
-            }
-
-            const nameClass =
-              'flex-1 text-sm font-medium text-gray-900 dark:text-white' +
-              (skipped ? ' line-through' : '')
-
-            return (
-              <div
-                key={stop.sequence}
-                className={rowClass}
-                style={rowStyle}
-                data-stop-sequence={stop.sequence}
-                data-stop-status={status}
-              >
-                <span className="w-6 shrink-0 text-center text-xs font-medium text-gray-400 dark:text-gray-500">
-                  {stop.sequence}
-                </span>
-
-                <span className={nameClass}>
-                  {stop.slug ? (
-                    <Link
-                      href={`/metra/${lineSlug}/${stop.slug}`}
-                      className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
-                    >
-                      {stop.stationName}
-                    </Link>
-                  ) : (
-                    stop.stationName
-                  )}
-                </span>
-
-                {pill && (
-                  <span
-                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${pill.className}`}
-                  >
-                    {pill.label}
-                  </span>
-                )}
-
-                <div className="flex shrink-0 items-center gap-6">
-                  {stop.arrival !== stop.departure ? (
-                    <>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Arr</p>
-                        <p className="flex items-center justify-end gap-1 text-sm font-medium text-gray-900 tabular-nums dark:text-white">
-                          {stop.arrival}
-                          {delayMinutes != null && delayMinutes > 0 && !skipped && (
-                            <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                              +{delayMinutes} min
-                            </span>
-                          )}
-                          {delayMinutes != null && delayMinutes < 0 && !skipped && (
-                            <span className="rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                              {delayMinutes} min
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-400 dark:text-gray-500">Dep</p>
-                        <p className="text-sm font-medium text-gray-900 tabular-nums dark:text-white">
-                          {stop.departure}
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400 dark:text-gray-500">Time</p>
-                      <p className="flex items-center justify-end gap-1 text-sm font-medium text-gray-900 tabular-nums dark:text-white">
-                        {stop.departure}
-                        {delayMinutes != null && delayMinutes > 0 && !skipped && (
-                          <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                            +{delayMinutes} min
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+      <MetraTripStopTimeline
+        derivedStops={derivedStops}
+        lineColor={lineColor}
+        lineSlug={lineSlug}
+      />
 
       {/* Footer: last-updated / refresh */}
       {isStopped && realtime && (
