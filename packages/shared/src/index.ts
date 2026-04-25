@@ -30,3 +30,39 @@ export {
   nextArrivalFor,
   computeHealth,
 } from './cta-pulse'
+export type {
+  TripStop,
+  TripUpdate,
+  VehiclePosition,
+  FeedMessage,
+  FeedData,
+  RealtimeState,
+  StopStatus,
+  DerivedStop,
+  TripPhase,
+  StatusTone,
+  HeroStatus,
+} from './metra-status'
+export {
+  TONE_CLASSES,
+  longToNumber,
+  parseDisplayTimeToMinutes,
+  minutesSinceMidnight,
+  computeScheduledEpoch,
+  formatClockTime,
+  isTripScheduledEndPast,
+  deriveStopState,
+  computeHeroStatus,
+} from './metra-status'
+export type {
+  FeedEntity,
+  FilteredEntity,
+  CompletionInput,
+  RightPanelCopy,
+} from './metra-trip-realtime-helpers'
+export {
+  matchEntityToTrip,
+  filterFeedForTrip,
+  isTripCompleted,
+  computeRightPanel,
+} from './metra-trip-realtime-helpers'
