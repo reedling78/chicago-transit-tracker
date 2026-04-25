@@ -42,7 +42,8 @@ export default function StepsItem({
   let rowClass = 'relative flex items-stretch gap-4'
   if (status === 'past' || status === 'skipped') rowClass += ' opacity-60'
   if (status === 'current' && _color) {
-    rowStyle.backgroundColor = `${_color}14` // 8% alpha
+    // 8% alpha tint via 8-digit hex; requires _color to be a 6-digit hex (#RRGGBB).
+    rowStyle.backgroundColor = `${_color}14`
   }
 
   const leftWrapClass = 'flex-1 min-w-0' + (status === 'skipped' ? ' line-through' : '')
