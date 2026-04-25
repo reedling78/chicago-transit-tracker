@@ -157,6 +157,24 @@ describe('Steps', () => {
     expect(screen.getByTestId('my-row')).toBeOnTheScreen()
   })
 
+  it('lays out the row as a flex row even when wrapped in a Link via href', () => {
+    // Regression: when href is set, Pressable inside Link asChild was
+    // dropping the style array, so flexDirection: 'row' didn't apply
+    // and the bullet stacked above the station name.
+    render(
+      <Steps color={RED}>
+        <Steps.Item testID="row" href="/some/route">
+          <Text>A</Text>
+        </Steps.Item>
+      </Steps>,
+    )
+    const flatten = (s: unknown): Record<string, unknown> =>
+      Array.isArray(s) ? Object.assign({}, ...s.map(flatten)) : (s as Record<string, unknown>)
+    const flat = flatten(screen.getByTestId('row').props.style)
+    expect(flat.flexDirection).toBe('row')
+    expect(flat.alignItems).toBe('center')
+  })
+
   it('vertically centers row contents with a minHeight so the bullet aligns with the station name', () => {
     // Regression: with alignItems: 'stretch' and no minHeight, the bullet
     // ended up centered in a tall row while the station name pinned to the

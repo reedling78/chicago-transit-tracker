@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import { View, StyleSheet, Pressable, type StyleProp, type ViewStyle } from 'react-native'
+import { View, StyleSheet, Pressable, type ViewStyle } from 'react-native'
 import { Link } from 'expo-router'
 
 export type StepStatus = 'default' | 'past' | 'current' | 'skipped'
@@ -54,9 +54,12 @@ export default function StepsItem({
   const isCurrent = status === 'current'
   const variant: StepBullet | 'halo' = isCurrent ? 'halo' : bullet
 
-  const rowStyle: StyleProp<ViewStyle>[] = [styles.row]
-  if (status === 'past' || status === 'skipped') rowStyle.push({ opacity: 0.6 })
-  if (isCurrent) rowStyle.push({ backgroundColor: hexWithAlpha(color, 0.08) })
+  // Pass a single flat style object rather than an array — Pressable inside
+  // expo-router's Link asChild reliably picks up object styles but can drop
+  // array-shaped style props (the working StationTimeline uses the same pattern).
+  const rowStyle: ViewStyle = { ...styles.row }
+  if (status === 'past' || status === 'skipped') rowStyle.opacity = 0.6
+  if (isCurrent) rowStyle.backgroundColor = hexWithAlpha(color, 0.08)
 
   const dotColumn = (
     <View style={styles.dotColumn}>
