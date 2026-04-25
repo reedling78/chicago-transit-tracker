@@ -47,7 +47,7 @@ export default function FavoriteButton({ type, id, className }: Props) {
         disabled={isToggling}
         aria-label={label}
         aria-pressed={isFavorited}
-        className={`flex h-11 w-11 items-center justify-center rounded-full transition hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-white disabled:cursor-not-allowed ${className ?? ''}`}
+        className={`flex h-11 w-11 items-center justify-center rounded-full text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] transition hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-white disabled:cursor-not-allowed ${className ?? ''}`}
       >
         <svg
           width="22"
