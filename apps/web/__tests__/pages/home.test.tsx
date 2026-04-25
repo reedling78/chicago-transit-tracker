@@ -5,8 +5,18 @@ jest.mock('@lib/metra-realtime', () => ({
   fetchMetraFeed: jest.fn(() => new Promise(() => {})),
 }))
 
+jest.mock('@components/dashboard/Dashboard', () => {
+  return function MockDashboard() {
+    return (
+      <div>
+        <h1>Chicago Transit Tracker</h1>
+      </div>
+    )
+  }
+})
+
 describe('Home page', () => {
-  it('renders the Hero heading', () => {
+  it('renders the Dashboard with the site name heading', () => {
     const ui = HomePage()
     render(ui)
     expect(

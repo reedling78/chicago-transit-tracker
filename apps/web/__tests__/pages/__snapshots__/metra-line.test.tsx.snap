@@ -81,12 +81,29 @@ exports[`Metra line detail page matches snapshot 1`] = `
             Commuter Rail
           </span>
         </div>
-        <h1
-          class="flex items-center gap-3 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl"
-          style="text-shadow: 0 1px 3px rgba(0,0,0,0.3);"
+        <div
+          class="flex items-start justify-between gap-3"
         >
-          BNSF Railway
-        </h1>
+          <div
+            class="min-w-0 flex-1"
+          >
+            <h1
+              class="flex items-center gap-3 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl"
+              style="text-shadow: 0 1px 3px rgba(0,0,0,0.3);"
+            >
+              BNSF Railway
+            </h1>
+          </div>
+          <div
+            class="-mt-1 shrink-0"
+          >
+            <div
+              data-favorite-id="bnsf"
+              data-favorite-type="line"
+              data-testid="favorite-button-stub"
+            />
+          </div>
+        </div>
         <p
           class="mt-3 max-w-2xl text-sm text-white/85 sm:text-base"
         >
