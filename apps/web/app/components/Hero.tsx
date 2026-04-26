@@ -102,16 +102,6 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.08),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.15),transparent)]" />
 
       <div className="relative mx-auto max-w-7xl">
-        {/* Headline */}
-        <div className="mb-14 text-center">
-          <h1 className="mb-4 text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl dark:text-white">
-            Chicago Transit Tracker
-          </h1>
-          <p className="mx-auto max-w-xl text-lg text-gray-500 dark:text-white/50">
-            Real-time schedules, routes, and station info for every line in the Chicago metro area.
-          </p>
-        </div>
-
         {/* Service cards */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <ServiceCard

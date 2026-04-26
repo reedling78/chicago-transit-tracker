@@ -2,11 +2,14 @@ import { render, screen } from '@testing-library/react'
 import Hero from '@components/Hero'
 
 describe('Hero', () => {
-  it('renders the main heading', () => {
+  it('does not render the page title or tagline (the navbar already names the site)', () => {
     render(<Hero />)
     expect(
-      screen.getByRole('heading', { level: 1, name: /chicago transit tracker/i }),
-    ).toBeInTheDocument()
+      screen.queryByRole('heading', { level: 1, name: /chicago transit tracker/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/Real-time schedules, routes, and station info/i),
+    ).not.toBeInTheDocument()
   })
 
   it('renders a link to /cta', () => {

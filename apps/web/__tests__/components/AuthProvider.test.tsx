@@ -17,9 +17,14 @@ jest.mock('firebase/firestore', () => ({
 
 const mockHydrate = jest.fn()
 const mockClear = jest.fn()
+let mockPendingWrites = 0
 jest.mock('@lib/store/favorites', () => ({
   useFavoritesStore: {
-    getState: () => ({ hydrate: mockHydrate, clear: mockClear }),
+    getState: () => ({
+      hydrate: mockHydrate,
+      clear: mockClear,
+      pendingWrites: mockPendingWrites,
+    }),
   },
 }))
 
@@ -55,6 +60,7 @@ function captureSnapshotCallback() {
 describe('AuthProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockPendingWrites = 0
   })
 
   it('shows loading state initially', () => {
@@ -180,6 +186,46 @@ describe('AuthProvider', () => {
       expect.objectContaining({ id: 'clark-lake' }),
       expect.objectContaining({ id: 'red' }),
     ])
+  })
+
+  it('skips hydrate while pendingWrites > 0 (concurrency guard)', async () => {
+    mockPendingWrites = 1
+    mockGetDoc.mockResolvedValue({ exists: () => true } as never)
+    const getCb = captureSnapshotCallback()
+    mockOnAuthStateChanged.mockImplementation((_, callback) => {
+      callback(mockUser)
+      return jest.fn()
+    })
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(mockOnSnapshot).toHaveBeenCalled()
+    })
+
+    act(() => {
+      getCb()({
+        exists: () => true,
+        data: () => ({
+          uid: 'test-uid-123',
+          email: 'test@example.com',
+          displayName: 'Test User',
+          photoUrl: null,
+          provider: 'password',
+          favorites: {
+            'line:red': { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' },
+          },
+          createdAt: '2026-04-25T00:00:00Z',
+          updatedAt: '2026-04-25T00:00:00Z',
+        }),
+      })
+    })
+
+    expect(mockHydrate).not.toHaveBeenCalled()
   })
 
   it('handles Firestore errors gracefully', async () => {

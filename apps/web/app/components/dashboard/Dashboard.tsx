@@ -1,16 +1,12 @@
 import Hero from '@components/Hero'
-import FavoriteTrains from './FavoriteTrains'
-import FavoriteStations from './FavoriteStations'
-import FavoriteLines from './FavoriteLines'
+import DashboardGrid from './DashboardGrid'
 
 export default function Dashboard() {
   return (
     <div>
-      <Hero />
+      <DashboardGrid />
       <div className="mt-12">
-        <FavoriteTrains />
-        <FavoriteStations />
-        <FavoriteLines />
+        <Hero />
       </div>
     </div>
   )
