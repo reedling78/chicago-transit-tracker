@@ -4,9 +4,9 @@ import DashboardGrid from './DashboardGrid'
 export default function Dashboard() {
   return (
     <div>
-      <Hero />
+      <DashboardGrid />
       <div className="mt-12">
-        <DashboardGrid />
+        <Hero />
       </div>
     </div>
   )

@@ -8,7 +8,13 @@ export const cardRow =
 
 export const cardRowDragging = 'opacity-70 shadow-lg ring-2 ring-blue-400 cursor-grabbing'
 
-export const cardLink = 'flex min-w-0 flex-1 items-center gap-3 outline-none'
+// `touch-none` is mandatory: dnd-kit's TouchSensor with a 250ms `delay`
+// activation constraint requires `touch-action: none` on the listener-bearing
+// element so the browser does not preempt the gesture as a scroll. Without it,
+// long-press-to-drag silently fails on mobile-web. Tradeoff: users cannot
+// scroll the page while their finger is over a card; they scroll by touching
+// outside the list (the page background, header, or hint footer).
+export const cardLink = 'flex min-w-0 flex-1 items-center gap-3 outline-none touch-none'
 
 export const cardTitle = 'truncate font-medium text-gray-900 dark:text-white'
 

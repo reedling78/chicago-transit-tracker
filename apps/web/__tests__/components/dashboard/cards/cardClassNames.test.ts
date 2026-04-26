@@ -31,6 +31,13 @@ describe('cardClassNames', () => {
     expect(cardMeta).toContain('text-gray-400')
   })
 
+  it('marks the listener-bearing surface with touch-none for mobile-web drag', () => {
+    // Without touch-action: none, mobile browsers preempt long-press as a
+    // scroll gesture and dnd-kit's TouchSensor never activates. Guard against
+    // accidentally removing this class.
+    expect(cardLink).toContain('touch-none')
+  })
+
   it('exports the line-color chip token', () => {
     expect(cardChip).toContain('rounded')
     expect(cardChip).toContain('font-semibold')

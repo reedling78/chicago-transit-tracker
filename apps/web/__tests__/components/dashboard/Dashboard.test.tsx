@@ -15,13 +15,13 @@ jest.mock('@components/dashboard/DashboardGrid', () => {
 import Dashboard from '@components/dashboard/Dashboard'
 
 describe('Dashboard', () => {
-  it('renders Hero above the unified favorites grid', () => {
+  it('renders the unified favorites grid above the service-cards Hero', () => {
     const { container } = render(<Dashboard />)
     const ids = Array.from(container.querySelectorAll('[data-testid]')).map((el) =>
       el.getAttribute('data-testid'),
     )
-    expect(ids).toEqual(['dash-hero', 'dash-grid'])
-    expect(screen.getByTestId('dash-hero')).toBeInTheDocument()
+    expect(ids).toEqual(['dash-grid', 'dash-hero'])
     expect(screen.getByTestId('dash-grid')).toBeInTheDocument()
+    expect(screen.getByTestId('dash-hero')).toBeInTheDocument()
   })
 })
