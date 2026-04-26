@@ -1,10 +1,11 @@
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, Stack } from 'expo-router'
 import { useStation, useSchedule, useStationTrips } from '../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
 import { ArrivalsCard } from '../../../components/ArrivalsCard'
 import { MetraTimetable } from '../../../components/MetraTimetable'
 import PageHeader from '../../../components/PageHeader'
+import FavoriteButton from '../../../components/FavoriteButton'
 
 const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
 
@@ -22,57 +23,79 @@ export default function MetraStationDetailScreen() {
     )
   }
 
+  const lineSubtitle = station.lines.join(' · ')
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <PageHeader
-        title={station.name}
-        description={station.address}
-        imageSrc={station.photoUrl ? { uri: station.photoUrl } : metraHeroImage}
-        favorite={{ type: 'station', id: station.slug }}
-        badges={
-          <>
-            <Text style={badgeStyles.service}>
-              {station.service === 'both' ? 'CTA + Metra' : 'Metra'}
-            </Text>
-            {station.terminal && <Text style={badgeStyles.terminal}>Terminal</Text>}
-            {station.open24Hours && <Text style={badgeStyles.open24}>24 Hours</Text>}
-          </>
-        }
-      >
-        <View style={styles.chips}>
-          {station.lines.map((line) => {
-            const colors = LINE_COLORS[line]
-            return (
-              <View key={line} style={[styles.chip, { backgroundColor: colors?.bg ?? '#555' }]}>
-                <Text style={[styles.chipText, { color: colors?.text ?? '#fff' }]}>{line}</Text>
-              </View>
-            )
-          })}
-        </View>
-      </PageHeader>
-
-      <ArrivalsCard
-        schedule={schedule}
-        service="metra"
-        loading={scheduleLoading}
-        trips={stationTrips}
+    <>
+      <Stack.Screen
+        options={{
+          headerTransparent: false,
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#0f0f23' },
+          headerTitle: () => (
+            <View style={styles.headerTitleWrap}>
+              <Text style={styles.headerTitle} numberOfLines={1} adjustsFontSizeToFit>
+                {station.name}
+              </Text>
+              {lineSubtitle && (
+                <Text style={styles.headerSub} numberOfLines={1}>
+                  {lineSubtitle}
+                </Text>
+              )}
+            </View>
+          ),
+          headerRight: () => <FavoriteButton type="station" id={station.slug} />,
+        }}
       />
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <PageHeader
+          description={station.address}
+          imageSrc={station.photoUrl ? { uri: station.photoUrl } : metraHeroImage}
+          badges={
+            <>
+              <Text style={badgeStyles.service}>
+                {station.service === 'both' ? 'CTA + Metra' : 'Metra'}
+              </Text>
+              {station.terminal && <Text style={badgeStyles.terminal}>Terminal</Text>}
+              {station.open24Hours && <Text style={badgeStyles.open24}>24 Hours</Text>}
+            </>
+          }
+        >
+          <View style={styles.chips}>
+            {station.lines.map((line) => {
+              const colors = LINE_COLORS[line]
+              return (
+                <View key={line} style={[styles.chip, { backgroundColor: colors?.bg ?? '#555' }]}>
+                  <Text style={[styles.chipText, { color: colors?.text ?? '#fff' }]}>{line}</Text>
+                </View>
+              )
+            })}
+          </View>
+        </PageHeader>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Info</Text>
-        <View style={styles.amenities}>
-          {station.accessibility.ada && <Text style={styles.badge}>ADA</Text>}
-          {station.parking && <Text style={styles.badge}>Parking</Text>}
-        </View>
-      </View>
+        <ArrivalsCard
+          schedule={schedule}
+          service="metra"
+          loading={scheduleLoading}
+          trips={stationTrips}
+        />
 
-      {!tripsLoading && stationTrips && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Timetable</Text>
-          <MetraTimetable stationTrips={stationTrips} />
+          <Text style={styles.sectionTitle}>Info</Text>
+          <View style={styles.amenities}>
+            {station.accessibility.ada && <Text style={styles.badge}>ADA</Text>}
+            {station.parking && <Text style={styles.badge}>Parking</Text>}
+          </View>
         </View>
-      )}
-    </ScrollView>
+
+        {!tripsLoading && stationTrips && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Timetable</Text>
+            <MetraTimetable stationTrips={stationTrips} />
+          </View>
+        )}
+      </ScrollView>
+    </>
   )
 }
 
@@ -128,4 +151,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     overflow: 'hidden',
   },
+  headerTitleWrap: { alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  headerSub: { color: '#9ca3af', fontSize: 12, marginTop: 2 },
 })

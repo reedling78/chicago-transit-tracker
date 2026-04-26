@@ -1,12 +1,31 @@
+import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockStation, mockSchedule } from '../fixtures'
 import { useStation, useSchedule } from '../../lib/hooks'
 import CtaStationDetailScreen from '../../app/cta/station/[station]'
 
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ station: 'clark-lake' }),
-  useRouter: () => ({ push: jest.fn() }),
-}))
+jest.mock('expo-router', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const ReactMock = require('react')
+  const Stack = () => null
+  Stack.displayName = 'Stack'
+  const StackScreen = (props: {
+    options?: { headerTitle?: () => ReactNode; headerRight?: () => ReactNode }
+  }) =>
+    ReactMock.createElement(
+      ReactMock.Fragment,
+      null,
+      props.options?.headerTitle ? props.options.headerTitle() : null,
+      props.options?.headerRight ? props.options.headerRight() : null,
+    )
+  StackScreen.displayName = 'StackScreen'
+  ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
+  return {
+    useLocalSearchParams: () => ({ station: 'clark-lake' }),
+    useRouter: () => ({ push: jest.fn() }),
+    Stack,
+  }
+})
 
 jest.mock('@expo/vector-icons/Ionicons', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -54,6 +73,25 @@ describe('CtaStationDetailScreen', () => {
     expect(screen.getByText('ADA')).toBeOnTheScreen()
     expect(screen.getByText('Schedule')).toBeOnTheScreen()
     expect(screen.getAllByText('To Howard').length).toBeGreaterThan(0)
+  })
+
+  it('renders the station name and lines in the app bar via headerTitle', () => {
+    mockUseStation.mockReturnValue({ station: mockStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<CtaStationDetailScreen />)
+    expect(screen.getByText('Clark/Lake')).toBeOnTheScreen()
+    expect(
+      screen.getByText('Red · Blue · Green · Brown · Purple · Pink · Orange'),
+    ).toBeOnTheScreen()
+  })
+
+  it('places the favorite button in the app bar via headerRight', () => {
+    mockUseStation.mockReturnValue({ station: mockStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    render(<CtaStationDetailScreen />)
+    const stub = screen.getByTestId('favorite-button-stub')
+    expect(stub).toBeOnTheScreen()
+    expect(stub.props.children).toBe('station:clark-lake')
   })
 
   it('renders 24 Hours badge when station is open 24 hours', () => {

@@ -6,7 +6,7 @@ import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import FavoriteButton from './FavoriteButton'
 
 interface PageHeaderProps {
-  title: string
+  title?: string
   description?: string
   breadcrumbItems?: { label: string; href?: string }[]
   badges?: ReactNode
@@ -40,17 +40,21 @@ export default function PageHeader({
       />
       <View style={styles.content}>
         {badges && <View style={styles.badges}>{badges}</View>}
-        <View style={styles.titleRow}>
-          <View style={styles.titleInner}>
-            {icon && <View style={styles.iconWrapper}>{icon}</View>}
-            <Text style={styles.title}>{title}</Text>
+        {(title || favorite) && (
+          <View style={styles.titleRow}>
+            {title && (
+              <View style={styles.titleInner}>
+                {icon && <View style={styles.iconWrapper}>{icon}</View>}
+                <Text style={styles.title}>{title}</Text>
+              </View>
+            )}
+            {favorite && (
+              <View style={styles.favoriteWrapper}>
+                <FavoriteButton type={favorite.type} id={favorite.id} />
+              </View>
+            )}
           </View>
-          {favorite && (
-            <View style={styles.favoriteWrapper}>
-              <FavoriteButton type={favorite.type} id={favorite.id} />
-            </View>
-          )}
-        </View>
+        )}
         {description && <Text style={styles.description}>{description}</Text>}
         {children && <View style={styles.children}>{children}</View>}
       </View>
