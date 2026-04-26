@@ -48,7 +48,7 @@ function wrapper({ children }: { children: ReactNode }) {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  useFavoritesStore.setState({ favorites: [], hydrated: false })
+  useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
 })
 
 describe('useToggleFavorite (mobile)', () => {
@@ -116,5 +116,57 @@ describe('useToggleFavorite (mobile)', () => {
     })
 
     consoleSpy.mockRestore()
+  })
+
+  it('writes position when adding to a fully-reordered list', async () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
+    useFavoritesStore.getState().hydrate([
+      { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z', position: 1000 },
+      { type: 'line', id: 'blue', addedAt: '2026-04-25T11:00:00Z', position: 2000 },
+    ])
+
+    const { result } = renderHook(() => useToggleFavorite('station', 'clark-lake'), { wrapper })
+    act(() => result.current.toggle())
+
+    await waitFor(() => {
+      expect(mockUpdateDoc).toHaveBeenCalled()
+    })
+    const args = mockUpdateDoc.mock.calls[0][1] as Record<string, unknown>
+    expect(args['favorites.station:clark-lake']).toMatchObject({
+      type: 'station',
+      id: 'clark-lake',
+      position: 0,
+    })
+  })
+
+  it('omits position when adding to a partially-positioned list', async () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
+    useFavoritesStore.getState().hydrate([
+      { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z', position: 1000 },
+      { type: 'line', id: 'blue', addedAt: '2026-04-25T11:00:00Z' },
+    ])
+
+    const { result } = renderHook(() => useToggleFavorite('station', 'clark-lake'), { wrapper })
+    act(() => result.current.toggle())
+
+    await waitFor(() => {
+      expect(mockUpdateDoc).toHaveBeenCalled()
+    })
+    const args = mockUpdateDoc.mock.calls[0][1] as Record<string, unknown>
+    const value = args['favorites.station:clark-lake'] as Record<string, unknown>
+    expect(value).toMatchObject({ type: 'station', id: 'clark-lake' })
+    expect(value.position).toBeUndefined()
+  })
+
+  it('increments pendingWrites during a write and decrements after settle', async () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
+
+    const { result } = renderHook(() => useToggleFavorite('line', 'red'), { wrapper })
+    act(() => result.current.toggle())
+
+    expect(useFavoritesStore.getState().pendingWrites).toBe(1)
+    await waitFor(() => {
+      expect(useFavoritesStore.getState().pendingWrites).toBe(0)
+    })
   })
 })

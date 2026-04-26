@@ -85,6 +85,12 @@ export interface Favorite {
   id: string
   /** ISO 8601 timestamp when the user favorited this item. */
   addedAt: string
+  /**
+   * User-controlled sort position. Lower = higher in the list. Set by the mobile
+   * dashboard's drag-to-reorder UI; absent for items that have never been reordered
+   * (which fall to the bottom of the list, ordered by `addedAt` desc within that bucket).
+   */
+  position?: number
 }
 
 export interface UserProfile {
