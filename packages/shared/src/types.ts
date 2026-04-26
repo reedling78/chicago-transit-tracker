@@ -73,6 +73,20 @@ export interface NormalizedAlert {
   service: 'cta' | 'metra'
 }
 
+export type FavoriteType = 'line' | 'station' | 'train'
+
+export interface Favorite {
+  type: FavoriteType
+  /**
+   * For `line`: line slug (e.g. `red`, `bnsf`).
+   * For `station`: station slug (e.g. `clark-lake`, `union-station-metra`).
+   * For `train`: `${lineSlug}_${trainNumber}` matching the `metra-trips` doc id.
+   */
+  id: string
+  /** ISO 8601 timestamp when the user favorited this item. */
+  addedAt: string
+}
+
 export interface UserProfile {
   uid: string
   email: string | null
@@ -81,4 +95,11 @@ export interface UserProfile {
   provider: 'apple' | 'google' | 'facebook' | 'password'
   createdAt: string // ISO 8601
   updatedAt: string // ISO 8601
+  /**
+   * User's favorited lines, stations, and trains, sorted by `addedAt` desc.
+   * Stored on Firestore as a map keyed by `favoriteKey(type, id)` for atomic
+   * per-favorite writes; projected to this ordered array in app code via
+   * `mapToArray()`.
+   */
+  favorites: Favorite[]
 }

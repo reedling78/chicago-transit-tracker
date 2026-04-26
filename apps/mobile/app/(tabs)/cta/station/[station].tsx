@@ -27,6 +27,7 @@ export default function CtaStationDetailScreen() {
           title={station.name}
           description={station.address}
           imageSrc={station.photoUrl ? { uri: station.photoUrl } : undefined}
+          favorite={{ type: 'station', id: station.slug }}
           badges={
             <>
               {station.terminal && <Text style={badgeStyles.terminal}>Terminal</Text>}

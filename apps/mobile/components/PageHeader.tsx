@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { View, Text, Image, StyleSheet, type ImageSourcePropType } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import type { FavoriteType } from '@ctt/shared'
+import FavoriteButton from './FavoriteButton'
 
 interface PageHeaderProps {
   title: string
@@ -9,6 +11,7 @@ interface PageHeaderProps {
   badges?: ReactNode
   icon?: ReactNode
   imageSrc?: ImageSourcePropType
+  favorite?: { type: FavoriteType; id: string }
   children?: ReactNode
 }
 
@@ -20,6 +23,7 @@ export default function PageHeader({
   badges,
   icon,
   imageSrc = defaultImage,
+  favorite,
   children,
 }: PageHeaderProps) {
   return (
@@ -35,8 +39,15 @@ export default function PageHeader({
       <View style={styles.content}>
         {badges && <View style={styles.badges}>{badges}</View>}
         <View style={styles.titleRow}>
-          {icon && <View style={styles.iconWrapper}>{icon}</View>}
-          <Text style={styles.title}>{title}</Text>
+          <View style={styles.titleInner}>
+            {icon && <View style={styles.iconWrapper}>{icon}</View>}
+            <Text style={styles.title}>{title}</Text>
+          </View>
+          {favorite && (
+            <View style={styles.favoriteWrapper}>
+              <FavoriteButton type={favorite.type} id={favorite.id} />
+            </View>
+          )}
         </View>
         {description && <Text style={styles.description}>{description}</Text>}
         {children && <View style={styles.children}>{children}</View>}
@@ -81,7 +92,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  titleInner: {
+    flexShrink: 1,
+    flexGrow: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   iconWrapper: {
+    flexShrink: 0,
+  },
+  favoriteWrapper: {
     flexShrink: 0,
   },
   title: {

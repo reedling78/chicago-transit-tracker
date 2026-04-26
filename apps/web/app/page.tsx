@@ -20,28 +20,16 @@ export const metadata: Metadata = {
   },
 }
 
-import Hero from '@components/Hero'
+import Dashboard from '@components/dashboard/Dashboard'
 import MetraAlerts from '@components/MetraAlerts'
-// import MetraPositions from '@components/MetraPositions'
-// import MetraTripUpdates from '@components/MetraTripUpdates'
 
 export default function HomePage() {
   return (
     <div>
-      <Hero />
+      <Dashboard />
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <MetraAlerts />
       </section>
-
-      {/* <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
-          Metra Realtime Feeds (Debug)
-        </h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <MetraPositions />
-          <MetraTripUpdates />
-        </div>
-      </section> */}
     </div>
   )
 }

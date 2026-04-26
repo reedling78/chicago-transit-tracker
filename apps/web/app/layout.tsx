@@ -8,6 +8,7 @@ import Navbar from '@components/Navbar'
 import Footer from '@components/Footer'
 import AuthProvider from '@components/AuthProvider'
 import Analytics from '@components/Analytics'
+import QueryProvider from '@components/QueryProvider'
 import { siteConfig } from '@lib/siteConfig'
 
 const geist = Geist({ subsets: ['latin'] })
@@ -61,13 +62,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${geist.className} flex min-h-screen flex-col bg-gray-50 transition-colors dark:bg-gray-950`}
       >
-        <AuthProvider>
-          <Navbar />
-          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-            {children}
-          </main>
-          <Footer />
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <Navbar />
+            <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
+        </QueryProvider>
         <Suspense fallback={null}>
           <Analytics />
         </Suspense>

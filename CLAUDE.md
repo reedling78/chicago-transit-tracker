@@ -93,9 +93,17 @@ apps/
         LinkCard.tsx              Clickable list card used on service and line pages
         LineDetail.tsx            Full line detail layout
         StationDetail.tsx         Full station detail layout
-        AuthProvider.tsx          Auth context + useAuth hook (client component)
+        AuthProvider.tsx          Auth context + onSnapshot live profile listener; hydrates favorites store (client component)
         UserMenu.tsx              Navbar user icon / avatar dropdown (client component)
         AuthModal.tsx             Sign in/up/reset modal (client component)
+        QueryProvider.tsx         TanStack Query + persist-client wrapper (localStorage)
+        FavoriteButton.tsx        Heart toggle for line/station/train detail headers
+        dashboard/
+          Dashboard.tsx           Home dashboard orchestrator (renders sections + Hero)
+          DashboardHeader.tsx     Greeting + Profile / Sign-in CTA on the dashboard
+          FavoriteTrains.tsx      List of favorited Metra trains (resolves trip via TanStack Query)
+          FavoriteStations.tsx    List of favorited stations (resolves names + first line)
+          FavoriteLines.tsx       Chip list of favorited lines
       profile/
         page.tsx                  User profile page (server shell + metadata)
         ProfileContent.tsx        Profile display (client component)
@@ -113,6 +121,13 @@ apps/
         siteConfig.ts             Re-exports from @ctt/shared
         cta-pulse.ts              Re-exports from @ctt/shared
         metra-trip-matching.ts    Re-exports from @ctt/shared
+        favorites.ts              Re-exports from @ctt/shared (Favorite, favoriteKey, mapToArray)
+        queryClient.ts            TanStack Query client factory (browser-cached singleton)
+        store/
+          favorites.ts            Zustand store for favorites (localStorage-persisted)
+        hooks/
+          useToggleFavorite.ts    Optimistic favorite toggle + map-keyed Firestore writes
+          useDashboardQueries.ts  TanStack Query reads for lines/stations/metra-trip on the dashboard
     __tests__/                    Jest + React Testing Library test suites
     scripts/
       seed-lines.ts               Seeds 19 lines into Firestore
@@ -159,13 +174,27 @@ apps/
       MetraTripHeroStatusCard.tsx Two-panel live status card (RN port of the web component)
       Steps/                      Reusable vertical-step primitive (Steps + Steps.Item) — RN port; per-row segments, halo bullet for current
       HeaderUserIcon.tsx          Stack header user icon — navigates to auth/profile
+      QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
+      FavoriteButton.tsx          Heart toggle for line/station/train detail headers
+      dashboard/
+        Dashboard.tsx             My Trains tab orchestrator (renders sections + Hero)
+        DashboardHeader.tsx       Greeting + Profile / Sign-in CTA on the dashboard
+        DashboardHero.tsx         CTA + Metra service nav cards
+        FavoriteTrains.tsx        List of favorited Metra trains
+        FavoriteStations.tsx      List of favorited stations
+        FavoriteLines.tsx         Chip list of favorited lines
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
       hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, useMetraTrip)
       useMetraFeed.ts             Metra GTFS-RT feed subscriber — polls Cloud Functions, AppState-aware
+      useToggleFavorite.ts        Optimistic favorite toggle + map-keyed Firestore writes
+      useDashboardQueries.ts      TanStack Query reads for lines/stations/metra-trip on the dashboard
+      queryClient.ts              TanStack Query client factory (singleton)
+      store/
+        favorites.ts              Zustand store for favorites (AsyncStorage-persisted)
       auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
-      AuthContext.tsx              Auth context + useAuth hook, profile auto-creation
+      AuthContext.tsx              Auth context + onSnapshot live profile listener; hydrates favorites store
     __tests__/                    Jest + React Native Testing Library test suites
   functions/
     src/
@@ -190,13 +219,14 @@ packages/
   shared/
     src/
       index.ts                    Barrel export of all shared modules
-      types.ts                    Line, Station, and UserProfile TypeScript interfaces
+      types.ts                    Line, Station, UserProfile, Favorite, FavoriteType TypeScript interfaces
       gtfs-types.ts               Schedule and trip type definitions
       pace-types.ts               Pace transit types
       constants.ts                CTA/Metra line colors, names, route mappings
       siteConfig.ts               Site name, URL, OG image config
       cta-pulse.ts                Pure aggregation + health helpers for CTA service pulse
       metra-trip-matching.ts      Helpers for matching Metra realtime entities
+      favorites.ts                Pure helpers for favorites (favoriteKey, mapToArray, arrayToMap)
 ```
 
 ---

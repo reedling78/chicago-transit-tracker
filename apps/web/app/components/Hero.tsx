@@ -87,7 +87,7 @@ const PACE_LINES = [
 
 export default function Hero() {
   return (
-    <section className="relative -mx-4 overflow-hidden bg-gray-50 px-4 py-20 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-950">
+    <section className="relative -mx-4 -mt-8 overflow-hidden bg-gray-50 px-4 py-20 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-950">
       {/* Background grid */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.03]"

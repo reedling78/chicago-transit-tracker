@@ -59,6 +59,7 @@ export default async function MetraLinePage({ params }: Props) {
         title={line.name}
         description={line.description}
         imageSrc="/hero-header-metra.jpg"
+        favorite={{ type: 'line', id: line.slug }}
         breadcrumbItems={[{ label: 'Metra Lines', href: '/metra' }, { label: line.name }]}
         badges={
           <>

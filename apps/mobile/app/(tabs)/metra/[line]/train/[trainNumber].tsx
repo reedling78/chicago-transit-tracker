@@ -2,6 +2,7 @@ import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-nat
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useMetraTrip } from '../../../../../lib/hooks'
 import MetraTripRealtime from '../../../../../components/MetraTripRealtime'
+import FavoriteButton from '../../../../../components/FavoriteButton'
 
 export default function MetraTrainDetailScreen() {
   const { line, trainNumber } = useLocalSearchParams<{ line: string; trainNumber: string }>()
@@ -26,7 +27,15 @@ export default function MetraTrainDetailScreen() {
             </Text>
           </View>
         )}
-        {!loading && trip && <MetraTripRealtime trip={trip} lineSlug={lineSlug} />}
+        {!loading && trip && (
+          <>
+            <View style={styles.favoriteRow}>
+              <Text style={styles.favoriteLabel}>{`Train ${train}`}</Text>
+              <FavoriteButton type="train" id={`${lineSlug}_${train}`} />
+            </View>
+            <MetraTripRealtime trip={trip} lineSlug={lineSlug} />
+          </>
+        )}
       </ScrollView>
     </>
   )
@@ -57,5 +66,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',
+  },
+  favoriteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+  },
+  favoriteLabel: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
 })
