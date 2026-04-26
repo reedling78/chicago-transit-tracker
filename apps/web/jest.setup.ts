@@ -38,3 +38,70 @@ jest.mock('@components/FavoriteButton', () => {
       }),
   }
 })
+
+// @dnd-kit relies on PointerEvent / pointer capture which jsdom doesn't model.
+// Replace it with a thin stub that captures `onDragEnd` so tests can drive
+// reorder events directly without simulating gestures.
+jest.mock('@dnd-kit/core', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react')
+  type DragEndEvent = { active: { id: string }; over: { id: string } | null }
+  const captured: { lastOnDragEnd?: (e: DragEndEvent) => void } = {}
+  return {
+    __esModule: true,
+    DndContext: ({
+      children,
+      onDragEnd,
+    }: {
+      children?: React.ReactNode
+      onDragEnd?: (e: DragEndEvent) => void
+    }) => {
+      captured.lastOnDragEnd = onDragEnd
+      return React.createElement(React.Fragment, null, children)
+    },
+    DragOverlay: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
+    PointerSensor: class {},
+    TouchSensor: class {},
+    KeyboardSensor: class {},
+    useSensor: () => ({}),
+    useSensors: () => [],
+    closestCenter: () => null,
+    __captured: captured,
+  }
+})
+
+jest.mock('@dnd-kit/sortable', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react')
+  function arrayMove<T>(arr: T[], from: number, to: number): T[] {
+    const copy = [...arr]
+    const [item] = copy.splice(from, 1)
+    copy.splice(to, 0, item)
+    return copy
+  }
+  return {
+    __esModule: true,
+    SortableContext: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(React.Fragment, null, children),
+    useSortable: () => ({
+      attributes: {},
+      listeners: {},
+      setNodeRef: () => {},
+      transform: null,
+      transition: null,
+      isDragging: false,
+    }),
+    arrayMove,
+    sortableKeyboardCoordinates: () => null,
+    verticalListSortingStrategy: () => null,
+  }
+})
+
+jest.mock('@dnd-kit/utilities', () => ({
+  __esModule: true,
+  CSS: {
+    Transform: { toString: () => '' },
+    Translate: { toString: () => '' },
+  },
+}))

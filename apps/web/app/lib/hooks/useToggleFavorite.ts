@@ -5,7 +5,7 @@ import { deleteField, doc, serverTimestamp, updateDoc } from 'firebase/firestore
 import { db } from '@lib/firebase-client'
 import { useAuth } from '@components/AuthProvider'
 import { useFavoritesStore } from '@lib/store/favorites'
-import { favoriteKey, type FavoriteType } from '@ctt/shared'
+import { favoriteKey, type Favorite, type FavoriteType } from '@ctt/shared'
 
 interface UseToggleFavoriteResult {
   isFavorited: boolean
@@ -14,7 +14,8 @@ interface UseToggleFavoriteResult {
   needsAuth: boolean
 }
 
-type Variables = { kind: 'add'; addedAt: string } | { kind: 'remove' }
+type FavoritePayload = { type: FavoriteType; id: string; addedAt: string; position?: number }
+type Variables = { kind: 'add'; payload: FavoritePayload } | { kind: 'remove' }
 
 export function useToggleFavorite(type: FavoriteType, id: string): UseToggleFavoriteResult {
   const { user } = useAuth()
@@ -26,8 +27,13 @@ export function useToggleFavorite(type: FavoriteType, id: string): UseToggleFavo
       const profileRef = doc(db, 'profiles', user.uid)
       const key = favoriteKey(type, id)
       if (variables.kind === 'add') {
+        const { type: t, id: i, addedAt, position } = variables.payload
+        const value: FavoritePayload =
+          typeof position === 'number'
+            ? { type: t, id: i, addedAt, position }
+            : { type: t, id: i, addedAt }
         await updateDoc(profileRef, {
-          [`favorites.${key}`]: { type, id, addedAt: variables.addedAt },
+          [`favorites.${key}`]: value,
           updatedAt: serverTimestamp(),
         })
       } else {
@@ -36,6 +42,9 @@ export function useToggleFavorite(type: FavoriteType, id: string): UseToggleFavo
           updatedAt: serverTimestamp(),
         })
       }
+    },
+    onSettled: () => {
+      useFavoritesStore.getState().decrementPendingWrites()
     },
     onError: (err, variables) => {
       if (variables.kind === 'add') {
@@ -51,10 +60,14 @@ export function useToggleFavorite(type: FavoriteType, id: string): UseToggleFavo
     if (!user) return
     if (isFavorited) {
       useFavoritesStore.getState().removeOptimistic(type, id)
+      useFavoritesStore.getState().incrementPendingWrites()
       mutation.mutate({ kind: 'remove' })
     } else {
-      const fav = useFavoritesStore.getState().addOptimistic(type, id)
-      mutation.mutate({ kind: 'add', addedAt: fav.addedAt })
+      const fav: Favorite = useFavoritesStore.getState().addOptimistic(type, id)
+      const payload: FavoritePayload = { type, id, addedAt: fav.addedAt }
+      if (typeof fav.position === 'number') payload.position = fav.position
+      useFavoritesStore.getState().incrementPendingWrites()
+      mutation.mutate({ kind: 'add', payload })
     }
   }
 

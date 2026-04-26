@@ -99,11 +99,16 @@ apps/
         QueryProvider.tsx         TanStack Query + persist-client wrapper (localStorage)
         FavoriteButton.tsx        Heart toggle for line/station/train detail headers
         dashboard/
-          Dashboard.tsx           Home dashboard orchestrator (renders sections + Hero)
+          Dashboard.tsx           Home dashboard orchestrator (renders Hero + DashboardGrid)
           DashboardHeader.tsx     Greeting + Profile / Sign-in CTA on the dashboard
-          FavoriteTrains.tsx      List of favorited Metra trains (resolves trip via TanStack Query)
-          FavoriteStations.tsx    List of favorited stations (resolves names + first line)
-          FavoriteLines.tsx       Chip list of favorited lines
+          DashboardGrid.tsx       Unified mixed-type favorites list — drag (mouse/touch) to reorder, ⋯ to open menu
+          FavoriteMenu.tsx        Anchored dropdown invoked from each card's ⋯ button
+          cards/
+            cardClassNames.ts     Shared Tailwind strings for all favorite card rows
+            CardMenuButton.tsx    Trailing ⋯ Pressable used on every card
+            LineCard.tsx          Favorite-line row (title + termini + accent left border)
+            StationCard.tsx       Favorite-station row (title + lines + service meta)
+            TrainCard.tsx         Favorite-train row (resolves trip via TanStack Query)
       profile/
         page.tsx                  User profile page (server shell + metadata)
         ProfileContent.tsx        Profile display (client component)
@@ -126,8 +131,10 @@ apps/
         store/
           favorites.ts            Zustand store for favorites (localStorage-persisted)
         hooks/
-          useToggleFavorite.ts    Optimistic favorite toggle + map-keyed Firestore writes
+          useToggleFavorite.ts    Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
+          useReorderFavorites.ts  Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
           useDashboardQueries.ts  TanStack Query reads for lines/stations/metra-trip on the dashboard
+        favoriteRoute.ts          Pure helper: resolves a Favorite to its deep-link route
     __tests__/                    Jest + React Testing Library test suites
     scripts/
       seed-lines.ts               Seeds 19 lines into Firestore
@@ -251,6 +258,7 @@ packages/
 - Firebase Cloud Functions (2nd gen) with Cloud Scheduler (automated GTFS sync)
 - react-native-gesture-handler + react-native-reanimated + react-native-draggable-flatlist (mobile dashboard drag-to-reorder)
 - @gorhom/bottom-sheet (mobile favorite-card overflow menu)
+- @dnd-kit/core + @dnd-kit/sortable + @dnd-kit/utilities (web dashboard drag-to-reorder)
 - Jest 30 + React Testing Library
 
 ---
