@@ -81,14 +81,42 @@ describe('DashboardGrid', () => {
 
   it('shows the signed-out placeholder when there is no user', () => {
     mockUseAuth.mockReturnValue({ user: null, loading: false })
-    const { getByText } = render(<DashboardGrid />, { wrapper })
+    const { getByText, queryByText } = render(<DashboardGrid />, { wrapper })
     expect(getByText('Sign in to save favorites')).toBeTruthy()
+    expect(queryByText(/long-press a card/i)).toBeNull()
   })
 
   it('shows the empty placeholder when signed in with no favorites', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    const { getByText } = render(<DashboardGrid />, { wrapper })
+    const { getByText, queryByText } = render(<DashboardGrid />, { wrapper })
     expect(getByText('No favorites yet')).toBeTruthy()
+    expect(queryByText(/long-press a card/i)).toBeNull()
+  })
+
+  it('shows the long-press / menu hint footer when favorites are present', () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
+    useFavoritesStore.getState().hydrate(allFavorites)
+    const { getByText } = render(<DashboardGrid />, { wrapper })
+    expect(getByText(/long-press a card/i)).toBeTruthy()
+  })
+
+  it('does not render a "Favorites" section header in any state', () => {
+    // Header was removed because the dashboard route already serves as the
+    // favorites surface — a "Favorites" heading was redundant.
+    mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
+    useFavoritesStore.getState().hydrate(allFavorites)
+    const populated = render(<DashboardGrid />, { wrapper })
+    expect(populated.queryByText('Favorites')).toBeNull()
+    populated.unmount()
+
+    useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+    const empty = render(<DashboardGrid />, { wrapper })
+    expect(empty.queryByText('Favorites')).toBeNull()
+    empty.unmount()
+
+    mockUseAuth.mockReturnValue({ user: null, loading: false })
+    const signedOut = render(<DashboardGrid />, { wrapper })
+    expect(signedOut.queryByText('Favorites')).toBeNull()
   })
 
   it('renders one card per favorite, mixed types', () => {

@@ -48,7 +48,6 @@ export default function DashboardGrid() {
   if (!user) {
     return (
       <View style={styles.section}>
-        <Text style={styles.heading}>Favorites</Text>
         <View style={styles.placeholderCard}>
           <Pressable onPress={() => router.push('auth' as never)}>
             <Text style={styles.placeholderTitle}>Sign in to save favorites</Text>
@@ -64,7 +63,6 @@ export default function DashboardGrid() {
   if (favorites.length === 0) {
     return (
       <View style={styles.section}>
-        <Text style={styles.heading}>Favorites</Text>
         <View style={styles.placeholderCard}>
           <Text style={styles.placeholderTitle}>No favorites yet</Text>
           <Text style={styles.placeholderSubtitle}>
@@ -78,7 +76,6 @@ export default function DashboardGrid() {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.heading}>Favorites</Text>
       <DraggableFlatList<Favorite>
         data={favorites}
         keyExtractor={(item) => `${item.type}:${item.id}`}
@@ -87,6 +84,9 @@ export default function DashboardGrid() {
         scrollEnabled={false}
         activationDistance={8}
       />
+      <Text style={styles.footerHint}>
+        Tip: long-press a card to drag it up or down. Tap ⋯ for more options.
+      </Text>
       <FavoriteMenuSheet ref={sheetRef} lines={lines} stations={stations} />
     </View>
   )
@@ -146,7 +146,6 @@ function renderFavoriteCard({
 
 const styles = StyleSheet.create({
   section: { marginBottom: 24 },
-  heading: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 8 },
   placeholderCard: {
     backgroundColor: '#1f2937',
     borderRadius: 8,
@@ -154,4 +153,11 @@ const styles = StyleSheet.create({
   },
   placeholderTitle: { color: '#fff', fontSize: 15, fontWeight: '600', marginBottom: 4 },
   placeholderSubtitle: { color: '#9ca3af', fontSize: 13 },
+  footerHint: {
+    color: '#6b7280',
+    fontSize: 12,
+    fontStyle: 'italic',
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
 })

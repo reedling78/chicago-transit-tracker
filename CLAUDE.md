@@ -173,24 +173,31 @@ apps/
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
       dashboard/
-        Dashboard.tsx             My Trains tab orchestrator (renders sections + Hero)
+        Dashboard.tsx             Home screen orchestrator (renders DashboardGrid + Hero)
         DashboardHero.tsx         CTA + Metra service nav cards
-        FavoriteTrains.tsx        List of favorited Metra trains
-        FavoriteStations.tsx      List of favorited stations
-        FavoriteLines.tsx         Chip list of favorited lines
+        DashboardGrid.tsx         Unified mixed-type favorites list — long-press to drag-reorder, ⋯ to open menu
+        FavoriteMenuSheet.tsx     @gorhom/bottom-sheet menu invoked from each card's ⋯ button
+        cards/
+          cardStyles.ts           Shared StyleSheet for all favorite card rows
+          CardMenuButton.tsx      Trailing ⋯ Pressable used on every card
+          LineCard.tsx            Favorite-line row (title + termini + colored chip)
+          StationCard.tsx         Favorite-station row (title + lines + service meta)
+          TrainCard.tsx           Favorite-train row (resolves trip via TanStack Query)
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
       hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, useMetraTrip)
       useMetraFeed.ts             Metra GTFS-RT feed subscriber — polls Cloud Functions, AppState-aware
       useNavHeaderInset.ts        Top inset for screens under the transparent navigator header (Android-safe fallback)
-      useToggleFavorite.ts        Optimistic favorite toggle + map-keyed Firestore writes
+      useToggleFavorite.ts        Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
+      useReorderFavorites.ts      Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
       useDashboardQueries.ts      TanStack Query reads for lines/stations/metra-trip on the dashboard
+      favoriteRoute.ts            Pure helper: resolves a Favorite to its deep-link route
       queryClient.ts              TanStack Query client factory (singleton)
       store/
-        favorites.ts              Zustand store for favorites (AsyncStorage-persisted)
+        favorites.ts              Zustand store for favorites (AsyncStorage-persisted) + reorder action + pendingWrites guard
       auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
-      AuthContext.tsx              Auth context + onSnapshot live profile listener; hydrates favorites store
+      AuthContext.tsx              Auth context + onSnapshot live profile listener; hydrates favorites store (skipped while pendingWrites>0)
     __tests__/                    Jest + React Native Testing Library test suites
   functions/
     src/
@@ -242,6 +249,8 @@ packages/
 - gtfs-realtime-bindings (protobuf decode for Metra GTFS Realtime feeds)
 - Google Analytics 4 (G-KQ1MNGBQP2, loaded via `next/script afterInteractive`)
 - Firebase Cloud Functions (2nd gen) with Cloud Scheduler (automated GTFS sync)
+- react-native-gesture-handler + react-native-reanimated + react-native-draggable-flatlist (mobile dashboard drag-to-reorder)
+- @gorhom/bottom-sheet (mobile favorite-card overflow menu)
 - Jest 30 + React Testing Library
 
 ---
@@ -394,7 +403,7 @@ Trips stopping at each Metra station, grouped by service type. Populated automat
 
 ### `profiles` — doc ID = Firebase Auth UID
 
-User profile documents, auto-created on first sign-in. Fields: `uid`, `email`, `displayName`, `photoUrl`, `provider` (`'apple' | 'google' | 'facebook' | 'password'`), `createdAt`, `updatedAt`. Protected by owner-only Firestore rules — users can only read/write their own profile.
+User profile documents, auto-created on first sign-in. Fields: `uid`, `email`, `displayName`, `photoUrl`, `provider` (`'apple' | 'google' | 'facebook' | 'password'`), `favorites` (map keyed by `${type}:${id}`, each entry storing `type`, `id`, `addedAt`, optional `position` for the mobile drag-reorder UI), `createdAt`, `updatedAt`. Protected by owner-only Firestore rules — users can only read/write their own profile.
 
 ### `gtfs-meta` — doc ID = `cta` or `metra`
 
