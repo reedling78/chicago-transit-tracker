@@ -174,7 +174,6 @@ apps/
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
       dashboard/
         Dashboard.tsx             My Trains tab orchestrator (renders sections + Hero)
-        DashboardHeader.tsx       Greeting + Profile / Sign-in CTA on the dashboard
         DashboardHero.tsx         CTA + Metra service nav cards
         FavoriteTrains.tsx        List of favorited Metra trains
         FavoriteStations.tsx      List of favorited stations

@@ -7,14 +7,6 @@ jest.mock('../../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,
 }))
 
-jest.mock('../../../components/dashboard/DashboardHeader', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const RN = require('react-native')
-  return {
-    __esModule: true,
-    default: () => <RN.Text testID="dash-header" />,
-  }
-})
 jest.mock('../../../components/dashboard/FavoriteTrains', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const RN = require('react-native')
@@ -51,7 +43,6 @@ jest.mock('../../../components/dashboard/DashboardHero', () => {
 describe('Dashboard (mobile)', () => {
   it('renders all sections in the personal-first order', () => {
     const { getByTestId } = render(<Dashboard />)
-    expect(getByTestId('dash-header')).toBeTruthy()
     expect(getByTestId('dash-trains')).toBeTruthy()
     expect(getByTestId('dash-stations')).toBeTruthy()
     expect(getByTestId('dash-lines')).toBeTruthy()
