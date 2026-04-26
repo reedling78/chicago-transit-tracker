@@ -38,6 +38,8 @@ export default function FavoriteTrains() {
   const trainFavorites = favorites.filter((f) => f.type === 'train')
 
   if (loading) return null
+  if (!user) return null
+  if (trainFavorites.length === 0) return null
 
   return (
     <section aria-labelledby="favorite-trains-heading" className="mb-8">
@@ -47,25 +49,13 @@ export default function FavoriteTrains() {
       >
         Favorite Trains
       </h2>
-      {!user && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Sign in to save your favorite trains.
-        </p>
-      )}
-      {user && trainFavorites.length === 0 && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Tap the heart on a train page to save it here.
-        </p>
-      )}
-      {user && trainFavorites.length > 0 && (
-        <ul className="space-y-2">
-          {trainFavorites.map((fav) => (
-            <li key={fav.id}>
-              <FavoriteTrainRow tripId={fav.id} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="space-y-2">
+        {trainFavorites.map((fav) => (
+          <li key={fav.id}>
+            <FavoriteTrainRow tripId={fav.id} />
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

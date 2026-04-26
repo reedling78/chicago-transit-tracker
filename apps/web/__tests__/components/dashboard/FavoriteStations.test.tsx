@@ -26,16 +26,16 @@ beforeEach(() => {
 })
 
 describe('FavoriteStations', () => {
-  it('shows the sign-in CTA when signed out', () => {
+  it('renders nothing when signed out', () => {
     mockUseAuth.mockReturnValue({ user: null, loading: false })
-    render(<FavoriteStations />)
-    expect(screen.getByText('Sign in to save your favorite stations.')).toBeInTheDocument()
+    const { container } = render(<FavoriteStations />)
+    expect(container.firstChild).toBeNull()
   })
 
-  it('shows the empty state when signed in with no favorites', () => {
+  it('renders nothing when signed in but no favorited stations', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    render(<FavoriteStations />)
-    expect(screen.getByText('Tap the heart on a station to save it here.')).toBeInTheDocument()
+    const { container } = render(<FavoriteStations />)
+    expect(container.firstChild).toBeNull()
   })
 
   it('renders favorited stations linked through their first line', () => {

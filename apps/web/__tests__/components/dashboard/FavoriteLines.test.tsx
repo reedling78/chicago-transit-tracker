@@ -23,16 +23,16 @@ beforeEach(() => {
 })
 
 describe('FavoriteLines', () => {
-  it('shows the sign-in CTA when signed out', () => {
+  it('renders nothing when signed out', () => {
     mockUseAuth.mockReturnValue({ user: null, loading: false })
-    render(<FavoriteLines />)
-    expect(screen.getByText('Sign in to save your favorite lines.')).toBeInTheDocument()
+    const { container } = render(<FavoriteLines />)
+    expect(container.firstChild).toBeNull()
   })
 
-  it('shows the empty state when signed in with no favorites', () => {
+  it('renders nothing when signed in but no favorited lines', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    render(<FavoriteLines />)
-    expect(screen.getByText('Tap the heart on a line page to save it here.')).toBeInTheDocument()
+    const { container } = render(<FavoriteLines />)
+    expect(container.firstChild).toBeNull()
   })
 
   it('renders favorited lines as link cards with the service meta and termini subtitle', () => {

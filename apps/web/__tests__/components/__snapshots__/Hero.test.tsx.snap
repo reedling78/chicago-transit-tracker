@@ -16,6 +16,14 @@ exports[`Hero matches snapshot 1`] = `
       class="relative mx-auto max-w-7xl"
     >
       <div
+        class="mb-6 flex justify-end"
+      >
+        <div
+          aria-hidden="true"
+          class="h-9"
+        />
+      </div>
+      <div
         class="mb-14 text-center"
       >
         <h1

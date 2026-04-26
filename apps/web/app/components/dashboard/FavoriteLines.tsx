@@ -14,6 +14,8 @@ export default function FavoriteLines() {
   const lineMap = new Map((lines ?? []).map((l) => [l.slug, l]))
 
   if (loading) return null
+  if (!user) return null
+  if (lineFavorites.length === 0) return null
 
   return (
     <section aria-labelledby="favorite-lines-heading" className="mb-8">
@@ -23,35 +25,23 @@ export default function FavoriteLines() {
       >
         Favorite Lines
       </h2>
-      {!user && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Sign in to save your favorite lines.
-        </p>
-      )}
-      {user && lineFavorites.length === 0 && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Tap the heart on a line page to save it here.
-        </p>
-      )}
-      {user && lineFavorites.length > 0 && (
-        <ul className="space-y-2">
-          {lineFavorites.map((fav) => {
-            const line = lineMap.get(fav.id)
-            if (!line) return null
-            return (
-              <li key={fav.id}>
-                <LinkCard
-                  href={`/${line.service}/${line.slug}`}
-                  title={line.name}
-                  subtitle={line.termini.join(' — ')}
-                  meta={line.service === 'metra' ? 'Metra' : 'CTA'}
-                  accentColor={line.color}
-                />
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      <ul className="space-y-2">
+        {lineFavorites.map((fav) => {
+          const line = lineMap.get(fav.id)
+          if (!line) return null
+          return (
+            <li key={fav.id}>
+              <LinkCard
+                href={`/${line.service}/${line.slug}`}
+                title={line.name}
+                subtitle={line.termini.join(' — ')}
+                meta={line.service === 'metra' ? 'Metra' : 'CTA'}
+                accentColor={line.color}
+              />
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }

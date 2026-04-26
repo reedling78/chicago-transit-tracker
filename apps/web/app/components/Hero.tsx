@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import HeroAuthCorner from './HeroAuthCorner'
 
 interface ServiceCardProps {
   href: string
@@ -102,6 +103,11 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.08),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.15),transparent)]" />
 
       <div className="relative mx-auto max-w-7xl">
+        {/* Auth corner — top-right */}
+        <div className="mb-6 flex justify-end">
+          <HeroAuthCorner />
+        </div>
+
         {/* Headline */}
         <div className="mb-14 text-center">
           <h1 className="mb-4 text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl dark:text-white">
