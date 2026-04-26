@@ -119,7 +119,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             updatedAt: toIso(data.updatedAt),
             favorites,
           })
-          useFavoritesStore.getState().hydrate(favorites)
+          // Skip hydrate while local writes are in flight — otherwise a stale
+          // snapshot can clobber an unconfirmed reorder. Pending writes settle
+          // via Firestore and the next snapshot reconciles.
+          if (useFavoritesStore.getState().pendingWrites === 0) {
+            useFavoritesStore.getState().hydrate(favorites)
+          }
           setLoading(false)
         },
         (error) => {

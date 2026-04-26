@@ -43,3 +43,102 @@ jest.mock('./components/FavoriteButton', () => {
       React.createElement(Text, { testID: 'favorite-button-stub' }, `${type}:${id}`),
   }
 })
+
+// react-native-gesture-handler ships no-op shims under jest-expo, but the
+// GestureHandlerRootView native component still complains. Stub the package
+// surface used in our app to a passthrough View.
+jest.mock('react-native-gesture-handler', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react')
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  const Passthrough = ({ children, ...rest }: { children?: React.ReactNode }) =>
+    React.createElement(View, rest, children)
+  return {
+    __esModule: true,
+    GestureHandlerRootView: Passthrough,
+    PanGestureHandler: Passthrough,
+    TapGestureHandler: Passthrough,
+    LongPressGestureHandler: Passthrough,
+    Gesture: { Pan: () => ({}), Tap: () => ({}), LongPress: () => ({}) },
+    GestureDetector: Passthrough,
+    State: {},
+    Directions: {},
+  }
+})
+
+// react-native-reanimated provides a built-in jest mock; reach for it only
+// in the test environment.
+jest.mock('react-native-reanimated', () =>
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('react-native-reanimated/mock'),
+)
+
+// react-native-draggable-flatlist relies on reanimated worklets we don't
+// exercise in jsdom. Replace it with a vanilla list that captures the
+// onDragEnd callback so tests can drive reorder events directly.
+jest.mock('react-native-draggable-flatlist', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react')
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  const captured = {}
+  function DraggableFlatList(props) {
+    const { data, renderItem, keyExtractor, onDragEnd } = props
+    captured.lastOnDragEnd = onDragEnd
+    return React.createElement(
+      View,
+      { testID: 'draggable-flatlist-stub' },
+      data.map((item, index) =>
+        React.createElement(
+          View,
+          { key: keyExtractor ? keyExtractor(item, index) : index },
+          renderItem({ item, drag: () => {}, isActive: false }),
+        ),
+      ),
+    )
+  }
+  return {
+    __esModule: true,
+    default: DraggableFlatList,
+    __captured: captured,
+  }
+})
+
+// @gorhom/bottom-sheet renders contents inline through its provider/portal.
+// Render contents directly so menu items are reachable in jsdom; expose
+// present/dismiss as jest.fn so consumers can assert against them.
+jest.mock('@gorhom/bottom-sheet', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react')
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  const Passthrough = React.forwardRef(function BottomSheetModalStub(
+    { children, onDismiss }: { children?: React.ReactNode; onDismiss?: () => void },
+    ref: React.Ref<unknown>,
+  ) {
+    const [open, setOpen] = React.useState(false)
+    React.useImperativeHandle(ref, () => ({
+      present: jest.fn(() => setOpen(true)),
+      dismiss: jest.fn(() => {
+        setOpen(false)
+        onDismiss?.()
+      }),
+      snapToIndex: jest.fn(),
+      close: jest.fn(() => {
+        setOpen(false)
+        onDismiss?.()
+      }),
+    }))
+    return open ? React.createElement(View, { testID: 'bottom-sheet-modal' }, children) : null
+  })
+  const ContainerPassthrough = ({ children }: { children?: React.ReactNode }) =>
+    React.createElement(View, null, children)
+  return {
+    __esModule: true,
+    BottomSheetModal: Passthrough,
+    BottomSheetModalProvider: ContainerPassthrough,
+    BottomSheetView: ContainerPassthrough,
+    BottomSheetBackdrop: () => null,
+  }
+})

@@ -25,9 +25,14 @@ jest.mock('../../lib/firebase', () => ({ auth: {}, db: {} }))
 
 const mockHydrate = jest.fn()
 const mockClear = jest.fn()
+let mockPendingWrites = 0
 jest.mock('../../lib/store/favorites', () => ({
   useFavoritesStore: {
-    getState: () => ({ hydrate: mockHydrate, clear: mockClear }),
+    getState: () => ({
+      hydrate: mockHydrate,
+      clear: mockClear,
+      pendingWrites: mockPendingWrites,
+    }),
   },
 }))
 
@@ -53,6 +58,7 @@ function Probe() {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  mockPendingWrites = 0
 })
 
 describe('AuthProvider (mobile)', () => {
@@ -170,6 +176,50 @@ describe('AuthProvider (mobile)', () => {
       expect.objectContaining({ id: 'red' }),
     ])
     expect(mockSetDoc).not.toHaveBeenCalled()
+  })
+
+  it('skips hydrate when pendingWrites > 0 (concurrency guard)', async () => {
+    mockPendingWrites = 1
+    mockGetDoc.mockResolvedValue({ exists: () => true } as never)
+    let snapshotCb: ((s: unknown) => void) | undefined
+    mockOnSnapshot.mockImplementation((_ref, next) => {
+      snapshotCb = next as (s: unknown) => void
+      return jest.fn()
+    })
+    mockOnAuthStateChanged.mockImplementation((_, cb) => {
+      ;(cb as (u: unknown) => void)(mockUser)
+      return jest.fn()
+    })
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(mockOnSnapshot).toHaveBeenCalled()
+    })
+
+    act(() => {
+      snapshotCb?.({
+        exists: () => true,
+        data: () => ({
+          uid: 'test-uid-123',
+          email: 'test@example.com',
+          displayName: 'Test User',
+          photoUrl: null,
+          provider: 'password',
+          favorites: {
+            'line:red': { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' },
+          },
+          createdAt: '2026-04-25T00:00:00Z',
+          updatedAt: '2026-04-25T00:00:00Z',
+        }),
+      })
+    })
+
+    expect(mockHydrate).not.toHaveBeenCalled()
   })
 
   it('cleans up auth listener and profile subscription on unmount', async () => {

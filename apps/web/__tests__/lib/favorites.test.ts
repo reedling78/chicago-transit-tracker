@@ -72,6 +72,51 @@ describe('mapToArray', () => {
     expect(result).toHaveLength(2)
     expect(result.map((f) => f.id).sort()).toEqual(['blue', 'red'])
   })
+
+  it('orders positioned items first (asc) and un-positioned items after (addedAt desc)', () => {
+    const map: Record<string, Favorite> = {
+      'line:red': { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z', position: 2000 },
+      'line:blue': { type: 'line', id: 'blue', addedAt: '2026-04-25T11:00:00Z', position: 1000 },
+      'station:clark-lake': {
+        type: 'station',
+        id: 'clark-lake',
+        addedAt: '2026-04-25T13:00:00Z',
+      },
+      'train:bnsf_1234': {
+        type: 'train',
+        id: 'bnsf_1234',
+        addedAt: '2026-04-25T12:00:00Z',
+      },
+    }
+    expect(mapToArray(map).map((f) => f.id)).toEqual([
+      'blue', // position 1000
+      'red', // position 2000
+      'clark-lake', // un-positioned, addedAt 13:00
+      'bnsf_1234', // un-positioned, addedAt 12:00
+    ])
+  })
+
+  it('sorts strictly by position when every item has one', () => {
+    const map: Record<string, Favorite> = {
+      'line:red': { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z', position: 3000 },
+      'line:blue': { type: 'line', id: 'blue', addedAt: '2026-04-25T11:00:00Z', position: 1000 },
+      'line:brown': {
+        type: 'line',
+        id: 'brown',
+        addedAt: '2026-04-25T12:00:00Z',
+        position: 2000,
+      },
+    }
+    expect(mapToArray(map).map((f) => f.id)).toEqual(['blue', 'brown', 'red'])
+  })
+
+  it('treats negative positions as higher in the list', () => {
+    const map: Record<string, Favorite> = {
+      'line:red': { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z', position: 1000 },
+      'line:blue': { type: 'line', id: 'blue', addedAt: '2026-04-25T11:00:00Z', position: -1000 },
+    }
+    expect(mapToArray(map).map((f) => f.id)).toEqual(['blue', 'red'])
+  })
 })
 
 describe('arrayToMap and mapToArray round-trip', () => {

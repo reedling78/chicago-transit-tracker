@@ -99,4 +99,14 @@ describe('RootLayout', () => {
     const options = JSON.parse(screen.props['data-options']) as { presentation?: string }
     expect(options.presentation).toBe('modal')
   })
+
+  it('still renders the Stack through the gesture-handler + bottom-sheet providers', () => {
+    // The global mocks for react-native-gesture-handler and @gorhom/bottom-sheet
+    // render their wrappers as passthrough Views, so this test guards against
+    // accidentally removing either provider — without them, BottomSheetModal
+    // (used by FavoriteMenuSheet) can't render and DraggableFlatList silently
+    // breaks at runtime.
+    const { getByTestId } = render(<RootLayout />)
+    expect(getByTestId('stack')).toBeOnTheScreen()
+  })
 })
