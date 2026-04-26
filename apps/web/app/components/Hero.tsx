@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import HeroAuthCorner from './HeroAuthCorner'
 
 interface ServiceCardProps {
   href: string
@@ -88,7 +87,7 @@ const PACE_LINES = [
 
 export default function Hero() {
   return (
-    <section className="relative -mx-4 overflow-hidden bg-gray-50 px-4 py-20 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-950">
+    <section className="relative -mx-4 -mt-8 overflow-hidden bg-gray-50 px-4 py-20 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:bg-gray-950">
       {/* Background grid */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.03]"
@@ -103,11 +102,6 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.08),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(120,119,198,0.15),transparent)]" />
 
       <div className="relative mx-auto max-w-7xl">
-        {/* Auth corner — top-right */}
-        <div className="mb-6 flex justify-end">
-          <HeroAuthCorner />
-        </div>
-
         {/* Headline */}
         <div className="mb-14 text-center">
           <h1 className="mb-4 text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl dark:text-white">
