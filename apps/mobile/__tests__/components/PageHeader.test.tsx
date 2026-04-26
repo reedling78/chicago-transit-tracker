@@ -81,6 +81,16 @@ describe('PageHeader', () => {
     expect(screen.queryByTestId('favorite-button')).toBeNull()
   })
 
+  it('renders without a title when title is omitted', () => {
+    render(
+      <PageHeader description="A station">
+        <Text testID="child">chips</Text>
+      </PageHeader>,
+    )
+    expect(screen.getByText('A station')).toBeOnTheScreen()
+    expect(screen.getByTestId('child')).toBeOnTheScreen()
+  })
+
   it('extends the hero height by the navigator header height so content sits below it', () => {
     const { UNSAFE_root } = render(<PageHeader title="Red Line" />)
     // Outermost View — first child of the test root

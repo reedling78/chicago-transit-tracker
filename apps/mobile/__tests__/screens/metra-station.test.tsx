@@ -1,12 +1,31 @@
+import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockMetraStation, mockSchedule, mockStationTrips } from '../fixtures'
 import { useStation, useSchedule, useStationTrips } from '../../lib/hooks'
 import MetraStationDetailScreen from '../../app/metra/station/[station]'
 
-jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ station: 'aurora' }),
-  useRouter: () => ({ push: jest.fn() }),
-}))
+jest.mock('expo-router', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const ReactMock = require('react')
+  const Stack = () => null
+  Stack.displayName = 'Stack'
+  const StackScreen = (props: {
+    options?: { headerTitle?: () => ReactNode; headerRight?: () => ReactNode }
+  }) =>
+    ReactMock.createElement(
+      ReactMock.Fragment,
+      null,
+      props.options?.headerTitle ? props.options.headerTitle() : null,
+      props.options?.headerRight ? props.options.headerRight() : null,
+    )
+  StackScreen.displayName = 'StackScreen'
+  ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
+  return {
+    useLocalSearchParams: () => ({ station: 'aurora' }),
+    useRouter: () => ({ push: jest.fn() }),
+    Stack,
+  }
+})
 
 jest.mock('@expo/vector-icons/Ionicons', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -59,6 +78,25 @@ describe('MetraStationDetailScreen', () => {
     expect(screen.getByText('Timetable')).toBeOnTheScreen()
   })
 
+  it('renders the station name and line in the app bar via headerTitle', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByText('Aurora')).toBeOnTheScreen()
+    expect(screen.getAllByText('BNSF').length).toBeGreaterThan(0)
+  })
+
+  it('places the favorite button in the app bar via headerRight', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    const stub = screen.getByTestId('favorite-button-stub')
+    expect(stub).toBeOnTheScreen()
+    expect(stub.props.children).toBe('station:aurora')
+  })
+
   it('renders Metra service badge', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
     mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
@@ -89,7 +127,7 @@ describe('MetraStationDetailScreen', () => {
     mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
     render(<MetraStationDetailScreen />)
-    expect(screen.getByText('BNSF')).toBeOnTheScreen()
+    expect(screen.getAllByText('BNSF').length).toBeGreaterThan(0)
   })
 
   it('renders ArrivalsCard when schedule data is loaded', () => {
