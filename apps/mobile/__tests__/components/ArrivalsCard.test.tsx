@@ -130,22 +130,16 @@ describe('ArrivalsCard', () => {
     // 5:00 AM — 5:30, 6:00, 6:30 AM all upcoming
     jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
     render(<ArrivalsCard schedule={metraSchedule} service="metra" trips={mockStationTrips} />)
-    expect(
-      screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'),
-    ).toBeOnTheScreen()
-    expect(
-      screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1205_V4_A'),
-    ).toBeOnTheScreen()
-    expect(
-      screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1210_V4_A'),
-    ).toBeOnTheScreen()
+    expect(screen.getByTestId('arrival-row:/metra/bnsf/train/BNSF_BN1200_V4_A')).toBeOnTheScreen()
+    expect(screen.getByTestId('arrival-row:/metra/bnsf/train/BNSF_BN1205_V4_A')).toBeOnTheScreen()
+    expect(screen.getByTestId('arrival-row:/metra/bnsf/train/BNSF_BN1210_V4_A')).toBeOnTheScreen()
   })
 
   it('pushes the train detail route when a matched row is pressed', () => {
     jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
     render(<ArrivalsCard schedule={metraSchedule} service="metra" trips={mockStationTrips} />)
-    fireEvent.press(screen.getByTestId('arrival-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'))
-    expect(mockPush).toHaveBeenCalledWith('/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A')
+    fireEvent.press(screen.getByTestId('arrival-row:/metra/bnsf/train/BNSF_BN1200_V4_A'))
+    expect(mockPush).toHaveBeenCalledWith('/metra/bnsf/train/BNSF_BN1200_V4_A')
   })
 
   it('does not render tappable rows when trips is not provided', () => {

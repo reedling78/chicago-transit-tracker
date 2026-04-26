@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet } from 'react-native'
+import { useNavHeaderInset } from '../../lib/useNavHeaderInset'
 import DashboardHeader from './DashboardHeader'
 import FavoriteTrains from './FavoriteTrains'
 import FavoriteStations from './FavoriteStations'
@@ -6,8 +7,12 @@ import FavoriteLines from './FavoriteLines'
 import DashboardHero from './DashboardHero'
 
 export default function Dashboard() {
+  const headerInset = useNavHeaderInset()
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, { paddingTop: headerInset + 8 }]}
+    >
       <DashboardHeader />
       <FavoriteTrains />
       <FavoriteStations />
@@ -19,5 +24,5 @@ export default function Dashboard() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0f0f1e' },
-  content: { padding: 16, paddingBottom: 40 },
+  content: { paddingHorizontal: 16, paddingBottom: 40 },
 })

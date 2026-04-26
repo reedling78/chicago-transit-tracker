@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockMetraLine, mockMetraStation } from '../fixtures'
 import { useLine, useLineStations } from '../../lib/hooks'
-import MetraLineDetailScreen from '../../app/(tabs)/metra/[line]'
+import MetraLineDetailScreen from '../../app/metra/[line]'
 
 jest.mock('react-native-svg', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -15,11 +15,28 @@ jest.mock('react-native-svg', () => {
   }
 })
 
-jest.mock('expo-router', () => ({
-  Link: ({ children }: { children: ReactNode }) => children,
-  Stack: { Screen: () => null },
-  useLocalSearchParams: () => ({ line: 'bnsf' }),
-}))
+jest.mock('expo-router', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const ReactMock = require('react')
+  const Stack = () => null
+  Stack.displayName = 'Stack'
+  const StackScreen = (props: {
+    options?: { headerTitle?: () => ReactNode; headerRight?: () => ReactNode }
+  }) =>
+    ReactMock.createElement(
+      ReactMock.Fragment,
+      null,
+      props.options?.headerTitle ? props.options.headerTitle() : null,
+      props.options?.headerRight ? props.options.headerRight() : null,
+    )
+  StackScreen.displayName = 'StackScreen'
+  ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
+  return {
+    Link: ({ children }: { children: ReactNode }) => children,
+    useLocalSearchParams: () => ({ line: 'bnsf' }),
+    Stack,
+  }
+})
 
 jest.mock('../../lib/hooks', () => ({
   useLine: jest.fn(),
@@ -37,13 +54,28 @@ describe('MetraLineDetailScreen', () => {
     expect(screen.queryByText('BNSF Railway')).toBeNull()
   })
 
-  it('renders the line header and station list once data is loaded', () => {
+  it('renders the line name and termini in the app bar via headerTitle', () => {
     mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
     render(<MetraLineDetailScreen />)
     expect(screen.getByText('BNSF Railway')).toBeOnTheScreen()
     expect(screen.getByText('Union Station — Aurora')).toBeOnTheScreen()
-    // "Aurora" appears in the header terminus label and as the station name
+  })
+
+  it('renders the station timeline body when data is loaded', () => {
+    mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
+    render(<MetraLineDetailScreen />)
+    // "Aurora" appears in both the termini subtitle and the station name
     expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('places the favorite button in the app bar via headerRight', () => {
+    mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
+    render(<MetraLineDetailScreen />)
+    const stub = screen.getByTestId('favorite-button-stub')
+    expect(stub).toBeOnTheScreen()
+    expect(stub.props.children).toBe('line:bnsf')
   })
 })

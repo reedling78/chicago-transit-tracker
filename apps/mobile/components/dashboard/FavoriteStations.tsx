@@ -32,8 +32,8 @@ export default function FavoriteStations() {
             const firstLineShort = station.lines[0]
             const line = firstLineShort ? lineByShortName.get(firstLineShort) : undefined
             const target = line
-              ? `/(tabs)/${line.service}/station/${station.slug}`
-              : `/(tabs)/${station.service === 'metra' ? 'metra' : 'cta'}`
+              ? `/${line.service}/station/${station.slug}`
+              : `/${station.service === 'metra' ? 'metra' : 'cta'}`
             return (
               <Pressable
                 key={fav.id}

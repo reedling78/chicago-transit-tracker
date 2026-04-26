@@ -1,10 +1,9 @@
 import { render, screen } from '@testing-library/react-native'
 import { mockStation, mockSchedule } from '../fixtures'
 import { useStation, useSchedule } from '../../lib/hooks'
-import CtaStationDetailScreen from '../../app/(tabs)/cta/station/[station]'
+import CtaStationDetailScreen from '../../app/cta/station/[station]'
 
 jest.mock('expo-router', () => ({
-  Stack: { Screen: () => null },
   useLocalSearchParams: () => ({ station: 'clark-lake' }),
   useRouter: () => ({ push: jest.fn() }),
 }))
@@ -25,6 +24,10 @@ jest.mock('expo-linear-gradient', () => {
     LinearGradient: (props: any) => <View {...props} />,
   }
 })
+
+jest.mock('../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
 
 jest.mock('../../lib/hooks', () => ({
   useStation: jest.fn(),

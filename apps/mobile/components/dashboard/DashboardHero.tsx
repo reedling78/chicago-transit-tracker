@@ -53,13 +53,13 @@ export default function DashboardHero() {
   return (
     <View style={styles.section}>
       <ServiceCard
-        href="/(tabs)/cta"
+        href="/cta"
         label="CTA"
         description="Real-time tracking and schedules for 8 rapid transit lines."
         lines={CTA_LINES}
       />
       <ServiceCard
-        href="/(tabs)/metra"
+        href="/metra"
         label="Metra"
         description="Real-time tracking and schedules for 11 commuter rail lines."
         lines={METRA_LINES}

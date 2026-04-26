@@ -1,15 +1,17 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
+import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import { useAuth } from '../lib/AuthContext'
 import { signOut } from '../lib/auth'
 
 export default function ProfileScreen() {
   const { profile, loading } = useAuth()
   const router = useRouter()
+  const headerInset = useNavHeaderInset()
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: headerInset + 24 }]}>
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     )
@@ -17,7 +19,7 @@ export default function ProfileScreen() {
 
   if (!profile) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: headerInset + 24 }]}>
         <Text style={styles.title}>Profile</Text>
         <Text style={styles.emptyText}>Sign in to view your profile.</Text>
         <TouchableOpacity style={styles.signInButton} onPress={() => router.replace('/auth')}>
@@ -35,7 +37,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: headerInset + 24 }]}>
       <Text style={styles.title}>Profile</Text>
 
       <View style={styles.card}>
@@ -70,7 +72,7 @@ export default function ProfileScreen() {
         style={styles.signOutButton}
         onPress={async () => {
           await signOut()
-          router.replace('/(tabs)/my-trains')
+          router.replace('/')
         }}
       >
         <Text style={styles.signOutText}>Sign Out</Text>

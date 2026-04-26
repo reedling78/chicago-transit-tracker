@@ -20,7 +20,7 @@ function Row({ tripId }: RowProps) {
     : 'Trip not currently scheduled'
   return (
     <Pressable
-      onPress={() => router.push(`/(tabs)/metra/${lineSlug}/train/${trainNumber}` as never)}
+      onPress={() => router.push(`/metra/${lineSlug}/train/${trainNumber}` as never)}
       accessibilityRole="link"
       accessibilityLabel={`Train ${trainNumber}`}
       style={styles.row}

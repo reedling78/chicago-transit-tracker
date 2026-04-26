@@ -1,10 +1,9 @@
 import { render, screen } from '@testing-library/react-native'
 import { mockMetraStation, mockSchedule, mockStationTrips } from '../fixtures'
 import { useStation, useSchedule, useStationTrips } from '../../lib/hooks'
-import MetraStationDetailScreen from '../../app/(tabs)/metra/station/[station]'
+import MetraStationDetailScreen from '../../app/metra/station/[station]'
 
 jest.mock('expo-router', () => ({
-  Stack: { Screen: () => null },
   useLocalSearchParams: () => ({ station: 'aurora' }),
   useRouter: () => ({ push: jest.fn() }),
 }))
@@ -25,6 +24,10 @@ jest.mock('expo-linear-gradient', () => {
     LinearGradient: (props: any) => <View {...props} />,
   }
 })
+
+jest.mock('../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
 
 jest.mock('../../lib/hooks', () => ({
   useStation: jest.fn(),

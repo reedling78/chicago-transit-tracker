@@ -51,7 +51,7 @@ export function MetraTimetable({ stationTrips }: Props) {
       ) : (
         <View style={styles.list}>
           {trips.map((trip) => {
-            const href = `/(tabs)/metra/${trip.lineSlug}/train/${trip.tripId}` as const
+            const href = `/metra/${trip.lineSlug}/train/${trip.tripId}` as const
             return (
               <Pressable
                 key={`${trip.tripId}-${trip.departure}`}

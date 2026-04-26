@@ -99,6 +99,29 @@ describe('FavoriteButton (mobile)', () => {
     expect(mockToggle).not.toHaveBeenCalled()
   })
 
+  it('renders inside a translucent dark circle with a generous touch area', () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'u1' } })
+    mockUseToggleFavorite.mockReturnValue({
+      isFavorited: false,
+      toggle: mockToggle,
+      isToggling: false,
+      needsAuth: false,
+    })
+    const { getByLabelText } = render(<FavoriteButton type="line" id="red" />)
+    const pressable = getByLabelText('Add to favorites')
+    // hitSlop expanded so the heart is reliably hittable in app-bar contexts
+    expect(pressable.props.hitSlop).toBe(12)
+    // Pressable's style may be a function or already-resolved array depending on
+    // the testing library version — handle both.
+    const rawStyle = pressable.props.style
+    const resolved = typeof rawStyle === 'function' ? rawStyle({ pressed: false }) : rawStyle
+    const flattenedStyle = (Array.isArray(resolved) ? resolved.flat() : [resolved]).reduce<
+      Record<string, unknown>
+    >((acc, s) => ({ ...acc, ...((s as Record<string, unknown>) ?? {}) }), {})
+    expect(flattenedStyle.width).toBe(48)
+    expect(flattenedStyle.height).toBe(48)
+  })
+
   it('applies the pending favorite after sign-in completes', async () => {
     mockUseAuth.mockReturnValue({ user: null })
     mockUseToggleFavorite.mockReturnValue({

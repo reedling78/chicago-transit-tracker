@@ -1,5 +1,5 @@
-import { Redirect } from 'expo-router'
+import Dashboard from '../components/dashboard/Dashboard'
 
-export default function Index() {
-  return <Redirect href="/(tabs)/my-trains" />
+export default function HomeScreen() {
+  return <Dashboard />
 }

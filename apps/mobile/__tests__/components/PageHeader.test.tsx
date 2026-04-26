@@ -10,6 +10,10 @@ jest.mock('expo-linear-gradient', () => {
   }
 })
 
+jest.mock('../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
+
 jest.mock('../../components/FavoriteButton', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text } = require('react-native')
@@ -75,5 +79,19 @@ describe('PageHeader', () => {
   it('does not render FavoriteButton when favorite prop is omitted', () => {
     render(<PageHeader title="Red Line" />)
     expect(screen.queryByTestId('favorite-button')).toBeNull()
+  })
+
+  it('extends the hero height by the navigator header height so content sits below it', () => {
+    const { UNSAFE_root } = render(<PageHeader title="Red Line" />)
+    // Outermost View — first child of the test root
+    const container = UNSAFE_root.findAllByType(
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('react-native').View,
+    )[0]
+    const flat = (
+      Array.isArray(container.props.style) ? container.props.style.flat() : [container.props.style]
+    ).reduce<Record<string, unknown>>((acc, s) => ({ ...acc, ...(s ?? {}) }), {})
+    // 200 (hero) + 64 (mocked useNavHeaderInset)
+    expect(flat.height).toBe(264)
   })
 })
