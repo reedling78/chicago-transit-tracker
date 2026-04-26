@@ -23,22 +23,36 @@ export default function FavoriteLines() {
         <Text style={styles.placeholder}>Tap the heart on a line to save it here.</Text>
       )}
       {user && lineFavorites.length > 0 && (
-        <View style={styles.chipRow}>
+        <View>
           {lineFavorites.map((fav) => {
             const line = lineMap.get(fav.id)
-            const display = line?.name ?? fav.id
-            const target = line ? `/(tabs)/${line.service}/${line.slug}` : null
+            const target = line ? `/${line.service}/${line.slug}` : null
             return (
               <Pressable
                 key={fav.id}
                 onPress={() => target && router.push(target as never)}
                 disabled={!target}
                 accessibilityRole="link"
-                style={[styles.chip, line ? { backgroundColor: line.color } : styles.chipFallback]}
+                accessibilityLabel={line?.name ?? fav.id}
+                style={styles.row}
               >
-                <Text style={[styles.chipText, { color: line?.textColor ?? '#fff' }]}>
-                  {display}
-                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.title} numberOfLines={1}>
+                    {line?.name ?? fav.id}
+                  </Text>
+                  {line?.termini?.length ? (
+                    <Text style={styles.subtitle} numberOfLines={1}>
+                      {line.termini.join(' — ')}
+                    </Text>
+                  ) : null}
+                </View>
+                {line ? (
+                  <View style={[styles.chip, { backgroundColor: line.color }]}>
+                    <Text style={[styles.chipText, { color: line.textColor }]} numberOfLines={1}>
+                      {line.shortName}
+                    </Text>
+                  </View>
+                ) : null}
               </Pressable>
             )
           })}
@@ -50,26 +64,24 @@ export default function FavoriteLines() {
 
 const styles = StyleSheet.create({
   section: { marginBottom: 24 },
-  heading: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  placeholder: {
-    color: '#9ca3af',
-    fontSize: 14,
-  },
-  chipRow: {
+  heading: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 8 },
+  placeholder: { color: '#9ca3af', fontSize: 14 },
+  row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: '#1f2937',
+    borderRadius: 8,
+    marginBottom: 8,
+    gap: 12,
   },
+  title: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  subtitle: { color: '#9ca3af', fontSize: 12, marginTop: 2 },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 999,
   },
-  chipFallback: { backgroundColor: '#374151' },
-  chipText: { fontSize: 13, fontWeight: '600' },
+  chipText: { fontSize: 12, fontWeight: '700' },
 })

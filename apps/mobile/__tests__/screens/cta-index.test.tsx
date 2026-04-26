@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockLine } from '../fixtures'
 import { useLines } from '../../lib/hooks'
-import CtaLinesScreen from '../../app/(tabs)/cta/index'
+import CtaLinesScreen from '../../app/cta/index'
 
 jest.mock('expo-router', () => ({
   Link: ({ children }: { children: ReactNode }) => children,
@@ -15,6 +15,10 @@ jest.mock('expo-linear-gradient', () => {
     LinearGradient: (props: any) => <View {...props} />,
   }
 })
+
+jest.mock('../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
 
 jest.mock('../../lib/hooks', () => ({
   useLines: jest.fn(),

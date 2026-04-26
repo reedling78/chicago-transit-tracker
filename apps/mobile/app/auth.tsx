@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import {
   signInWithEmail,
   signUpWithEmail,
@@ -24,6 +25,7 @@ type Mode = 'signIn' | 'signUp' | 'resetPassword'
 
 export default function AuthScreen() {
   const router = useRouter()
+  const headerInset = useNavHeaderInset()
   const [mode, setMode] = useState<Mode>('signIn')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -64,7 +66,10 @@ export default function AuthScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.content, { paddingTop: headerInset + 8 }]}
+    >
       <Text style={styles.title}>
         {mode === 'signIn' ? 'Sign In' : mode === 'signUp' ? 'Create Account' : 'Reset Password'}
       </Text>

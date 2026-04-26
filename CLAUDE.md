@@ -137,27 +137,22 @@ apps/
       tsconfig.json               CommonJS tsconfig for ts-node script execution
   mobile/
     app/
-      _layout.tsx                 Root layout — Stack navigator, AuthProvider, headerRight icon
-      index.tsx                   Redirect to /(tabs)/my-trains
+      _layout.tsx                 Root Stack — transparent header, AuthProvider, HeaderBackButton (left) + HeaderUserIcon (right)
+      index.tsx                   Home screen — renders Dashboard
       auth.tsx                    Sign in/up/reset screen (modal presentation)
       profile.tsx                 User profile screen
-      (tabs)/
-        _layout.tsx               Bottom tab bar — My Trains, CTA, Metra
-        my-trains.tsx             My Trains placeholder screen
-        cta/
-          _layout.tsx             CTA tab Stack layout
-          index.tsx               CTA line list
-          alerts.tsx              CTA service alerts screen
-          [line].tsx              CTA line detail
-          station/[station].tsx   CTA station detail
-        metra/
-          _layout.tsx             Metra tab Stack layout
-          index.tsx               Metra line list
-          alerts.tsx              Metra service alerts screen
-          [line]/
-            index.tsx             Metra line detail
-            train/[trainNumber].tsx  Metra train detail screen — fetches via useMetraTrip + renders MetraTripRealtime
-          station/[station].tsx   Metra station detail
+      cta/
+        index.tsx                 CTA line list
+        alerts.tsx                CTA service alerts screen
+        [line].tsx                CTA line detail
+        station/[station].tsx     CTA station detail
+      metra/
+        index.tsx                 Metra line list
+        alerts.tsx                Metra service alerts screen
+        [line]/
+          index.tsx               Metra line detail
+          train/[trainNumber].tsx Metra train detail screen — fetches via useMetraTrip + renders MetraTripRealtime
+        station/[station].tsx     Metra station detail
     components/
       AlertBanner.tsx             Alert link banner with live count (used on index pages)
       AlertCard.tsx               Single alert card with route badges and link
@@ -174,6 +169,7 @@ apps/
       MetraTripHeroStatusCard.tsx Two-panel live status card (RN port of the web component)
       Steps/                      Reusable vertical-step primitive (Steps + Steps.Item) — RN port; per-row segments, halo bullet for current
       HeaderUserIcon.tsx          Stack header user icon — navigates to auth/profile
+      HeaderBackButton.tsx        Translucent circle back button used as Stack headerLeft (returns null at root)
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
       dashboard/
@@ -188,6 +184,7 @@ apps/
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
       hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, useMetraTrip)
       useMetraFeed.ts             Metra GTFS-RT feed subscriber — polls Cloud Functions, AppState-aware
+      useNavHeaderInset.ts        Top inset for screens under the transparent navigator header (Android-safe fallback)
       useToggleFavorite.ts        Optimistic favorite toggle + map-keyed Firestore writes
       useDashboardQueries.ts      TanStack Query reads for lines/stations/metra-trip on the dashboard
       queryClient.ts              TanStack Query client factory (singleton)
@@ -319,7 +316,7 @@ The web app runs as a server-side rendered Next.js app deployed to Firebase App 
 
 ### Mobile app (Expo)
 
-The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing) with a bottom tab bar (`(tabs)` route group) containing three tabs: My Trains, CTA, and Metra. CTA and Metra tabs each have their own nested Stack layout so sub-routes push within the tab while the tab bar remains visible. Auth and profile screens live outside the tabs at the root Stack level.
+The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing) with a single flat root Stack — no bottom tabs. The home screen (`app/index.tsx`) renders the Dashboard ("My Trains"); CTA and Metra browsing happens by tapping cards on the dashboard. The Stack uses `headerTransparent: true` so full-bleed `PageHeader` photos extend edge-to-edge under the navigator. `HeaderBackButton` is the custom `headerLeft` (returns `null` at root); `HeaderUserIcon` is the `headerRight`. Screens without a `PageHeader` use `useNavHeaderInset()` to inset their content below the header.
 
 ### Dark mode
 

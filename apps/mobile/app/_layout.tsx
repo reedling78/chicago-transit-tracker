@@ -2,7 +2,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider } from '../lib/AuthContext'
-import HeaderUserIcon from '../components/HeaderUserIcon'
+import HeaderBackButton from '../components/HeaderBackButton'
 import QueryProvider from '../components/QueryProvider'
 
 export default function RootLayout() {
@@ -13,15 +13,15 @@ export default function RootLayout() {
           <StatusBar style="light" />
           <Stack
             screenOptions={{
-              headerStyle: { backgroundColor: '#1a1a2e' },
-              headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
-              headerRight: () => <HeaderUserIcon />,
+              headerTransparent: true,
+              headerStyle: { backgroundColor: 'transparent' },
+              headerShadowVisible: false,
+              title: '',
+              headerBackVisible: false,
+              headerLeft: () => <HeaderBackButton />,
             }}
           >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="auth" options={{ title: 'Sign In', presentation: 'modal' }} />
-            <Stack.Screen name="profile" options={{ title: 'Profile' }} />
+            <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
           </Stack>
         </SafeAreaProvider>
       </AuthProvider>

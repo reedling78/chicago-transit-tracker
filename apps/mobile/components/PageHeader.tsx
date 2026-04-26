@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { View, Text, Image, StyleSheet, type ImageSourcePropType } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { FavoriteType } from '@ctt/shared'
+import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import FavoriteButton from './FavoriteButton'
 
 interface PageHeaderProps {
@@ -26,8 +27,9 @@ export default function PageHeader({
   favorite,
   children,
 }: PageHeaderProps) {
+  const headerInset = useNavHeaderInset()
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { height: 200 + headerInset }]}>
       <Image source={imageSrc} style={styles.backgroundImage} resizeMode="cover" />
       <View style={styles.tintOverlay} />
       <LinearGradient
@@ -58,10 +60,8 @@ export default function PageHeader({
 
 const styles = StyleSheet.create({
   container: {
-    height: 200,
     overflow: 'hidden',
     marginHorizontal: -16,
-    marginTop: -12, // counteracts FlatList gap
     marginBottom: 16,
   },
   backgroundImage: {

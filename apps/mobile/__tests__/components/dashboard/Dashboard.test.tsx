@@ -3,6 +3,10 @@ import { Text } from 'react-native'
 
 import Dashboard from '../../../components/dashboard/Dashboard'
 
+jest.mock('../../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
+
 jest.mock('../../../components/dashboard/DashboardHeader', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const RN = require('react-native')

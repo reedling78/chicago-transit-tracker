@@ -212,7 +212,7 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
               )
 
               if (arrival.tripId && arrival.lineSlug) {
-                const href = `/(tabs)/metra/${arrival.lineSlug}/train/${arrival.tripId}` as const
+                const href = `/metra/${arrival.lineSlug}/train/${arrival.tripId}` as const
                 return (
                   <Pressable
                     key={i}

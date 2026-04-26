@@ -18,15 +18,15 @@ describe('DashboardHero (mobile)', () => {
     expect(getByLabelText('Metra')).toBeTruthy()
   })
 
-  it('routes to /(tabs)/cta when the CTA card is pressed', () => {
+  it('routes to /cta when the CTA card is pressed', () => {
     const { getByLabelText } = render(<DashboardHero />)
     fireEvent.press(getByLabelText('CTA'))
-    expect(mockPush).toHaveBeenCalledWith('/(tabs)/cta')
+    expect(mockPush).toHaveBeenCalledWith('/cta')
   })
 
-  it('routes to /(tabs)/metra when the Metra card is pressed', () => {
+  it('routes to /metra when the Metra card is pressed', () => {
     const { getByLabelText } = render(<DashboardHero />)
     fireEvent.press(getByLabelText('Metra'))
-    expect(mockPush).toHaveBeenCalledWith('/(tabs)/metra')
+    expect(mockPush).toHaveBeenCalledWith('/metra')
   })
 })

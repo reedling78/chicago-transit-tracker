@@ -33,18 +33,14 @@ describe('MetraTimetable', () => {
 
   it('renders a tappable row with the train detail href as a testID', () => {
     render(<MetraTimetable stationTrips={mockStationTrips} />)
-    expect(
-      screen.getByTestId('timetable-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'),
-    ).toBeOnTheScreen()
-    expect(
-      screen.getByTestId('timetable-row:/(tabs)/metra/bnsf/train/BNSF_BN1205_V4_A'),
-    ).toBeOnTheScreen()
+    expect(screen.getByTestId('timetable-row:/metra/bnsf/train/BNSF_BN1200_V4_A')).toBeOnTheScreen()
+    expect(screen.getByTestId('timetable-row:/metra/bnsf/train/BNSF_BN1205_V4_A')).toBeOnTheScreen()
   })
 
   it('pushes the train detail route when a row is pressed', () => {
     render(<MetraTimetable stationTrips={mockStationTrips} />)
-    fireEvent.press(screen.getByTestId('timetable-row:/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A'))
-    expect(mockPush).toHaveBeenCalledWith('/(tabs)/metra/bnsf/train/BNSF_BN1200_V4_A')
+    fireEvent.press(screen.getByTestId('timetable-row:/metra/bnsf/train/BNSF_BN1200_V4_A'))
+    expect(mockPush).toHaveBeenCalledWith('/metra/bnsf/train/BNSF_BN1200_V4_A')
   })
 
   it('renders direction filter buttons', () => {

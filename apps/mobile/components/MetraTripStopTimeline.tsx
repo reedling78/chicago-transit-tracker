@@ -60,7 +60,7 @@ export default function MetraTripStopTimeline({ derivedStops, lineColor, lineSlu
       {derivedStops.map((derived) => {
         const { stop, status, delayMinutes, skipped } = derived
         const mappedStatus = mapStatus(status, skipped)
-        const href = stop.slug ? `/(tabs)/metra/station/${stop.slug}` : undefined
+        const href = stop.slug ? `/metra/station/${stop.slug}` : undefined
         return (
           <Steps.Item
             key={stop.sequence}
