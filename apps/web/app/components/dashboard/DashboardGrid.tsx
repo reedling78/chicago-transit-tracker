@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -22,7 +21,6 @@ import { useAuth } from '@components/AuthProvider'
 import { useFavoritesStore } from '@lib/store/favorites'
 import { useLinesQuery, useStationsQuery } from '@lib/hooks/useDashboardQueries'
 import { useReorderFavorites } from '@lib/hooks/useReorderFavorites'
-import AuthModal from '@components/AuthModal'
 import LineCard from './cards/LineCard'
 import StationCard from './cards/StationCard'
 import TrainCard from './cards/TrainCard'
@@ -33,7 +31,6 @@ export default function DashboardGrid() {
   const { data: lines } = useLinesQuery()
   const { data: stations } = useStationsQuery()
   const { reorder } = useReorderFavorites()
-  const [authOpen, setAuthOpen] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -51,36 +48,7 @@ export default function DashboardGrid() {
     reorder(newOrder)
   }
 
-  if (loading) return null
-
-  if (!user) {
-    return (
-      <>
-        <button
-          type="button"
-          onClick={() => setAuthOpen(true)}
-          className="block w-full rounded-lg border border-gray-200 bg-white p-5 text-left shadow-sm transition hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
-        >
-          <p className="font-medium text-gray-900 dark:text-white">Sign in to save favorites</p>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Save your favorite lines, stations, and trains for quick access.
-          </p>
-        </button>
-        {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
-      </>
-    )
-  }
-
-  if (favorites.length === 0) {
-    return (
-      <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
-        <p className="font-medium text-gray-900 dark:text-white">No favorites yet</p>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Tap the heart on any line, station, or train to save it here.
-        </p>
-      </div>
-    )
-  }
+  if (loading || !user || favorites.length === 0) return null
 
   return (
     <div>

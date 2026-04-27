@@ -79,18 +79,16 @@ describe('DashboardGrid', () => {
     expect(toJSON()).toBeNull()
   })
 
-  it('shows the signed-out placeholder when there is no user', () => {
+  it('renders nothing when there is no user (handled by DashboardHeader)', () => {
     mockUseAuth.mockReturnValue({ user: null, loading: false })
-    const { getByText, queryByText } = render(<DashboardGrid />, { wrapper })
-    expect(getByText('Sign in to save favorites')).toBeTruthy()
-    expect(queryByText(/long-press a card/i)).toBeNull()
+    const { toJSON } = render(<DashboardGrid />, { wrapper })
+    expect(toJSON()).toBeNull()
   })
 
-  it('shows the empty placeholder when signed in with no favorites', () => {
+  it('renders nothing when signed in with no favorites (handled by DashboardHeader)', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    const { getByText, queryByText } = render(<DashboardGrid />, { wrapper })
-    expect(getByText('No favorites yet')).toBeTruthy()
-    expect(queryByText(/long-press a card/i)).toBeNull()
+    const { toJSON } = render(<DashboardGrid />, { wrapper })
+    expect(toJSON()).toBeNull()
   })
 
   it('shows the long-press / menu hint footer when favorites are present', () => {

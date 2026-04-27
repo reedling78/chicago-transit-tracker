@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { useRouter } from 'expo-router'
+import { StyleSheet, Text, View } from 'react-native'
 import DraggableFlatList, { type RenderItemParams } from 'react-native-draggable-flatlist'
 import type { Favorite, Line, Station } from '@ctt/shared'
 import { useAuth } from '../../lib/AuthContext'
@@ -19,7 +18,6 @@ export default function DashboardGrid() {
   const { data: stations } = useStationsQuery()
   const { reorder } = useReorderFavorites()
   const sheetRef = useRef<FavoriteMenuSheetHandle>(null)
-  const router = useRouter()
 
   const lineMap = new Map((lines ?? []).map((l) => [l.slug, l]))
   const stationMap = new Map((stations ?? []).map((s) => [s.slug, s]))
@@ -43,36 +41,7 @@ export default function DashboardGrid() {
     [lines, stationMap.size, lineMap.size, onMenuPress],
   )
 
-  if (loading) return null
-
-  if (!user) {
-    return (
-      <View style={styles.section}>
-        <View style={styles.placeholderCard}>
-          <Pressable onPress={() => router.push('auth' as never)}>
-            <Text style={styles.placeholderTitle}>Sign in to save favorites</Text>
-            <Text style={styles.placeholderSubtitle}>
-              Save your favorite lines, stations, and trains for quick access.
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-    )
-  }
-
-  if (favorites.length === 0) {
-    return (
-      <View style={styles.section}>
-        <View style={styles.placeholderCard}>
-          <Text style={styles.placeholderTitle}>No favorites yet</Text>
-          <Text style={styles.placeholderSubtitle}>
-            Tap the heart on any line, station, or train to save it here.
-          </Text>
-        </View>
-        <FavoriteMenuSheet ref={sheetRef} lines={lines} stations={stations} />
-      </View>
-    )
-  }
+  if (loading || !user || favorites.length === 0) return null
 
   return (
     <View style={styles.section}>
@@ -146,13 +115,6 @@ function renderFavoriteCard({
 
 const styles = StyleSheet.create({
   section: { marginBottom: 24 },
-  placeholderCard: {
-    backgroundColor: '#1f2937',
-    borderRadius: 8,
-    padding: 16,
-  },
-  placeholderTitle: { color: '#fff', fontSize: 15, fontWeight: '600', marginBottom: 4 },
-  placeholderSubtitle: { color: '#9ca3af', fontSize: 13 },
   footerHint: {
     color: '#6b7280',
     fontSize: 12,
