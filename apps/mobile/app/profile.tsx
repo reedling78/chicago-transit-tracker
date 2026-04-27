@@ -1,8 +1,16 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { ScrollView, Text, TouchableOpacity, StyleSheet, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import { useAuth } from '../lib/AuthContext'
 import { signOut } from '../lib/auth'
+import FavoritesManager from '../components/profile/FavoritesManager'
+
+const providerLabels: Record<string, string> = {
+  apple: 'Apple',
+  google: 'Google',
+  facebook: 'Facebook',
+  password: 'Email & Password',
+}
 
 export default function ProfileScreen() {
   const { profile, loading } = useAuth()
@@ -11,7 +19,7 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { paddingTop: headerInset + 24 }]}>
+      <View style={[styles.staticContainer, { paddingTop: headerInset + 24 }]}>
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     )
@@ -19,7 +27,7 @@ export default function ProfileScreen() {
 
   if (!profile) {
     return (
-      <View style={[styles.container, { paddingTop: headerInset + 24 }]}>
+      <View style={[styles.staticContainer, { paddingTop: headerInset + 24 }]}>
         <Text style={styles.title}>Profile</Text>
         <Text style={styles.emptyText}>Sign in to view your profile.</Text>
         <TouchableOpacity style={styles.signInButton} onPress={() => router.replace('/auth')}>
@@ -29,26 +37,17 @@ export default function ProfileScreen() {
     )
   }
 
-  const providerLabels: Record<string, string> = {
-    apple: 'Apple',
-    google: 'Google',
-    facebook: 'Facebook',
-    password: 'Email & Password',
-  }
-
   return (
-    <View style={[styles.container, { paddingTop: headerInset + 24 }]}>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={[styles.scrollContent, { paddingTop: headerInset + 24 }]}
+    >
       <Text style={styles.title}>Profile</Text>
 
       <View style={styles.card}>
         <View style={styles.field}>
           <Text style={styles.label}>Email</Text>
           <Text style={styles.value}>{profile.email || 'Not set'}</Text>
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Display Name</Text>
-          <Text style={styles.value}>{profile.displayName || 'Not set'}</Text>
         </View>
 
         <View style={styles.field}>
@@ -77,15 +76,25 @@ export default function ProfileScreen() {
       >
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
-    </View>
+
+      <FavoritesManager />
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  staticContainer: {
     flex: 1,
     backgroundColor: '#0f0f23',
     padding: 24,
+  },
+  scrollContainer: {
+    flex: 1,
+    backgroundColor: '#0f0f23',
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 48,
   },
   loadingText: {
     color: '#aaa',

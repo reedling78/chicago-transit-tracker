@@ -109,9 +109,13 @@ apps/
             LineCard.tsx          Favorite-line row (title + termini + accent left border)
             StationCard.tsx       Favorite-station row (title + lines + service meta)
             TrainCard.tsx         Favorite-train row (resolves trip via TanStack Query)
+        profile/
+          FavoritesManager.tsx    Profile favorites manager (Lines/Stations/Trains sections + Clear all)
+          FavoritesSection.tsx    Section header + list of FavoriteRows
+          FavoriteRow.tsx         Single favorite row with deep link + trash button
       profile/
         page.tsx                  User profile page (server shell + metadata)
-        ProfileContent.tsx        Profile display (client component)
+        ProfileContent.tsx        Profile display (client component) — renders FavoritesManager
       lib/
         firebase-admin.ts         Firestore singleton (Admin SDK) — web only
         firebase-client.ts        Firebase client SDK init — Auth + Firestore (client-side)
@@ -133,6 +137,7 @@ apps/
         hooks/
           useToggleFavorite.ts    Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
           useReorderFavorites.ts  Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
+          useClearAllFavorites.ts Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
           useDashboardQueries.ts  TanStack Query reads for lines/stations/metra-trip on the dashboard
         favoriteRoute.ts          Pure helper: resolves a Favorite to its deep-link route
     __tests__/                    Jest + React Testing Library test suites
@@ -190,6 +195,10 @@ apps/
           LineCard.tsx            Favorite-line row (title + termini + colored chip)
           StationCard.tsx         Favorite-station row (title + lines + service meta)
           TrainCard.tsx           Favorite-train row (resolves trip via TanStack Query)
+      profile/
+        FavoritesManager.tsx      Profile favorites manager (Lines/Stations/Trains sections + Clear all)
+        FavoritesSection.tsx      Section header + list of FavoriteRows
+        FavoriteRow.tsx           Single favorite row with deep link + trash button
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
@@ -198,6 +207,7 @@ apps/
       useNavHeaderInset.ts        Top inset for screens under the transparent navigator header (Android-safe fallback)
       useToggleFavorite.ts        Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
       useReorderFavorites.ts      Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
+      useClearAllFavorites.ts     Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
       useDashboardQueries.ts      TanStack Query reads for lines/stations/metra-trip on the dashboard
       favoriteRoute.ts            Pure helper: resolves a Favorite to its deep-link route
       queryClient.ts              TanStack Query client factory (singleton)
