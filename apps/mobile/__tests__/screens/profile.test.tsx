@@ -21,6 +21,13 @@ jest.mock('../../lib/auth', () => ({
   signOut: jest.fn(),
 }))
 
+jest.mock('../../components/profile/FavoritesManager', () => {
+  const { View } = jest.requireActual('react-native')
+  return function MockFavoritesManager() {
+    return <View testID="favorites-manager" />
+  }
+})
+
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>
 const mockSignOut = signOut as jest.MockedFunction<typeof signOut>
 
@@ -45,13 +52,14 @@ describe('ProfileScreen', () => {
       profile: null,
       loading: false,
     } as ReturnType<typeof useAuth>)
-    const { getByText } = render(<ProfileScreen />)
+    const { getByText, queryByTestId } = render(<ProfileScreen />)
     expect(getByText('Sign in to view your profile.')).toBeOnTheScreen()
     fireEvent.press(getByText('Sign In'))
     expect(mockReplace).toHaveBeenCalledWith('/auth')
+    expect(queryByTestId('favorites-manager')).toBeNull()
   })
 
-  it('renders profile fields when a profile is present', () => {
+  it('renders profile fields and the favorites manager when authenticated', () => {
     mockUseAuth.mockReturnValue({
       user: { uid: 'u1' },
       profile: {
@@ -64,10 +72,28 @@ describe('ProfileScreen', () => {
       },
       loading: false,
     } as ReturnType<typeof useAuth>)
-    const { getByText } = render(<ProfileScreen />)
+    const { getByText, getByTestId } = render(<ProfileScreen />)
     expect(getByText('reed@example.com')).toBeOnTheScreen()
-    expect(getByText('Reed')).toBeOnTheScreen()
     expect(getByText('Google')).toBeOnTheScreen()
+    expect(getByTestId('favorites-manager')).toBeOnTheScreen()
+  })
+
+  it('does not render the display name field', () => {
+    mockUseAuth.mockReturnValue({
+      user: { uid: 'u1' },
+      profile: {
+        uid: 'u1',
+        email: 'reed@example.com',
+        displayName: 'Reed',
+        provider: 'google',
+        createdAt: '2026-04-25T00:00:00.000Z',
+        updatedAt: '2026-04-25T00:00:00.000Z',
+      },
+      loading: false,
+    } as ReturnType<typeof useAuth>)
+    const { queryByText } = render(<ProfileScreen />)
+    expect(queryByText('Display Name')).toBeNull()
+    expect(queryByText('Reed')).toBeNull()
   })
 
   it('signs out and routes to the home screen', async () => {
@@ -86,7 +112,6 @@ describe('ProfileScreen', () => {
     mockSignOut.mockResolvedValue(undefined)
     const { getByText } = render(<ProfileScreen />)
     fireEvent.press(getByText('Sign Out'))
-    // Wait a tick for the async handler to flush
     await Promise.resolve()
     expect(mockSignOut).toHaveBeenCalledTimes(1)
     expect(mockReplace).toHaveBeenCalledWith('/')

@@ -4,6 +4,7 @@ import { useAuth } from '@components/AuthProvider'
 import { signOut } from '@lib/auth'
 import { useState } from 'react'
 import AuthModal from '@components/AuthModal'
+import FavoritesManager from '@components/profile/FavoritesManager'
 
 export default function ProfileContent() {
   const { user, profile, loading } = useAuth()
@@ -52,13 +53,6 @@ export default function ProfileContent() {
           </div>
 
           <div>
-            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Display Name</dt>
-            <dd className="mt-1 text-gray-900 dark:text-white">
-              {profile.displayName || 'Not set'}
-            </dd>
-          </div>
-
-          <div>
             <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Sign-in Provider
             </dt>
@@ -88,6 +82,8 @@ export default function ProfileContent() {
           Sign Out
         </button>
       </div>
+
+      <FavoritesManager />
     </div>
   )
 }

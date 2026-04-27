@@ -16,6 +16,12 @@ jest.mock('../../app/components/AuthModal', () => {
   }
 })
 
+jest.mock('../../app/components/profile/FavoritesManager', () => {
+  return function MockFavoritesManager() {
+    return <div data-testid="favorites-manager" />
+  }
+})
+
 import ProfileContent from '../../app/profile/ProfileContent'
 
 describe('ProfileContent', () => {
@@ -30,9 +36,10 @@ describe('ProfileContent', () => {
     render(<ProfileContent />)
     expect(screen.getByText('Sign in to view your profile.')).toBeInTheDocument()
     expect(screen.getByText('Sign In')).toBeInTheDocument()
+    expect(screen.queryByTestId('favorites-manager')).not.toBeInTheDocument()
   })
 
-  it('shows profile info when authenticated', () => {
+  it('shows profile info and favorites manager when authenticated', () => {
     mockUseAuth.mockReturnValue({
       user: { uid: '123' },
       profile: {
@@ -48,29 +55,28 @@ describe('ProfileContent', () => {
     })
     render(<ProfileContent />)
     expect(screen.getByText('test@example.com')).toBeInTheDocument()
-    expect(screen.getByText('Test User')).toBeInTheDocument()
     expect(screen.getByText('Google')).toBeInTheDocument()
-    // Date formatting is locale-dependent; just check the year appears
     expect(screen.getByText(/2026/)).toBeInTheDocument()
     expect(screen.getByText('Sign Out')).toBeInTheDocument()
+    expect(screen.getByTestId('favorites-manager')).toBeInTheDocument()
   })
 
-  it('shows "Not set" for missing display name', () => {
+  it('does not render the display name field', () => {
     mockUseAuth.mockReturnValue({
       user: { uid: '123' },
       profile: {
         uid: '123',
         email: 'test@example.com',
-        displayName: null,
+        displayName: 'Test User',
         photoUrl: null,
-        provider: 'password',
+        provider: 'google',
         createdAt: '2026-01-15T00:00:00Z',
         updatedAt: '2026-01-15T00:00:00Z',
       },
       loading: false,
     })
     render(<ProfileContent />)
-    expect(screen.getByText('Not set')).toBeInTheDocument()
-    expect(screen.getByText('Email & Password')).toBeInTheDocument()
+    expect(screen.queryByText('Display Name')).not.toBeInTheDocument()
+    expect(screen.queryByText('Test User')).not.toBeInTheDocument()
   })
 })
