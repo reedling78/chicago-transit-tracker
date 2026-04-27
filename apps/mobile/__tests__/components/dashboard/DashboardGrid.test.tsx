@@ -19,6 +19,12 @@ jest.mock('../../../lib/useDashboardQueries', () => ({
   useLinesQuery: () => mockUseLinesQuery(),
   useStationsQuery: () => mockUseStationsQuery(),
   useFavoriteTripQuery: (id: string | null) => mockUseFavoriteTripQuery(id),
+  useStationScheduleQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
+  useStationTripsQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
+}))
+
+jest.mock('../../../lib/useUpdateFavoriteSettings', () => ({
+  useUpdateFavoriteSettings: () => ({ update: jest.fn(), isUpdating: false }),
 }))
 
 const mockReorder = jest.fn()

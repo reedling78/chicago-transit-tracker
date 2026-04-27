@@ -53,6 +53,13 @@ export interface TripDetail {
   serviceType: ServiceType
   directionId: number
   stops: TripStop[]
+  /**
+   * `true` when this trip stops at fewer than {@link IS_EXPRESS_STOP_FRACTION}
+   * of the maximum stop count seen for the same `(lineSlug, serviceType,
+   * directionId)` group. Computed at parse time so dashboard cards can render
+   * an "Express" pill without re-deriving it client-side.
+   */
+  isExpress: boolean
 }
 
 export interface TripIndexEntry {

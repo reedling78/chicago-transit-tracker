@@ -31,4 +31,20 @@ export const cardStyles = StyleSheet.create({
     borderRadius: 999,
   },
   chipText: { fontSize: 12, fontWeight: '700' },
+  pillRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  pill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: '#374151',
+  },
+  pillText: { color: '#e5e7eb', fontSize: 11, fontWeight: '500' },
+  /** 4px-thick strip painted on the leading edge using the line color. */
+  accentBorder: { borderLeftWidth: 4 },
 })

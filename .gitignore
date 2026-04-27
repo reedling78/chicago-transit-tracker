@@ -48,3 +48,7 @@ apps/functions/node_modules/
 
 # turbo
 .turbo/
+
+# wiki staging (built by cowork/build_wiki.py, pushed to .wiki.git)
+wiki-staging/
+

@@ -3,11 +3,11 @@ import { Alert } from 'react-native'
 import { render, fireEvent, act } from '@testing-library/react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import type { Favorite } from '@ctt/shared'
+import type { Favorite, StationSchedule } from '@ctt/shared'
 import FavoriteMenuSheet, {
   type FavoriteMenuSheetHandle,
 } from '../../../components/dashboard/FavoriteMenuSheet'
-import { mockLine, mockStation } from '../../fixtures'
+import { mockLine, mockStation, mockMetraLine, mockMetraStation } from '../../fixtures'
 import { useFavoritesStore } from '../../../lib/store/favorites'
 
 const mockPush = jest.fn()
@@ -25,6 +25,23 @@ jest.mock('../../../lib/useToggleFavorite', () => ({
   }),
 }))
 
+const mockUpdate = jest.fn()
+jest.mock('../../../lib/useUpdateFavoriteSettings', () => ({
+  useUpdateFavoriteSettings: () => ({ update: mockUpdate, isUpdating: false }),
+}))
+
+const mockScheduleQuery = jest.fn()
+jest.mock('../../../lib/useDashboardQueries', () => ({
+  useStationScheduleQuery: (slug: string | null) => mockScheduleQuery(slug),
+}))
+
+const ctaSchedule: StationSchedule = {
+  directions: [
+    { headsign: 'Loop', line: 'Red', weekday: [], saturday: [], sunday: [] },
+    { headsign: "O'Hare", line: 'Blue', weekday: [], saturday: [], sunday: [] },
+  ],
+}
+
 function wrapper({ children }: { children: ReactNode }) {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>
@@ -33,6 +50,8 @@ function wrapper({ children }: { children: ReactNode }) {
 beforeEach(() => {
   jest.clearAllMocks()
   useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+  mockScheduleQuery.mockReset()
+  mockScheduleQuery.mockReturnValue({ data: null, isLoading: false, dataUpdatedAt: 0 })
 })
 
 describe('FavoriteMenuSheet', () => {
@@ -46,9 +65,9 @@ describe('FavoriteMenuSheet', () => {
     expect(queryByText('Remove from favorites')).toBeNull()
   })
 
-  it('shows menu items + line title after open()', () => {
+  it('shows menu items + line title after open() (line favorite)', () => {
     const ref = createRef<FavoriteMenuSheetHandle>()
-    const { getByText } = render(
+    const { getByText, queryByText } = render(
       <FavoriteMenuSheet ref={ref} lines={[mockLine]} stations={[mockStation]} />,
       { wrapper },
     )
@@ -59,6 +78,9 @@ describe('FavoriteMenuSheet', () => {
     expect(getByText('Mute alerts')).toBeTruthy()
     expect(getByText('Share')).toBeTruthy()
     expect(getByText('Remove from favorites')).toBeTruthy()
+    // Line favorites should NOT show View / Show toggle rows.
+    expect(queryByText('VIEW')).toBeNull()
+    expect(queryByText('SHOW')).toBeNull()
   })
 
   it('Open details navigates to the favorite route', () => {
@@ -109,6 +131,51 @@ describe('FavoriteMenuSheet', () => {
     expect(mockToggle).toHaveBeenCalled()
   })
 
+  describe('train favorites', () => {
+    it('shows Set departure / destination items when onSetTrainStop is provided', () => {
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const onSetTrainStop = jest.fn()
+      const { getByText } = render(
+        <FavoriteMenuSheet
+          ref={ref}
+          lines={[mockMetraLine]}
+          stations={[mockMetraStation]}
+          onSetTrainStop={onSetTrainStop}
+        />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'train',
+          id: 'md-w_2222',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      fireEvent.press(getByText('Set departure station…'))
+      expect(onSetTrainStop).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'train', id: 'md-w_2222' }),
+        'origin',
+      )
+    })
+
+    it('hides Set departure / destination items when onSetTrainStop is not provided', () => {
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const { queryByText } = render(
+        <FavoriteMenuSheet ref={ref} lines={[mockMetraLine]} stations={[mockMetraStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'train',
+          id: 'md-w_2222',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      expect(queryByText('Set departure station…')).toBeNull()
+      expect(queryByText('Set destination station…')).toBeNull()
+    })
+  })
+
   it('falls back to favorite id when line/station data is missing', () => {
     const ref = createRef<FavoriteMenuSheetHandle>()
     const { getByText } = render(
@@ -117,5 +184,80 @@ describe('FavoriteMenuSheet', () => {
     )
     act(() => ref.current?.open({ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }))
     expect(getByText('red')).toBeTruthy()
+  })
+
+  describe('station favorites', () => {
+    it('renders View toggle that updates density', () => {
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const { getByLabelText } = render(
+        <FavoriteMenuSheet ref={ref} lines={[mockLine]} stations={[mockStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'station',
+          id: 'clark-lake',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      fireEvent.press(getByLabelText('View: Compact'))
+      expect(mockUpdate).toHaveBeenCalledWith({ density: 'compact' })
+    })
+
+    it('renders Inbound/Outbound toggles for Metra stations', () => {
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const { getByLabelText } = render(
+        <FavoriteMenuSheet ref={ref} lines={[mockMetraLine]} stations={[mockMetraStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'station',
+          id: 'aurora',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      fireEvent.press(getByLabelText('Show: Inbound'))
+      expect(mockUpdate).toHaveBeenCalledWith({ directionFilter: 'inbound' })
+    })
+
+    it('renders one chip per CTA headsign from the schedule', () => {
+      mockScheduleQuery.mockReturnValue({
+        data: ctaSchedule,
+        isLoading: false,
+        dataUpdatedAt: 0,
+      })
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const { getByLabelText } = render(
+        <FavoriteMenuSheet ref={ref} lines={[mockLine]} stations={[mockStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'station',
+          id: 'clark-lake',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      fireEvent.press(getByLabelText('Show: Loop'))
+      expect(mockUpdate).toHaveBeenCalledWith({ directionFilter: 'Loop' })
+    })
+
+    it('does not fetch a schedule for Metra stations', () => {
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      render(
+        <FavoriteMenuSheet ref={ref} lines={[mockMetraLine]} stations={[mockMetraStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'station',
+          id: 'aurora',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      // Most recent call should pass null because Metra doesn't need headsign chips.
+      expect(mockScheduleQuery).toHaveBeenLastCalledWith(null)
+    })
   })
 })

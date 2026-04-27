@@ -8,6 +8,33 @@ export interface TripStop {
   departure: string
 }
 
+export type MetraServiceType = 'weekday' | 'saturday' | 'sunday'
+
+/**
+ * Shape of a `metra-trips/{lineSlug}_{trainNumber}` Firestore document.
+ * Mirrors the Cloud Function parser's `TripDetail` so both web and mobile can
+ * type the doc without each importing the function-side type.
+ */
+export interface MetraTripDetail {
+  tripId: string
+  trainNumber: string
+  headsign: string
+  line: string
+  lineSlug: string
+  lineName: string
+  serviceType: MetraServiceType
+  directionId: number
+  stops: TripStop[]
+  /** True for trips that skip a meaningful fraction of the line's stops. */
+  isExpress?: boolean
+}
+
+export const SERVICE_LABEL: Record<MetraServiceType, string> = {
+  weekday: 'Weekday',
+  saturday: 'Saturday',
+  sunday: 'Sunday',
+}
+
 export type FeedMessage = transit_realtime.IFeedMessage
 /** Structural alias of FeedMessage. Web's useMetraFeed exports an identical type. */
 export type FeedData = FeedMessage

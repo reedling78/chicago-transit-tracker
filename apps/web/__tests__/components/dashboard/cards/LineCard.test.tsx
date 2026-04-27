@@ -21,6 +21,10 @@ jest.mock('@lib/hooks/useToggleFavorite', () => ({
   }),
 }))
 
+jest.mock('@lib/hooks/useUpdateFavoriteSettings', () => ({
+  useUpdateFavoriteSettings: () => ({ update: jest.fn(), isUpdating: false }),
+}))
+
 import LineCard from '@components/dashboard/cards/LineCard'
 import { mockLine } from '../../../fixtures'
 

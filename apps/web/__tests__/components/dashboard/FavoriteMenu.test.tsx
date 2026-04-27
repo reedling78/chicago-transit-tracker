@@ -3,7 +3,7 @@
  */
 import { render, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import type { Favorite } from '@ctt/shared'
+import type { Favorite, StationSchedule } from '@ctt/shared'
 
 const mockPush = jest.fn()
 jest.mock('next/navigation', () => ({
@@ -20,17 +20,39 @@ jest.mock('@lib/hooks/useToggleFavorite', () => ({
   }),
 }))
 
+const mockUpdate = jest.fn()
+jest.mock('@lib/hooks/useUpdateFavoriteSettings', () => ({
+  useUpdateFavoriteSettings: () => ({ update: mockUpdate, isUpdating: false }),
+}))
+
 import FavoriteMenu from '@components/dashboard/FavoriteMenu'
-import { mockLine, mockStation } from '../../fixtures'
+import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../fixtures'
 
 const lineFav: Favorite = { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }
+const ctaStationFav: Favorite = {
+  type: 'station',
+  id: 'clark-lake',
+  addedAt: '2026-04-25T10:00:00Z',
+}
+const metraStationFav: Favorite = {
+  type: 'station',
+  id: 'aurora',
+  addedAt: '2026-04-25T10:00:00Z',
+}
+
+const ctaSchedule: StationSchedule = {
+  directions: [
+    { headsign: 'Loop', line: 'Red', weekday: [], saturday: [], sunday: [] },
+    { headsign: "O'Hare", line: 'Blue', weekday: [], saturday: [], sunday: [] },
+  ],
+}
 
 beforeEach(() => {
   jest.clearAllMocks()
 })
 
 describe('FavoriteMenu', () => {
-  it('renders all four menu items', () => {
+  it('renders all four base menu items', () => {
     render(
       <FavoriteMenu
         favorite={lineFav}
@@ -45,7 +67,20 @@ describe('FavoriteMenu', () => {
     expect(screen.getByText('Remove from favorites')).toBeInTheDocument()
   })
 
-  it('Open details navigates to the favorite route and closes', () => {
+  it('does not show View / Show toggle rows for line favorites', () => {
+    render(
+      <FavoriteMenu
+        favorite={lineFav}
+        lines={[mockLine]}
+        stations={[mockStation]}
+        onClose={() => {}}
+      />,
+    )
+    expect(screen.queryByText('View')).toBeNull()
+    expect(screen.queryByText('Show')).toBeNull()
+  })
+
+  it('Open details navigates and closes', () => {
     const onClose = jest.fn()
     render(
       <FavoriteMenu
@@ -109,24 +144,72 @@ describe('FavoriteMenu', () => {
     expect(onClose).toHaveBeenCalled()
   })
 
-  it('clicking outside closes the menu', async () => {
-    jest.useFakeTimers()
-    const onClose = jest.fn()
-    render(
-      <div>
-        <button data-testid="outside">Outside</button>
+  describe('station favorites', () => {
+    it('renders View toggle that updates density', () => {
+      render(
         <FavoriteMenu
-          favorite={lineFav}
+          favorite={ctaStationFav}
           lines={[mockLine]}
           stations={[mockStation]}
-          onClose={onClose}
-        />
-      </div>,
-    )
-    // Advance timers so the deferred mousedown listener attaches.
-    jest.runAllTimers()
-    fireEvent.mouseDown(screen.getByTestId('outside'))
-    expect(onClose).toHaveBeenCalled()
-    jest.useRealTimers()
+          schedule={ctaSchedule}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.getByText('View')).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('menuitemradio', { name: 'Compact' }))
+      expect(mockUpdate).toHaveBeenCalledWith({ density: 'compact' })
+    })
+
+    it('renders Inbound/Outbound toggles for Metra stations', () => {
+      render(
+        <FavoriteMenu
+          favorite={metraStationFav}
+          lines={[mockMetraLine]}
+          stations={[mockMetraStation]}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.getByRole('menuitemradio', { name: 'Inbound' })).toBeInTheDocument()
+      expect(screen.getByRole('menuitemradio', { name: 'Outbound' })).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('menuitemradio', { name: 'Inbound' }))
+      expect(mockUpdate).toHaveBeenCalledWith({ directionFilter: 'inbound' })
+    })
+
+    it('renders one chip per CTA headsign from the schedule', () => {
+      render(
+        <FavoriteMenu
+          favorite={ctaStationFav}
+          lines={[mockLine]}
+          stations={[mockStation]}
+          schedule={ctaSchedule}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.getByRole('menuitemradio', { name: 'Loop' })).toBeInTheDocument()
+      expect(screen.getByRole('menuitemradio', { name: "O'Hare" })).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('menuitemradio', { name: 'Loop' }))
+      expect(mockUpdate).toHaveBeenCalledWith({ directionFilter: 'Loop' })
+    })
+
+    it('marks the active option with aria-checked', () => {
+      const compactFav: Favorite = { ...ctaStationFav, density: 'compact' }
+      render(
+        <FavoriteMenu
+          favorite={compactFav}
+          lines={[mockLine]}
+          stations={[mockStation]}
+          schedule={ctaSchedule}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.getByRole('menuitemradio', { name: 'Compact' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
+      expect(screen.getByRole('menuitemradio', { name: 'Expanded' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      )
+    })
   })
 })

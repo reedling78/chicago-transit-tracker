@@ -1,7 +1,15 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import type { Favorite, FavoriteType } from '@ctt/shared'
+import type { Favorite, FavoriteType, FavoriteDensity, FavoriteDirection } from '@ctt/shared'
+
+/** Subset of Favorite fields that can be updated via `updateSettings`. */
+export type FavoriteSettingsPatch = {
+  directionFilter?: FavoriteDirection
+  density?: FavoriteDensity
+  trainOriginStopSlug?: string
+  trainDestinationStopSlug?: string
+}
 
 /** Reorder positions are written as a dense sequence (1000, 2000, 3000, ...). */
 export const REORDER_POSITION_STEP = 1000
@@ -29,6 +37,12 @@ interface FavoritesState {
    * mobile drag-to-reorder UI; the same positions are persisted to Firestore.
    */
   reorder: (newOrder: Favorite[]) => void
+  /**
+   * Merge a partial settings patch into the matching favorite. Used by the
+   * dashboard card menu to update `directionFilter` / `density`. No-op if no
+   * favorite with the given type+id exists in the store.
+   */
+  updateSettings: (type: FavoriteType, id: string, patch: FavoriteSettingsPatch) => void
   has: (type: FavoriteType, id: string) => boolean
   clear: () => void
   incrementPendingWrites: () => void
@@ -61,6 +75,13 @@ export const useFavoritesStore = create<FavoritesState>()(
           position: (index + 1) * REORDER_POSITION_STEP,
         }))
         set({ favorites: repositioned })
+      },
+      updateSettings: (type, id, patch) => {
+        set((state) => ({
+          favorites: state.favorites.map((f) =>
+            f.type === type && f.id === id ? { ...f, ...patch } : f,
+          ),
+        }))
       },
       has: (type, id) => get().favorites.some((f) => f.type === type && f.id === id),
       clear: () => set({ favorites: [], hydrated: false, pendingWrites: 0 }),
