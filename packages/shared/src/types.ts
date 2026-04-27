@@ -75,6 +75,17 @@ export interface NormalizedAlert {
 
 export type FavoriteType = 'line' | 'station' | 'train'
 
+/**
+ * Per-favorite direction filter for station cards.
+ * - `'all'` — show every direction (default).
+ * - `'inbound'` / `'outbound'` — Metra only; matches `directionId` 1 / 0.
+ * - any other string — CTA headsign to filter to (e.g. `'Loop'`).
+ */
+export type FavoriteDirection = 'all' | 'inbound' | 'outbound' | string
+
+/** Per-favorite render density for station cards. */
+export type FavoriteDensity = 'compact' | 'expanded'
+
 export interface Favorite {
   type: FavoriteType
   /**
@@ -91,6 +102,29 @@ export interface Favorite {
    * (which fall to the bottom of the list, ordered by `addedAt` desc within that bucket).
    */
   position?: number
+  /**
+   * Station-card filter. Defaults to `'all'` when omitted. Ignored for `line` /
+   * `train` favorites.
+   */
+  directionFilter?: FavoriteDirection
+  /**
+   * Station-card render density. Defaults to `'expanded'` when omitted. Ignored
+   * for `line` / `train` favorites.
+   */
+  density?: FavoriteDensity
+  /**
+   * Train-card origin stop override. When set, the dashboard TrainCard renders
+   * the trip's segment starting at this stop (matched by `slug` against the
+   * trip's `stops[]`) instead of the trip's first stop. Falls back silently if
+   * the saved slug is no longer on the trip. Ignored for `line` / `station`
+   * favorites.
+   */
+  trainOriginStopSlug?: string
+  /**
+   * Train-card destination stop override. Mirror of `trainOriginStopSlug` for
+   * the trip's last stop.
+   */
+  trainDestinationStopSlug?: string
 }
 
 export interface UserProfile {

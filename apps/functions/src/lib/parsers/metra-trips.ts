@@ -36,6 +36,15 @@ export interface MetraTripParseResult {
 }
 
 /**
+ * A trip is flagged `isExpress` when its stop count is less than this fraction
+ * of the largest stop count seen for the same line/serviceType/direction. The
+ * threshold is intentionally tolerant — Metra's "express" runs typically skip
+ * 30%+ of the line's stops, so 0.85 gives plenty of headroom for trips that
+ * skip just a handful of low-volume stops without flagging them as express.
+ */
+export const IS_EXPRESS_STOP_FRACTION = 0.85
+
+/**
  * Parse the Metra GTFS zip into trip details, indexes, and station trips.
  *
  * @param zip - The downloaded Metra GTFS zip
@@ -151,6 +160,9 @@ export function parseMetraTrips(
       serviceType,
       directionId,
       stops,
+      // Provisional; resolved in a second pass once we know the max stop count
+      // per (lineSlug, serviceType, directionId) group.
+      isExpress: false,
     })
 
     // Add each stop to that station's trip list
@@ -187,6 +199,22 @@ export function parseMetraTrips(
       directionId,
       _sortMin: timeToMinutes(firstDepRaw),
     })
+  }
+
+  // Second pass: flag express trips. A trip is express when its stop count is
+  // below IS_EXPRESS_STOP_FRACTION of the max stop count seen for the same
+  // (lineSlug, serviceType, directionId) group. Local trips with the most stops
+  // anchor the comparison.
+  const maxStopsByGroup = new Map<string, number>()
+  for (const t of tripDetails.values()) {
+    const key = `${t.lineSlug}|${t.serviceType}|${t.directionId}`
+    const prev = maxStopsByGroup.get(key) ?? 0
+    if (t.stops.length > prev) maxStopsByGroup.set(key, t.stops.length)
+  }
+  for (const t of tripDetails.values()) {
+    const key = `${t.lineSlug}|${t.serviceType}|${t.directionId}`
+    const max = maxStopsByGroup.get(key) ?? t.stops.length
+    t.isExpress = t.stops.length < max * IS_EXPRESS_STOP_FRACTION
   }
 
   // Sort and strip _sortMin from indexes

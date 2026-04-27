@@ -103,12 +103,13 @@ apps/
           DashboardHeader.tsx     Greeting + Profile / Sign-in CTA on the dashboard
           DashboardGrid.tsx       Unified mixed-type favorites list — drag (mouse/touch) to reorder, ⋯ to open menu
           FavoriteMenu.tsx        Anchored dropdown invoked from each card's ⋯ button
+          TrainStopPickerModal.tsx Stop picker for train favorites — sets origin/destination override
           cards/
             cardClassNames.ts     Shared Tailwind strings for all favorite card rows
             CardMenuButton.tsx    Trailing ⋯ Pressable used on every card
             LineCard.tsx          Favorite-line row (title + termini + accent left border)
-            StationCard.tsx       Favorite-station row (title + lines + service meta)
-            TrainCard.tsx         Favorite-train row (resolves trip via TanStack Query)
+            StationCard.tsx       Favorite-station row — direction filter + density + arrivals
+            TrainCard.tsx         Favorite-train row — origin/destination header + pills + mini live status
         profile/
           FavoritesManager.tsx    Profile favorites manager (Lines/Stations/Trains sections + Clear all)
           FavoritesSection.tsx    Section header + list of FavoriteRows
@@ -124,6 +125,7 @@ apps/
         metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
         metra-status.ts           Shared status derivation for Metra trips
         cta-train-tracker.ts      Client-side fetch + types for CTA Train Tracker positions
+        ../components/MetraTripHeroStatusCardCompact.tsx Mini one-row variant of the trip hero status card (used inside TrainCard)
         transit.ts                Data access — getLinesForService, getLine, getMetraLineTrips, etc.
         types.ts                  Re-exports from @ctt/shared
         constants.ts              Re-exports from @ctt/shared
@@ -138,7 +140,9 @@ apps/
           useToggleFavorite.ts    Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
           useReorderFavorites.ts  Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
           useClearAllFavorites.ts Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
-          useDashboardQueries.ts  TanStack Query reads for lines/stations/metra-trip on the dashboard
+          useDashboardQueries.ts  TanStack Query reads for lines/stations/metra-trip/station-schedule/station-trips on the dashboard
+          useUpdateFavoriteSettings.ts  Persist per-favorite settings (direction filter, density, train stop overrides) to Firestore + store
+          useMetraTripLiveStatus.ts  Polling hook returning derived realtime state for a Metra trip (used by TrainCard mini hero)
         favoriteRoute.ts          Pure helper: resolves a Favorite to its deep-link route
     __tests__/                    Jest + React Testing Library test suites
     scripts/
@@ -189,12 +193,13 @@ apps/
         DashboardHero.tsx         CTA + Metra service nav cards
         DashboardGrid.tsx         Unified mixed-type favorites list — long-press to drag-reorder, ⋯ to open menu
         FavoriteMenuSheet.tsx     @gorhom/bottom-sheet menu invoked from each card's ⋯ button
+        TrainStopPickerSheet.tsx  Stop picker bottom sheet for train favorites — sets origin/destination override
         cards/
           cardStyles.ts           Shared StyleSheet for all favorite card rows
           CardMenuButton.tsx      Trailing ⋯ Pressable used on every card
           LineCard.tsx            Favorite-line row (title + termini + colored chip)
-          StationCard.tsx         Favorite-station row (title + lines + service meta)
-          TrainCard.tsx           Favorite-train row (resolves trip via TanStack Query)
+          StationCard.tsx         Favorite-station row — direction filter + density + arrivals
+          TrainCard.tsx           Favorite-train row — origin/destination header + pills + mini live status
       profile/
         FavoritesManager.tsx      Profile favorites manager (Lines/Stations/Trains sections + Clear all)
         FavoritesSection.tsx      Section header + list of FavoriteRows
@@ -208,7 +213,9 @@ apps/
       useToggleFavorite.ts        Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
       useReorderFavorites.ts      Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
       useClearAllFavorites.ts     Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
-      useDashboardQueries.ts      TanStack Query reads for lines/stations/metra-trip on the dashboard
+      useDashboardQueries.ts      TanStack Query reads for lines/stations/metra-trip/station-schedule/station-trips on the dashboard
+      useUpdateFavoriteSettings.ts  Persist per-favorite settings (direction filter, density, train stop overrides) to Firestore + store
+      useMetraTripLiveStatus.ts   Polling hook returning derived realtime state for a Metra trip (used by TrainCard mini hero)
       favoriteRoute.ts            Pure helper: resolves a Favorite to its deep-link route
       queryClient.ts              TanStack Query client factory (singleton)
       store/
@@ -247,6 +254,7 @@ packages/
       cta-pulse.ts                Pure aggregation + health helpers for CTA service pulse
       metra-trip-matching.ts      Helpers for matching Metra realtime entities
       favorites.ts                Pure helpers for favorites (favoriteKey, mapToArray, arrayToMap)
+      station-arrivals.ts         Pure helpers for computing arrival groups + applying per-favorite direction filters
 ```
 
 ---
@@ -409,7 +417,7 @@ Per-station departure times grouped by direction and service type. Populated aut
 
 ### `metra-trips` — doc ID = `{lineSlug}_{trainNumber}` (e.g. `bnsf_1200`)
 
-Individual Metra trip stop sequences, one document per train number per line. Populated automatically by `syncMetraGtfs`, which extracts the train number from the GTFS `trip_id` (e.g. `BNSF_BN1200_V4_A` → `1200`) and deduplicates the `_A` / `_AA` / `_B` calendar variants into a single document. The page at `/metra/[line]/train/[trainNumber]` reads this collection directly.
+Individual Metra trip stop sequences, one document per train number per line. Populated automatically by `syncMetraGtfs`, which extracts the train number from the GTFS `trip_id` (e.g. `BNSF_BN1200_V4_A` → `1200`) and deduplicates the `_A` / `_AA` / `_B` calendar variants into a single document. The page at `/metra/[line]/train/[trainNumber]` reads this collection directly. Each doc also carries an `isExpress` boolean — true when the trip's stop count is below 85% of the maximum stop count for the same `(lineSlug, serviceType, directionId)` group; surfaced as an "Express" pill on the dashboard TrainCard.
 
 ### `metra-trip-indexes` — doc ID = line slug
 

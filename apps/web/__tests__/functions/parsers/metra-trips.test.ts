@@ -198,6 +198,84 @@ describe('parseMetraTrips', () => {
     expect(result.stationTrips.get('union-station-metra')!.weekday).toHaveLength(1)
   })
 
+  it('flags express trips when stop count is well below the line max', () => {
+    const zip = new AdmZip()
+    zip.addFile(
+      'stops.txt',
+      Buffer.from(
+        `stop_id,stop_name
+S1,Stop 1
+S2,Stop 2
+S3,Stop 3
+S4,Stop 4
+S5,Stop 5
+S6,Stop 6
+S7,Stop 7
+S8,Stop 8
+S9,Stop 9
+CUS,Chicago Union Station`,
+      ),
+    )
+    zip.addFile(
+      'routes.txt',
+      Buffer.from(`route_id,route_short_name,route_long_name\nBNSF,BNSF,BNSF Railway`),
+    )
+    zip.addFile(
+      'calendar.txt',
+      Buffer.from(
+        `service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday\nWK,1,1,1,1,1,0,0`,
+      ),
+    )
+    zip.addFile(
+      'trips.txt',
+      Buffer.from(
+        `trip_id,route_id,service_id,trip_headsign,trip_short_name,direction_id
+LOCAL_A,BNSF,WK,Chicago Union Station,1000,0
+EXPRESS_A,BNSF,WK,Chicago Union Station,2000,0`,
+      ),
+    )
+    // Local: 10 stops. Express: 3 stops (well below 0.85 * 10 = 8.5).
+    zip.addFile(
+      'stop_times.txt',
+      Buffer.from(
+        `trip_id,stop_id,stop_sequence,arrival_time,departure_time
+LOCAL_A,S1,1,06:00:00,06:00:00
+LOCAL_A,S2,2,06:05:00,06:05:00
+LOCAL_A,S3,3,06:10:00,06:10:00
+LOCAL_A,S4,4,06:15:00,06:15:00
+LOCAL_A,S5,5,06:20:00,06:20:00
+LOCAL_A,S6,6,06:25:00,06:25:00
+LOCAL_A,S7,7,06:30:00,06:30:00
+LOCAL_A,S8,8,06:35:00,06:35:00
+LOCAL_A,S9,9,06:40:00,06:40:00
+LOCAL_A,CUS,10,06:45:00,06:45:00
+EXPRESS_A,S1,1,07:00:00,07:00:00
+EXPRESS_A,S5,2,07:15:00,07:15:00
+EXPRESS_A,CUS,3,07:30:00,07:30:00`,
+      ),
+    )
+
+    const slugs = new Map([
+      ['S1', 's1'],
+      ['S2', 's2'],
+      ['S3', 's3'],
+      ['S4', 's4'],
+      ['S5', 's5'],
+      ['S6', 's6'],
+      ['S7', 's7'],
+      ['S8', 's8'],
+      ['S9', 's9'],
+      ['CUS', 'union-station-metra'],
+    ])
+    const names = new Map(Array.from(slugs.keys()).map((id) => [id, id]))
+    const result = parseMetraTrips(zip, slugs, names, lineCodeToSlug, lineCodeToName)
+
+    const local = result.tripDetails.get('bnsf_1000')!
+    const express = result.tripDetails.get('bnsf_2000')!
+    expect(local.isExpress).toBe(false)
+    expect(express.isExpress).toBe(true)
+  })
+
   it('skips trips with no matching line slug', () => {
     const zip = makeMetraGtfsZip()
     const emptyLineMap = new Map<string, string>()

@@ -6,6 +6,8 @@ export type {
   NormalizedAlertRoute,
   Favorite,
   FavoriteType,
+  FavoriteDirection,
+  FavoriteDensity,
 } from './types'
 export { favoriteKey, arrayToMap, mapToArray } from './favorites'
 export type {
@@ -15,6 +17,21 @@ export type {
   StationTripEntry,
   StationTrips,
 } from './gtfs-types'
+export type {
+  ArrivalItem,
+  ArrivalGroup,
+  ComputeArrivalGroupsInput,
+} from './station-arrivals'
+export {
+  pickServiceDay,
+  minutesUntil,
+  formatMinutesAway,
+  formatClockLabel,
+  computeArrivalGroups,
+  applyDirectionFilter,
+  listStationHeadsigns,
+  summarizeCompact,
+} from './station-arrivals'
 export { siteConfig } from './siteConfig'
 export {
   CTA_LINE_COLORS,
@@ -51,8 +68,11 @@ export type {
   TripPhase,
   StatusTone,
   HeroStatus,
+  MetraTripDetail,
+  MetraServiceType,
 } from './metra-status'
 export {
+  SERVICE_LABEL,
   TONE_CLASSES,
   longToNumber,
   parseDisplayTimeToMinutes,

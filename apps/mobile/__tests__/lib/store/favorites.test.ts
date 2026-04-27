@@ -135,6 +135,70 @@ describe('useFavoritesStore (mobile)', () => {
     })
   })
 
+  describe('updateSettings', () => {
+    it('merges patch into the matching favorite', () => {
+      useFavoritesStore.getState().hydrate([
+        { type: 'station', id: 'clark-lake', addedAt: '2026-04-24T10:00:00Z' },
+        { type: 'station', id: 'aurora', addedAt: '2026-04-24T11:00:00Z' },
+      ])
+      useFavoritesStore.getState().updateSettings('station', 'clark-lake', {
+        directionFilter: 'inbound',
+        density: 'compact',
+      })
+      const state = useFavoritesStore.getState()
+      expect(state.favorites[0]).toMatchObject({
+        id: 'clark-lake',
+        directionFilter: 'inbound',
+        density: 'compact',
+      })
+      expect(state.favorites[1]).toEqual({
+        type: 'station',
+        id: 'aurora',
+        addedAt: '2026-04-24T11:00:00Z',
+      })
+    })
+
+    it('is a no-op when no favorite matches', () => {
+      const initial: Favorite[] = [
+        { type: 'station', id: 'clark-lake', addedAt: '2026-04-24T10:00:00Z' },
+      ]
+      useFavoritesStore.getState().hydrate(initial)
+      useFavoritesStore.getState().updateSettings('station', 'no-such-id', { density: 'compact' })
+      expect(useFavoritesStore.getState().favorites).toEqual(initial)
+    })
+
+    it('merges train stop overrides for train favorites', () => {
+      useFavoritesStore
+        .getState()
+        .hydrate([{ type: 'train', id: 'md-w_2222', addedAt: '2026-04-24T10:00:00Z' }])
+      useFavoritesStore.getState().updateSettings('train', 'md-w_2222', {
+        trainOriginStopSlug: 'schaumburg',
+        trainDestinationStopSlug: 'western-avenue-metra',
+      })
+      const fav = useFavoritesStore.getState().favorites[0]
+      expect(fav.trainOriginStopSlug).toBe('schaumburg')
+      expect(fav.trainDestinationStopSlug).toBe('western-avenue-metra')
+    })
+
+    it('partial patches preserve unmentioned fields', () => {
+      useFavoritesStore.getState().hydrate([
+        {
+          type: 'station',
+          id: 'clark-lake',
+          addedAt: '2026-04-24T10:00:00Z',
+          directionFilter: 'inbound',
+          density: 'expanded',
+        },
+      ])
+      useFavoritesStore.getState().updateSettings('station', 'clark-lake', {
+        density: 'compact',
+      })
+      const fav = useFavoritesStore.getState().favorites[0]
+      expect(fav.directionFilter).toBe('inbound')
+      expect(fav.density).toBe('compact')
+    })
+  })
+
   describe('pending writes counter', () => {
     it('increments and decrements', () => {
       useFavoritesStore.getState().incrementPendingWrites()

@@ -23,3 +23,13 @@ export const cardSubtitle = 'truncate text-sm text-gray-500 dark:text-gray-400'
 export const cardMeta = 'hidden text-sm text-gray-400 sm:inline dark:text-gray-500'
 
 export const cardChip = 'shrink-0 rounded px-2 py-0.5 text-xs font-semibold'
+
+/** Sub-header pill row (used by TrainCard). */
+export const cardPillRow = 'mt-1 flex flex-wrap items-center gap-1.5'
+
+/**
+ * Neutral pill — used for non-line metadata (Metra, service-type, Express).
+ * Line color is applied inline on top of the line-code pill.
+ */
+export const cardPill =
+  'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200'

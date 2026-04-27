@@ -10,6 +10,7 @@ import LineCard from './cards/LineCard'
 import StationCard from './cards/StationCard'
 import TrainCard from './cards/TrainCard'
 import FavoriteMenuSheet, { type FavoriteMenuSheetHandle } from './FavoriteMenuSheet'
+import TrainStopPickerSheet, { type TrainStopPickerSheetHandle } from './TrainStopPickerSheet'
 
 export default function DashboardGrid() {
   const { user, loading } = useAuth()
@@ -18,12 +19,17 @@ export default function DashboardGrid() {
   const { data: stations } = useStationsQuery()
   const { reorder } = useReorderFavorites()
   const sheetRef = useRef<FavoriteMenuSheetHandle>(null)
+  const pickerRef = useRef<TrainStopPickerSheetHandle>(null)
 
   const lineMap = new Map((lines ?? []).map((l) => [l.slug, l]))
   const stationMap = new Map((stations ?? []).map((s) => [s.slug, s]))
 
   const onMenuPress = useCallback((favorite: Favorite) => {
     sheetRef.current?.open(favorite)
+  }, [])
+
+  const onSetTrainStop = useCallback((favorite: Favorite, mode: 'origin' | 'destination') => {
+    pickerRef.current?.open({ favorite, mode })
   }, [])
 
   const renderItem = useCallback(
@@ -56,7 +62,13 @@ export default function DashboardGrid() {
       <Text style={styles.footerHint}>
         Tip: long-press a card to drag it up or down. Tap ⋯ for more options.
       </Text>
-      <FavoriteMenuSheet ref={sheetRef} lines={lines} stations={stations} />
+      <FavoriteMenuSheet
+        ref={sheetRef}
+        lines={lines}
+        stations={stations}
+        onSetTrainStop={onSetTrainStop}
+      />
+      <TrainStopPickerSheet ref={pickerRef} />
     </View>
   )
 }
@@ -106,6 +118,7 @@ function renderFavoriteCard({
   return (
     <TrainCard
       favorite={favorite}
+      lines={lines}
       onLongPress={drag}
       onMenuPress={() => onMenuPress(favorite)}
       isActive={isActive}
