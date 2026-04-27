@@ -44,6 +44,11 @@ describe('AuthModal', () => {
     expect(screen.getByRole('heading', { name: 'Create Account' })).toBeInTheDocument()
   })
 
+  it('opens directly in sign-up mode when initialMode="signUp"', () => {
+    render(<AuthModal onClose={onClose} initialMode="signUp" />)
+    expect(screen.getByRole('heading', { name: 'Create Account' })).toBeInTheDocument()
+  })
+
   it('switches to reset password mode', () => {
     render(<AuthModal onClose={onClose} />)
     fireEvent.click(screen.getByText('Forgot password?'))

@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet } from 'react-native'
 import { useNavHeaderInset } from '../../lib/useNavHeaderInset'
+import DashboardHeader from './DashboardHeader'
 import DashboardGrid from './DashboardGrid'
 import DashboardHero from './DashboardHero'
 
@@ -10,6 +11,7 @@ export default function Dashboard() {
       style={styles.container}
       contentContainerStyle={[styles.content, { paddingTop: headerInset + 8 }]}
     >
+      <DashboardHeader />
       <DashboardGrid />
       <DashboardHero />
     </ScrollView>

@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import type { Favorite } from '@ctt/shared'
 
@@ -32,16 +32,6 @@ jest.mock('@lib/hooks/useToggleFavorite', () => ({
     needsAuth: false,
   }),
 }))
-
-jest.mock('@components/AuthModal', () => {
-  return function MockAuthModal({ onClose }: { onClose: () => void }) {
-    return (
-      <div data-testid="auth-modal-stub">
-        <button onClick={onClose}>close</button>
-      </div>
-    )
-  }
-})
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn() }),
@@ -87,24 +77,16 @@ describe('DashboardGrid', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('shows the signed-out placeholder when there is no user', () => {
+  it('renders nothing when there is no user (handled by DashboardHeader)', () => {
     mockUseAuth.mockReturnValue({ user: null, loading: false })
-    render(<DashboardGrid />)
-    expect(screen.getByText('Sign in to save favorites')).toBeInTheDocument()
+    const { container } = render(<DashboardGrid />)
+    expect(container).toBeEmptyDOMElement()
   })
 
-  it('opens AuthModal when the signed-out placeholder is clicked', () => {
-    mockUseAuth.mockReturnValue({ user: null, loading: false })
-    render(<DashboardGrid />)
-    expect(screen.queryByTestId('auth-modal-stub')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByText('Sign in to save favorites'))
-    expect(screen.getByTestId('auth-modal-stub')).toBeInTheDocument()
-  })
-
-  it('shows the empty placeholder when signed-in with no favorites', () => {
+  it('renders nothing when signed-in with no favorites (handled by DashboardHeader)', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    render(<DashboardGrid />)
-    expect(screen.getByText('No favorites yet')).toBeInTheDocument()
+    const { container } = render(<DashboardGrid />)
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('renders one card per favorite, mixed types', () => {

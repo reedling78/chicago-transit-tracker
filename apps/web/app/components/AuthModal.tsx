@@ -12,8 +12,14 @@ import {
 
 type Mode = 'signIn' | 'signUp' | 'resetPassword'
 
-export default function AuthModal({ onClose }: { onClose: () => void }) {
-  const [mode, setMode] = useState<Mode>('signIn')
+export default function AuthModal({
+  onClose,
+  initialMode = 'signIn',
+}: {
+  onClose: () => void
+  initialMode?: Mode
+}) {
+  const [mode, setMode] = useState<Mode>(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')

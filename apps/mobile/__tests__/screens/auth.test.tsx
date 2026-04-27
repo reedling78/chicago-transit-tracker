@@ -2,8 +2,10 @@ import { render } from '@testing-library/react-native'
 import { Platform } from 'react-native'
 import AuthScreen from '../../app/auth'
 
+const mockSearchParams: { mode?: string } = {}
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn() }),
+  useLocalSearchParams: () => mockSearchParams,
 }))
 
 jest.mock('../../lib/useNavHeaderInset', () => ({
@@ -38,5 +40,12 @@ describe('AuthScreen', () => {
     const { getByText } = render(<AuthScreen />)
     expect(getByText('Sign in with Google')).toBeOnTheScreen()
     expect(getByText('Sign in with Facebook')).toBeOnTheScreen()
+  })
+
+  it('opens directly in sign-up mode when mode=signUp is passed', () => {
+    mockSearchParams.mode = 'signUp'
+    const { getAllByText } = render(<AuthScreen />)
+    expect(getAllByText('Create Account').length).toBeGreaterThanOrEqual(1)
+    delete mockSearchParams.mode
   })
 })

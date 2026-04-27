@@ -1,0 +1,104 @@
+import { render, fireEvent } from '@testing-library/react-native'
+import type { Favorite } from '@ctt/shared'
+
+import DashboardHeader from '../../../components/dashboard/DashboardHeader'
+import { useFavoritesStore } from '../../../lib/store/favorites'
+
+const mockUseAuth = jest.fn()
+jest.mock('../../../lib/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+}))
+
+const mockPush = jest.fn()
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush }),
+}))
+
+beforeEach(() => {
+  jest.clearAllMocks()
+  useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+})
+
+describe('DashboardHeader (mobile)', () => {
+  it('renders nothing while auth is loading', () => {
+    mockUseAuth.mockReturnValue({ user: null, profile: null, loading: true })
+    const { toJSON } = render(<DashboardHeader />)
+    expect(toJSON()).toBeNull()
+  })
+
+  describe('unauthed', () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({ user: null, profile: null, loading: false })
+    })
+
+    it('shows headline, tagline, and both CTA buttons', () => {
+      const { getByText } = render(<DashboardHeader />)
+      expect(getByText('Chicago Transit Tracker')).toBeTruthy()
+      expect(getByText(/Real-time schedules, routes/)).toBeTruthy()
+      expect(getByText(/Sign up to customize your dashboard/)).toBeTruthy()
+      expect(getByText('Sign up')).toBeTruthy()
+      expect(getByText('Log in')).toBeTruthy()
+    })
+
+    it('routes to /auth?mode=signUp when Sign up is pressed', () => {
+      const { getByLabelText } = render(<DashboardHeader />)
+      fireEvent.press(getByLabelText('Sign up'))
+      expect(mockPush).toHaveBeenCalledWith('/auth?mode=signUp')
+    })
+
+    it('routes to /auth when Log in is pressed', () => {
+      const { getByLabelText } = render(<DashboardHeader />)
+      fireEvent.press(getByLabelText('Log in'))
+      expect(mockPush).toHaveBeenCalledWith('/auth')
+    })
+  })
+
+  describe('authed with no favorites', () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, profile: null, loading: false })
+    })
+
+    it('shows the "Your Dashboard" heading', () => {
+      const { getByText } = render(<DashboardHeader />)
+      expect(getByText('Your Dashboard')).toBeTruthy()
+    })
+
+    it('uses the displayName when available', () => {
+      mockUseAuth.mockReturnValue({
+        user: { uid: 'u1' },
+        profile: { displayName: 'Reed Rizzo' },
+        loading: false,
+      })
+      const { getByText } = render(<DashboardHeader />)
+      expect(getByText('Welcome back, Reed')).toBeTruthy()
+    })
+
+    it('shows the empty card with quick links to /cta and /metra', () => {
+      const { getByText, getByLabelText } = render(<DashboardHeader />)
+      expect(getByText('No favorites yet')).toBeTruthy()
+      fireEvent.press(getByLabelText('Browse CTA'))
+      expect(mockPush).toHaveBeenCalledWith('/cta')
+      fireEvent.press(getByLabelText('Browse Metra'))
+      expect(mockPush).toHaveBeenCalledWith('/metra')
+    })
+
+    it('does not render the unauthed marketing hero', () => {
+      const { queryByText } = render(<DashboardHeader />)
+      expect(queryByText('Chicago Transit Tracker')).toBeNull()
+    })
+  })
+
+  describe('authed with favorites', () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, profile: null, loading: false })
+      const favs: Favorite[] = [{ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }]
+      useFavoritesStore.getState().hydrate(favs)
+    })
+
+    it('shows the heading but not the empty card', () => {
+      const { getByText, queryByText } = render(<DashboardHeader />)
+      expect(getByText('Your Dashboard')).toBeTruthy()
+      expect(queryByText('No favorites yet')).toBeNull()
+    })
+  })
+})

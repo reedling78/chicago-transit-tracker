@@ -10,7 +10,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import {
   signInWithEmail,
@@ -25,8 +25,10 @@ type Mode = 'signIn' | 'signUp' | 'resetPassword'
 
 export default function AuthScreen() {
   const router = useRouter()
+  const params = useLocalSearchParams<{ mode?: string }>()
+  const initialMode: Mode = params.mode === 'signUp' ? 'signUp' : 'signIn'
   const headerInset = useNavHeaderInset()
-  const [mode, setMode] = useState<Mode>('signIn')
+  const [mode, setMode] = useState<Mode>(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
