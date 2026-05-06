@@ -49,4 +49,11 @@ describe('HeaderBackButton', () => {
     const { getByText } = render(<HeaderBackButton />)
     expect(getByText('chevron-back')).toBeOnTheScreen()
   })
+
+  it('exposes a generous hit area so taps near the edge still register', () => {
+    mockCanGoBack.mockReturnValue(true)
+    const { getByLabelText } = render(<HeaderBackButton />)
+    const button = getByLabelText('Back')
+    expect(button.props.hitSlop).toEqual({ top: 12, bottom: 12, left: 16, right: 12 })
+  })
 })

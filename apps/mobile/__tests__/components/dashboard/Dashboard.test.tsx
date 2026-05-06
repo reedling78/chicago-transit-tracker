@@ -19,7 +19,12 @@ jest.mock('../../../components/dashboard/DashboardGrid', () => {
   const RN = require('react-native')
   return {
     __esModule: true,
-    default: () => <RN.Text testID="dash-grid" />,
+    default: ({ header, footer }: { header?: React.ReactNode; footer?: React.ReactNode }) => (
+      <RN.View testID="dash-grid">
+        {header}
+        {footer}
+      </RN.View>
+    ),
   }
 })
 jest.mock('../../../components/dashboard/DashboardHero', () => {

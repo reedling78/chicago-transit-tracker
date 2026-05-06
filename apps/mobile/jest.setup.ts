@@ -84,18 +84,27 @@ jest.mock('react-native-draggable-flatlist', () => {
   const { View } = require('react-native')
   const captured = {}
   function DraggableFlatList(props) {
-    const { data, renderItem, keyExtractor, onDragEnd } = props
+    const { data, renderItem, keyExtractor, onDragEnd, ListHeaderComponent, ListFooterComponent } =
+      props
     captured.lastOnDragEnd = onDragEnd
+    const renderSlot = (slot) => {
+      if (!slot) return null
+      if (React.isValidElement(slot)) return slot
+      if (typeof slot === 'function') return React.createElement(slot)
+      return null
+    }
     return React.createElement(
       View,
       { testID: 'draggable-flatlist-stub' },
-      data.map((item, index) =>
+      renderSlot(ListHeaderComponent),
+      ...data.map((item, index) =>
         React.createElement(
           View,
           { key: keyExtractor ? keyExtractor(item, index) : index },
           renderItem({ item, drag: () => {}, isActive: false }),
         ),
       ),
+      renderSlot(ListFooterComponent),
     )
   }
   return {

@@ -1,6 +1,9 @@
 import { render, fireEvent } from '@testing-library/react-native'
 import type { Favorite, StationSchedule } from '@ctt/shared'
 
+import StationCard from '../../../../components/dashboard/cards/StationCard'
+import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../../fixtures'
+
 const mockPush = jest.fn()
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
@@ -12,9 +15,6 @@ jest.mock('../../../../lib/useDashboardQueries', () => ({
   useStationScheduleQuery: (slug: string | null) => mockScheduleQuery(slug),
   useStationTripsQuery: (slug: string | null, enabled: boolean) => mockTripsQuery(slug, enabled),
 }))
-
-import StationCard from '../../../../components/dashboard/cards/StationCard'
-import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../../fixtures'
 
 const ctaFav: Favorite = { type: 'station', id: 'clark-lake', addedAt: '2026-04-25T10:00:00Z' }
 const metraFav: Favorite = { type: 'station', id: 'aurora', addedAt: '2026-04-25T10:00:00Z' }
