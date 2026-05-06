@@ -78,23 +78,43 @@ beforeEach(() => {
   })
 })
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const RN = require('react-native')
+const headerEl = <RN.Text testID="grid-header">HEADER</RN.Text>
+const footerEl = <RN.Text testID="grid-footer">FOOTER</RN.Text>
+
 describe('DashboardGrid', () => {
-  it('renders nothing while auth is loading', () => {
+  it('renders header + footer (no list) while auth is loading', () => {
     mockUseAuth.mockReturnValue({ user: null, loading: true })
-    const { toJSON } = render(<DashboardGrid />, { wrapper })
-    expect(toJSON()).toBeNull()
+    const { getByTestId, queryByTestId } = render(
+      <DashboardGrid header={headerEl} footer={footerEl} />,
+      { wrapper },
+    )
+    expect(getByTestId('grid-header')).toBeTruthy()
+    expect(getByTestId('grid-footer')).toBeTruthy()
+    expect(queryByTestId('draggable-flatlist-stub')).toBeNull()
   })
 
-  it('renders nothing when there is no user (handled by DashboardHeader)', () => {
+  it('renders header + footer (no list) when there is no user', () => {
     mockUseAuth.mockReturnValue({ user: null, loading: false })
-    const { toJSON } = render(<DashboardGrid />, { wrapper })
-    expect(toJSON()).toBeNull()
+    const { getByTestId, queryByTestId } = render(
+      <DashboardGrid header={headerEl} footer={footerEl} />,
+      { wrapper },
+    )
+    expect(getByTestId('grid-header')).toBeTruthy()
+    expect(getByTestId('grid-footer')).toBeTruthy()
+    expect(queryByTestId('draggable-flatlist-stub')).toBeNull()
   })
 
-  it('renders nothing when signed in with no favorites (handled by DashboardHeader)', () => {
+  it('renders header + footer (no list) when signed in with no favorites', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    const { toJSON } = render(<DashboardGrid />, { wrapper })
-    expect(toJSON()).toBeNull()
+    const { getByTestId, queryByTestId } = render(
+      <DashboardGrid header={headerEl} footer={footerEl} />,
+      { wrapper },
+    )
+    expect(getByTestId('grid-header')).toBeTruthy()
+    expect(getByTestId('grid-footer')).toBeTruthy()
+    expect(queryByTestId('draggable-flatlist-stub')).toBeNull()
   })
 
   it('shows the long-press / menu hint footer when favorites are present', () => {

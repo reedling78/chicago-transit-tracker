@@ -153,7 +153,7 @@ apps/
       tsconfig.json               CommonJS tsconfig for ts-node script execution
   mobile/
     app/
-      _layout.tsx                 Root Stack — transparent header, AuthProvider, HeaderBackButton (left) + HeaderUserIcon (right)
+      _layout.tsx                 Root Stack — transparent header, AuthProvider, HeaderBackButton (left)
       index.tsx                   Home screen — renders Dashboard
       auth.tsx                    Sign in/up/reset screen (modal presentation)
       profile.tsx                 User profile screen
@@ -189,7 +189,7 @@ apps/
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
       dashboard/
-        Dashboard.tsx             Home screen orchestrator (renders DashboardGrid + Hero)
+        Dashboard.tsx             Home screen orchestrator — DashboardGrid is the single scroller (header + DashboardHero passed as ListHeader/ListFooter)
         DashboardHero.tsx         CTA + Metra service nav cards
         DashboardGrid.tsx         Unified mixed-type favorites list — long-press to drag-reorder, ⋯ to open menu
         FavoriteMenuSheet.tsx     @gorhom/bottom-sheet menu invoked from each card's ⋯ button
@@ -350,7 +350,7 @@ The web app runs as a server-side rendered Next.js app deployed to Firebase App 
 
 ### Mobile app (Expo)
 
-The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing) with a single flat root Stack — no bottom tabs. The home screen (`app/index.tsx`) renders the Dashboard ("My Trains"); CTA and Metra browsing happens by tapping cards on the dashboard. The Stack uses `headerTransparent: true` so full-bleed `PageHeader` photos extend edge-to-edge under the navigator. `HeaderBackButton` is the custom `headerLeft` (returns `null` at root); `HeaderUserIcon` is the `headerRight`. Screens without a `PageHeader` use `useNavHeaderInset()` to inset their content below the header.
+The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing) with a single flat root Stack — no bottom tabs. The home screen (`app/index.tsx`) hides the navigator header (`headerShown: false`) and renders the Dashboard ("My Trains") edge-to-edge — `DashboardHeader` provides the in-screen greeting and Profile/Sign-in CTAs. CTA and Metra browsing happens by tapping cards on the dashboard. The Stack uses `headerTransparent: true` with a transparent `headerStyle.backgroundColor` so full-bleed `PageHeader` photos extend edge-to-edge under the navigator on the CTA/Metra service-list and alerts screens. `HeaderBackButton` is the custom `headerLeft` (returns `null` at root). Detail screens (`/cta/[line]`, `/metra/[line]`, station and train screens) override to an opaque colored header for line-color branding. Screens without a `PageHeader` use `useNavHeaderInset()` to inset their content below the header.
 
 ### Dark mode
 

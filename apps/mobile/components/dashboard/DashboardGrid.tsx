@@ -1,5 +1,5 @@
-import { useCallback, useRef } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { useCallback, useRef, type ReactNode } from 'react'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import DraggableFlatList, { type RenderItemParams } from 'react-native-draggable-flatlist'
 import type { Favorite, Line, Station } from '@ctt/shared'
 import { useAuth } from '../../lib/AuthContext'
@@ -12,7 +12,17 @@ import TrainCard from './cards/TrainCard'
 import FavoriteMenuSheet, { type FavoriteMenuSheetHandle } from './FavoriteMenuSheet'
 import TrainStopPickerSheet, { type TrainStopPickerSheetHandle } from './TrainStopPickerSheet'
 
-export default function DashboardGrid() {
+interface DashboardGridProps {
+  header?: ReactNode
+  footer?: ReactNode
+  contentTopInset?: number
+}
+
+export default function DashboardGrid({
+  header,
+  footer,
+  contentTopInset = 0,
+}: DashboardGridProps = {}) {
   const { user, loading } = useAuth()
   const favorites = useFavoritesStore((s) => s.favorites)
   const { data: lines } = useLinesQuery()
@@ -47,21 +57,38 @@ export default function DashboardGrid() {
     [lines, stationMap.size, lineMap.size, onMenuPress],
   )
 
-  if (loading || !user || favorites.length === 0) return null
+  const showList = !loading && !!user && favorites.length > 0
+
+  if (!showList) {
+    return (
+      <ScrollView contentContainerStyle={[styles.fallbackContent, { paddingTop: contentTopInset }]}>
+        {header}
+        {footer}
+      </ScrollView>
+    )
+  }
+
+  const listFooter = (
+    <View>
+      <Text style={styles.footerHint}>
+        Tip: long-press a card to drag it up or down. Tap ⋯ for more options.
+      </Text>
+      {footer}
+    </View>
+  )
 
   return (
-    <View style={styles.section}>
+    <>
       <DraggableFlatList<Favorite>
         data={favorites}
         keyExtractor={(item) => `${item.type}:${item.id}`}
         renderItem={renderItem}
         onDragEnd={({ data }) => reorder(data)}
-        scrollEnabled={false}
         activationDistance={8}
+        contentContainerStyle={[styles.listContent, { paddingTop: contentTopInset }]}
+        ListHeaderComponent={header ? <View>{header}</View> : null}
+        ListFooterComponent={listFooter}
       />
-      <Text style={styles.footerHint}>
-        Tip: long-press a card to drag it up or down. Tap ⋯ for more options.
-      </Text>
       <FavoriteMenuSheet
         ref={sheetRef}
         lines={lines}
@@ -69,7 +96,7 @@ export default function DashboardGrid() {
         onSetTrainStop={onSetTrainStop}
       />
       <TrainStopPickerSheet ref={pickerRef} />
-    </View>
+    </>
   )
 }
 
@@ -127,12 +154,14 @@ function renderFavoriteCard({
 }
 
 const styles = StyleSheet.create({
-  section: { marginBottom: 24 },
+  listContent: { paddingHorizontal: 16, paddingBottom: 40 },
+  fallbackContent: { paddingHorizontal: 16, paddingBottom: 40 },
   footerHint: {
     color: '#6b7280',
     fontSize: 12,
     fontStyle: 'italic',
     marginTop: 8,
+    marginBottom: 24,
     paddingHorizontal: 4,
   },
 })

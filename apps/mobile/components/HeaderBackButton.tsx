@@ -1,6 +1,9 @@
-import { TouchableOpacity, View, StyleSheet } from 'react-native'
+import { Pressable, View, StyleSheet } from 'react-native'
 import { useNavigation } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
+
+const HIT_SLOP = { top: 12, bottom: 12, left: 16, right: 12 }
+const PRESS_RETENTION = { top: 24, bottom: 24, left: 24, right: 24 }
 
 export default function HeaderBackButton() {
   const navigation = useNavigation()
@@ -8,27 +11,31 @@ export default function HeaderBackButton() {
   if (!navigation.canGoBack()) return null
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={() => navigation.goBack()}
       accessibilityRole="button"
       accessibilityLabel="Back"
-      hitSlop={8}
-      style={styles.touchable}
+      hitSlop={HIT_SLOP}
+      pressRetentionOffset={PRESS_RETENTION}
+      style={({ pressed }) => [styles.touchable, pressed && styles.pressed]}
     >
       <View style={styles.circle}>
         <Ionicons name="chevron-back" size={22} color="#fff" />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
   touchable: {
-    width: 44,
-    height: 44,
-    marginLeft: 8,
+    width: 48,
+    height: 48,
+    paddingLeft: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pressed: {
+    opacity: 0.6,
   },
   circle: {
     width: 36,
