@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuth } from '../../lib/AuthContext'
 import { useFavoritesStore } from '../../lib/store/favorites'
+import HeaderUserIcon from '../HeaderUserIcon'
 
 export default function DashboardHeader() {
   const router = useRouter()
@@ -43,11 +44,14 @@ export default function DashboardHeader() {
   }
 
   const firstName = profile?.displayName?.split(' ')[0]
-  const heading = firstName ? `Welcome back, ${firstName}` : 'Your Dashboard'
+  const heading = firstName ? `Welcome back, ${firstName}` : 'Chicago Transit Tracker'
 
   return (
     <View style={styles.authedHeader}>
-      <Text style={styles.heading}>{heading}</Text>
+      <View style={styles.headingRow}>
+        <Text style={styles.heading}>{heading}</Text>
+        <HeaderUserIcon />
+      </View>
       {favorites.length === 0 && (
         <View style={styles.emptyCard}>
           <Text style={styles.emptyTitle}>No favorites yet</Text>
@@ -127,7 +131,13 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: { color: '#fff', fontSize: 14, fontWeight: '600' },
   authedHeader: { marginBottom: 16 },
-  heading: { color: '#fff', fontSize: 22, fontWeight: '700', marginBottom: 12 },
+  headingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  heading: { color: '#fff', fontSize: 22, fontWeight: '700', flexShrink: 1 },
   emptyCard: {
     backgroundColor: '#1f2937',
     borderRadius: 8,

@@ -40,6 +40,11 @@ describe('DashboardHeader (mobile)', () => {
       expect(getByText('Log in')).toBeTruthy()
     })
 
+    it('does not render the profile icon button in the unauthed hero', () => {
+      const { queryByLabelText } = render(<DashboardHeader />)
+      expect(queryByLabelText('Profile')).toBeNull()
+    })
+
     it('routes to /auth?mode=signUp when Sign up is pressed', () => {
       const { getByLabelText } = render(<DashboardHeader />)
       fireEvent.press(getByLabelText('Sign up'))
@@ -58,9 +63,9 @@ describe('DashboardHeader (mobile)', () => {
       mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, profile: null, loading: false })
     })
 
-    it('shows the "Your Dashboard" heading', () => {
+    it('shows the generic heading when no displayName is available', () => {
       const { getByText } = render(<DashboardHeader />)
-      expect(getByText('Your Dashboard')).toBeTruthy()
+      expect(getByText('Chicago Transit Tracker')).toBeTruthy()
     })
 
     it('uses the displayName when available', () => {
@@ -82,9 +87,19 @@ describe('DashboardHeader (mobile)', () => {
       expect(mockPush).toHaveBeenCalledWith('/metra')
     })
 
-    it('does not render the unauthed marketing hero', () => {
+    it('does not render the unauthed marketing copy', () => {
       const { queryByText } = render(<DashboardHeader />)
-      expect(queryByText('Chicago Transit Tracker')).toBeNull()
+      expect(queryByText(/Real-time schedules, routes/)).toBeNull()
+      expect(queryByText('Sign up')).toBeNull()
+      expect(queryByText('Log in')).toBeNull()
+    })
+
+    it('renders the profile icon button on the right and routes to /profile when pressed', () => {
+      const { getByLabelText } = render(<DashboardHeader />)
+      const profileIcon = getByLabelText('Profile')
+      expect(profileIcon).toBeTruthy()
+      fireEvent.press(profileIcon)
+      expect(mockPush).toHaveBeenCalledWith('/profile')
     })
   })
 
@@ -95,9 +110,10 @@ describe('DashboardHeader (mobile)', () => {
       useFavoritesStore.getState().hydrate(favs)
     })
 
-    it('shows the heading but not the empty card', () => {
-      const { getByText, queryByText } = render(<DashboardHeader />)
-      expect(getByText('Your Dashboard')).toBeTruthy()
+    it('shows the heading and profile icon but not the empty card', () => {
+      const { getByText, getByLabelText, queryByText } = render(<DashboardHeader />)
+      expect(getByText('Chicago Transit Tracker')).toBeTruthy()
+      expect(getByLabelText('Profile')).toBeTruthy()
       expect(queryByText('No favorites yet')).toBeNull()
     })
   })
