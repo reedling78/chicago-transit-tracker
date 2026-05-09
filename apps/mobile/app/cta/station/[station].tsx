@@ -10,6 +10,8 @@ import { CTAScheduleTable } from '../../../components/CTAScheduleTable'
 import PageHeader from '../../../components/PageHeader'
 import FavoriteButton from '../../../components/FavoriteButton'
 
+const ctaHeroImage = require('../../../assets/hero-header.jpg')
+
 export default function CtaStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()
   const { station, loading: stationLoading } = useStation(stationSlug)
@@ -26,34 +28,19 @@ export default function CtaStationDetailScreen() {
     )
   }
 
-  const lineSubtitle = station.lines.join(' · ')
-
   return (
     <>
       <Stack.Screen
         options={{
-          headerTransparent: false,
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: theme.colors.bg.canvas },
-          headerTitle: () => (
-            <View style={styles.headerTitleWrap}>
-              <Text style={styles.headerTitle} numberOfLines={1} adjustsFontSizeToFit>
-                {station.name}
-              </Text>
-              {lineSubtitle && (
-                <Text style={styles.headerSub} numberOfLines={1}>
-                  {lineSubtitle}
-                </Text>
-              )}
-            </View>
-          ),
           headerRight: () => <FavoriteButton type="station" id={station.slug} />,
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <PageHeader
+          compact
+          title={station.name}
           description={station.address}
-          imageSrc={station.photoUrl ? { uri: station.photoUrl } : undefined}
+          imageSrc={station.photoUrl ? { uri: station.photoUrl } : ctaHeroImage}
           badges={
             <>
               {station.terminal && <Text style={badgeStyles.terminal}>Terminal</Text>}

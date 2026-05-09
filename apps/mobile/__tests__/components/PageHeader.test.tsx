@@ -104,4 +104,26 @@ describe('PageHeader', () => {
     // 200 (hero) + 64 (mocked useNavHeaderInset)
     expect(flat.height).toBe(264)
   })
+
+  it('uses a shorter content height when compact is set', () => {
+    const { UNSAFE_root } = render(<PageHeader title="Red Line" compact />)
+    const container = UNSAFE_root.findAllByType(
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require('react-native').View,
+    )[0]
+    const flat = (
+      Array.isArray(container.props.style) ? container.props.style.flat() : [container.props.style]
+    ).reduce<Record<string, unknown>>((acc, s) => ({ ...acc, ...(s ?? {}) }), {})
+    // 140 (compact hero) + 64 (mocked useNavHeaderInset)
+    expect(flat.height).toBe(204)
+  })
+
+  it('shrinks the title font size when compact is set', () => {
+    render(<PageHeader title="Red Line" compact />)
+    const titleNode = screen.getByText('Red Line')
+    const flat = (
+      Array.isArray(titleNode.props.style) ? titleNode.props.style.flat() : [titleNode.props.style]
+    ).reduce<Record<string, unknown>>((acc, s) => ({ ...acc, ...(s ?? {}) }), {})
+    expect(flat.fontSize).toBe(19)
+  })
 })

@@ -4,6 +4,18 @@ import { mockMetraLine, mockMetraStation } from '../fixtures'
 import { useLine, useLineStations } from '../../lib/hooks'
 import MetraLineDetailScreen from '../../app/metra/[line]'
 
+jest.mock('expo-linear-gradient', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    LinearGradient: (props: Record<string, unknown>) => <View {...props} />,
+  }
+})
+
+jest.mock('../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
+
 jest.mock('react-native-svg', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native')
@@ -16,19 +28,10 @@ jest.mock('react-native-svg', () => {
 })
 
 jest.mock('expo-router', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const ReactMock = require('react')
   const Stack = () => null
   Stack.displayName = 'Stack'
-  const StackScreen = (props: {
-    options?: { headerTitle?: () => ReactNode; headerRight?: () => ReactNode }
-  }) =>
-    ReactMock.createElement(
-      ReactMock.Fragment,
-      null,
-      props.options?.headerTitle ? props.options.headerTitle() : null,
-      props.options?.headerRight ? props.options.headerRight() : null,
-    )
+  const StackScreen = (props: { options?: { headerRight?: () => ReactNode } }) =>
+    props.options?.headerRight ? props.options.headerRight() : null
   StackScreen.displayName = 'StackScreen'
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
@@ -55,12 +58,12 @@ describe('MetraLineDetailScreen', () => {
     expect(screen.queryByText('BNSF Railway')).toBeNull()
   })
 
-  it('renders the line name and termini in the app bar via headerTitle', () => {
+  it('renders the line name and termini in the PageHeader', () => {
     mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
     render(<MetraLineDetailScreen />)
     expect(screen.getByText('BNSF Railway')).toBeOnTheScreen()
-    expect(screen.getByText('Union Station — Aurora')).toBeOnTheScreen()
+    expect(screen.getByText('Union Station ↔ Aurora')).toBeOnTheScreen()
   })
 
   it('renders the station timeline body when data is loaded', () => {
@@ -71,7 +74,7 @@ describe('MetraLineDetailScreen', () => {
     expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('places the favorite button in the app bar via headerRight', () => {
+  it('places the favorite button in the PageHeader title row', () => {
     mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
     render(<MetraLineDetailScreen />)

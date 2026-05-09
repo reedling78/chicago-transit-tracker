@@ -1,12 +1,14 @@
 import { useMemo } from 'react'
 import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { LINE_COLORS } from '@ctt/shared'
 import { useMetraTrip } from '../../../../lib/hooks'
 import { useTheme } from '../../../../lib/theme'
 import type { Theme } from '../../../../lib/theme'
 import MetraTripRealtime from '../../../../components/MetraTripRealtime'
+import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
+
+const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
 export default function MetraTrainDetailScreen() {
   const { line, trainNumber } = useLocalSearchParams<{ line: string; trainNumber: string }>()
@@ -16,37 +18,20 @@ export default function MetraTrainDetailScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
-  const colors = trip ? LINE_COLORS[trip.line] : undefined
-  const headerBg = colors?.bg ?? theme.colors.bg.canvas
-  const headerFg = colors?.text ?? theme.colors.text.primary
-
   return (
     <>
       <Stack.Screen
         options={{
-          headerTransparent: false,
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: headerBg },
-          headerTitle: () => (
-            <View style={styles.headerTitleWrap}>
-              <Text
-                style={[styles.headerTitle, { color: headerFg }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {train ? `Train ${train}` : 'Train'}
-              </Text>
-              {trip?.lineName && (
-                <Text style={[styles.headerSub, { color: headerFg }]} numberOfLines={1}>
-                  {trip.lineName}
-                </Text>
-              )}
-            </View>
-          ),
           headerRight: () => <FavoriteButton type="train" id={`${lineSlug}_${train}`} />,
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <PageHeader
+          compact
+          title={train ? `Train ${train}` : 'Train'}
+          description={trip?.lineName}
+          imageSrc={metraHeroImage}
+        />
         {loading && (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={theme.colors.text.secondary} />
@@ -73,7 +58,7 @@ function makeStyles(theme: Theme) {
       backgroundColor: theme.colors.bg.canvas,
     },
     content: {
-      paddingTop: theme.space[2],
+      paddingHorizontal: theme.space[4],
       paddingBottom: theme.space[2],
     },
     center: {
@@ -94,8 +79,5 @@ function makeStyles(theme: Theme) {
       marginTop: theme.space[2],
       textAlign: 'center',
     },
-    headerTitleWrap: { alignItems: 'center', justifyContent: 'center' },
-    headerTitle: { fontSize: 18, fontWeight: 'bold' },
-    headerSub: { fontSize: 12, marginTop: 2, opacity: 0.85 },
   })
 }

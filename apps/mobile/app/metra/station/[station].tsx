@@ -29,32 +29,17 @@ export default function MetraStationDetailScreen() {
     )
   }
 
-  const lineSubtitle = station.lines.join(' · ')
-
   return (
     <>
       <Stack.Screen
         options={{
-          headerTransparent: false,
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: theme.colors.bg.canvas },
-          headerTitle: () => (
-            <View style={styles.headerTitleWrap}>
-              <Text style={styles.headerTitle} numberOfLines={1} adjustsFontSizeToFit>
-                {station.name}
-              </Text>
-              {lineSubtitle && (
-                <Text style={styles.headerSub} numberOfLines={1}>
-                  {lineSubtitle}
-                </Text>
-              )}
-            </View>
-          ),
           headerRight: () => <FavoriteButton type="station" id={station.slug} />,
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <PageHeader
+          compact
+          title={station.name}
           description={station.address}
           imageSrc={station.photoUrl ? { uri: station.photoUrl } : metraHeroImage}
           badges={

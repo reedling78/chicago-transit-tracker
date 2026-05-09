@@ -14,6 +14,7 @@ interface PageHeaderProps {
   icon?: ReactNode
   imageSrc?: ImageSourcePropType
   favorite?: { type: FavoriteType; id: string }
+  compact?: boolean
   children?: ReactNode
 }
 
@@ -32,12 +33,14 @@ export default function PageHeader({
   icon,
   imageSrc = defaultImage,
   favorite,
+  compact = false,
   children,
 }: PageHeaderProps) {
   const headerInset = useNavHeaderInset()
   const { theme } = useTheme()
+  const contentHeight = compact ? 140 : 200
   return (
-    <View style={[styles.container, { height: 200 + headerInset }]}>
+    <View style={[styles.container, { height: contentHeight + headerInset }]}>
       <Image source={imageSrc} style={styles.backgroundImage} resizeMode="cover" />
       <View style={[styles.tintOverlay, { backgroundColor: theme.colors.bg.scrim }]} />
       <LinearGradient
@@ -46,14 +49,22 @@ export default function PageHeader({
         end={{ x: 0, y: 1 }}
         style={styles.gradientOverlay}
       />
-      <View style={styles.content}>
+      <View style={[styles.content, compact && styles.contentCompact]}>
         {badges && <View style={styles.badges}>{badges}</View>}
         {(title || favorite) && (
           <View style={styles.titleRow}>
             {title && (
               <View style={styles.titleInner}>
                 {icon && <View style={styles.iconWrapper}>{icon}</View>}
-                <Text style={[styles.title, { color: theme.colors.text.onScrim }]}>{title}</Text>
+                <Text
+                  style={[
+                    styles.title,
+                    compact && styles.titleCompact,
+                    { color: theme.colors.text.onScrim },
+                  ]}
+                >
+                  {title}
+                </Text>
               </View>
             )}
             {favorite && (
@@ -64,7 +75,13 @@ export default function PageHeader({
           </View>
         )}
         {description && (
-          <Text style={[styles.description, { color: theme.colors.text.onScrimMuted }]}>
+          <Text
+            style={[
+              styles.description,
+              compact && styles.descriptionCompact,
+              { color: theme.colors.text.onScrimMuted },
+            ]}
+          >
             {description}
           </Text>
         )}
@@ -95,6 +112,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     padding: 16,
+  },
+  contentCompact: {
+    padding: 12,
   },
   badges: {
     flexDirection: 'row',
@@ -128,9 +148,16 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
+  titleCompact: {
+    fontSize: 19,
+  },
   description: {
     fontSize: 14,
     marginTop: 6,
+  },
+  descriptionCompact: {
+    fontSize: 13,
+    marginTop: 4,
   },
   children: {
     marginTop: 8,
