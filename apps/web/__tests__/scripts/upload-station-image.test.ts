@@ -2,7 +2,11 @@
  * @jest-environment node
  */
 
-import { checkStation, uploadStationImage } from '../../scripts/upload-station-image'
+import {
+  checkStation,
+  uploadStationImage,
+  uploadStationVariants,
+} from '../../scripts/upload-station-image'
 
 function makeDb(exists: boolean, photoUrl: string | null = null) {
   const update = jest.fn().mockResolvedValue(undefined)
@@ -80,6 +84,80 @@ describe('upload-station-image script', () => {
       expect(url).toBe(
         'https://storage.googleapis.com/chicago-transit-tracker.firebasestorage.app/stations/clark-lake/hero.jpg',
       )
+    })
+  })
+
+  describe('uploadStationVariants', () => {
+    const BUCKET = 'chicago-transit-tracker.firebasestorage.app'
+    const URL_BASE = `https://storage.googleapis.com/${BUCKET}/stations/clark-lake`
+
+    it('uploads three variants, makes them public, and updates Firestore with photoUrl + photoUrls', async () => {
+      const db = makeDb(true, null)
+      const bucket = makeBucket()
+      const buffers = {
+        desktop: Buffer.from('desktop-bytes'),
+        mobile: Buffer.from('mobile-bytes'),
+        og: Buffer.from('og-bytes'),
+      }
+
+      const result = await uploadStationVariants(
+        'clark-lake',
+        buffers,
+        db as never,
+        bucket as never,
+        BUCKET,
+      )
+
+      expect(bucket.file).toHaveBeenCalledTimes(3)
+      expect(bucket.file).toHaveBeenNthCalledWith(1, 'stations/clark-lake/hero-desktop.jpg')
+      expect(bucket.file).toHaveBeenNthCalledWith(2, 'stations/clark-lake/hero-mobile.jpg')
+      expect(bucket.file).toHaveBeenNthCalledWith(3, 'stations/clark-lake/hero-og.jpg')
+
+      expect(bucket.save).toHaveBeenCalledTimes(3)
+      const expectedSaveOpts = {
+        contentType: 'image/jpeg',
+        metadata: { cacheControl: 'public, max-age=31536000, immutable' },
+      }
+      expect(bucket.save).toHaveBeenNthCalledWith(1, buffers.desktop, expectedSaveOpts)
+      expect(bucket.save).toHaveBeenNthCalledWith(2, buffers.mobile, expectedSaveOpts)
+      expect(bucket.save).toHaveBeenNthCalledWith(3, buffers.og, expectedSaveOpts)
+
+      expect(bucket.makePublic).toHaveBeenCalledTimes(3)
+
+      expect(db.update).toHaveBeenCalledTimes(1)
+      expect(db.update).toHaveBeenCalledWith({
+        photoUrl: `${URL_BASE}/hero-desktop.jpg`,
+        photoUrls: {
+          desktop: `${URL_BASE}/hero-desktop.jpg`,
+          mobile: `${URL_BASE}/hero-mobile.jpg`,
+          og: `${URL_BASE}/hero-og.jpg`,
+        },
+      })
+
+      expect(result).toEqual({
+        desktop: `${URL_BASE}/hero-desktop.jpg`,
+        mobile: `${URL_BASE}/hero-mobile.jpg`,
+        og: `${URL_BASE}/hero-og.jpg`,
+        photoUrl: `${URL_BASE}/hero-desktop.jpg`,
+      })
+    })
+
+    it('throws when the station does not exist and never uploads any bytes', async () => {
+      const db = makeDb(false)
+      const bucket = makeBucket()
+      const buffers = {
+        desktop: Buffer.from('desktop-bytes'),
+        mobile: Buffer.from('mobile-bytes'),
+        og: Buffer.from('og-bytes'),
+      }
+
+      await expect(
+        uploadStationVariants('bogus', buffers, db as never, bucket as never, BUCKET),
+      ).rejects.toThrow(/bogus/)
+
+      expect(bucket.save).not.toHaveBeenCalled()
+      expect(bucket.makePublic).not.toHaveBeenCalled()
+      expect(db.update).not.toHaveBeenCalled()
     })
   })
 })

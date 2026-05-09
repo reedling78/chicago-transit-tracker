@@ -31,7 +31,8 @@ jest.mock('@lib/transit', () => ({
   getAllLines: jest.fn().mockResolvedValue([mockLine]),
 }))
 
-import CTAStationPage from '@/app/cta/[line]/[station]/page'
+import CTAStationPage, { generateMetadata } from '@/app/cta/[line]/[station]/page'
+import { siteConfig } from '@lib/siteConfig'
 
 describe('CTA station detail page', () => {
   const params = Promise.resolve({ line: 'red', station: 'clark-lake' })
@@ -99,5 +100,50 @@ describe('CTA station detail page', () => {
     const ui = await CTAStationPage({ params })
     const { container } = render(ui)
     expect(container).toMatchSnapshot()
+  })
+
+  describe('generateMetadata OG image fallback', () => {
+    it('uses photoUrls.og when set', async () => {
+      const { getStation } = await import('@lib/transit')
+      ;(getStation as jest.Mock).mockResolvedValueOnce({
+        ...mockStation,
+        photoUrl: 'https://example.com/desktop.jpg',
+        photoUrls: {
+          desktop: 'https://example.com/desktop.jpg',
+          mobile: 'https://example.com/mobile.jpg',
+          og: 'https://example.com/og.jpg',
+        },
+      })
+
+      const meta = await generateMetadata({ params })
+      expect(meta.openGraph?.images).toEqual(['https://example.com/og.jpg'])
+      expect(meta.twitter?.images).toEqual(['https://example.com/og.jpg'])
+    })
+
+    it('falls back to photoUrl when photoUrls is null', async () => {
+      const { getStation } = await import('@lib/transit')
+      ;(getStation as jest.Mock).mockResolvedValueOnce({
+        ...mockStation,
+        photoUrl: 'https://example.com/legacy-hero.jpg',
+        photoUrls: null,
+      })
+
+      const meta = await generateMetadata({ params })
+      expect(meta.openGraph?.images).toEqual(['https://example.com/legacy-hero.jpg'])
+      expect(meta.twitter?.images).toEqual(['https://example.com/legacy-hero.jpg'])
+    })
+
+    it('falls back to siteConfig.ogImage when neither is set', async () => {
+      const { getStation } = await import('@lib/transit')
+      ;(getStation as jest.Mock).mockResolvedValueOnce({
+        ...mockStation,
+        photoUrl: null,
+        photoUrls: null,
+      })
+
+      const meta = await generateMetadata({ params })
+      expect(meta.openGraph?.images).toEqual([siteConfig.ogImage])
+      expect(meta.twitter?.images).toEqual([siteConfig.ogImage])
+    })
   })
 })

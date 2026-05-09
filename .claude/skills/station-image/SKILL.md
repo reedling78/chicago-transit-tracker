@@ -15,6 +15,10 @@ All arguments are optional:
 
 Example: `/station-image ~/Downloads/clark-lake.jpg https://chicagotransittracker.com/cta/red/clark-lake`
 
+> For multi-station uploads or generating all three variants at once, use the
+> Station Image Manager artifact in Cowork instead. This skill remains the
+> single-image, single-variant workflow.
+
 ---
 
 ## Quick Reference

@@ -45,6 +45,20 @@ export interface Station {
   ctaMapId: number | null
   metraStopId: string | null
   photoUrl: string | null
+  /**
+   * Multi-variant hero image URLs. Populated by the Station Image Manager artifact's
+   * --upload-variants pipeline. When set, `photoUrl` mirrors `photoUrls.desktop` so
+   * existing consumers keep working unchanged. `null` (or field absent) on stations
+   * that haven't been migrated to the variant pipeline yet.
+   */
+  photoUrls: {
+    /** 1600×900 — used wherever `photoUrl` is read today. */
+    desktop: string
+    /** 800×450 — for `<picture>` srcset on mobile breakpoints (future wiring). */
+    mobile: string
+    /** 1200×630 — `og:image` / `twitter:image`. */
+    og: string
+  } | null
   wikipediaUrl: string | null
   metraLink: string | null
   /** Position of this station on each line it serves, keyed by line shortName (e.g. { "Red": 3, "Purple": 7 }) */

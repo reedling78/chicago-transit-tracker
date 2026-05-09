@@ -38,14 +38,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${station.name} | ${siteConfig.name}`,
       description,
       url: `${siteConfig.url}/cta/${lineSlug}/${slug}`,
-      images: [siteConfig.ogImage],
+      images: [station.photoUrls?.og ?? station.photoUrl ?? siteConfig.ogImage],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: `${station.name} | ${siteConfig.name}`,
       description,
-      images: [siteConfig.ogImage],
+      images: [station.photoUrls?.og ?? station.photoUrl ?? siteConfig.ogImage],
     },
   }
 }
