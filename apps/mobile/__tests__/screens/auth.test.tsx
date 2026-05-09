@@ -36,6 +36,13 @@ describe('AuthScreen', () => {
     expect(getByText('Sign in with Apple')).toBeOnTheScreen()
   })
 
+  it('renders the Apple sign-in button on Android (web bridge flow)', () => {
+    Platform.OS = 'android'
+    const { getByText } = render(<AuthScreen />)
+    expect(getByText('Sign in with Apple')).toBeOnTheScreen()
+    Platform.OS = 'ios'
+  })
+
   it('always renders Google and Facebook sign-in buttons', () => {
     const { getByText } = render(<AuthScreen />)
     expect(getByText('Sign in with Google')).toBeOnTheScreen()
