@@ -7,7 +7,6 @@ import {
   ScrollView,
   Alert,
   StyleSheet,
-  Platform,
   ActivityIndicator,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -134,11 +133,9 @@ export default function AuthScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          {Platform.OS === 'ios' && (
-            <TouchableOpacity style={styles.socialButton} onPress={() => handleSocial('apple')}>
-              <Text style={styles.socialButtonText}>Sign in with Apple</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity style={styles.socialButton} onPress={() => handleSocial('apple')}>
+            <Text style={styles.socialButtonText}>Sign in with Apple</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.socialButton} onPress={() => handleSocial('google')}>
             <Text style={styles.socialButtonText}>Sign in with Google</Text>

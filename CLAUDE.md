@@ -59,6 +59,8 @@ apps/
           [station]/
             page.tsx              Metra station detail page
       api/
+        apple-redirect/
+          route.ts                Apple OAuth bridge — POST/GET handler that bounces Apple's form_post response to a ctt:// deep link (Android Sign in with Apple)
         cta/train-locations/
           route.ts                Server-side proxy for CTA Train Tracker ttpositions
         metra/[...path]/
