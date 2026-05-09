@@ -1,6 +1,7 @@
 import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLines } from '../../lib/hooks'
 import { CTA_LINE_COLORS } from '@ctt/shared'
+import { useTheme } from '../../lib/theme'
 import LineListItem from '../../components/LineListItem'
 import AlertBanner from '../../components/AlertBanner'
 import CTALineIcon from '../../components/CTALineIcon'
@@ -8,17 +9,18 @@ import PageHeader from '../../components/PageHeader'
 
 export default function CtaLinesScreen() {
   const { lines, loading } = useLines('cta')
+  const { theme } = useTheme()
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#00a1de" />
+      <View style={[styles.center, { backgroundColor: theme.colors.bg.canvas }]}>
+        <ActivityIndicator size="large" color={theme.colors.accent.primary} />
       </View>
     )
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}>
       <FlatList
         data={lines}
         keyExtractor={(item) => item.slug}
@@ -50,7 +52,7 @@ export default function CtaLinesScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f23' },
-  container: { flex: 1, backgroundColor: '#0f0f23' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1 },
   list: { paddingHorizontal: 16, paddingBottom: 16, gap: 12 },
 })

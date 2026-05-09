@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -5,6 +6,8 @@ import type { Favorite, Line, Station } from '@ctt/shared'
 import { favoriteRoute } from '../../lib/favoriteRoute'
 import { useToggleFavorite } from '../../lib/useToggleFavorite'
 import { useFavoriteTripQuery } from '../../lib/useDashboardQueries'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 
 interface FavoriteRowProps {
   favorite: Favorite
@@ -18,6 +21,8 @@ export default function FavoriteRow({ favorite, lines, stations, isLast }: Favor
   const { toggle, isToggling } = useToggleFavorite(favorite.type, favorite.id)
   const { title, subtitle } = useRowContent(favorite, lines, stations)
   const route = favoriteRoute(favorite, lines, stations)
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
 
   return (
     <View style={[styles.row, !isLast && styles.rowBorder]}>
@@ -83,35 +88,22 @@ function useRowContent(
   return { title: `Train ${trainNumber}`, subtitle }
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    gap: 12,
-  },
-  rowBorder: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1f2937',
-  },
-  pressable: {
-    flex: 1,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  subtitle: {
-    color: '#9ca3af',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  removeButton: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: theme.space[3],
+      paddingHorizontal: 14,
+      gap: theme.space[3],
+    },
+    rowBorder: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.colors.border.subtle,
+    },
+    pressable: { flex: 1 },
+    title: { color: theme.colors.text.primary, fontSize: 15, fontWeight: '600' },
+    subtitle: { color: theme.colors.text.secondary, fontSize: 12, marginTop: 2 },
+    removeButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  })
+}

@@ -15,6 +15,8 @@ import { favoriteRoute } from '../../lib/favoriteRoute'
 import { useToggleFavorite } from '../../lib/useToggleFavorite'
 import { useUpdateFavoriteSettings } from '../../lib/useUpdateFavoriteSettings'
 import { useStationScheduleQuery } from '../../lib/useDashboardQueries'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 
 export interface FavoriteMenuSheetHandle {
   open: (favorite: Favorite) => void
@@ -38,6 +40,8 @@ const FavoriteMenuSheet = forwardRef<FavoriteMenuSheetHandle, FavoriteMenuSheetP
   function FavoriteMenuSheet({ lines, stations, onSetTrainStop }, ref) {
     const sheetRef = useRef<BottomSheetModal>(null)
     const [active, setActive] = useState<Favorite | null>(null)
+    const { theme } = useTheme()
+    const styles = useMemo(() => makeStyles(theme), [theme])
 
     useImperativeHandle(ref, () => ({
       open: (favorite) => {
@@ -102,6 +106,8 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
   const { update } = useUpdateFavoriteSettings(favorite.type, favorite.id)
   const route = favoriteRoute(favorite, lines, stations)
   const title = labelForFavorite(favorite, lines, stations)
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
 
   const isStation = favorite.type === 'station'
   const station = isStation ? stations?.find((s) => s.slug === favorite.id) : undefined
@@ -143,12 +149,14 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
             ]}
             active={density}
             onSelect={(value) => update({ density: value as FavoriteDensity })}
+            styles={styles}
           />
           <ToggleRow
             label="Show"
             options={directionOptions}
             active={direction}
             onSelect={(value) => update({ directionFilter: value })}
+            styles={styles}
           />
           <View style={styles.divider} />
         </>
@@ -156,6 +164,7 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
       <MenuItem
         label="Open details"
         disabled={!route}
+        styles={styles}
         onPress={() => {
           dismiss()
           if (route) router.push(route as never)
@@ -165,6 +174,7 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
         <>
           <MenuItem
             label="Set departure station…"
+            styles={styles}
             onPress={() => {
               dismiss()
               onSetTrainStop(favorite, 'origin')
@@ -172,6 +182,7 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
           />
           <MenuItem
             label="Set destination station…"
+            styles={styles}
             onPress={() => {
               dismiss()
               onSetTrainStop(favorite, 'destination')
@@ -181,6 +192,7 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
       ) : null}
       <MenuItem
         label="Mute alerts"
+        styles={styles}
         onPress={() => {
           dismiss()
           Alert.alert('Coming soon', 'Per-favorite alert muting is on the roadmap.')
@@ -188,6 +200,7 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
       />
       <MenuItem
         label="Share"
+        styles={styles}
         onPress={() => {
           dismiss()
           Alert.alert('Coming soon', 'Sharing is on the roadmap.')
@@ -196,6 +209,7 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
       <MenuItem
         label="Remove from favorites"
         destructive
+        styles={styles}
         onPress={() => {
           dismiss()
           toggle()
@@ -210,9 +224,16 @@ interface ToggleRowProps<T extends string = string> {
   options: { key: T; label: string }[]
   active: T
   onSelect: (value: T) => void
+  styles: ReturnType<typeof makeStyles>
 }
 
-function ToggleRow<T extends string>({ label, options, active, onSelect }: ToggleRowProps<T>) {
+function ToggleRow<T extends string>({
+  label,
+  options,
+  active,
+  onSelect,
+  styles,
+}: ToggleRowProps<T>) {
   return (
     <View style={styles.toggleRow}>
       <Text style={styles.toggleLabel}>{label}</Text>
@@ -244,9 +265,10 @@ interface MenuItemProps {
   onPress: () => void
   destructive?: boolean
   disabled?: boolean
+  styles: ReturnType<typeof makeStyles>
 }
 
-function MenuItem({ label, onPress, destructive, disabled }: MenuItemProps) {
+function MenuItem({ label, onPress, destructive, disabled, styles }: MenuItemProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -281,63 +303,52 @@ function labelForFavorite(
   return `Train ${trainNumber ?? favorite.id}`
 }
 
-const styles = StyleSheet.create({
-  background: { backgroundColor: '#1f2937' },
-  handle: { backgroundColor: '#4b5563' },
-  content: { paddingHorizontal: 16, paddingBottom: 24 },
-  title: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-    paddingHorizontal: 4,
-  },
-  toggleRow: {
-    paddingHorizontal: 4,
-    paddingVertical: 8,
-  },
-  toggleLabel: {
-    color: '#9ca3af',
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    marginBottom: 6,
-    textTransform: 'uppercase',
-  },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: '#374151',
-  },
-  chipSelected: { backgroundColor: '#2563eb' },
-  chipText: { color: '#e5e7eb', fontSize: 13, fontWeight: '500' },
-  chipTextSelected: { color: '#fff' },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: '#374151',
-    marginVertical: 6,
-  },
-  item: {
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  itemPressed: {
-    backgroundColor: '#374151',
-  },
-  itemDisabled: {
-    opacity: 0.4,
-  },
-  itemText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  destructive: {
-    color: '#f87171',
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    background: { backgroundColor: theme.colors.bg.surface },
+    handle: { backgroundColor: theme.colors.border.strong },
+    content: { paddingHorizontal: theme.space[4], paddingBottom: theme.space[6] },
+    title: {
+      color: theme.colors.text.primary,
+      fontSize: 18,
+      fontWeight: '700',
+      marginBottom: theme.space[3],
+      paddingHorizontal: theme.space[1],
+    },
+    toggleRow: { paddingHorizontal: theme.space[1], paddingVertical: theme.space[2] },
+    toggleLabel: {
+      color: theme.colors.text.secondary,
+      fontSize: 11,
+      fontWeight: '700',
+      letterSpacing: 0.5,
+      marginBottom: 6,
+      textTransform: 'uppercase',
+    },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    chip: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 6,
+      backgroundColor: theme.colors.border.subtle,
+    },
+    chipSelected: { backgroundColor: theme.colors.accent.primary },
+    chipText: { color: theme.colors.text.secondary, fontSize: 13, fontWeight: '500' },
+    chipTextSelected: { color: theme.colors.accent.primaryFg },
+    divider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: theme.colors.border.subtle,
+      marginVertical: 6,
+    },
+    item: {
+      paddingVertical: 14,
+      paddingHorizontal: theme.space[3],
+      borderRadius: theme.radius.sm + 2,
+    },
+    itemPressed: { backgroundColor: theme.colors.border.subtle },
+    itemDisabled: { opacity: 0.4 },
+    itemText: { color: theme.colors.text.primary, fontSize: 16, fontWeight: '500' },
+    destructive: { color: '#f87171' },
+  })
+}
 
 export default FavoriteMenuSheet

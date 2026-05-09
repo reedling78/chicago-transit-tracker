@@ -74,6 +74,18 @@ jest.mock('react-native-reanimated', () =>
   require('react-native-reanimated/mock'),
 )
 
+// expo-haptics transitively pulls in expo's winter-runtime registry which
+// trips the jest sandbox. We don't run real haptics in tests; stub the
+// module entirely. PressableButton's own test imports the real expo-haptics
+// (with a local mock) so this default doesn't impact unit-level coverage.
+jest.mock('expo-haptics', () => ({
+  __esModule: true,
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+  impactAsync: jest.fn(() => Promise.resolve()),
+  notificationAsync: jest.fn(() => Promise.resolve()),
+  selectionAsync: jest.fn(() => Promise.resolve()),
+}))
+
 // react-native-draggable-flatlist relies on reanimated worklets we don't
 // exercise in jsdom. Replace it with a vanilla list that captures the
 // onDragEnd callback so tests can drive reorder events directly.

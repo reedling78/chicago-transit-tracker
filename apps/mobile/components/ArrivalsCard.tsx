@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { LINE_COLORS } from '@ctt/shared'
 import type { StationSchedule, StationTrips } from '@ctt/shared'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 
 interface Arrival {
   headsign: string
@@ -91,7 +93,7 @@ function computeArrivals(
   return arrivals
 }
 
-function SkeletonRow({ color }: { color: string }) {
+function SkeletonRow({ color, styles }: { color: string; styles: ReturnType<typeof makeStyles> }) {
   return (
     <View style={[styles.row, { backgroundColor: color }]}>
       <View>
@@ -105,6 +107,8 @@ function SkeletonRow({ color }: { color: string }) {
 
 export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCardProps) {
   const router = useRouter()
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   const [arrivals, setArrivals] = useState<Arrival[]>([])
   const scheduleRef = useRef<StationSchedule | null>(null)
   const tripsRef = useRef<StationTrips | null | undefined>(trips)
@@ -140,14 +144,14 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
     }
   }
 
-  const skeletonColor = '#00a1de'
+  const skeletonColor = theme.colors.accent.primary
   const serviceLabel = service === 'cta' ? 'CTA' : 'Metra'
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Ionicons name="train-outline" size={16} color="#fff" />
+        <Ionicons name="train-outline" size={16} color={theme.colors.text.primary} />
         <Text style={styles.headerText}>
           Scheduled arrivals — estimates based on{' '}
           <Text style={styles.headerBold}>{serviceLabel} timetable</Text>
@@ -160,13 +164,13 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
           <View style={styles.directionHeader}>
             <View style={styles.skeletonDirectionLabel} />
           </View>
-          <SkeletonRow color={skeletonColor} />
-          <SkeletonRow color={skeletonColor} />
+          <SkeletonRow color={skeletonColor} styles={styles} />
+          <SkeletonRow color={skeletonColor} styles={styles} />
           <View style={[styles.directionHeader, { marginTop: 1 }]}>
             <View style={styles.skeletonDirectionLabel} />
           </View>
-          <SkeletonRow color={skeletonColor} />
-          <SkeletonRow color={skeletonColor} />
+          <SkeletonRow color={skeletonColor} styles={styles} />
+          <SkeletonRow color={skeletonColor} styles={styles} />
         </View>
       )}
 
@@ -187,7 +191,7 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
       {/* Grouped arrivals */}
       {grouped.map((group) => {
         const colors = LINE_COLORS[group.line]
-        const bg = colors?.bg ?? '#565a5c'
+        const bg = colors?.bg ?? theme.colors.text.muted
 
         return (
           <View key={group.headsign}>
@@ -244,113 +248,89 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#374151',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#1f2937',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  headerText: {
-    fontSize: 13,
-    color: '#fff',
-    flex: 1,
-  },
-  headerBold: {
-    fontWeight: '700',
-  },
-  directionHeader: {
-    backgroundColor: '#374151',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  directionText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.1)',
-    minHeight: 44,
-  },
-  rowPressed: {
-    opacity: 0.85,
-  },
-  rowLeft: {
-    flex: 1,
-  },
-  rowSubtitle: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.8)',
-  },
-  rowHeadsign: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#fff',
-    marginTop: 1,
-  },
-  rowRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  rowMinutes: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#fff',
-    fontVariant: ['tabular-nums'],
-  },
-  rowApprox: {
-    fontSize: 17,
-    color: 'rgba(255,255,255,0.6)',
-  },
-  emptyContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 13,
-    color: '#9ca3af',
-  },
-  // Skeleton styles
-  skeletonLine: {
-    width: 112,
-    height: 12,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    marginBottom: 6,
-  },
-  skeletonHeadsign: {
-    width: 80,
-    height: 18,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-  },
-  skeletonMinutes: {
-    width: 56,
-    height: 26,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-  },
-  skeletonDirectionLabel: {
-    width: 160,
-    height: 14,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: {
+      borderRadius: theme.radius.md,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: theme.colors.border.subtle,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.space[2],
+      backgroundColor: theme.colors.bg.surface,
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[2] + 2,
+    },
+    headerText: { fontSize: 13, color: theme.colors.text.primary, flex: 1 },
+    headerBold: { fontWeight: '700' },
+    directionHeader: {
+      backgroundColor: theme.colors.border.subtle,
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[2],
+    },
+    directionText: { fontSize: 13, fontWeight: '600', color: theme.colors.text.primary },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[3],
+      borderTopWidth: StyleSheet.hairlineWidth,
+      // Hairline divider on a saturated line color — kept literal for contrast.
+      borderTopColor: 'rgba(0,0,0,0.1)',
+      minHeight: 44,
+    },
+    rowPressed: { opacity: 0.85 },
+    rowLeft: { flex: 1 },
+    // Text on saturated line-color rows — always near-white regardless of mode.
+    rowSubtitle: { fontSize: 11, color: 'rgba(255,255,255,0.8)' },
+    rowHeadsign: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: theme.colors.text.onScrim,
+      marginTop: 1,
+    },
+    rowRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    rowMinutes: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: theme.colors.text.onScrim,
+      fontVariant: ['tabular-nums'],
+    },
+    rowApprox: { fontSize: 17, color: 'rgba(255,255,255,0.6)' },
+    emptyContainer: {
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[6],
+      alignItems: 'center',
+    },
+    emptyText: { fontSize: 13, color: theme.colors.text.secondary },
+    skeletonLine: {
+      width: 112,
+      height: 12,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255,255,255,0.3)',
+      marginBottom: 6,
+    },
+    skeletonHeadsign: {
+      width: 80,
+      height: 18,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255,255,255,0.3)',
+    },
+    skeletonMinutes: {
+      width: 56,
+      height: 26,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255,255,255,0.3)',
+    },
+    skeletonDirectionLabel: {
+      width: 160,
+      height: 14,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255,255,255,0.2)',
+    },
+  })
+}

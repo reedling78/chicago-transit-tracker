@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import {
   computeRightPanel,
@@ -10,6 +11,8 @@ import {
   type TripStop,
   type VehiclePosition,
 } from '@ctt/shared'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 
 export interface MetraTripHeroStatusCardProps {
   status: HeroStatus
@@ -23,18 +26,19 @@ export interface MetraTripHeroStatusCardProps {
   nowMs: number
 }
 
-interface TonePalette {
-  text: string
-  dot: string
-}
-
-const TONE_PALETTE: Record<StatusTone, TonePalette> = {
-  ontime: { text: '#22c55e', dot: '#22c55e' },
-  delayed: { text: '#ef4444', dot: '#ef4444' },
-  early: { text: '#22c55e', dot: '#22c55e' },
-  completed: { text: '#9ca3af', dot: '#9ca3af' },
-  scheduled: { text: '#3b82f6', dot: '#3b82f6' },
-  nodata: { text: '#9ca3af', dot: '#9ca3af' },
+function tonePalette(tone: StatusTone, theme: Theme): { text: string; dot: string } {
+  switch (tone) {
+    case 'ontime':
+    case 'early':
+      return { text: theme.colors.status.onTime, dot: theme.colors.status.onTime }
+    case 'delayed':
+      return { text: theme.colors.status.delayed, dot: theme.colors.status.delayed }
+    case 'completed':
+    case 'nodata':
+      return { text: theme.colors.status.neutral, dot: theme.colors.status.neutral }
+    case 'scheduled':
+      return { text: theme.colors.status.scheduled, dot: theme.colors.status.scheduled }
+  }
 }
 
 export default function MetraTripHeroStatusCard({
@@ -48,7 +52,9 @@ export default function MetraTripHeroStatusCard({
   error,
   nowMs,
 }: MetraTripHeroStatusCardProps) {
-  const tone = TONE_PALETTE[status.tone]
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+  const tone = tonePalette(status.tone, theme)
   const rightPanel = computeRightPanel(phase, currentDerived, firstStop, lastStop, nowMs)
 
   const timestampSec = vehiclePosition ? longToNumber(vehiclePosition.timestamp) : null
@@ -83,75 +89,57 @@ export default function MetraTripHeroStatusCard({
   )
 }
 
-const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 12,
-    backgroundColor: '#111827',
-    borderWidth: 1,
-    borderColor: '#1f2937',
-    borderLeftWidth: 4,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'column',
-  },
-  panel: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  panelDivider: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#1f2937',
-  },
-  label: {
-    color: '#6b7280',
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
-  valueRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 4,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  value: {
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  station: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginTop: 4,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 8,
-    marginTop: 4,
-  },
-  time: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#e5e7eb',
-  },
-  subtext: {
-    color: '#9ca3af',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  errorText: {
-    color: '#ef4444',
-    fontSize: 12,
-    marginTop: 4,
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    card: {
+      marginHorizontal: theme.space[4],
+      marginVertical: theme.space[3],
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.bg.elevated,
+      borderWidth: 1,
+      borderColor: theme.colors.border.subtle,
+      borderLeftWidth: 4,
+      overflow: 'hidden',
+    },
+    row: { flexDirection: 'column' },
+    panel: { paddingHorizontal: theme.space[4], paddingVertical: theme.space[3] },
+    panelDivider: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border.subtle,
+    },
+    label: {
+      color: theme.colors.text.muted,
+      fontSize: 11,
+      fontWeight: '600',
+      letterSpacing: 1.2,
+      textTransform: 'uppercase',
+    },
+    valueRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.space[2],
+      marginTop: theme.space[1],
+    },
+    dot: { width: 10, height: 10, borderRadius: 5 },
+    value: { fontSize: 22, fontWeight: '700' },
+    station: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: theme.colors.text.primary,
+      marginTop: theme.space[1],
+    },
+    timeRow: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: theme.space[2],
+      marginTop: theme.space[1],
+    },
+    time: { fontSize: 14, fontWeight: '600', color: theme.colors.text.secondary },
+    subtext: { color: theme.colors.text.secondary, fontSize: 12, marginTop: theme.space[1] },
+    errorText: {
+      color: theme.colors.status.delayed,
+      fontSize: 12,
+      marginTop: theme.space[1],
+    },
+  })
+}

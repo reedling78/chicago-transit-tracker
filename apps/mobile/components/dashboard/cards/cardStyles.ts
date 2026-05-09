@@ -1,50 +1,62 @@
+import { useMemo } from 'react'
 import { StyleSheet } from 'react-native'
+import { useTheme } from '../../../lib/theme'
+import type { Theme } from '../../../lib/theme'
 
 /**
  * Shared row styling for all dashboard favorite cards. Keeping this in one
- * file prevents drift across StationCard / TrainCard / LineCard.
+ * place prevents drift across StationCard / TrainCard / LineCard.
  */
-export const cardStyles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    backgroundColor: '#1f2937',
-    borderRadius: 8,
-    marginBottom: 8,
-    gap: 12,
-  },
-  rowDragging: {
-    opacity: 0.7,
-    transform: [{ scale: 1.02 }],
-  },
-  content: {
-    flex: 1,
-  },
-  title: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  subtitle: { color: '#9ca3af', fontSize: 12, marginTop: 2 },
-  meta: { color: '#9ca3af', fontSize: 12 },
-  chip: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  chipText: { fontSize: 12, fontWeight: '700' },
-  pillRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 4,
-  },
-  pill: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-    backgroundColor: '#374151',
-  },
-  pillText: { color: '#e5e7eb', fontSize: 11, fontWeight: '500' },
-  /** 4px-thick strip painted on the leading edge using the line color. */
-  accentBorder: { borderLeftWidth: 4 },
-})
+function makeCardStyles(theme: Theme) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: theme.space[3],
+      paddingHorizontal: 14,
+      backgroundColor: theme.colors.bg.surface,
+      borderRadius: theme.radius.sm + 2,
+      marginBottom: theme.space[2],
+      gap: theme.space[3],
+    },
+    rowDragging: {
+      opacity: 0.7,
+      transform: [{ scale: 1.02 }],
+    },
+    content: {
+      flex: 1,
+    },
+    title: { color: theme.colors.text.primary, fontSize: 15, fontWeight: '600' },
+    subtitle: { color: theme.colors.text.secondary, fontSize: 12, marginTop: 2 },
+    meta: { color: theme.colors.text.secondary, fontSize: 12 },
+    chip: {
+      paddingHorizontal: theme.space[2] + 2,
+      paddingVertical: theme.space[1],
+      borderRadius: theme.radius.full,
+    },
+    chipText: { fontSize: 12, fontWeight: '700' },
+    pillRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: theme.space[1] + 2,
+      marginTop: theme.space[1],
+    },
+    pill: {
+      paddingHorizontal: theme.space[2],
+      paddingVertical: 2,
+      borderRadius: theme.radius.full,
+      backgroundColor: theme.colors.border.subtle,
+    },
+    pillText: { color: theme.colors.text.secondary, fontSize: 11, fontWeight: '500' },
+    /** 4px-thick strip painted on the leading edge using the line color. */
+    accentBorder: { borderLeftWidth: 4 },
+  })
+}
+
+export type CardStyles = ReturnType<typeof makeCardStyles>
+
+export function useCardStyles(): CardStyles {
+  const { theme } = useTheme()
+  return useMemo(() => makeCardStyles(theme), [theme])
+}

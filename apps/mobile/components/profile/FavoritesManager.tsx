@@ -4,6 +4,8 @@ import type { Favorite } from '@ctt/shared'
 import { useFavoritesStore } from '../../lib/store/favorites'
 import { useLinesQuery, useStationsQuery } from '../../lib/useDashboardQueries'
 import { useClearAllFavorites } from '../../lib/useClearAllFavorites'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 import FavoritesSection from './FavoritesSection'
 
 export default function FavoritesManager() {
@@ -11,6 +13,8 @@ export default function FavoritesManager() {
   const { data: lines } = useLinesQuery()
   const { data: stations } = useStationsQuery()
   const { clearAll, isClearing } = useClearAllFavorites()
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
 
   const groups = useMemo(() => {
     const lineFavs: Favorite[] = []
@@ -84,40 +88,30 @@ export default function FavoritesManager() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 24,
-    backgroundColor: '#1a1a2e',
-    borderRadius: 12,
-    padding: 20,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  heading: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  clearButton: {
-    color: '#f87171',
-    fontSize: 14,
-    fontWeight: '600',
-    paddingVertical: 6,
-    paddingHorizontal: 4,
-  },
-  clearButtonDisabled: {
-    color: '#4b5563',
-  },
-  emptyText: {
-    color: '#9ca3af',
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  sections: {
-    gap: 20,
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: {
+      marginTop: theme.space[6],
+      backgroundColor: theme.colors.bg.surface,
+      borderRadius: theme.radius.md,
+      padding: theme.space[5],
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: theme.space[4],
+    },
+    heading: { fontSize: 18, fontWeight: '700', color: theme.colors.text.primary },
+    clearButton: {
+      color: '#f87171',
+      fontSize: 14,
+      fontWeight: '600',
+      paddingVertical: 6,
+      paddingHorizontal: theme.space[1],
+    },
+    clearButtonDisabled: { color: theme.colors.text.muted },
+    emptyText: { color: theme.colors.text.secondary, fontSize: 14, lineHeight: 20 },
+    sections: { gap: theme.space[5] },
+  })
+}

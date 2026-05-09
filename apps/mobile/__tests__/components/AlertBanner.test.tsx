@@ -6,6 +6,7 @@ import { mockCtaAlert, mockMetraAlert } from '../fixtures'
 
 jest.mock('expo-router', () => ({
   Link: ({ children }: { children: ReactNode }) => children,
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
 }))
 
 jest.mock('../../lib/hooks', () => ({

@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react'
-import { Pressable, View, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 import { useRouter } from 'expo-router'
 import { useToggleFavorite } from '../lib/useToggleFavorite'
 import { useAuth } from '../lib/AuthContext'
 import { useFavoritesStore } from '../lib/store/favorites'
+import { useTheme } from '../lib/theme'
 import type { FavoriteType } from '@ctt/shared'
+import PressableButton from './PressableButton'
 
 interface Props {
   type: FavoriteType
@@ -17,11 +19,13 @@ interface Props {
 const HEART_PATH =
   'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'
 
-export default function FavoriteButton({ type, id, color = '#fff', fillColor = '#ef4444' }: Props) {
+export default function FavoriteButton({ type, id, color, fillColor = '#ef4444' }: Props) {
   const { user } = useAuth()
   const { isFavorited, toggle, isToggling, needsAuth } = useToggleFavorite(type, id)
   const router = useRouter()
+  const { theme } = useTheme()
   const pendingAddRef = useRef(false)
+  const strokeColor = color ?? theme.colors.text.onScrim
 
   useEffect(() => {
     if (user && pendingAddRef.current) {
@@ -44,23 +48,22 @@ export default function FavoriteButton({ type, id, color = '#fff', fillColor = '
   const label = isFavorited ? 'Remove from favorites' : 'Add to favorites'
 
   return (
-    <Pressable
+    <PressableButton
       onPress={handlePress}
       disabled={isToggling}
       hitSlop={12}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected: isFavorited, disabled: isToggling }}
-      style={({ pressed }) => [
-        styles.touchable,
-        { opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.94 : 1 }] },
-      ]}
+      feedback="default"
+      haptic="light"
+      style={styles.touchable}
     >
-      <View style={styles.circle}>
+      <View style={[styles.circle, { backgroundColor: theme.colors.bg.scrim }]}>
         <Svg width={22} height={22} viewBox="0 0 24 24">
           <Path
             d={HEART_PATH}
-            stroke={color}
+            stroke={strokeColor}
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -68,7 +71,7 @@ export default function FavoriteButton({ type, id, color = '#fff', fillColor = '
           />
         </Svg>
       </View>
-    </Pressable>
+    </PressableButton>
   )
 }
 
@@ -84,7 +87,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.45)',
     alignItems: 'center',
     justifyContent: 'center',
   },

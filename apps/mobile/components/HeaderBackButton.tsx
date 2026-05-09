@@ -1,28 +1,32 @@
-import { Pressable, View, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { useNavigation } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { useTheme } from '../lib/theme'
+import PressableButton from './PressableButton'
 
 const HIT_SLOP = { top: 12, bottom: 12, left: 16, right: 12 }
 const PRESS_RETENTION = { top: 24, bottom: 24, left: 24, right: 24 }
 
 export default function HeaderBackButton() {
   const navigation = useNavigation()
+  const { theme } = useTheme()
 
   if (!navigation.canGoBack()) return null
 
   return (
-    <Pressable
+    <PressableButton
       onPress={() => navigation.goBack()}
       accessibilityRole="button"
       accessibilityLabel="Back"
       hitSlop={HIT_SLOP}
       pressRetentionOffset={PRESS_RETENTION}
-      style={({ pressed }) => [styles.touchable, pressed && styles.pressed]}
+      feedback="subtle"
+      style={styles.touchable}
     >
-      <View style={styles.circle}>
-        <Ionicons name="chevron-back" size={22} color="#fff" />
+      <View style={[styles.circle, { backgroundColor: theme.colors.bg.scrim }]}>
+        <Ionicons name="chevron-back" size={22} color={theme.colors.text.onScrim} />
       </View>
-    </Pressable>
+    </PressableButton>
   )
 }
 
@@ -34,14 +38,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pressed: {
-    opacity: 0.6,
-  },
   circle: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.45)',
     alignItems: 'center',
     justifyContent: 'center',
   },

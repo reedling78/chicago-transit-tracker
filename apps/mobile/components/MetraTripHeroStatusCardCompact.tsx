@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import {
   computeRightPanel,
@@ -10,6 +11,8 @@ import {
   type TripStop,
   type VehiclePosition,
 } from '@ctt/shared'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 
 export interface MetraTripHeroStatusCardCompactProps {
   status: HeroStatus
@@ -21,13 +24,19 @@ export interface MetraTripHeroStatusCardCompactProps {
   nowMs: number
 }
 
-const TONE_COLOR: Record<StatusTone, string> = {
-  ontime: '#22c55e',
-  delayed: '#ef4444',
-  early: '#22c55e',
-  completed: '#9ca3af',
-  scheduled: '#3b82f6',
-  nodata: '#9ca3af',
+function toneColor(tone: StatusTone, theme: Theme): string {
+  switch (tone) {
+    case 'ontime':
+    case 'early':
+      return theme.colors.status.onTime
+    case 'delayed':
+      return theme.colors.status.delayed
+    case 'scheduled':
+      return theme.colors.status.scheduled
+    case 'completed':
+    case 'nodata':
+      return theme.colors.status.neutral
+  }
 }
 
 /**
@@ -44,7 +53,9 @@ export default function MetraTripHeroStatusCardCompact({
   vehiclePosition,
   nowMs,
 }: MetraTripHeroStatusCardCompactProps) {
-  const toneColor = TONE_COLOR[status.tone]
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+  const tone = toneColor(status.tone, theme)
   const rightPanel = computeRightPanel(phase, currentDerived, firstStop, lastStop, nowMs)
   const timestampSec = vehiclePosition ? longToNumber(vehiclePosition.timestamp) : null
   const lastReported =
@@ -53,8 +64,8 @@ export default function MetraTripHeroStatusCardCompact({
   return (
     <View style={styles.card}>
       <View style={styles.row}>
-        <View style={[styles.dot, { backgroundColor: toneColor }]} />
-        <Text style={[styles.label, { color: toneColor }]}>{status.label}</Text>
+        <View style={[styles.dot, { backgroundColor: tone }]} />
+        <Text style={[styles.label, { color: tone }]}>{status.label}</Text>
         {rightPanel && (
           <>
             <Text style={styles.divider}>·</Text>
@@ -70,27 +81,34 @@ export default function MetraTripHeroStatusCardCompact({
   )
 }
 
-const styles = StyleSheet.create({
-  // Negative horizontal + bottom margins cancel the parent card's
-  // padding (cardStyles.row: paddingHorizontal 14, paddingVertical 12) so
-  // this panel runs flush to the outer card edges. Bottom corners match
-  // the parent card's 8px radius; top corners are square so the panel
-  // visually anchors to the pill row above.
-  card: {
-    marginTop: 12,
-    marginHorizontal: -14,
-    marginBottom: -12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    backgroundColor: '#111827',
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  label: { fontSize: 12, fontWeight: '700' },
-  divider: { color: '#6b7280', fontSize: 12 },
-  station: { color: '#e5e7eb', fontSize: 12, flexShrink: 1 },
-  time: { color: '#e5e7eb', fontSize: 12, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  lastReported: { color: '#9ca3af', fontSize: 10, marginTop: 2 },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    // Negative horizontal + bottom margins cancel the parent card's padding
+    // (cardStyles.row: paddingHorizontal 14, paddingVertical 12) so this
+    // panel runs flush to the outer card edges. Bottom corners match the
+    // parent card's radius; top corners stay square so the panel visually
+    // anchors to the pill row above.
+    card: {
+      marginTop: theme.space[3],
+      marginHorizontal: -14,
+      marginBottom: -theme.space[3],
+      paddingHorizontal: 14,
+      paddingVertical: theme.space[2] + 2,
+      borderBottomLeftRadius: theme.radius.sm + 2,
+      borderBottomRightRadius: theme.radius.sm + 2,
+      backgroundColor: theme.colors.bg.elevated,
+    },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+    dot: { width: 8, height: 8, borderRadius: 4 },
+    label: { fontSize: 12, fontWeight: '700' },
+    divider: { color: theme.colors.text.muted, fontSize: 12 },
+    station: { color: theme.colors.text.secondary, fontSize: 12, flexShrink: 1 },
+    time: {
+      color: theme.colors.text.secondary,
+      fontSize: 12,
+      fontWeight: '600',
+      fontVariant: ['tabular-nums'],
+    },
+    lastReported: { color: theme.colors.text.secondary, fontSize: 10, marginTop: 2 },
+  })
+}
