@@ -126,6 +126,33 @@ describe('ProfileScreen', () => {
     expect(getByTestId('theme-toggle')).toBeOnTheScreen()
   })
 
+  it('renders the global Footer on the signed-out profile', () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      profile: null,
+      loading: false,
+    } as ReturnType<typeof useAuth>)
+    const { getByTestId } = render(<ProfileScreen />)
+    expect(getByTestId('footer')).toBeOnTheScreen()
+  })
+
+  it('renders the global Footer on the authed profile', () => {
+    mockUseAuth.mockReturnValue({
+      user: { uid: 'u1' },
+      profile: {
+        uid: 'u1',
+        email: 'reed@example.com',
+        displayName: 'Reed',
+        provider: 'google',
+        createdAt: '2026-04-25T00:00:00.000Z',
+        updatedAt: '2026-04-25T00:00:00.000Z',
+      },
+      loading: false,
+    } as ReturnType<typeof useAuth>)
+    const { getByTestId } = render(<ProfileScreen />)
+    expect(getByTestId('footer')).toBeOnTheScreen()
+  })
+
   it('signs out and routes to the home screen', async () => {
     mockUseAuth.mockReturnValue({
       user: { uid: 'u1' },

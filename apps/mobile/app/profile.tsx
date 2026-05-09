@@ -7,6 +7,7 @@ import { signOut } from '../lib/auth'
 import { useTheme, type Theme, type ThemeModeSetting } from '../lib/theme'
 import FavoritesManager from '../components/profile/FavoritesManager'
 import PressableButton from '../components/PressableButton'
+import Footer from '../components/Footer'
 
 const THEME_MODES: { value: ThemeModeSetting; label: string }[] = [
   { value: 'system', label: 'System' },
@@ -116,7 +117,10 @@ export default function ProfileScreen() {
 
   if (!profile) {
     return (
-      <View style={[styles.staticContainer, { paddingTop: headerInset + 24 }]}>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: headerInset + 24 }]}
+      >
         <Text style={styles.title}>Profile</Text>
         <Text style={styles.emptyText}>Sign in to view your profile.</Text>
         <PressableButton
@@ -129,7 +133,8 @@ export default function ProfileScreen() {
           <Text style={styles.signInButtonText}>Sign In</Text>
         </PressableButton>
         <ThemeToggle />
-      </View>
+        <Footer />
+      </ScrollView>
     )
   }
 
@@ -179,6 +184,8 @@ export default function ProfileScreen() {
       </PressableButton>
 
       <FavoritesManager />
+
+      <Footer />
     </ScrollView>
   )
 }

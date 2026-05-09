@@ -4,6 +4,7 @@ import { useTheme } from '../../lib/theme'
 import DashboardHeader from './DashboardHeader'
 import DashboardGrid from './DashboardGrid'
 import DashboardHero from './DashboardHero'
+import Footer from '../Footer'
 
 export default function Dashboard() {
   const headerInset = useNavHeaderInset()
@@ -13,7 +14,12 @@ export default function Dashboard() {
       <DashboardGrid
         contentTopInset={headerInset + 8}
         header={<DashboardHeader />}
-        footer={<DashboardHero />}
+        footer={
+          <>
+            <DashboardHero />
+            <Footer />
+          </>
+        }
       />
     </View>
   )

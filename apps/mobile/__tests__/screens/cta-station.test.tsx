@@ -111,4 +111,11 @@ describe('CtaStationDetailScreen', () => {
     render(<CtaStationDetailScreen />)
     expect(screen.getByText(/CTA timetable/)).toBeOnTheScreen()
   })
+
+  it('renders the global Footer at the end of the scroll content', () => {
+    mockUseStation.mockReturnValue({ station: mockStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: false })
+    render(<CtaStationDetailScreen />)
+    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+  })
 })

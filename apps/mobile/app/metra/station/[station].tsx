@@ -9,6 +9,7 @@ import { ArrivalsCard } from '../../../components/ArrivalsCard'
 import { MetraTimetable } from '../../../components/MetraTimetable'
 import PageHeader from '../../../components/PageHeader'
 import FavoriteButton from '../../../components/FavoriteButton'
+import Footer from '../../../components/Footer'
 
 const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
 
@@ -92,6 +93,8 @@ export default function MetraStationDetailScreen() {
             <MetraTimetable stationTrips={stationTrips} />
           </View>
         )}
+
+        <Footer />
       </ScrollView>
     </>
   )

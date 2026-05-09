@@ -85,4 +85,11 @@ describe('CtaLineDetailScreen', () => {
     expect(stub).toBeOnTheScreen()
     expect(stub.props.children).toBe('line:red')
   })
+
+  it('renders the global Footer at the end of the scroll content', () => {
+    mockUseLine.mockReturnValue({ line: mockLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockStation], loading: false })
+    render(<CtaLineDetailScreen />)
+    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+  })
 })

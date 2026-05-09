@@ -5,6 +5,7 @@ import { useTheme } from '../../lib/theme'
 import LineListItem from '../../components/LineListItem'
 import AlertBanner from '../../components/AlertBanner'
 import PageHeader from '../../components/PageHeader'
+import Footer from '../../components/Footer'
 
 export default function MetraLinesScreen() {
   const { lines, loading } = useLines('metra')
@@ -35,6 +36,7 @@ export default function MetraLinesScreen() {
             <AlertBanner service="metra" href="/metra/alerts" />
           </>
         }
+        ListFooterComponent={<Footer />}
         renderItem={({ item }) => {
           const accentColor = LINE_COLORS[item.shortName]?.bg ?? item.color
           return (
