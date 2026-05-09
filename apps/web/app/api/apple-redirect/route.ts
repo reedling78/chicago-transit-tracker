@@ -39,9 +39,11 @@ export async function POST(req: NextRequest) {
   for (const [key, value] of formData.entries()) {
     if (typeof value === 'string') params.set(key, value)
   }
-  const fragment = params.toString()
-  const deepLink = fragment
-    ? `${APP_SCHEME}://${CALLBACK_PATH}#${fragment}`
+  // Use ?query (not #fragment) so Expo Router / Android intent dispatch can
+  // surface the params via useLocalSearchParams in the receiving screen.
+  const query = params.toString()
+  const deepLink = query
+    ? `${APP_SCHEME}://${CALLBACK_PATH}?${query}`
     : `${APP_SCHEME}://${CALLBACK_PATH}`
   return htmlResponse(buildHtml(deepLink))
 }

@@ -7,7 +7,7 @@ afterEach(() => {
 })
 
 describe('POST /api/apple-redirect', () => {
-  it('forwards form-post fields from Apple as a fragment on the ctt:// deep link', async () => {
+  it('forwards form-post fields from Apple as a query string on the ctt:// deep link', async () => {
     const { POST } = await import('@/app/api/apple-redirect/route')
     const body = new URLSearchParams({
       id_token: 'eyJ-token',
@@ -25,7 +25,7 @@ describe('POST /api/apple-redirect', () => {
     expect(res.headers.get('cache-control')).toBe('no-store')
     const html = await res.text()
     expect(html).toContain(
-      'ctt://apple-callback#id_token=eyJ-token&code=apple-auth-code&state=state-xyz',
+      'ctt://apple-callback?id_token=eyJ-token&code=apple-auth-code&state=state-xyz',
     )
     // Sanity: noindex meta + auto-redirect both present
     expect(html).toContain('noindex')
@@ -43,7 +43,7 @@ describe('POST /api/apple-redirect', () => {
     expect(res.status).toBe(200)
     const html = await res.text()
     expect(html).toContain('ctt://apple-callback"')
-    expect(html).not.toContain('ctt://apple-callback#')
+    expect(html).not.toContain('ctt://apple-callback?')
   })
 
   it('encodes URL-unsafe characters in form values when re-emitting them', async () => {
@@ -59,7 +59,7 @@ describe('POST /api/apple-redirect', () => {
     const res = await POST(req as never)
     const html = await res.text()
     // URLSearchParams.toString() uses + for spaces and %26 for &
-    expect(html).toContain('ctt://apple-callback#id_token=value+with+spaces+%26+ampersands')
+    expect(html).toContain('ctt://apple-callback?id_token=value+with+spaces+%26+ampersands')
   })
 })
 
