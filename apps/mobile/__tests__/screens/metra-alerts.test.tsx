@@ -19,4 +19,9 @@ describe('MetraAlertsScreen', () => {
     const { getByTestId } = render(<MetraAlertsScreen />)
     expect(getByTestId('metra-alerts-stub')).toBeOnTheScreen()
   })
+
+  it('renders the global Footer at the end of the scroll content', () => {
+    const { getByTestId } = render(<MetraAlertsScreen />)
+    expect(getByTestId('footer')).toBeOnTheScreen()
+  })
 })

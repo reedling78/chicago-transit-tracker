@@ -60,4 +60,10 @@ describe('CtaLinesScreen', () => {
     render(<CtaLinesScreen />)
     expect(screen.getByText('Service Alerts')).toBeOnTheScreen()
   })
+
+  it('renders the global Footer at the end of the list', () => {
+    mockUseLines.mockReturnValue({ lines: [mockLine], loading: false })
+    render(<CtaLinesScreen />)
+    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+  })
 })

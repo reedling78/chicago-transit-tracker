@@ -44,6 +44,21 @@ jest.mock('./components/FavoriteButton', () => {
   }
 })
 
+// Footer is rendered at the bottom of every scrolling screen. It pulls in
+// expo-router's useRouter, which most screen-level tests don't otherwise need.
+// Stub it globally; the real Footer has its own unit test (which calls
+// jest.unmock).
+jest.mock('./components/Footer', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react')
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    __esModule: true,
+    default: () => React.createElement(View, { testID: 'footer' }),
+  }
+})
+
 // react-native-gesture-handler ships no-op shims under jest-expo, but the
 // GestureHandlerRootView native component still complains. Stub the package
 // surface used in our app to a passthrough View.

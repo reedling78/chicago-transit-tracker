@@ -157,6 +157,8 @@ apps/
       index.tsx                   Home screen — renders Dashboard
       auth.tsx                    Sign in/up/reset screen (modal presentation)
       profile.tsx                 User profile screen
+      terms.tsx                   Terms of Use screen — mirrors web copy, includes Metra non-affiliation wording
+      privacy.tsx                 Privacy Policy screen — mirrors web copy
       cta/
         index.tsx                 CTA line list
         alerts.tsx                CTA service alerts screen
@@ -188,6 +190,7 @@ apps/
       HeaderBackButton.tsx        Translucent circle back button used as Stack headerLeft (returns null at root)
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
+      Footer.tsx                  Two-link footer (Terms · Privacy) appended at the end of every scrolling screen
       PressableButton.tsx         Snappy press primitive — Pressable + tuned scale/opacity feedback, Android ripple, opt-in expo-haptics
       dashboard/
         Dashboard.tsx             Home screen orchestrator — DashboardGrid is the single scroller (header + DashboardHero passed as ListHeader/ListFooter)

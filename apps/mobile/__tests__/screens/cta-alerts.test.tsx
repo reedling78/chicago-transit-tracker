@@ -19,4 +19,9 @@ describe('CtaAlertsScreen', () => {
     const { getByTestId } = render(<CtaAlertsScreen />)
     expect(getByTestId('cta-alerts-stub')).toBeOnTheScreen()
   })
+
+  it('renders the global Footer at the end of the scroll content', () => {
+    const { getByTestId } = render(<CtaAlertsScreen />)
+    expect(getByTestId('footer')).toBeOnTheScreen()
+  })
 })

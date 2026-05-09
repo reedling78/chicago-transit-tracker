@@ -2,6 +2,10 @@ import { render } from '@testing-library/react-native'
 
 import Dashboard from '../../../components/dashboard/Dashboard'
 
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}))
+
 jest.mock('../../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,
 }))
@@ -42,5 +46,10 @@ describe('Dashboard (mobile)', () => {
     expect(getByTestId('dash-header')).toBeTruthy()
     expect(getByTestId('dash-grid')).toBeTruthy()
     expect(getByTestId('dash-hero')).toBeTruthy()
+  })
+
+  it('renders the global Footer below the marketing hero', () => {
+    const { getByTestId } = render(<Dashboard />)
+    expect(getByTestId('footer')).toBeOnTheScreen()
   })
 })

@@ -128,4 +128,12 @@ describe('MetraStationDetailScreen', () => {
     render(<MetraStationDetailScreen />)
     expect(screen.getByText(/Metra timetable/)).toBeOnTheScreen()
   })
+
+  it('renders the global Footer at the end of the scroll content', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: false })
+    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: false })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+  })
 })

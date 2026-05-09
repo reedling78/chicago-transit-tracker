@@ -9,6 +9,7 @@ import { ArrivalsCard } from '../../../components/ArrivalsCard'
 import { CTAScheduleTable } from '../../../components/CTAScheduleTable'
 import PageHeader from '../../../components/PageHeader'
 import FavoriteButton from '../../../components/FavoriteButton'
+import Footer from '../../../components/Footer'
 
 const ctaHeroImage = require('../../../assets/hero-header.jpg')
 
@@ -85,6 +86,8 @@ export default function CtaStationDetailScreen() {
             <CTAScheduleTable schedule={schedule} />
           </View>
         )}
+
+        <Footer />
       </ScrollView>
     </>
   )
