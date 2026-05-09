@@ -1,12 +1,14 @@
 import { View, ScrollView, StyleSheet } from 'react-native'
 import { useNavHeaderInset } from '../../lib/useNavHeaderInset'
+import { useTheme } from '../../lib/theme'
 import CTAAlerts from '../../components/CTAAlerts'
 
 export default function CtaAlertsScreen() {
   const headerInset = useNavHeaderInset()
+  const { theme } = useTheme()
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: headerInset + 16 }]}>
         <CTAAlerts />
       </ScrollView>
@@ -15,6 +17,6 @@ export default function CtaAlertsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f23' },
+  container: { flex: 1 },
   content: { paddingHorizontal: 16, paddingBottom: 32 },
 })

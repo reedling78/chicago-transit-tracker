@@ -13,6 +13,8 @@ import {
   type TripStop,
 } from '@ctt/shared'
 import { useMetraFeed } from '../lib/useMetraFeed'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 import MetraTripHeroStatusCard from './MetraTripHeroStatusCard'
 import MetraTripStopTimeline from './MetraTripStopTimeline'
 
@@ -131,10 +133,12 @@ export default function MetraTripRealtime({
     trip.stops,
   ])
 
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   const derivation = useMemo(() => deriveStopState(trip.stops, realtime), [trip.stops, realtime])
 
   const { stops: derivedStops, tripDelayMinutes, phase } = derivation
-  const lineColor = LINE_COLORS[trip.line]?.bg ?? '#6b7280'
+  const lineColor = LINE_COLORS[trip.line]?.bg ?? theme.colors.text.muted
 
   const hasFetched = realtime !== null
   const isStopped = realtime?.stopped ?? false
@@ -190,31 +194,24 @@ export default function MetraTripRealtime({
   )
 }
 
-const styles = StyleSheet.create({
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  footerText: {
-    color: '#9ca3af',
-    fontSize: 12,
-  },
-  refreshButton: {
-    borderWidth: 1,
-    borderColor: '#374151',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  refreshButtonPressed: {
-    backgroundColor: '#1f2937',
-  },
-  refreshButtonText: {
-    color: '#d1d5db',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[3],
+    },
+    footerText: { color: theme.colors.text.secondary, fontSize: 12 },
+    refreshButton: {
+      borderWidth: 1,
+      borderColor: theme.colors.border.subtle,
+      borderRadius: theme.radius.full,
+      paddingHorizontal: theme.space[3],
+      paddingVertical: 6,
+    },
+    refreshButtonPressed: { backgroundColor: theme.colors.bg.surface },
+    refreshButtonText: { color: theme.colors.text.secondary, fontSize: 12, fontWeight: '600' },
+  })
+}

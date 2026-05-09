@@ -1,11 +1,16 @@
-import type { ReactNode } from 'react'
-import { render, screen } from '@testing-library/react-native'
+import { fireEvent, render, screen } from '@testing-library/react-native'
 import { Text } from 'react-native'
 import LineListItem from '../../components/LineListItem'
 
+const mockPush = jest.fn()
+
 jest.mock('expo-router', () => ({
-  Link: ({ children }: { children: ReactNode }) => children,
+  useRouter: () => ({ push: mockPush }),
 }))
+
+beforeEach(() => {
+  mockPush.mockClear()
+})
 
 describe('LineListItem', () => {
   const defaultProps = {
@@ -35,5 +40,11 @@ describe('LineListItem', () => {
     const { toJSON } = render(<LineListItem {...defaultProps} />)
     expect(screen.queryByTestId('test-icon')).toBeNull()
     expect(toJSON()).toBeTruthy()
+  })
+
+  it('navigates to href when pressed', () => {
+    render(<LineListItem {...defaultProps} />)
+    fireEvent.press(screen.getByLabelText('Red Line'))
+    expect(mockPush).toHaveBeenCalledWith('/cta/red')
   })
 })

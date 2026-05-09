@@ -1,13 +1,15 @@
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 import { useNavHeaderInset } from '../../lib/useNavHeaderInset'
+import { useTheme } from '../../lib/theme'
 import DashboardHeader from './DashboardHeader'
 import DashboardGrid from './DashboardGrid'
 import DashboardHero from './DashboardHero'
 
 export default function Dashboard() {
   const headerInset = useNavHeaderInset()
+  const { theme } = useTheme()
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.bg.canvas }}>
       <DashboardGrid
         contentTopInset={headerInset + 8}
         header={<DashboardHeader />}
@@ -16,7 +18,3 @@ export default function Dashboard() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f1e' },
-})

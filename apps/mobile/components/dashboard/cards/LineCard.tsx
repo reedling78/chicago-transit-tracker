@@ -1,8 +1,9 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import type { Favorite, Line } from '@ctt/shared'
+import PressableButton from '../../PressableButton'
 import CardMenuButton from './CardMenuButton'
-import { cardStyles } from './cardStyles'
+import { useCardStyles } from './cardStyles'
 
 interface LineCardProps {
   favorite: Favorite
@@ -20,17 +21,19 @@ export default function LineCard({
   isActive,
 }: LineCardProps) {
   const router = useRouter()
+  const cardStyles = useCardStyles()
   const target = line ? `/${line.service}/${line.slug}` : null
   const title = line?.name ?? favorite.id
 
   return (
-    <Pressable
+    <PressableButton
       onPress={() => target && router.push(target as never)}
       onLongPress={onLongPress}
       delayLongPress={250}
       disabled={!target}
       accessibilityRole="link"
       accessibilityLabel={title}
+      feedback="subtle"
       style={[cardStyles.row, isActive && cardStyles.rowDragging]}
     >
       <View style={cardStyles.content}>
@@ -51,6 +54,6 @@ export default function LineCard({
         </View>
       ) : null}
       <CardMenuButton onPress={onMenuPress} accessibilityLabel={`Open menu for ${title}`} />
-    </Pressable>
+    </PressableButton>
   )
 }

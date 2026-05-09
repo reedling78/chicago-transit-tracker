@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 import {
   signInWithEmail,
   signUpWithEmail,
@@ -28,6 +30,8 @@ export default function AuthScreen() {
   const params = useLocalSearchParams<{ mode?: string }>()
   const initialMode: Mode = params.mode === 'signUp' ? 'signUp' : 'signIn'
   const headerInset = useNavHeaderInset()
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   const [mode, setMode] = useState<Mode>(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -83,7 +87,7 @@ export default function AuthScreen() {
           value={email}
           onChangeText={setEmail}
           placeholder="you@example.com"
-          placeholderTextColor="#666"
+          placeholderTextColor={theme.colors.text.muted}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
@@ -97,7 +101,7 @@ export default function AuthScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder="At least 6 characters"
-              placeholderTextColor="#666"
+              placeholderTextColor={theme.colors.text.muted}
               secureTextEntry
             />
           </>
@@ -109,7 +113,7 @@ export default function AuthScreen() {
           disabled={submitting}
         >
           {submitting ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={theme.colors.accent.primaryFg} />
           ) : (
             <Text style={styles.buttonText}>
               {mode === 'signIn'
@@ -172,92 +176,60 @@ export default function AuthScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0f0f23',
-  },
-  content: {
-    padding: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 32,
-  },
-  form: {
-    gap: 12,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#aaa',
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: '#1a1a2e',
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 16,
-    color: '#fff',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  button: {
-    backgroundColor: '#2563eb',
-    borderRadius: 10,
-    padding: 14,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  socialSection: {
-    marginTop: 24,
-    gap: 12,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 4,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#333',
-  },
-  dividerText: {
-    color: '#666',
-    fontSize: 13,
-  },
-  socialButton: {
-    backgroundColor: '#1a1a2e',
-    borderRadius: 10,
-    padding: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  socialButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  footer: {
-    marginTop: 24,
-    alignItems: 'center',
-    gap: 12,
-  },
-  linkText: {
-    color: '#60a5fa',
-    fontSize: 14,
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.bg.canvas },
+    content: { padding: theme.space[6] },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: theme.colors.text.primary,
+      marginBottom: theme.space[8],
+    },
+    form: { gap: theme.space[3] },
+    label: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.colors.text.secondary,
+      marginBottom: theme.space[1],
+    },
+    input: {
+      backgroundColor: theme.colors.bg.surface,
+      borderRadius: theme.radius.md - 2,
+      padding: 14,
+      fontSize: 16,
+      color: theme.colors.text.primary,
+      borderWidth: 1,
+      borderColor: theme.colors.border.subtle,
+    },
+    button: {
+      backgroundColor: theme.colors.accent.primary,
+      borderRadius: theme.radius.md - 2,
+      padding: 14,
+      alignItems: 'center',
+      marginTop: theme.space[2],
+    },
+    buttonDisabled: { opacity: 0.5 },
+    buttonText: { color: theme.colors.accent.primaryFg, fontSize: 16, fontWeight: '600' },
+    socialSection: { marginTop: theme.space[6], gap: theme.space[3] },
+    dividerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.space[3],
+      marginBottom: theme.space[1],
+    },
+    dividerLine: { flex: 1, height: 1, backgroundColor: theme.colors.border.subtle },
+    dividerText: { color: theme.colors.text.muted, fontSize: 13 },
+    socialButton: {
+      backgroundColor: theme.colors.bg.surface,
+      borderRadius: theme.radius.md - 2,
+      padding: 14,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: theme.colors.border.subtle,
+    },
+    socialButtonText: { color: theme.colors.text.primary, fontSize: 15, fontWeight: '500' },
+    footer: { marginTop: theme.space[6], alignItems: 'center', gap: theme.space[3] },
+    linkText: { color: theme.colors.accent.primary, fontSize: 14 },
+  })
+}

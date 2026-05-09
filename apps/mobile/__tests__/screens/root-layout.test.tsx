@@ -109,4 +109,10 @@ describe('RootLayout', () => {
     const { getByTestId } = render(<RootLayout />)
     expect(getByTestId('stack')).toBeOnTheScreen()
   })
+
+  it('mounts the ThemeProvider so the theme context is available app-wide', () => {
+    // Crashes here mean the ThemeProvider was unmounted from the root tree.
+    // Removing it would break every component that calls useTheme().
+    expect(() => render(<RootLayout />)).not.toThrow()
+  })
 })

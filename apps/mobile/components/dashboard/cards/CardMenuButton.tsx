@@ -1,4 +1,6 @@
-import { Pressable, Text, StyleSheet } from 'react-native'
+import { Text, StyleSheet } from 'react-native'
+import { useTheme } from '../../../lib/theme'
+import PressableButton from '../../PressableButton'
 
 interface CardMenuButtonProps {
   onPress: () => void
@@ -6,16 +8,19 @@ interface CardMenuButtonProps {
 }
 
 export default function CardMenuButton({ onPress, accessibilityLabel }: CardMenuButtonProps) {
+  const { theme } = useTheme()
   return (
-    <Pressable
+    <PressableButton
       onPress={onPress}
       hitSlop={12}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      feedback="default"
+      haptic="light"
+      style={[styles.button, { borderRadius: theme.radius.lg }]}
     >
-      <Text style={styles.glyph}>⋯</Text>
-    </Pressable>
+      <Text style={[styles.glyph, { color: theme.colors.text.secondary }]}>⋯</Text>
+    </PressableButton>
   )
 }
 
@@ -25,13 +30,8 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
-  },
-  pressed: {
-    backgroundColor: '#374151',
   },
   glyph: {
-    color: '#9ca3af',
     fontSize: 20,
     lineHeight: 20,
     fontWeight: '700',

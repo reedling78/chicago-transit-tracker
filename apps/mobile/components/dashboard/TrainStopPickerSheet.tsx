@@ -6,6 +6,8 @@ import type { Favorite, TripStop } from '@ctt/shared'
 import { useFavoritesStore } from '../../lib/store/favorites'
 import { useFavoriteTripQuery } from '../../lib/useDashboardQueries'
 import { useUpdateFavoriteSettings } from '../../lib/useUpdateFavoriteSettings'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 
 interface OpenArgs {
   favorite: Favorite
@@ -22,6 +24,8 @@ const TrainStopPickerSheet = forwardRef<TrainStopPickerSheetHandle>(
   function TrainStopPickerSheet(_props, ref) {
     const sheetRef = useRef<BottomSheetModal>(null)
     const [active, setActive] = useState<OpenArgs | null>(null)
+    const { theme } = useTheme()
+    const styles = useMemo(() => makeStyles(theme), [theme])
 
     useImperativeHandle(ref, () => ({
       open: (args) => {
@@ -73,6 +77,8 @@ function PickerContents({ args, dismiss }: PickerContentsProps) {
   const { favorite, mode } = args
   const { data: trip } = useFavoriteTripQuery(favorite.id)
   const { update } = useUpdateFavoriteSettings(favorite.type, favorite.id)
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   // Read the live store so the user's current overrides anchor the eligibility
   // rules even after a previous picker selection in the same session.
   const liveFavorite = useFavoritesStore((s) =>
@@ -153,32 +159,43 @@ function pickStopBySlug(stops: TripStop[], slug: string | undefined): TripStop |
   return stops.find((s) => s.slug === slug)
 }
 
-const styles = StyleSheet.create({
-  background: { backgroundColor: '#1f2937' },
-  handle: { backgroundColor: '#4b5563' },
-  content: { paddingHorizontal: 16, paddingBottom: 24, flex: 1 },
-  title: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-    paddingHorizontal: 4,
-  },
-  empty: { color: '#9ca3af', fontSize: 14, paddingHorizontal: 4, paddingVertical: 12 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  rowSelected: { backgroundColor: 'rgba(37, 99, 235, 0.15)' },
-  rowPressed: { backgroundColor: '#374151' },
-  rowDisabled: { opacity: 0.4 },
-  rowName: { color: '#fff', fontSize: 15, fontWeight: '500', flex: 1 },
-  rowNameSelected: { color: '#93c5fd' },
-  rowTime: { color: '#9ca3af', fontSize: 13, fontVariant: ['tabular-nums'] },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    background: { backgroundColor: theme.colors.bg.surface },
+    handle: { backgroundColor: theme.colors.border.strong },
+    content: {
+      paddingHorizontal: theme.space[4],
+      paddingBottom: theme.space[6],
+      flex: 1,
+    },
+    title: {
+      color: theme.colors.text.primary,
+      fontSize: 18,
+      fontWeight: '700',
+      marginBottom: theme.space[3],
+      paddingHorizontal: theme.space[1],
+    },
+    empty: {
+      color: theme.colors.text.secondary,
+      fontSize: 14,
+      paddingHorizontal: theme.space[1],
+      paddingVertical: theme.space[3],
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: theme.space[3],
+      paddingHorizontal: theme.space[3],
+      borderRadius: theme.radius.sm + 2,
+    },
+    rowSelected: { backgroundColor: 'rgba(37, 99, 235, 0.15)' },
+    rowPressed: { backgroundColor: theme.colors.border.subtle },
+    rowDisabled: { opacity: 0.4 },
+    rowName: { color: theme.colors.text.primary, fontSize: 15, fontWeight: '500', flex: 1 },
+    rowNameSelected: { color: '#93c5fd' },
+    rowTime: { color: theme.colors.text.secondary, fontSize: 13, fontVariant: ['tabular-nums'] },
+  })
+}
 
 export default TrainStopPickerSheet

@@ -1,8 +1,13 @@
+import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, Linking } from 'react-native'
 import type { NormalizedAlert } from '@ctt/shared'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 
 export default function AlertCard({ alert }: { alert: NormalizedAlert }) {
-  const borderColor = alert.routes[0]?.color ?? '#6b7280'
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+  const borderColor = alert.routes[0]?.color ?? theme.colors.text.muted
 
   return (
     <View style={[styles.card, { borderLeftColor: borderColor }]}>
@@ -31,43 +36,22 @@ export default function AlertCard({ alert }: { alert: NormalizedAlert }) {
   )
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#111827',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#374151',
-    borderLeftWidth: 4,
-    padding: 16,
-    gap: 8,
-  },
-  badges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  badge: {
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  headline: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  description: {
-    color: '#9ca3af',
-    fontSize: 13,
-    lineHeight: 20,
-  },
-  link: {
-    color: '#60a5fa',
-    fontSize: 13,
-    fontWeight: '500',
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: theme.colors.bg.elevated,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.border.subtle,
+      borderLeftWidth: 4,
+      padding: theme.space[4],
+      gap: theme.space[2],
+    },
+    badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    badge: { borderRadius: theme.radius.md, paddingHorizontal: 10, paddingVertical: 3 },
+    badgeText: { fontSize: 12, fontWeight: '600' },
+    headline: { color: theme.colors.text.primary, fontSize: 15, fontWeight: '600' },
+    description: { color: theme.colors.text.secondary, fontSize: 13, lineHeight: 20 },
+    link: { color: theme.colors.accent.primary, fontSize: 13, fontWeight: '500' },
+  })
+}

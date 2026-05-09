@@ -1,7 +1,10 @@
+import { useMemo } from 'react'
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { useStation, useSchedule, useStationTrips } from '../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
+import { useTheme } from '../../../lib/theme'
+import type { Theme } from '../../../lib/theme'
 import { ArrivalsCard } from '../../../components/ArrivalsCard'
 import { MetraTimetable } from '../../../components/MetraTimetable'
 import PageHeader from '../../../components/PageHeader'
@@ -14,11 +17,14 @@ export default function MetraStationDetailScreen() {
   const { station, loading: stationLoading } = useStation(stationSlug)
   const { schedule, loading: scheduleLoading } = useSchedule(stationSlug)
   const { stationTrips, loading: tripsLoading } = useStationTrips(stationSlug)
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+  const badgeStyles = useMemo(() => makeBadgeStyles(theme), [theme])
 
   if (stationLoading || !station) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1a3d7a" />
+        <ActivityIndicator size="large" color={theme.colors.accent.primary} />
       </View>
     )
   }
@@ -31,7 +37,7 @@ export default function MetraStationDetailScreen() {
         options={{
           headerTransparent: false,
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#0f0f23' },
+          headerStyle: { backgroundColor: theme.colors.bg.canvas },
           headerTitle: () => (
             <View style={styles.headerTitleWrap}>
               <Text style={styles.headerTitle} numberOfLines={1} adjustsFontSizeToFit>
@@ -65,8 +71,15 @@ export default function MetraStationDetailScreen() {
             {station.lines.map((line) => {
               const colors = LINE_COLORS[line]
               return (
-                <View key={line} style={[styles.chip, { backgroundColor: colors?.bg ?? '#555' }]}>
-                  <Text style={[styles.chipText, { color: colors?.text ?? '#fff' }]}>{line}</Text>
+                <View
+                  key={line}
+                  style={[styles.chip, { backgroundColor: colors?.bg ?? theme.colors.text.muted }]}
+                >
+                  <Text
+                    style={[styles.chipText, { color: colors?.text ?? theme.colors.text.onScrim }]}
+                  >
+                    {line}
+                  </Text>
                 </View>
               )
             })}
@@ -99,59 +112,81 @@ export default function MetraStationDetailScreen() {
   )
 }
 
-const badgeStyles = StyleSheet.create({
-  service: {
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-    color: '#60a5fa',
-    fontSize: 12,
-    fontWeight: '600',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    overflow: 'hidden',
-  },
-  terminal: {
-    backgroundColor: 'rgba(251, 191, 36, 0.15)',
-    color: '#fbbf24',
-    fontSize: 12,
-    fontWeight: '600',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    overflow: 'hidden',
-  },
-  open24: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    color: '#22c55e',
-    fontSize: 12,
-    fontWeight: '600',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    overflow: 'hidden',
-  },
-})
+function makeBadgeStyles(theme: Theme) {
+  return StyleSheet.create({
+    service: {
+      backgroundColor: 'rgba(59, 130, 246, 0.15)',
+      color: '#60a5fa',
+      fontSize: 12,
+      fontWeight: '600',
+      borderRadius: theme.radius.md,
+      paddingHorizontal: 10,
+      paddingVertical: 3,
+      overflow: 'hidden',
+    },
+    terminal: {
+      backgroundColor: 'rgba(251, 191, 36, 0.15)',
+      color: '#fbbf24',
+      fontSize: 12,
+      fontWeight: '600',
+      borderRadius: theme.radius.md,
+      paddingHorizontal: 10,
+      paddingVertical: 3,
+      overflow: 'hidden',
+    },
+    open24: {
+      backgroundColor: 'rgba(34, 197, 94, 0.15)',
+      color: theme.colors.status.onTime,
+      fontSize: 12,
+      fontWeight: '600',
+      borderRadius: theme.radius.md,
+      paddingHorizontal: 10,
+      paddingVertical: 3,
+      overflow: 'hidden',
+    },
+  })
+}
 
-const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f0f23' },
-  container: { flex: 1, backgroundColor: '#0f0f23' },
-  contentContainer: { paddingHorizontal: 16, paddingBottom: 16, gap: 16 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { borderRadius: 16, paddingHorizontal: 12, paddingVertical: 4 },
-  chipText: { fontSize: 13, fontWeight: '600' },
-  section: { paddingBottom: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#fff', marginBottom: 12 },
-  amenities: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  badge: {
-    backgroundColor: '#1a1a2e',
-    color: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    fontSize: 13,
-    overflow: 'hidden',
-  },
-  headerTitleWrap: { alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { color: '#fff', fontSize: 17, fontWeight: '700' },
-  headerSub: { color: '#9ca3af', fontSize: 12, marginTop: 2 },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.colors.bg.canvas,
+    },
+    container: { flex: 1, backgroundColor: theme.colors.bg.canvas },
+    contentContainer: {
+      paddingHorizontal: theme.space[4],
+      paddingBottom: theme.space[4],
+      gap: theme.space[4],
+    },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.space[2] },
+    chip: {
+      borderRadius: theme.radius.lg,
+      paddingHorizontal: theme.space[3],
+      paddingVertical: theme.space[1],
+    },
+    chipText: { fontSize: 13, fontWeight: '600' },
+    section: { paddingBottom: theme.space[2] },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: theme.colors.text.primary,
+      marginBottom: theme.space[3],
+    },
+    amenities: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.space[2] },
+    badge: {
+      backgroundColor: theme.colors.bg.surface,
+      color: theme.colors.text.secondary,
+      borderRadius: theme.radius.sm + 2,
+      paddingHorizontal: theme.space[3],
+      paddingVertical: theme.space[1],
+      fontSize: 13,
+      overflow: 'hidden',
+    },
+    headerTitleWrap: { alignItems: 'center', justifyContent: 'center' },
+    headerTitle: { color: theme.colors.text.primary, fontSize: 17, fontWeight: '700' },
+    headerSub: { color: theme.colors.text.secondary, fontSize: 12, marginTop: 2 },
+  })
+}

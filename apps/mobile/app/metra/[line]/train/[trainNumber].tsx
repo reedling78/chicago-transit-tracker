@@ -1,22 +1,24 @@
+import { useMemo } from 'react'
 import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { LINE_COLORS } from '@ctt/shared'
 import { useMetraTrip } from '../../../../lib/hooks'
+import { useTheme } from '../../../../lib/theme'
+import type { Theme } from '../../../../lib/theme'
 import MetraTripRealtime from '../../../../components/MetraTripRealtime'
 import FavoriteButton from '../../../../components/FavoriteButton'
-
-const FALLBACK_BG = '#0f0f1e'
-const FALLBACK_FG = '#ffffff'
 
 export default function MetraTrainDetailScreen() {
   const { line, trainNumber } = useLocalSearchParams<{ line: string; trainNumber: string }>()
   const lineSlug = line ?? ''
   const train = trainNumber ?? ''
   const { trip, loading } = useMetraTrip(lineSlug, train)
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
 
   const colors = trip ? LINE_COLORS[trip.line] : undefined
-  const headerBg = colors?.bg ?? FALLBACK_BG
-  const headerFg = colors?.text ?? FALLBACK_FG
+  const headerBg = colors?.bg ?? theme.colors.bg.canvas
+  const headerFg = colors?.text ?? theme.colors.text.primary
 
   return (
     <>
@@ -47,7 +49,7 @@ export default function MetraTrainDetailScreen() {
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         {loading && (
           <View style={styles.center}>
-            <ActivityIndicator size="large" color="#9ca3af" />
+            <ActivityIndicator size="large" color={theme.colors.text.secondary} />
           </View>
         )}
         {!loading && !trip && (
@@ -64,34 +66,36 @@ export default function MetraTrainDetailScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0f0f1e',
-  },
-  content: {
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
-  center: {
-    flex: 1,
-    minHeight: 240,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  title: {
-    color: '#ffffff',
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: '#9ca3af',
-    fontSize: 14,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  headerTitleWrap: { alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold' },
-  headerSub: { fontSize: 12, marginTop: 2, opacity: 0.85 },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.bg.canvas,
+    },
+    content: {
+      paddingTop: theme.space[2],
+      paddingBottom: theme.space[2],
+    },
+    center: {
+      flex: 1,
+      minHeight: 240,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.space[6],
+    },
+    title: {
+      color: theme.colors.text.primary,
+      fontSize: 22,
+      fontWeight: '700',
+    },
+    subtitle: {
+      color: theme.colors.text.secondary,
+      fontSize: 14,
+      marginTop: theme.space[2],
+      textAlign: 'center',
+    },
+    headerTitleWrap: { alignItems: 'center', justifyContent: 'center' },
+    headerTitle: { fontSize: 18, fontWeight: 'bold' },
+    headerSub: { fontSize: 12, marginTop: 2, opacity: 0.85 },
+  })
+}

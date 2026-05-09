@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { useEffect, useMemo, useState } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import {
   computeArrivalGroups,
@@ -13,9 +13,12 @@ import {
   type Station,
 } from '@ctt/shared'
 import { favoriteRoute } from '../../../lib/favoriteRoute'
+import { useTheme } from '../../../lib/theme'
+import type { Theme } from '../../../lib/theme'
 import { useStationScheduleQuery, useStationTripsQuery } from '../../../lib/useDashboardQueries'
+import PressableButton from '../../PressableButton'
 import CardMenuButton from './CardMenuButton'
-import { cardStyles } from './cardStyles'
+import { useCardStyles } from './cardStyles'
 
 interface StationCardProps {
   favorite: Favorite
@@ -39,6 +42,9 @@ export default function StationCard({
   isActive,
 }: StationCardProps) {
   const router = useRouter()
+  const cardStyles = useCardStyles()
+  const { theme } = useTheme()
+  const localStyles = useMemo(() => makeLocalStyles(theme), [theme])
   const target = station ? favoriteRoute(favorite, lines, [station]) : null
   const title = station?.name ?? favorite.id
   const subtitle = station?.lines?.join(' • ') ?? ''
@@ -68,16 +74,17 @@ export default function StationCard({
   })
 
   return (
-    <Pressable
+    <PressableButton
       onPress={() => target && router.push(target as never)}
       onLongPress={onLongPress}
       delayLongPress={250}
       disabled={!target}
       accessibilityRole="link"
       accessibilityLabel={title}
-      style={[cardStyles.row, styles.column, isActive && cardStyles.rowDragging]}
+      feedback="subtle"
+      style={[cardStyles.row, localStyles.column, isActive && cardStyles.rowDragging]}
     >
-      <View style={styles.headerRow}>
+      <View style={localStyles.headerRow}>
         <View style={cardStyles.content}>
           <Text style={cardStyles.title} numberOfLines={1}>
             {title}
@@ -93,16 +100,17 @@ export default function StationCard({
       </View>
 
       {station ? (
-        <View style={styles.body}>
+        <View style={localStyles.body}>
           <ArrivalsBody
             density={density}
             groups={groups}
             loading={scheduleQuery.isLoading}
             hasSchedule={scheduleQuery.data !== null && scheduleQuery.data !== undefined}
+            styles={localStyles}
           />
         </View>
       ) : null}
-    </Pressable>
+    </PressableButton>
   )
 }
 
@@ -111,9 +119,10 @@ interface ArrivalsBodyProps {
   groups: ArrivalGroup[]
   loading: boolean
   hasSchedule: boolean
+  styles: LocalStyles
 }
 
-function ArrivalsBody({ density, groups, loading, hasSchedule }: ArrivalsBodyProps) {
+function ArrivalsBody({ density, groups, loading, hasSchedule, styles }: ArrivalsBodyProps) {
   if (loading) {
     return (
       <View testID="arrivals-skeleton" style={styles.skeletonStack}>
@@ -176,49 +185,66 @@ function ArrivalsBody({ density, groups, loading, hasSchedule }: ArrivalsBodyPro
   )
 }
 
-const styles = StyleSheet.create({
-  column: { flexDirection: 'column', alignItems: 'stretch', gap: 10 },
-  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  // Bleed the arrivals section to the outer card's edges. The cardStyles.row
-  // padding is 14px horizontal / 12px bottom — negate them so the inner block
-  // touches the card's rounded corners.
-  body: { marginTop: 2, marginHorizontal: -14, marginBottom: -12 },
-  emptyText: { color: '#9ca3af', fontSize: 12, paddingHorizontal: 14 },
-  expandedWrap: {
-    overflow: 'hidden',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#374151',
-    // Round only the bottom corners to match the outer card's bottom radius.
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-  },
-  groupHeader: {
-    backgroundColor: '#374151',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  groupHeaderText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  expandedRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.15)',
-  },
-  expandedRowSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 11, flex: 1 },
-  expandedRowMinutes: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  compactRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 },
-  compactHeadsign: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  compactDot: { color: '#9ca3af', fontSize: 13 },
-  compactTimes: { color: '#d1d5db', fontSize: 13 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  skeletonStack: { gap: 6 },
-  skeletonShort: { width: 120, height: 12, borderRadius: 4, backgroundColor: '#374151' },
-  skeletonLong: { width: 180, height: 12, borderRadius: 4, backgroundColor: '#374151' },
-})
+type LocalStyles = ReturnType<typeof makeLocalStyles>
+
+function makeLocalStyles(theme: Theme) {
+  return StyleSheet.create({
+    column: { flexDirection: 'column', alignItems: 'stretch', gap: 10 },
+    headerRow: { flexDirection: 'row', alignItems: 'center', gap: theme.space[3] },
+    // Bleed the arrivals section to the outer card's edges. The cardStyles.row
+    // padding is 14px horizontal / 12px bottom — negate them so the inner block
+    // touches the card's rounded corners.
+    body: { marginTop: 2, marginHorizontal: -14, marginBottom: -theme.space[3] },
+    emptyText: { color: theme.colors.text.secondary, fontSize: 12, paddingHorizontal: 14 },
+    expandedWrap: {
+      overflow: 'hidden',
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border.subtle,
+      // Round only the bottom corners to match the outer card's bottom radius.
+      borderBottomLeftRadius: theme.radius.sm + 2,
+      borderBottomRightRadius: theme.radius.sm + 2,
+    },
+    groupHeader: {
+      backgroundColor: theme.colors.border.subtle,
+      paddingHorizontal: 10,
+      paddingVertical: theme.space[1],
+    },
+    groupHeaderText: {
+      color: theme.colors.text.primary,
+      fontSize: 11,
+      fontWeight: '600',
+    },
+    expandedRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      // Hairline divider sitting on a saturated line color — kept literal
+      // because the line colors come from CTA branding constants and don't
+      // theme-swap.
+      borderTopColor: 'rgba(0,0,0,0.15)',
+    },
+    expandedRowSubtitle: { color: theme.colors.text.onScrimMuted, fontSize: 11, flex: 1 },
+    expandedRowMinutes: { color: theme.colors.text.onScrim, fontWeight: '700', fontSize: 13 },
+    compactRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 },
+    compactHeadsign: { color: theme.colors.text.primary, fontSize: 13, fontWeight: '600' },
+    compactDot: { color: theme.colors.text.secondary, fontSize: 13 },
+    compactTimes: { color: theme.colors.text.secondary, fontSize: 13 },
+    dot: { width: 8, height: 8, borderRadius: 4 },
+    skeletonStack: { gap: 6 },
+    skeletonShort: {
+      width: 120,
+      height: 12,
+      borderRadius: 4,
+      backgroundColor: theme.colors.border.subtle,
+    },
+    skeletonLong: {
+      width: 180,
+      height: 12,
+      borderRadius: 4,
+      backgroundColor: theme.colors.border.subtle,
+    },
+  })
+}

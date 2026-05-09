@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import type { StationTrips, ServiceType } from '@ctt/shared'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 import { TimetableFilterBar, todayServiceType } from './TimetableFilterBar'
 
 type Direction = 'all' | 'inbound' | 'outbound'
@@ -27,6 +29,8 @@ export function MetraTimetable({ stationTrips }: Props) {
   const router = useRouter()
   const [serviceType, setServiceType] = useState<ServiceType>(todayServiceType())
   const [direction, setDirection] = useState<Direction>('all')
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
 
   const trips = stationTrips[serviceType].filter((t) => {
     if (direction === 'inbound') return t.directionId === 1
@@ -66,7 +70,12 @@ export function MetraTimetable({ stationTrips }: Props) {
                   To {trip.headsign}
                 </Text>
                 <Text style={styles.trainNumber}>Train {trip.trainNumber}</Text>
-                <Ionicons name="chevron-forward" size={14} color="#666" style={styles.chevron} />
+                <Ionicons
+                  name="chevron-forward"
+                  size={14}
+                  color={theme.colors.text.muted}
+                  style={styles.chevron}
+                />
               </Pressable>
             )
           })}
@@ -76,46 +85,33 @@ export function MetraTimetable({ stationTrips }: Props) {
   )
 }
 
-const styles = StyleSheet.create({
-  list: {
-    borderRadius: 10,
-    backgroundColor: '#1a1a2e',
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#252540',
-    minHeight: 44,
-  },
-  rowPressed: {
-    backgroundColor: '#252540',
-  },
-  chevron: {
-    marginLeft: 8,
-  },
-  time: {
-    width: 80,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-    fontVariant: ['tabular-nums'],
-  },
-  headsign: {
-    flex: 1,
-    fontSize: 14,
-    color: '#9ca3af',
-  },
-  trainNumber: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#666',
-  },
-  empty: {
-    color: '#666',
-    fontSize: 14,
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    list: {
+      borderRadius: theme.radius.sm + 4,
+      backgroundColor: theme.colors.bg.surface,
+      overflow: 'hidden',
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 14,
+      paddingVertical: theme.space[3],
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border.subtle,
+      minHeight: 44,
+    },
+    rowPressed: { backgroundColor: theme.colors.border.subtle },
+    chevron: { marginLeft: theme.space[2] },
+    time: {
+      width: 80,
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    headsign: { flex: 1, fontSize: 14, color: theme.colors.text.secondary },
+    trainNumber: { fontSize: 12, fontWeight: '500', color: theme.colors.text.muted },
+    empty: { color: theme.colors.text.muted, fontSize: 14 },
+  })
+}

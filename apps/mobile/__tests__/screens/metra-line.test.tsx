@@ -34,6 +34,7 @@ jest.mock('expo-router', () => {
   return {
     Link: ({ children }: { children: ReactNode }) => children,
     useLocalSearchParams: () => ({ line: 'bnsf' }),
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
     Stack,
   }
 })

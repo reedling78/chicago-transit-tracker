@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import type { StationSchedule, ServiceType } from '@ctt/shared'
+import { useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 import { TimetableFilterBar, todayServiceType } from './TimetableFilterBar'
 
 function formatTime(minutesSinceMidnight: number): string {
@@ -24,6 +26,8 @@ interface Props {
 export function CTAScheduleTable({ schedule }: Props) {
   const [serviceType, setServiceType] = useState<ServiceType>(todayServiceType())
   const [activeDirection, setActiveDirection] = useState('all')
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
 
   if (!schedule.directions || schedule.directions.length === 0) {
     return <Text style={styles.empty}>No schedule data available</Text>
@@ -37,7 +41,6 @@ export function CTAScheduleTable({ schedule }: Props) {
     })),
   ]
 
-  // Build time rows based on filters
   let rows: { time: number; headsign: string }[] = []
   if (activeDirection === 'all') {
     for (const dir of schedule.directions) {
@@ -85,34 +88,29 @@ export function CTAScheduleTable({ schedule }: Props) {
   )
 }
 
-const styles = StyleSheet.create({
-  list: {
-    borderRadius: 10,
-    backgroundColor: '#1a1a2e',
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#252540',
-  },
-  time: {
-    width: 80,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-    fontVariant: ['tabular-nums'],
-  },
-  headsign: {
-    flex: 1,
-    fontSize: 14,
-    color: '#9ca3af',
-  },
-  empty: {
-    color: '#666',
-    fontSize: 14,
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    list: {
+      borderRadius: theme.radius.sm + 4,
+      backgroundColor: theme.colors.bg.surface,
+      overflow: 'hidden',
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 14,
+      paddingVertical: theme.space[3],
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border.subtle,
+    },
+    time: {
+      width: 80,
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.colors.text.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    headsign: { flex: 1, fontSize: 14, color: theme.colors.text.secondary },
+    empty: { color: theme.colors.text.muted, fontSize: 14 },
+  })
+}

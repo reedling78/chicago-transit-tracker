@@ -1,6 +1,8 @@
-import { type ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { View, StyleSheet, Pressable, type ViewStyle } from 'react-native'
 import { Link } from 'expo-router'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 
 export type StepStatus = 'default' | 'past' | 'current' | 'skipped'
 export type StepBullet = 'open' | 'filled'
@@ -18,7 +20,6 @@ export interface StepsItemProps {
   testID?: string
 }
 
-// Internal props injected by <Steps>. Not part of the public API.
 interface InternalStepsItemProps extends StepsItemProps {
   _color?: string
   _isFirst?: boolean
@@ -26,7 +27,6 @@ interface InternalStepsItemProps extends StepsItemProps {
 }
 
 function hexWithAlpha(hex: string, alpha: number): string {
-  // Expects '#rrggbb'.
   const h = hex.replace('#', '')
   const r = parseInt(h.slice(0, 2), 16)
   const g = parseInt(h.slice(2, 4), 16)
@@ -46,7 +46,9 @@ export default function StepsItem({
   _isFirst,
   _isLast,
 }: InternalStepsItemProps) {
-  const color = _color ?? '#9ca3af'
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
+  const color = _color ?? theme.colors.text.secondary
   const railColor = color
   const topColor = _isFirst ? 'transparent' : railColor
   const bottomColor = _isLast ? 'transparent' : railColor
@@ -54,20 +56,25 @@ export default function StepsItem({
   const isCurrent = status === 'current'
   const variant: StepBullet | 'halo' = isCurrent ? 'halo' : bullet
 
-  // Pass a single flat style object rather than an array — Pressable inside
-  // expo-router's Link asChild reliably picks up object styles but can drop
-  // array-shaped style props (the working StationTimeline uses the same pattern).
   const rowStyle: ViewStyle = { ...styles.row }
   if (status === 'past' || status === 'skipped') rowStyle.opacity = 0.6
-  if (isCurrent) rowStyle.backgroundColor = hexWithAlpha(color, 0.08)
+  if (isCurrent && _color) rowStyle.backgroundColor = hexWithAlpha(_color, 0.08)
 
   const dotColumn = (
     <View style={styles.dotColumn}>
       <View testID="steps-rail-top" style={[styles.lineSegment, { backgroundColor: topColor }]} />
-      {variant === 'halo' && (
+      {variant === 'halo' && _color && (
         <View
           testID="steps-bullet-halo"
-          style={[styles.bulletHaloOuter, { backgroundColor: hexWithAlpha(color, 0.3) }]}
+          style={[styles.bulletHaloOuter, { backgroundColor: hexWithAlpha(_color, 0.3) }]}
+        >
+          <View style={[styles.bulletHaloInner, { backgroundColor: color }]} />
+        </View>
+      )}
+      {variant === 'halo' && !_color && (
+        <View
+          testID="steps-bullet-halo"
+          style={[styles.bulletHaloOuter, { backgroundColor: theme.colors.border.subtle }]}
         >
           <View style={[styles.bulletHaloInner, { backgroundColor: color }]} />
         </View>
@@ -119,69 +126,43 @@ export default function StepsItem({
   )
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    minHeight: 56,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#1a1a2e',
-  },
-  dotColumn: {
-    width: 24,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-  },
-  lineSegment: {
-    width: 3,
-    flex: 1,
-    minHeight: 12,
-    borderRadius: 1.5,
-  },
-  bulletOpen: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 2,
-    backgroundColor: '#0f0f23',
-  },
-  bulletFilled: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-  },
-  bulletHaloOuter: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bulletHaloInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  contentColumn: {
-    flex: 1,
-    paddingVertical: 12,
-  },
-  contentRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  left: {
-    flex: 1,
-    minWidth: 0,
-  },
-  trailing: {
-    flexShrink: 0,
-  },
-  below: {
-    marginTop: 6,
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.space[3],
+      minHeight: 56,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.colors.border.subtle,
+    },
+    dotColumn: { width: 24, alignSelf: 'stretch', alignItems: 'center' },
+    lineSegment: { width: 3, flex: 1, minHeight: 12, borderRadius: 1.5 },
+    bulletOpen: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      borderWidth: 2,
+      backgroundColor: theme.colors.bg.canvas,
+    },
+    bulletFilled: { width: 20, height: 20, borderRadius: 10, borderWidth: 2 },
+    bulletHaloOuter: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    bulletHaloInner: { width: 12, height: 12, borderRadius: 6 },
+    contentColumn: { flex: 1, paddingVertical: theme.space[3] },
+    contentRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: theme.space[3],
+    },
+    left: { flex: 1, minWidth: 0 },
+    trailing: { flexShrink: 0 },
+    below: { marginTop: 6 },
+  })
+}

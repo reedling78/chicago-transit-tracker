@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, type ImageSourcePropType } from 'react-n
 import { LinearGradient } from 'expo-linear-gradient'
 import type { FavoriteType } from '@ctt/shared'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
+import { useTheme } from '../lib/theme'
 import FavoriteButton from './FavoriteButton'
 
 interface PageHeaderProps {
@@ -18,6 +19,12 @@ interface PageHeaderProps {
 
 const defaultImage = require('../assets/hero-header.jpg')
 
+// Photo gradient stops are a fixed visual treatment, not theme-dependent —
+// the photo behind them is always dark, so the gradient stays the same in
+// both modes. Tokenized text colors apply on top.
+const GRADIENT_STOPS = ['transparent', 'rgba(0,0,0,0.20)', 'rgba(0,0,0,0.85)'] as const
+const TEXT_SHADOW = 'rgba(0,0,0,0.3)'
+
 export default function PageHeader({
   title,
   description,
@@ -28,12 +35,13 @@ export default function PageHeader({
   children,
 }: PageHeaderProps) {
   const headerInset = useNavHeaderInset()
+  const { theme } = useTheme()
   return (
     <View style={[styles.container, { height: 200 + headerInset }]}>
       <Image source={imageSrc} style={styles.backgroundImage} resizeMode="cover" />
-      <View style={styles.tintOverlay} />
+      <View style={[styles.tintOverlay, { backgroundColor: theme.colors.bg.scrim }]} />
       <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.20)', 'rgba(0,0,0,0.85)']}
+        colors={GRADIENT_STOPS}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={styles.gradientOverlay}
@@ -45,7 +53,7 @@ export default function PageHeader({
             {title && (
               <View style={styles.titleInner}>
                 {icon && <View style={styles.iconWrapper}>{icon}</View>}
-                <Text style={styles.title}>{title}</Text>
+                <Text style={[styles.title, { color: theme.colors.text.onScrim }]}>{title}</Text>
               </View>
             )}
             {favorite && (
@@ -55,7 +63,11 @@ export default function PageHeader({
             )}
           </View>
         )}
-        {description && <Text style={styles.description}>{description}</Text>}
+        {description && (
+          <Text style={[styles.description, { color: theme.colors.text.onScrimMuted }]}>
+            {description}
+          </Text>
+        )}
         {children && <View style={styles.children}>{children}</View>}
       </View>
     </View>
@@ -75,7 +87,6 @@ const styles = StyleSheet.create({
   },
   tintOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.40)',
   },
   gradientOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -110,16 +121,14 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   title: {
-    color: '#ffffff',
     fontSize: 22,
     fontWeight: 'bold',
     letterSpacing: -0.3,
-    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowColor: TEXT_SHADOW,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
   description: {
-    color: 'rgba(255,255,255,0.85)',
     fontSize: 14,
     marginTop: 6,
   },

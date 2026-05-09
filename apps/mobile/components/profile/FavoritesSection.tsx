@@ -1,6 +1,9 @@
+import { useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import type { Favorite, Line, Station } from '@ctt/shared'
 import { favoriteKey } from '@ctt/shared'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 import FavoriteRow from './FavoriteRow'
 
 interface FavoritesSectionProps {
@@ -16,6 +19,8 @@ export default function FavoritesSection({
   lines,
   stations,
 }: FavoritesSectionProps) {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   if (favorites.length === 0) return null
   return (
     <View>
@@ -35,17 +40,19 @@ export default function FavoritesSection({
   )
 }
 
-const styles = StyleSheet.create({
-  heading: {
-    color: '#9ca3af',
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.6,
-    marginBottom: 8,
-  },
-  list: {
-    backgroundColor: '#111827',
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    heading: {
+      color: theme.colors.text.secondary,
+      fontSize: 11,
+      fontWeight: '700',
+      letterSpacing: 0.6,
+      marginBottom: theme.space[2],
+    },
+    list: {
+      backgroundColor: theme.colors.bg.elevated,
+      borderRadius: theme.radius.md - 2,
+      overflow: 'hidden',
+    },
+  })
+}

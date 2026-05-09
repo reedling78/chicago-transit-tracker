@@ -1,5 +1,9 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { useMemo } from 'react'
+import { View, Text, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
+import PressableButton from '../PressableButton'
 
 const CTA_LINES = [
   { name: 'Red', color: '#C60C30' },
@@ -29,11 +33,14 @@ interface CardProps {
 
 function ServiceCard({ href, label, description, lines }: CardProps) {
   const router = useRouter()
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   return (
-    <Pressable
+    <PressableButton
       onPress={() => router.push(href as never)}
       accessibilityRole="link"
       accessibilityLabel={label}
+      feedback="subtle"
       style={styles.card}
     >
       <Text style={styles.cardLabel}>{label}</Text>
@@ -45,11 +52,13 @@ function ServiceCard({ href, label, description, lines }: CardProps) {
           </View>
         ))}
       </View>
-    </Pressable>
+    </PressableButton>
   )
 }
 
 export default function DashboardHero() {
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   return (
     <View style={styles.section}>
       <ServiceCard
@@ -68,16 +77,33 @@ export default function DashboardHero() {
   )
 }
 
-const styles = StyleSheet.create({
-  section: { gap: 12, marginTop: 8 },
-  card: {
-    backgroundColor: '#1f2937',
-    borderRadius: 12,
-    padding: 16,
-  },
-  cardLabel: { color: '#fff', fontSize: 22, fontWeight: '700', marginBottom: 4 },
-  cardDescription: { color: '#9ca3af', fontSize: 13, marginBottom: 12 },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
-  chipText: { color: '#fff', fontSize: 11, fontWeight: '600' },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    section: { gap: theme.space[3], marginTop: theme.space[2] },
+    card: {
+      backgroundColor: theme.colors.bg.surface,
+      borderRadius: theme.radius.md,
+      padding: theme.space[4],
+    },
+    cardLabel: {
+      color: theme.colors.text.primary,
+      fontSize: 22,
+      fontWeight: '700',
+      marginBottom: theme.space[1],
+    },
+    cardDescription: {
+      color: theme.colors.text.secondary,
+      fontSize: 13,
+      marginBottom: theme.space[3],
+    },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.space[1] + 2 },
+    chip: {
+      paddingHorizontal: theme.space[2],
+      paddingVertical: theme.space[1],
+      borderRadius: theme.radius.full,
+    },
+    // Chips render saturated CTA/Metra brand colors as bg, so chip text is
+    // always near-white regardless of mode.
+    chipText: { color: theme.colors.text.onScrim, fontSize: 11, fontWeight: '600' },
+  })
+}

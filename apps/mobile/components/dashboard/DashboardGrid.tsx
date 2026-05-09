@@ -1,4 +1,4 @@
-import { useCallback, useRef, type ReactNode } from 'react'
+import { useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import DraggableFlatList, { type RenderItemParams } from 'react-native-draggable-flatlist'
 import type { Favorite, Line, Station } from '@ctt/shared'
@@ -6,6 +6,8 @@ import { useAuth } from '../../lib/AuthContext'
 import { useFavoritesStore } from '../../lib/store/favorites'
 import { useLinesQuery, useStationsQuery } from '../../lib/useDashboardQueries'
 import { useReorderFavorites } from '../../lib/useReorderFavorites'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 import LineCard from './cards/LineCard'
 import StationCard from './cards/StationCard'
 import TrainCard from './cards/TrainCard'
@@ -28,6 +30,8 @@ export default function DashboardGrid({
   const { data: lines } = useLinesQuery()
   const { data: stations } = useStationsQuery()
   const { reorder } = useReorderFavorites()
+  const { theme } = useTheme()
+  const styles = useMemo(() => makeStyles(theme), [theme])
   const sheetRef = useRef<FavoriteMenuSheetHandle>(null)
   const pickerRef = useRef<TrainStopPickerSheetHandle>(null)
 
@@ -153,15 +157,17 @@ function renderFavoriteCard({
   )
 }
 
-const styles = StyleSheet.create({
-  listContent: { paddingHorizontal: 16, paddingBottom: 40 },
-  fallbackContent: { paddingHorizontal: 16, paddingBottom: 40 },
-  footerHint: {
-    color: '#6b7280',
-    fontSize: 12,
-    fontStyle: 'italic',
-    marginTop: 8,
-    marginBottom: 24,
-    paddingHorizontal: 4,
-  },
-})
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    listContent: { paddingHorizontal: theme.space[4], paddingBottom: 40 },
+    fallbackContent: { paddingHorizontal: theme.space[4], paddingBottom: 40 },
+    footerHint: {
+      color: theme.colors.text.muted,
+      fontSize: 12,
+      fontStyle: 'italic',
+      marginTop: theme.space[2],
+      marginBottom: theme.space[6],
+      paddingHorizontal: theme.space[1],
+    },
+  })
+}

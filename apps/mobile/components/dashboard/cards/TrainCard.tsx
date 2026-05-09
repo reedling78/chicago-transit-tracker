@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import {
   SERVICE_LABEL,
@@ -9,9 +9,11 @@ import {
 } from '@ctt/shared'
 import { useFavoriteTripQuery } from '../../../lib/useDashboardQueries'
 import { useMetraTripLiveStatus } from '../../../lib/useMetraTripLiveStatus'
+import { useTheme } from '../../../lib/theme'
 import MetraTripHeroStatusCardCompact from '../../MetraTripHeroStatusCardCompact'
+import PressableButton from '../../PressableButton'
 import CardMenuButton from './CardMenuButton'
-import { cardStyles } from './cardStyles'
+import { useCardStyles } from './cardStyles'
 
 interface TrainCardProps {
   favorite: Favorite
@@ -42,6 +44,8 @@ export default function TrainCard({
   isActive,
 }: TrainCardProps) {
   const router = useRouter()
+  const cardStyles = useCardStyles()
+  const { theme } = useTheme()
   const { data: trip } = useFavoriteTripQuery(favorite.id) as { data: MetraTripDetail | null }
   const live = useMetraTripLiveStatus(trip ?? null)
   const [lineSlugFromId, trainNumberFromId] = favorite.id.split('_')
@@ -73,12 +77,13 @@ export default function TrainCard({
   const accent = lineColor ? { ...cardStyles.accentBorder, borderLeftColor: lineColor } : null
 
   return (
-    <Pressable
+    <PressableButton
       onPress={() => router.push(`/metra/${lineSlug}/train/${trainNumber}` as never)}
       onLongPress={onLongPress}
       delayLongPress={250}
       accessibilityRole="link"
       accessibilityLabel={title}
+      feedback="subtle"
       style={[cardStyles.row, styles.container, accent, isActive && cardStyles.rowDragging]}
     >
       <View style={styles.headerRow}>
@@ -95,7 +100,10 @@ export default function TrainCard({
               pill.tone === 'line' && lineColor ? { backgroundColor: lineColor } : null
             const textOverrideStyle =
               pill.tone === 'line'
-                ? { color: line?.textColor ?? '#fff', fontWeight: '700' as const }
+                ? {
+                    color: line?.textColor ?? theme.colors.text.onScrim,
+                    fontWeight: '700' as const,
+                  }
                 : null
             return (
               <View key={`${pill.label}-${i}`} style={[cardStyles.pill, overrideStyle]}>
@@ -120,7 +128,7 @@ export default function TrainCard({
           nowMs={live.nowMs}
         />
       )}
-    </Pressable>
+    </PressableButton>
   )
 }
 

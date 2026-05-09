@@ -188,6 +188,7 @@ apps/
       HeaderBackButton.tsx        Translucent circle back button used as Stack headerLeft (returns null at root)
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
+      PressableButton.tsx         Snappy press primitive — Pressable + tuned scale/opacity feedback, Android ripple, opt-in expo-haptics
       dashboard/
         Dashboard.tsx             Home screen orchestrator — DashboardGrid is the single scroller (header + DashboardHero passed as ListHeader/ListFooter)
         DashboardHero.tsx         CTA + Metra service nav cards
@@ -195,7 +196,7 @@ apps/
         FavoriteMenuSheet.tsx     @gorhom/bottom-sheet menu invoked from each card's ⋯ button
         TrainStopPickerSheet.tsx  Stop picker bottom sheet for train favorites — sets origin/destination override
         cards/
-          cardStyles.ts           Shared StyleSheet for all favorite card rows
+          cardStyles.ts           Shared `useCardStyles()` hook returning theme-aware StyleSheet for all favorite card rows
           CardMenuButton.tsx      Trailing ⋯ Pressable used on every card
           LineCard.tsx            Favorite-line row (title + termini + colored chip)
           StationCard.tsx         Favorite-station row — direction filter + density + arrivals
@@ -222,6 +223,12 @@ apps/
         favorites.ts              Zustand store for favorites (AsyncStorage-persisted) + reorder action + pendingWrites guard
       auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
       AuthContext.tsx              Auth context + onSnapshot live profile listener; hydrates favorites store (skipped while pendingWrites>0)
+      theme/
+        tokens.ts                 Light + dark token objects (semantic colors, numeric space + radius scales)
+        ThemeProvider.tsx         Provider — resolves system/light/dark + persists choice to AsyncStorage
+        useTheme.ts               Hook returning { theme, mode, resolvedMode, setMode }
+        useSystemColorScheme.ts   Thin wrapper around RN's useColorScheme (mockable for tests)
+        index.ts                  Barrel export
     __tests__/                    Jest + React Native Testing Library test suites
   functions/
     src/
@@ -276,6 +283,7 @@ packages/
 - Firebase Cloud Functions (2nd gen) with Cloud Scheduler (automated GTFS sync)
 - react-native-gesture-handler + react-native-reanimated + react-native-draggable-flatlist (mobile dashboard drag-to-reorder)
 - @gorhom/bottom-sheet (mobile favorite-card overflow menu)
+- expo-haptics (mobile — opt-in tactile feedback on `PressableButton`)
 - @dnd-kit/core + @dnd-kit/sortable + @dnd-kit/utilities (web dashboard drag-to-reorder)
 - Jest 30 + React Testing Library
 
@@ -354,7 +362,9 @@ The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore re
 
 ### Dark mode
 
-Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` applies `.dark` to `<html>` before first paint to prevent flash. `suppressHydrationWarning` is set on `<html>`. `ThemeToggle` uses a mount-only render pattern to avoid hydration mismatch.
+**Web** uses Tailwind v4 class-based dark mode. A blocking inline `<script>` in `<head>` applies `.dark` to `<html>` before first paint to prevent flash. `suppressHydrationWarning` is set on `<html>`. `ThemeToggle` uses a mount-only render pattern to avoid hydration mismatch.
+
+**Mobile** has its own design-token system at `apps/mobile/lib/theme/` — semantic color tokens (`bg/text/border/accent/status/onScrim`), a numeric 4-pt `space` scale, and `radius` scale. `ThemeProvider` wraps the root and resolves a three-state `mode` setting (`'system' | 'light' | 'dark'`) against `useColorScheme()`, persisting the choice to AsyncStorage. Components consume tokens via `useTheme()` and a `makeStyles(theme)` factory + `useMemo` (instead of a static `StyleSheet.create`). The light palette mirrors web's Tailwind defaults so the brand stays consistent cross-platform; the dark palette preserves the mobile values shipped before the migration. CTA/Metra **line identity colors** continue to come from `@ctt/shared` (Pantone-correct, non-theme-aware) — the tokens are for chrome only. The user-facing toggle lives on the profile screen as a System/Light/Dark segmented control.
 
 ### Firebase Authentication
 
