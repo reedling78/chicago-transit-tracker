@@ -5,19 +5,10 @@ import { useStation, useSchedule } from '../../lib/hooks'
 import CtaStationDetailScreen from '../../app/cta/station/[station]'
 
 jest.mock('expo-router', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const ReactMock = require('react')
   const Stack = () => null
   Stack.displayName = 'Stack'
-  const StackScreen = (props: {
-    options?: { headerTitle?: () => ReactNode; headerRight?: () => ReactNode }
-  }) =>
-    ReactMock.createElement(
-      ReactMock.Fragment,
-      null,
-      props.options?.headerTitle ? props.options.headerTitle() : null,
-      props.options?.headerRight ? props.options.headerRight() : null,
-    )
+  const StackScreen = (props: { options?: { headerRight?: () => ReactNode } }) =>
+    props.options?.headerRight ? props.options.headerRight() : null
   StackScreen.displayName = 'StackScreen'
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
@@ -75,17 +66,14 @@ describe('CtaStationDetailScreen', () => {
     expect(screen.getAllByText('To Howard').length).toBeGreaterThan(0)
   })
 
-  it('renders the station name and lines in the app bar via headerTitle', () => {
+  it('renders the station name as the PageHeader title', () => {
     mockUseStation.mockReturnValue({ station: mockStation, loading: false })
     mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     render(<CtaStationDetailScreen />)
     expect(screen.getByText('Clark/Lake')).toBeOnTheScreen()
-    expect(
-      screen.getByText('Red · Blue · Green · Brown · Purple · Pink · Orange'),
-    ).toBeOnTheScreen()
   })
 
-  it('places the favorite button in the app bar via headerRight', () => {
+  it('places the favorite button in the PageHeader title row', () => {
     mockUseStation.mockReturnValue({ station: mockStation, loading: false })
     mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     render(<CtaStationDetailScreen />)

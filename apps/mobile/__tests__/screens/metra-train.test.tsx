@@ -3,24 +3,25 @@ import { render, screen } from '@testing-library/react-native'
 import MetraTrainDetailScreen from '../../app/metra/[line]/train/[trainNumber]'
 import { useMetraTrip } from '../../lib/hooks'
 
+jest.mock('expo-linear-gradient', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    LinearGradient: (props: Record<string, unknown>) => <View {...props} />,
+  }
+})
+
+jest.mock('../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
+
 jest.mock('expo-router', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const ReactMock = require('react')
   const Stack = () => null
   Stack.displayName = 'Stack'
-  const StackScreen = (props: {
-    options?: {
-      headerTitle?: () => React.ReactNode
-      headerRight?: () => React.ReactNode
-      headerStyle?: { backgroundColor?: string }
-    }
-  }) =>
-    ReactMock.createElement(
-      ReactMock.Fragment,
-      null,
-      props.options?.headerTitle ? props.options.headerTitle() : null,
-      props.options?.headerRight ? props.options.headerRight() : null,
-    )
+  const StackScreen = (props: { options?: { headerRight?: () => React.ReactNode } }) =>
+    props.options?.headerRight ? props.options.headerRight() : null
   StackScreen.displayName = 'StackScreen'
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
@@ -58,7 +59,7 @@ describe('MetraTrainDetailScreen', () => {
     expect(screen.UNSAFE_queryByType(ActivityIndicator)).not.toBeNull()
   })
 
-  it('renders the train number in the app bar even while loading', () => {
+  it('renders the train number in the PageHeader even while loading', () => {
     mockUseMetraTrip.mockReturnValue({ trip: null, loading: true })
     render(<MetraTrainDetailScreen />)
     expect(screen.getByText('Train 1200')).toBeOnTheScreen()
@@ -71,7 +72,7 @@ describe('MetraTrainDetailScreen', () => {
     expect(screen.getByText("We couldn't find 1200 on the BNSF line.")).toBeOnTheScreen()
   })
 
-  it('renders the train number and line name in the app bar when the trip resolves', () => {
+  it('renders the train number and line name in the PageHeader when the trip resolves', () => {
     mockUseMetraTrip.mockReturnValue({
       trip: {
         tripId: 't',
@@ -91,7 +92,7 @@ describe('MetraTrainDetailScreen', () => {
     expect(screen.getByText('BNSF Railway')).toBeOnTheScreen()
   })
 
-  it('places the favorite button in the app bar via headerRight', () => {
+  it('places the favorite button in the PageHeader title row', () => {
     mockUseMetraTrip.mockReturnValue({
       trip: {
         tripId: 't',

@@ -28,6 +28,7 @@ export default function CtaLinesScreen() {
         ListHeaderComponent={
           <>
             <PageHeader
+              compact
               title="CTA Lines"
               description="8 color-coded rapid transit lines serving Chicago and the inner suburbs."
             />

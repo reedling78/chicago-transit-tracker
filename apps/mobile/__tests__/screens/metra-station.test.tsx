@@ -5,19 +5,10 @@ import { useStation, useSchedule, useStationTrips } from '../../lib/hooks'
 import MetraStationDetailScreen from '../../app/metra/station/[station]'
 
 jest.mock('expo-router', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const ReactMock = require('react')
   const Stack = () => null
   Stack.displayName = 'Stack'
-  const StackScreen = (props: {
-    options?: { headerTitle?: () => ReactNode; headerRight?: () => ReactNode }
-  }) =>
-    ReactMock.createElement(
-      ReactMock.Fragment,
-      null,
-      props.options?.headerTitle ? props.options.headerTitle() : null,
-      props.options?.headerRight ? props.options.headerRight() : null,
-    )
+  const StackScreen = (props: { options?: { headerRight?: () => ReactNode } }) =>
+    props.options?.headerRight ? props.options.headerRight() : null
   StackScreen.displayName = 'StackScreen'
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
@@ -78,7 +69,7 @@ describe('MetraStationDetailScreen', () => {
     expect(screen.getByText('Timetable')).toBeOnTheScreen()
   })
 
-  it('renders the station name and line in the app bar via headerTitle', () => {
+  it('renders the station name as the PageHeader title', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
     mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
@@ -87,7 +78,7 @@ describe('MetraStationDetailScreen', () => {
     expect(screen.getAllByText('BNSF').length).toBeGreaterThan(0)
   })
 
-  it('places the favorite button in the app bar via headerRight', () => {
+  it('places the favorite button in the PageHeader title row', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
     mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
     mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })

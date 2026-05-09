@@ -4,6 +4,18 @@ import { mockLine, mockStation } from '../fixtures'
 import { useLine, useLineStations } from '../../lib/hooks'
 import CtaLineDetailScreen from '../../app/cta/[line]'
 
+jest.mock('expo-linear-gradient', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { View } = require('react-native')
+  return {
+    LinearGradient: (props: Record<string, unknown>) => <View {...props} />,
+  }
+})
+
+jest.mock('../../lib/useNavHeaderInset', () => ({
+  useNavHeaderInset: () => 64,
+}))
+
 jest.mock('react-native-svg', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native')
@@ -12,23 +24,16 @@ jest.mock('react-native-svg', () => {
     default: (props: Record<string, unknown>) => <View {...props} />,
     Circle: () => null,
     Path: () => null,
+    Rect: () => null,
+    G: ({ children }: { children?: React.ReactNode }) => children ?? null,
   }
 })
 
 jest.mock('expo-router', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const ReactMock = require('react')
   const Stack = () => null
   Stack.displayName = 'Stack'
-  const StackScreen = (props: {
-    options?: { headerTitle?: () => ReactNode; headerRight?: () => ReactNode }
-  }) =>
-    ReactMock.createElement(
-      ReactMock.Fragment,
-      null,
-      props.options?.headerTitle ? props.options.headerTitle() : null,
-      props.options?.headerRight ? props.options.headerRight() : null,
-    )
+  const StackScreen = (props: { options?: { headerRight?: () => ReactNode } }) =>
+    props.options?.headerRight ? props.options.headerRight() : null
   StackScreen.displayName = 'StackScreen'
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
@@ -55,12 +60,12 @@ describe('CtaLineDetailScreen', () => {
     expect(screen.queryByText('Red Line')).toBeNull()
   })
 
-  it('renders the line name and termini in the app bar via headerTitle', () => {
+  it('renders the line name and termini in the PageHeader', () => {
     mockUseLine.mockReturnValue({ line: mockLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockStation], loading: false })
     render(<CtaLineDetailScreen />)
     expect(screen.getByText('Red Line')).toBeOnTheScreen()
-    expect(screen.getByText('Howard — 95th/Dan Ryan')).toBeOnTheScreen()
+    expect(screen.getByText('Howard ↔ 95th/Dan Ryan')).toBeOnTheScreen()
   })
 
   it('renders the station timeline body when data is loaded', () => {
@@ -70,12 +75,12 @@ describe('CtaLineDetailScreen', () => {
     expect(screen.getByText('Clark/Lake')).toBeOnTheScreen()
   })
 
-  it('places the favorite button in the app bar via headerRight', () => {
+  it('places the favorite button in the PageHeader title row', () => {
     mockUseLine.mockReturnValue({ line: mockLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockStation], loading: false })
     render(<CtaLineDetailScreen />)
     // FavoriteButton is globally stubbed in jest.setup.ts; verify the stub appears
-    // with the correct type/id, which proves the component is wired into headerRight.
+    // with the correct type/id, which proves the component is wired into the header.
     const stub = screen.getByTestId('favorite-button-stub')
     expect(stub).toBeOnTheScreen()
     expect(stub.props.children).toBe('line:red')
