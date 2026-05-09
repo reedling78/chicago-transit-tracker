@@ -65,6 +65,7 @@ function toStation(id: string, d: DocumentData): Station {
     ctaMapId: d.ctaMapId ?? null,
     metraStopId: d.metraStopId ?? null,
     photoUrl: d.photoUrl ?? null,
+    photoUrls: d.photoUrls ?? null,
     wikipediaUrl: d.wikipediaUrl ?? null,
     metraLink: d.metraLink ?? null,
     lineOrder: d.lineOrder ?? {},
