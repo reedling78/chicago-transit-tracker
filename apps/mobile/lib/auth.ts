@@ -17,8 +17,25 @@ import { auth } from './firebase'
 
 WebBrowser.maybeCompleteAuthSession()
 
-// Google OAuth client ID from Firebase Console — must be set before Google sign-in works
-const GOOGLE_WEB_CLIENT_ID = '' // TODO: set from Firebase Console
+// Google OAuth client IDs. Created in Google Cloud Console → Credentials.
+// See docs/superpowers/plans/2026-05-14-google-auth-setup.md for the setup steps.
+//   - Web: auto-created when Google sign-in is enabled in Firebase Auth.
+//          Required so the resulting id_token verifies against the Firebase project.
+//   - iOS: bundle ID com.chicagotransittracker.app. Its reverse-DNS URL scheme
+//          must also be listed under expo.ios.infoPlist.CFBundleURLTypes in app.json.
+//   - Android: package com.chicagotransittracker.app + debug & release SHA-1 fingerprints.
+const GOOGLE_WEB_CLIENT_ID =
+  '591975765807-lb90qdlscfn8r1v48ercpvla5ifp8b0p.apps.googleusercontent.com'
+const GOOGLE_IOS_CLIENT_ID =
+  '591975765807-6pbc1mbpucbqch5jjb68lnpal0ldt6pv.apps.googleusercontent.com'
+const GOOGLE_ANDROID_CLIENT_ID =
+  '591975765807-9s6a5evq6pask1f67g7tpnjndqnde5en.apps.googleusercontent.com'
+
+export const googleAuthConfig = {
+  webClientId: GOOGLE_WEB_CLIENT_ID,
+  iosClientId: GOOGLE_IOS_CLIENT_ID,
+  androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+}
 
 // Apple Sign in via web (Android / non-iOS). The Service ID is configured in
 // the Apple Developer Console; the bridge URL is a Next.js POST endpoint
@@ -180,26 +197,16 @@ export function completeAppleSignInFromCallback(params: Record<string, string | 
   return completeAppleAuth(params)
 }
 
-export async function signInWithGoogle() {
-  const redirectUri = AuthSession.makeRedirectUri()
-  const discovery = {
-    authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenEndpoint: 'https://oauth2.googleapis.com/token',
+/**
+ * Exchanges a Google ID token (obtained via Google.useAuthRequest in the sign-in
+ * screen) for a Firebase user session. The OAuth flow itself lives in the
+ * screen because expo-auth-session/providers/google is a hook.
+ */
+export function signInWithGoogleCredential(idToken: string) {
+  if (!GOOGLE_WEB_CLIENT_ID) {
+    throw new Error('Google client IDs are not configured. Set them in apps/mobile/lib/auth.ts')
   }
-
-  const request = new AuthSession.AuthRequest({
-    clientId: requireClientId(GOOGLE_WEB_CLIENT_ID, 'Google'),
-    redirectUri,
-    scopes: ['openid', 'profile', 'email'],
-    responseType: AuthSession.ResponseType.IdToken,
-  })
-
-  const result = await request.promptAsync(discovery)
-  if (result.type !== 'success' || !result.params.id_token) {
-    throw new Error('Google sign-in was cancelled or failed')
-  }
-
-  const credential = GoogleAuthProvider.credential(result.params.id_token)
+  const credential = GoogleAuthProvider.credential(idToken)
   return signInWithCredential(auth, credential)
 }
 

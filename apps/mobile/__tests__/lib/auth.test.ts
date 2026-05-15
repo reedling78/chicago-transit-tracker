@@ -2,9 +2,13 @@ import { Platform } from 'react-native'
 import * as AppleAuthentication from 'expo-apple-authentication'
 import * as WebBrowser from 'expo-web-browser'
 import * as Crypto from 'expo-crypto'
-import { signInWithCredential, OAuthProvider } from 'firebase/auth'
+import { signInWithCredential, OAuthProvider, GoogleAuthProvider } from 'firebase/auth'
 
-import { signInWithApple, completeAppleSignInFromCallback } from '../../lib/auth'
+import {
+  signInWithApple,
+  completeAppleSignInFromCallback,
+  signInWithGoogleCredential,
+} from '../../lib/auth'
 
 jest.mock('firebase/auth', () => {
   const credentialFn = jest.fn((opts: { idToken: string; rawNonce: string }) => ({
@@ -59,6 +63,26 @@ const mockOpenAuthSessionAsync = WebBrowser.openAuthSessionAsync as jest.MockedF
 const mockDigestStringAsync = Crypto.digestStringAsync as jest.MockedFunction<
   typeof Crypto.digestStringAsync
 >
+
+describe('signInWithGoogleCredential', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('builds a Google credential from the id token and signs into Firebase', async () => {
+    ;(GoogleAuthProvider.credential as jest.Mock).mockReturnValueOnce({
+      __google_credential: true,
+    })
+
+    await signInWithGoogleCredential('google-id-token')
+
+    expect(GoogleAuthProvider.credential).toHaveBeenCalledWith('google-id-token')
+    expect(signInWithCredential).toHaveBeenCalledWith(
+      { __auth: true },
+      { __google_credential: true },
+    )
+  })
+})
 
 describe('signInWithApple', () => {
   beforeEach(() => {

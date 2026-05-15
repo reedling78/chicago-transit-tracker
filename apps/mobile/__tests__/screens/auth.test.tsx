@@ -17,8 +17,13 @@ jest.mock('../../lib/auth', () => ({
   signUpWithEmail: jest.fn(),
   resetPassword: jest.fn(),
   signInWithApple: jest.fn(),
-  signInWithGoogle: jest.fn(),
   signInWithFacebook: jest.fn(),
+  signInWithGoogleCredential: jest.fn(),
+  googleAuthConfig: { webClientId: '', iosClientId: '', androidClientId: '' },
+}))
+
+jest.mock('expo-auth-session/providers/google', () => ({
+  useAuthRequest: () => [null, null, jest.fn()],
 }))
 
 describe('AuthScreen', () => {
