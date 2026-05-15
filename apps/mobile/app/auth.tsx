@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
+import * as Google from 'expo-auth-session/providers/google'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import { useTheme } from '../lib/theme'
 import type { Theme } from '../lib/theme'
@@ -18,8 +19,9 @@ import {
   signUpWithEmail,
   resetPassword,
   signInWithApple,
-  signInWithGoogle,
   signInWithFacebook,
+  signInWithGoogleCredential,
+  googleAuthConfig,
 } from '../lib/auth'
 
 type Mode = 'signIn' | 'signUp' | 'resetPassword'
@@ -35,6 +37,19 @@ export default function AuthScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const [, googleResponse, promptGoogle] = Google.useAuthRequest(googleAuthConfig)
+
+  useEffect(() => {
+    if (googleResponse?.type !== 'success') return
+    const idToken = googleResponse.params.id_token
+    if (!idToken) return
+    signInWithGoogleCredential(idToken)
+      .then(() => router.back())
+      .catch((err) =>
+        Alert.alert('Error', err instanceof Error ? err.message : 'An error occurred'),
+      )
+  }, [googleResponse, router])
 
   async function handleSubmit() {
     if (!email.trim()) return
@@ -59,10 +74,9 @@ export default function AuthScreen() {
     }
   }
 
-  async function handleSocial(provider: 'apple' | 'google' | 'facebook') {
+  async function handleSocial(provider: 'apple' | 'facebook') {
     try {
       if (provider === 'apple') await signInWithApple()
-      else if (provider === 'google') await signInWithGoogle()
       else await signInWithFacebook()
       router.back()
     } catch (err) {
@@ -137,7 +151,7 @@ export default function AuthScreen() {
             <Text style={styles.socialButtonText}>Sign in with Apple</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.socialButton} onPress={() => handleSocial('google')}>
+          <TouchableOpacity style={styles.socialButton} onPress={() => promptGoogle()}>
             <Text style={styles.socialButtonText}>Sign in with Google</Text>
           </TouchableOpacity>
 
