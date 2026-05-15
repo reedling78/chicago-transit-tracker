@@ -38,21 +38,51 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function PrivacyPage() {
   return (
     <main>
-      <PageHeader title="Privacy Statement" description="Effective date: March 2025" />
+      <PageHeader title="Privacy Statement" description="Effective date: May 2026" />
 
       <Section title="Overview">
         <p>
           Chicago Transit Tracker respects your privacy. This statement explains what information is
-          collected when you visit this site, how it is used, and your choices. We do not sell,
-          rent, or share personal data with third parties for marketing purposes.
+          collected when you visit this site or use the companion mobile app, how it is used, and
+          your choices. We do not sell, rent, or share personal data with third parties for
+          marketing purposes.
         </p>
       </Section>
 
-      <Section title="Information We Collect">
+      <Section title="Account Data">
         <p>
-          This site does not require you to create an account or provide any personal information.
-          We do not collect names, email addresses, or payment details.
+          You can browse all transit information without creating an account. If you choose to sign
+          in to save favorites, we collect the following from your sign-in provider (Apple, Google,
+          Facebook, or email and password) and store it in Firebase Authentication and Firestore:
         </p>
+        <ul className="list-inside list-disc space-y-1 pl-2">
+          <li>
+            Email address — used to identify your account and send password-reset links if you chose
+            email sign-in.
+          </li>
+          <li>
+            Display name and profile photo URL — supplied by Apple, Google, or Facebook during
+            social sign-in. Used only inside the app to label your account.
+          </li>
+          <li>
+            Sign-in provider (e.g. <em>apple.com</em>, <em>google.com</em>) and a Firebase user ID.
+          </li>
+          <li>
+            Your favorites map (saved lines, stations, and trains) and the timestamps when your
+            account was created and last updated.
+          </li>
+        </ul>
+        <p>
+          We do not collect names, email addresses, or photos from people who do not sign in. We
+          never collect payment details.
+        </p>
+        <p>
+          Account data is stored in Firebase Firestore under owner-only access rules — only you can
+          read or write your own profile document.
+        </p>
+      </Section>
+
+      <Section title="Analytics">
         <p>
           We use{' '}
           <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4 (GA4)</strong> to
@@ -70,7 +100,7 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
-      <Section title="Cookies">
+      <Section title="Cookies and Local Storage">
         <p>
           GA4 uses first-party cookies to distinguish visits and sessions. These are analytics
           cookies only — we do not use advertising, retargeting, or cross-site tracking cookies.
@@ -80,8 +110,8 @@ export default function PrivacyPage() {
           <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs dark:bg-gray-800">
             localStorage
           </code>{' '}
-          in your browser to remember your light/dark mode preference. This data never leaves your
-          device.
+          in your browser to remember your light/dark mode preference and your favorites list while
+          signed out. This data never leaves your device.
         </p>
       </Section>
 
@@ -91,9 +121,33 @@ export default function PrivacyPage() {
           we can improve the site. Aggregate, anonymized analytics are never sold or shared with
           third parties.
         </p>
+        <p>
+          Account data (email, profile, favorites) is used only to provide the favorites feature
+          across your devices. It is not used for marketing, sold, or shared with third parties.
+        </p>
       </Section>
 
       <Section title="Third-Party Services">
+        <p>
+          <strong className="text-gray-700 dark:text-gray-300">Firebase Authentication</strong> —
+          stores account credentials and the email/profile fields described above. Apple, Google,
+          and Facebook social sign-in uses each provider&rsquo;s OAuth flow under their respective
+          privacy policies.
+        </p>
+        <p>
+          <strong className="text-gray-700 dark:text-gray-300">Firebase Firestore</strong> — stores
+          your profile document and favorites map. Firebase Hosting and Firebase App Hosting serve
+          the site and may log standard server request data (IP address, timestamp, URL). See{' '}
+          <a
+            href="https://firebase.google.com/support/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Firebase&rsquo;s privacy information
+          </a>
+          .
+        </p>
         <p>
           <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4</strong> —
           analytics provider. Data is processed under Google&rsquo;s privacy policy at{' '}
@@ -107,23 +161,24 @@ export default function PrivacyPage() {
           </a>
           .
         </p>
-        <p>
-          <strong className="text-gray-700 dark:text-gray-300">Firebase Hosting</strong> — used to
-          serve the site. Firebase may log standard server request data (IP address, timestamp,
-          URL). See{' '}
-          <a
-            href="https://firebase.google.com/support/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline dark:text-blue-400"
-          >
-            Firebase&rsquo;s privacy information
-          </a>
-          .
-        </p>
       </Section>
 
       <Section title="Your Choices">
+        <p>
+          You can sign out at any time from the Profile page. Signing out clears the active session
+          on this device but does not delete your stored profile.
+        </p>
+        <p>
+          To delete your account and all associated data (email, profile, favorites), email{' '}
+          <a
+            href="mailto:reed.rizzo@gmail.com?subject=Chicago%20Transit%20Tracker%20account%20deletion"
+            className="text-blue-600 hover:underline dark:text-blue-400"
+          >
+            reed.rizzo@gmail.com
+          </a>{' '}
+          from the address on the account. We will remove the account and its profile document from
+          Firebase within a reasonable period.
+        </p>
         <p>
           You can opt out of Google Analytics tracking by installing the{' '}
           <a
