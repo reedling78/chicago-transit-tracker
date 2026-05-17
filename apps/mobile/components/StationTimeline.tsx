@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import Svg, { Circle, Path } from 'react-native-svg'
 import type { Station } from '@ctt/shared'
-import { LINE_COLORS } from '@ctt/shared'
+import { LINE_COLORS, displayStationName } from '@ctt/shared'
 import { useTheme } from '../lib/theme'
 import type { Theme } from '../lib/theme'
 import PressableButton from './PressableButton'
@@ -53,7 +53,7 @@ export default function StationTimeline({
             key={station.slug}
             onPress={() => router.push(`${stationHrefPrefix}/${station.slug}` as never)}
             accessibilityRole="link"
-            accessibilityLabel={station.name}
+            accessibilityLabel={displayStationName(station.name)}
             feedback="subtle"
             style={styles.row}
           >
@@ -83,7 +83,7 @@ export default function StationTimeline({
             {/* Content */}
             <View style={styles.content}>
               <View style={styles.nameRow}>
-                <Text style={styles.stationName}>{station.name}</Text>
+                <Text style={styles.stationName}>{displayStationName(station.name)}</Text>
                 {station.accessibility.ada && (
                   <WheelchairIcon color={theme.colors.accent.primary} />
                 )}

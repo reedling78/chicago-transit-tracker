@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { displayStationName } from '@ctt/shared'
 import {
   getAllLines,
   getLinesForService,
@@ -78,7 +79,7 @@ export default async function CTAStationPage({ params }: Props) {
         breadcrumbItems={[
           { label: 'CTA Lines', href: '/cta' },
           { label: line?.name ?? lineSlug, href: `/cta/${lineSlug}` },
-          { label: station.name },
+          { label: displayStationName(station.name) },
         ]}
         badges={
           <>

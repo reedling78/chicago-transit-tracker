@@ -1,8 +1,63 @@
 import { render, fireEvent } from '@testing-library/react-native'
-import type { Favorite, StationSchedule } from '@ctt/shared'
+import type { Favorite, FeedData, StationSchedule } from '@ctt/shared'
 
 import StationCard from '../../../../components/dashboard/cards/StationCard'
 import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../../fixtures'
+import { useMetraFeed } from '../../../../lib/useMetraFeed'
+
+jest.mock('../../../../lib/useMetraFeed', () => ({
+  useMetraFeed: jest.fn(() => ({ data: null, error: null, fetchedAt: null, loading: false })),
+}))
+
+const mockedUseMetraFeed = useMetraFeed as jest.MockedFunction<typeof useMetraFeed>
+
+function makeTripFeed(opts: {
+  trainNumber: string
+  stopId: string
+  departureTime?: number
+  canceled?: boolean
+}): FeedData {
+  return {
+    entity: [
+      {
+        tripUpdate: {
+          trip: {
+            routeId: 'BNSF',
+            tripId: `BNSF_BN${opts.trainNumber}_V4_A`,
+            scheduleRelationship: opts.canceled ? 3 : 0,
+          },
+          stopTimeUpdate: [
+            {
+              stopId: opts.stopId,
+              scheduleRelationship: 0,
+              departure: opts.departureTime != null ? { time: opts.departureTime } : undefined,
+            },
+          ],
+        },
+      },
+    ],
+  } as unknown as FeedData
+}
+
+const metraTripEntry = {
+  tripId: 'BNSF_1234',
+  trainNumber: '1234',
+  headsign: 'Chicago',
+  departure: '10:39 PM', // formatClockLabel(9999) === '10:39 PM'
+  line: 'BNSF',
+  lineSlug: 'bnsf',
+  directionId: 1,
+}
+const metraTrips = {
+  weekday: [metraTripEntry],
+  saturday: [metraTripEntry],
+  sunday: [metraTripEntry],
+}
+const metraSchedule: StationSchedule = {
+  directions: [
+    { headsign: 'Chicago', line: 'BNSF', weekday: [9999], saturday: [9999], sunday: [9999] },
+  ],
+}
 
 const mockPush = jest.fn()
 jest.mock('expo-router', () => ({
@@ -36,6 +91,8 @@ beforeEach(() => {
   mockTripsQuery.mockReset()
   mockScheduleQuery.mockReturnValue({ data: null, isLoading: true, dataUpdatedAt: 0 })
   mockTripsQuery.mockReturnValue({ data: null, isLoading: false, dataUpdatedAt: 0 })
+  mockedUseMetraFeed.mockReset()
+  mockedUseMetraFeed.mockReturnValue({ data: null, error: null, fetchedAt: null, loading: false })
 })
 
 describe('StationCard', () => {
@@ -171,6 +228,69 @@ describe('StationCard', () => {
     )
     expect(getByText('Service toward Loop')).toBeTruthy()
     expect(queryByText("Service toward O'Hare")).toBeNull()
+  })
+
+  it('shows a live indicator and last-updated when realtime matches a Metra row', () => {
+    mockScheduleQuery.mockReturnValue(loaded(metraSchedule))
+    mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
+    const predicted = Math.floor((Date.now() + 12 * 60_000) / 1000)
+    mockedUseMetraFeed.mockReturnValue({
+      data: makeTripFeed({ trainNumber: '1234', stopId: 'AURORA', departureTime: predicted }),
+      error: null,
+      fetchedAt: Date.now(),
+      loading: false,
+    })
+
+    const { getByText, getByLabelText } = render(
+      <StationCard
+        favorite={metraFav}
+        station={mockMetraStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+
+    expect(getByText(/Live · Last updated:/)).toBeTruthy()
+    expect(getByLabelText('Live — based on Metra realtime data')).toBeTruthy()
+    expect(getByText('12 min')).toBeTruthy()
+  })
+
+  it('shows a Cancelled treatment for canceled Metra trips', () => {
+    mockScheduleQuery.mockReturnValue(loaded(metraSchedule))
+    mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
+    mockedUseMetraFeed.mockReturnValue({
+      data: makeTripFeed({ trainNumber: '1234', stopId: 'AURORA', canceled: true }),
+      error: null,
+      fetchedAt: Date.now(),
+      loading: false,
+    })
+
+    const { getByText } = render(
+      <StationCard
+        favorite={metraFav}
+        station={mockMetraStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+
+    expect(getByText('Cancelled')).toBeTruthy()
+  })
+
+  it('does not subscribe to the Metra feed for CTA stations', () => {
+    mockScheduleQuery.mockReturnValue(loaded(ctaSchedule))
+    render(
+      <StationCard
+        favorite={ctaFav}
+        station={mockStation}
+        lines={[mockLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+    expect(mockedUseMetraFeed).toHaveBeenCalledWith('tripupdates', { enabled: false })
   })
 
   it('only enables Metra trips query for Metra stations', () => {

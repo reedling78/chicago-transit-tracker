@@ -314,4 +314,106 @@ describe('useMetraTrip', () => {
     await waitFor(() => expect(getByText('trip:null')).toBeOnTheScreen())
     expect(mockGetDoc).not.toHaveBeenCalled()
   })
+
+  it('normalizes the trip headsign and stop station names to display names', async () => {
+    function NameProbe() {
+      const { trip, loading } = useMetraTrip('bnsf', '1200')
+      if (loading) return <Text>loading</Text>
+      return <Text>{`${trip?.headsign}|${trip?.stops[0].stationName}`}</Text>
+    }
+    mockGetDoc.mockResolvedValueOnce({
+      id: 'bnsf_1200',
+      exists: () => true,
+      data: () => ({
+        tripId: 'BNSF_BN1200_V4',
+        trainNumber: '1200',
+        headsign: 'Chicago Union Station',
+        line: 'BNSF',
+        lineSlug: 'bnsf',
+        lineName: 'BNSF Railway',
+        serviceType: 'weekday',
+        directionId: 0,
+        stops: [{ sequence: 1, stationName: 'Chicago Union Station', slug: 'union-station' }],
+      }),
+    } as any)
+
+    const { getByText } = render(<NameProbe />)
+    await waitFor(() => expect(getByText('Union Station|Union Station')).toBeOnTheScreen())
+  })
+})
+
+describe('display-name normalization (non-station fields)', () => {
+  it('useLines normalizes termini and downtownTerminal', async () => {
+    function TerminiProbe() {
+      const { lines, loading } = useLines('metra')
+      if (loading) return <Text>loading</Text>
+      return <Text>{`${lines[0].termini.join(',')}|${lines[0].downtownTerminal}`}</Text>
+    }
+    mockGetDocs.mockResolvedValueOnce(
+      snapOfDocs([
+        {
+          ...mockMetraLine,
+          termini: ['Ogilvie Transportation Center', 'Kenosha'],
+          downtownTerminal: 'Ogilvie Transportation Center',
+        },
+      ]),
+    )
+    const { getByText } = render(<TerminiProbe />)
+    await waitFor(() => expect(getByText('Ogilvie TC,Kenosha|Ogilvie TC')).toBeOnTheScreen())
+  })
+
+  it('useStationTrips normalizes headsigns across service types', async () => {
+    function TripsHeadsignProbe() {
+      const { stationTrips, loading } = useStationTrips('lombard')
+      if (loading) return <Text>loading</Text>
+      return <Text>{stationTrips?.weekday[0].headsign}</Text>
+    }
+    mockGetDoc.mockResolvedValueOnce({
+      id: 'lombard',
+      exists: () => true,
+      data: () => ({
+        weekday: [{ tripId: 't1', departure: '6:00 AM', headsign: 'Chicago OTC' }],
+        saturday: [],
+        sunday: [],
+      }),
+    } as any)
+    const { getByText } = render(<TripsHeadsignProbe />)
+    await waitFor(() => expect(getByText('Ogilvie TC')).toBeOnTheScreen())
+  })
+
+  it('useSchedule normalizes direction headsigns', async () => {
+    function SchedHeadsignProbe() {
+      const { schedule, loading } = useSchedule('lombard')
+      if (loading) return <Text>loading</Text>
+      return <Text>{schedule?.directions[0].headsign}</Text>
+    }
+    mockGetDoc.mockResolvedValueOnce({
+      id: 'lombard',
+      exists: () => true,
+      data: () => ({
+        directions: [
+          { headsign: 'Chicago OTC', line: 'UP-W', weekday: [294], saturday: [], sunday: [] },
+        ],
+      }),
+    } as any)
+    const { getByText } = render(<SchedHeadsignProbe />)
+    await waitFor(() => expect(getByText('Ogilvie TC')).toBeOnTheScreen())
+  })
+
+  it('useStation keeps the canonical (full) station name', async () => {
+    function StationNameProbe() {
+      const { station, loading } = useStation('union-station-metra')
+      if (loading) return <Text>loading</Text>
+      return <Text>{station?.name}</Text>
+    }
+    mockGetDoc.mockResolvedValueOnce(
+      singleDocSnap({
+        ...mockMetraStation,
+        slug: 'union-station-metra',
+        name: 'Chicago Union Station',
+      }),
+    )
+    const { getByText } = render(<StationNameProbe />)
+    await waitFor(() => expect(getByText('Chicago Union Station')).toBeOnTheScreen())
+  })
 })

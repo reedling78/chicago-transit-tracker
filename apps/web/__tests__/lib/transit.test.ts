@@ -82,6 +82,44 @@ describe('getMetraLineTrips', () => {
     })
   })
 
+  it('normalizes canonical headsign and stop station names to display names', async () => {
+    mockWhereGet.mockResolvedValue({
+      docs: [
+        {
+          data: () => ({
+            trainNumber: '1200',
+            headsign: 'Chicago Union Station',
+            serviceType: 'weekday',
+            directionId: 0,
+            lineSlug: 'bnsf',
+            stops: [
+              {
+                sequence: 1,
+                stationName: 'Chicago Union Station',
+                slug: 'union-station',
+                arrival: '7:00 AM',
+                departure: '7:00 AM',
+              },
+              {
+                sequence: 2,
+                stationName: 'Aurora',
+                slug: 'aurora',
+                arrival: '7:45 AM',
+                departure: '7:45 AM',
+              },
+            ],
+          }),
+        },
+      ],
+    })
+
+    const result = await getMetraLineTrips('bnsf')
+    expect(result[0].headsign).toBe('Union Station')
+    expect(result[0].stops[0].stationName).toBe('Union Station')
+    expect(result[0].stops[0].slug).toBe('union-station')
+    expect(result[0].stops[1].stationName).toBe('Aurora')
+  })
+
   it('defaults directionId to 0 and stops to [] when missing', async () => {
     mockWhereGet.mockResolvedValue({
       docs: [

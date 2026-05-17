@@ -1,38 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { LINE_COLORS } from '@ctt/shared'
+import {
+  computeArrivalGroups,
+  formatMinutesAway as sharedFormatMinutesAway,
+  indexMetraTripUpdates,
+  LINE_COLORS,
+} from '@ctt/shared'
 import type { StationSchedule, StationTrips } from '@ctt/shared'
 import { useTheme } from '../lib/theme'
 import type { Theme } from '../lib/theme'
-
-interface Arrival {
-  headsign: string
-  line: string
-  departureMinutes: number
-  minutesAway: number
-  tripId?: string
-  lineSlug?: string
-}
+import { useMetraFeed } from '../lib/useMetraFeed'
 
 interface ArrivalsCardProps {
   schedule: StationSchedule | null
   service: 'cta' | 'metra'
   loading?: boolean
   trips?: StationTrips | null
-}
-
-function getCurrentDayType(): 'weekday' | 'saturday' | 'sunday' {
-  const day = new Date().getDay()
-  if (day === 0) return 'sunday'
-  if (day === 6) return 'saturday'
-  return 'weekday'
-}
-
-function getCurrentMinutes(): number {
-  const now = new Date()
-  return now.getHours() * 60 + now.getMinutes()
+  /** Station GTFS `stop_id` — enables the Metra realtime merge when present. */
+  metraStopId?: string | null
 }
 
 function formatTime(minutes: number): string {
@@ -43,55 +30,11 @@ function formatTime(minutes: number): string {
   return `${hour}:${String(m).padStart(2, '0')} ${period}`
 }
 
-export function formatMinutesAway(minutesAway: number): string {
-  if (minutesAway < 1) return 'Due'
-  if (minutesAway < 60) return `${minutesAway} min`
-  const hours = Math.floor(minutesAway / 60)
-  const mins = minutesAway % 60
-  return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`
+function formatLastUpdated(epochMs: number): string {
+  return new Date(epochMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
-function computeArrivals(
-  schedule: StationSchedule,
-  trips: StationTrips | null | undefined,
-): Arrival[] {
-  const dayType = getCurrentDayType()
-  const nowMinutes = getCurrentMinutes()
-  const arrivals: Arrival[] = []
-
-  const tripLookup = new Map<string, { tripId: string; lineSlug: string }>()
-  if (trips) {
-    for (const entry of trips[dayType]) {
-      const key = `${entry.headsign}|${entry.line}|${entry.departure}`
-      tripLookup.set(key, { tripId: entry.tripId, lineSlug: entry.lineSlug })
-    }
-  }
-
-  for (const dir of schedule.directions) {
-    const times = dir[dayType]
-    const upcoming = times.filter((t) => t > nowMinutes).slice(0, 3)
-
-    for (const t of upcoming) {
-      const key = `${dir.headsign}|${dir.line}|${formatTime(t)}`
-      const match = tripLookup.get(key)
-      arrivals.push({
-        headsign: dir.headsign,
-        line: dir.line,
-        departureMinutes: t,
-        minutesAway: t - nowMinutes,
-        tripId: match?.tripId,
-        lineSlug: match?.lineSlug,
-      })
-    }
-  }
-
-  arrivals.sort((a, b) => {
-    if (a.headsign !== b.headsign) return a.headsign.localeCompare(b.headsign)
-    return a.minutesAway - b.minutesAway
-  })
-
-  return arrivals
-}
+export const formatMinutesAway = sharedFormatMinutesAway
 
 function SkeletonRow({ color, styles }: { color: string; styles: ReturnType<typeof makeStyles> }) {
   return (
@@ -105,47 +48,50 @@ function SkeletonRow({ color, styles }: { color: string; styles: ReturnType<type
   )
 }
 
-export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCardProps) {
+export function ArrivalsCard({
+  schedule,
+  service,
+  loading,
+  trips,
+  metraStopId,
+}: ArrivalsCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
-  const [arrivals, setArrivals] = useState<Arrival[]>([])
-  const scheduleRef = useRef<StationSchedule | null>(null)
-  const tripsRef = useRef<StationTrips | null | undefined>(trips)
+  const [tick, setTick] = useState(0)
+  const isMetra = service === 'metra'
 
-  useEffect(() => {
-    tripsRef.current = trips
-  }, [trips])
+  const realtimeEnabled = isMetra && !!metraStopId
+  const { data: feedData, fetchedAt } = useMetraFeed('tripupdates', { enabled: realtimeEnabled })
 
+  // Refresh countdowns every 60s without re-fetching the schedule.
   useEffect(() => {
-    if (schedule) {
-      scheduleRef.current = schedule
-      setArrivals(computeArrivals(schedule, tripsRef.current))
-    }
-  }, [schedule, trips])
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      if (scheduleRef.current) {
-        setArrivals(computeArrivals(scheduleRef.current, tripsRef.current))
-      }
-    }, 60_000)
+    const id = setInterval(() => setTick((t) => t + 1), 60_000)
     return () => clearInterval(id)
   }, [])
 
-  // Group arrivals by headsign
-  const grouped: { headsign: string; line: string; rows: Arrival[] }[] = []
-  for (const arrival of arrivals) {
-    const last = grouped[grouped.length - 1]
-    if (last && last.headsign === arrival.headsign) {
-      last.rows.push(arrival)
-    } else {
-      grouped.push({ headsign: arrival.headsign, line: arrival.line, rows: [arrival] })
-    }
-  }
+  const realtime = useMemo(
+    () => (realtimeEnabled ? indexMetraTripUpdates(feedData) : null),
+    [realtimeEnabled, feedData],
+  )
+
+  const groups = useMemo(() => {
+    if (!schedule) return []
+    return computeArrivalGroups({
+      schedule,
+      trips,
+      now: new Date(),
+      service,
+      realtime,
+      metraStopId,
+    })
+    // `tick` drives the 60s countdown refresh; realtime/fetchedAt drive live updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedule, trips, service, realtime, metraStopId, fetchedAt, tick])
 
   const skeletonColor = theme.colors.accent.primary
-  const serviceLabel = service === 'cta' ? 'CTA' : 'Metra'
+  const serviceLabel = isMetra ? 'Metra' : 'CTA'
+  const hasLiveRow = groups.some((g) => g.items.some((it) => it.isLive || it.isCancelled))
 
   return (
     <View style={styles.container}>
@@ -156,7 +102,19 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
           Scheduled arrivals — estimates based on{' '}
           <Text style={styles.headerBold}>{serviceLabel} timetable</Text>
         </Text>
+        {hasLiveRow && (
+          <View style={styles.liveBadge}>
+            <View style={styles.liveBadgeDot} />
+            <Text style={styles.liveBadgeText}>Live</Text>
+          </View>
+        )}
       </View>
+
+      {hasLiveRow && fetchedAt != null && (
+        <View style={styles.lastUpdatedBar}>
+          <Text style={styles.lastUpdatedText}>Last updated: {formatLastUpdated(fetchedAt)}</Text>
+        </View>
+      )}
 
       {/* Loading skeleton */}
       {loading && !schedule && (
@@ -175,7 +133,7 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
       )}
 
       {/* Empty state */}
-      {!loading && schedule && arrivals.length === 0 && (
+      {!loading && schedule && groups.length === 0 && (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No upcoming departures found.</Text>
         </View>
@@ -189,7 +147,7 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
       )}
 
       {/* Grouped arrivals */}
-      {grouped.map((group) => {
+      {groups.map((group) => {
         const colors = LINE_COLORS[group.line]
         const bg = colors?.bg ?? theme.colors.text.muted
 
@@ -199,18 +157,33 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
               <Text style={styles.directionText}>Service toward {group.headsign}</Text>
             </View>
 
-            {group.rows.map((arrival, i) => {
+            {group.items.map((arrival, i) => {
               const rowContent = (
                 <>
                   <View style={styles.rowLeft}>
                     <Text style={styles.rowSubtitle}>
-                      {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
+                      {group.line} Line · {formatTime(arrival.departureMinutes)} to
                     </Text>
-                    <Text style={styles.rowHeadsign}>{arrival.headsign}</Text>
+                    <Text style={styles.rowHeadsign}>{group.headsign}</Text>
                   </View>
                   <View style={styles.rowRight}>
-                    <Text style={styles.rowMinutes}>{formatMinutesAway(arrival.minutesAway)}</Text>
-                    <Text style={styles.rowApprox}>≈</Text>
+                    {arrival.isCancelled ? (
+                      <Text style={styles.cancelledPill}>Cancelled</Text>
+                    ) : (
+                      <>
+                        <Text style={styles.rowMinutes}>
+                          {formatMinutesAway(arrival.minutesAway)}
+                        </Text>
+                        {arrival.isLive ? (
+                          <View
+                            style={styles.liveDot}
+                            accessibilityLabel="Live — based on Metra realtime data"
+                          />
+                        ) : (
+                          <Text style={styles.rowApprox}>≈</Text>
+                        )}
+                      </>
+                    )}
                   </View>
                 </>
               )
@@ -227,7 +200,7 @@ export function ArrivalsCard({ schedule, service, loading, trips }: ArrivalsCard
                       pressed && styles.rowPressed,
                     ]}
                     accessibilityRole="link"
-                    accessibilityLabel={`Train to ${arrival.headsign} in ${formatMinutesAway(arrival.minutesAway)}`}
+                    accessibilityLabel={`Train to ${group.headsign} in ${formatMinutesAway(arrival.minutesAway)}`}
                     testID={`arrival-row:${href}`}
                   >
                     {rowContent}
@@ -301,6 +274,39 @@ function makeStyles(theme: Theme) {
       fontVariant: ['tabular-nums'],
     },
     rowApprox: { fontSize: 17, color: 'rgba(255,255,255,0.6)' },
+    liveDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#ffffff' },
+    cancelledPill: {
+      color: '#fecaca',
+      backgroundColor: 'rgba(239,68,68,0.2)',
+      fontSize: 14,
+      fontWeight: '700',
+      borderRadius: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      overflow: 'hidden',
+    },
+    liveBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      backgroundColor: 'rgba(34,197,94,0.2)',
+      borderRadius: 999,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+    },
+    liveBadgeDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: theme.colors.status.onTime,
+    },
+    liveBadgeText: { fontSize: 11, fontWeight: '700', color: theme.colors.status.onTime },
+    lastUpdatedBar: {
+      backgroundColor: theme.colors.bg.surface,
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[1] + 2,
+    },
+    lastUpdatedText: { fontSize: 11, color: theme.colors.text.secondary },
     emptyContainer: {
       paddingHorizontal: theme.space[4],
       paddingVertical: theme.space[6],

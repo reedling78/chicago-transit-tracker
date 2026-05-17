@@ -36,6 +36,25 @@ describe('GET /api/metra/station-trips/[slug]', () => {
     expect(body.weekday).toHaveLength(1)
   })
 
+  it('normalizes headsigns to display names without mutating stored data', async () => {
+    const stored = {
+      weekday: [{ tripId: 't1', departure: '6:45 AM', headsign: 'Chicago OTC' }],
+      saturday: [{ tripId: 't2', departure: '8:00 AM', headsign: 'Chicago Union Station' }],
+      sunday: [],
+    }
+    mockGet.mockResolvedValue({ exists: true, data: () => stored })
+
+    const { GET } = await import('@/app/api/metra/station-trips/[slug]/route')
+    const req = new Request('http://localhost/api/metra/station-trips/lombard')
+    const res = await GET(req as never, { params: Promise.resolve({ slug: 'lombard' }) })
+
+    const body = await res.json()
+    expect(body.weekday[0].headsign).toBe('Ogilvie TC')
+    expect(body.saturday[0].headsign).toBe('Union Station')
+    // stored doc untouched (canonical data preserved)
+    expect(stored.weekday[0].headsign).toBe('Chicago OTC')
+  })
+
   it('returns 404 when station not found', async () => {
     mockGet.mockResolvedValue({ exists: false })
 
@@ -75,6 +94,26 @@ describe('GET /api/metra/trips/[trainNumber]', () => {
     expect(res.status).toBe(200)
     expect(mockCollection).toHaveBeenCalledWith('metra-trips')
     expect(mockDoc).toHaveBeenCalledWith('bnsf_1234')
+  })
+
+  it('normalizes headsign and stop station names in the trip detail', async () => {
+    const stored = {
+      tripId: 'bnsf_1200',
+      trainNumber: '1200',
+      headsign: 'Chicago Union Station',
+      stops: [{ sequence: 1, stationName: 'Chicago Union Station', slug: 'union-station' }],
+    }
+    mockGet.mockResolvedValue({ exists: true, data: () => stored })
+
+    const { GET } = await import('@/app/api/metra/trips/[trainNumber]/route')
+    const req = new Request('http://localhost/api/metra/trips/1200?line=bnsf')
+    const res = await GET(req as never, { params: Promise.resolve({ trainNumber: '1200' }) })
+
+    const body = await res.json()
+    expect(body.headsign).toBe('Union Station')
+    expect(body.stops[0].stationName).toBe('Union Station')
+    expect(body.stops[0].slug).toBe('union-station')
+    expect(stored.headsign).toBe('Chicago Union Station')
   })
 
   it('returns 400 when the line query param is missing', async () => {

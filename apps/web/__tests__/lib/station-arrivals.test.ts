@@ -3,13 +3,14 @@ import {
   computeArrivalGroups,
   formatClockLabel,
   formatMinutesAway,
+  indexMetraTripUpdates,
   listStationHeadsigns,
   minutesUntil,
   pickServiceDay,
   shortenStationName,
   summarizeCompact,
 } from '@ctt/shared'
-import type { ArrivalGroup, StationSchedule, StationTrips } from '@ctt/shared'
+import type { ArrivalGroup, FeedData, StationSchedule, StationTrips } from '@ctt/shared'
 
 // Tuesday, 2026-04-28 at 10:00 AM local time → 600 minutes since midnight.
 const TUESDAY_10_AM = new Date(2026, 3, 28, 10, 0, 0)
@@ -264,5 +265,164 @@ describe('shortenStationName', () => {
   it('leaves other station names untouched', () => {
     expect(shortenStationName('Elgin')).toBe('Elgin')
     expect(shortenStationName('LaGrange Road')).toBe('LaGrange Road')
+  })
+})
+
+// --- Metra realtime merge -------------------------------------------------
+
+const STATION_STOP_ID = 'CUS'
+
+/** Build a minimal GTFS-RT FeedData with a single Metra trip update. */
+function makeFeed(opts: {
+  routeId?: string
+  tripId?: string
+  tripScheduleRelationship?: number
+  stops: { stopId: string; departureTime?: number; arrivalTime?: number; skipped?: boolean }[]
+}): FeedData {
+  return {
+    entity: [
+      {
+        tripUpdate: {
+          trip: {
+            routeId: opts.routeId ?? 'BNSF',
+            tripId: opts.tripId ?? 'BNSF_BN1200_V4_A',
+            scheduleRelationship: opts.tripScheduleRelationship,
+          },
+          stopTimeUpdate: opts.stops.map((s) => ({
+            stopId: s.stopId,
+            scheduleRelationship: s.skipped ? 1 : 0,
+            arrival: s.arrivalTime != null ? { time: s.arrivalTime } : undefined,
+            departure: s.departureTime != null ? { time: s.departureTime } : undefined,
+          })),
+        },
+      },
+    ],
+  } as unknown as FeedData
+}
+
+describe('indexMetraTripUpdates', () => {
+  it('returns an empty index for null/undefined feed', () => {
+    expect(indexMetraTripUpdates(null).size).toBe(0)
+    expect(indexMetraTripUpdates(undefined).size).toBe(0)
+  })
+
+  it('keys trip updates by `${lineSlug}:${trainNumber}` and prefers departure time', () => {
+    const idx = indexMetraTripUpdates(
+      makeFeed({ stops: [{ stopId: STATION_STOP_ID, departureTime: 1000, arrivalTime: 900 }] }),
+    )
+    const info = idx.get('bnsf:1200')
+    expect(info).toBeDefined()
+    expect(info!.canceled).toBe(false)
+    expect(info!.stops.get(STATION_STOP_ID)).toEqual({ predictedEpoch: 1000, skipped: false })
+  })
+
+  it('falls back to arrival time when departure time is absent', () => {
+    const idx = indexMetraTripUpdates(
+      makeFeed({ stops: [{ stopId: STATION_STOP_ID, arrivalTime: 900 }] }),
+    )
+    expect(idx.get('bnsf:1200')!.stops.get(STATION_STOP_ID)!.predictedEpoch).toBe(900)
+  })
+
+  it('marks canceled trips and skipped stops', () => {
+    const idx = indexMetraTripUpdates(
+      makeFeed({
+        tripScheduleRelationship: 3,
+        stops: [{ stopId: STATION_STOP_ID, departureTime: 1000, skipped: true }],
+      }),
+    )
+    const info = idx.get('bnsf:1200')!
+    expect(info.canceled).toBe(true)
+    expect(info.stops.get(STATION_STOP_ID)!.skipped).toBe(true)
+  })
+
+  it('ignores entities with an unknown route id', () => {
+    expect(indexMetraTripUpdates(makeFeed({ routeId: 'NOPE', stops: [] })).size).toBe(0)
+  })
+})
+
+describe('computeArrivalGroups — Metra realtime merge', () => {
+  it('recomputes minutesAway from the realtime prediction and flags the row live', () => {
+    const predicted = Math.floor((TUESDAY_10_AM.getTime() + 9 * 60_000) / 1000)
+    const groups = computeArrivalGroups({
+      schedule: metraSchedule,
+      trips: metraTrips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      directionFilter: 'inbound',
+      metraStopId: STATION_STOP_ID,
+      realtime: indexMetraTripUpdates(
+        makeFeed({ stops: [{ stopId: STATION_STOP_ID, departureTime: predicted }] }),
+      ),
+    })
+    const item = groups[0].items[0]
+    expect(item.trainNumber).toBe('1200')
+    expect(item.isLive).toBe(true)
+    expect(item.minutesAway).toBe(9) // scheduled was 5 min away
+    expect(item.label).toBe('10:05 AM') // scheduled clock label unchanged
+  })
+
+  it('flags canceled trips and does not mark them live', () => {
+    const groups = computeArrivalGroups({
+      schedule: metraSchedule,
+      trips: metraTrips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      directionFilter: 'inbound',
+      metraStopId: STATION_STOP_ID,
+      realtime: indexMetraTripUpdates(
+        makeFeed({ tripScheduleRelationship: 3, stops: [{ stopId: STATION_STOP_ID }] }),
+      ),
+    })
+    const item = groups[0].items[0]
+    expect(item.isCancelled).toBe(true)
+    expect(item.isLive).toBeFalsy()
+  })
+
+  it('leaves rows scheduled when there is no realtime match', () => {
+    const groups = computeArrivalGroups({
+      schedule: metraSchedule,
+      trips: metraTrips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      directionFilter: 'inbound',
+      metraStopId: STATION_STOP_ID,
+      realtime: indexMetraTripUpdates(
+        makeFeed({
+          tripId: 'BNSF_BN9999_V4_A',
+          stops: [{ stopId: STATION_STOP_ID, departureTime: 1 }],
+        }),
+      ),
+    })
+    const item = groups[0].items[0]
+    expect(item.isLive).toBeFalsy()
+    expect(item.isCancelled).toBeFalsy()
+    expect(item.minutesAway).toBe(5)
+  })
+
+  it('does not mark a row live when the stop is skipped at this station', () => {
+    const predicted = Math.floor((TUESDAY_10_AM.getTime() + 9 * 60_000) / 1000)
+    const groups = computeArrivalGroups({
+      schedule: metraSchedule,
+      trips: metraTrips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      directionFilter: 'inbound',
+      metraStopId: STATION_STOP_ID,
+      realtime: indexMetraTripUpdates(
+        makeFeed({ stops: [{ stopId: STATION_STOP_ID, departureTime: predicted, skipped: true }] }),
+      ),
+    })
+    expect(groups[0].items[0].isLive).toBeFalsy()
+    expect(groups[0].items[0].minutesAway).toBe(5)
+  })
+
+  it('CTA output is unchanged when no realtime input is supplied', () => {
+    const groups = computeArrivalGroups({
+      schedule: ctaSchedule,
+      now: TUESDAY_10_AM,
+      service: 'cta',
+    })
+    expect(groups[0].items[0].isLive).toBeUndefined()
+    expect(groups[0].items[0].minutesAway).toBe(5)
   })
 })

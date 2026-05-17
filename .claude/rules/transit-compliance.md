@@ -103,8 +103,10 @@ Components that must surface a timestamp (web):
 - `apps/web/app/components/MetraTripRealtime.tsx`
 - `apps/web/app/components/MetraCurrentService.tsx`
 - `apps/web/app/components/MetraTripStopTimeline.tsx`
+- `apps/web/app/components/Arrivals.tsx` — station arrivals card; merges Metra GTFS-RT trip updates into scheduled rows. Shows "Last updated: HH:MM" only while at least one row is live.
+- `apps/web/app/components/dashboard/cards/StationCard.tsx` — dashboard favorite-station card; same Metra realtime merge, same timestamp rule.
 
-Mobile equivalents in `apps/mobile/components/` (`MetraAlerts.tsx`, `MetraTripRealtime.tsx`, etc.) — same rule.
+Mobile equivalents in `apps/mobile/components/` (`MetraAlerts.tsx`, `MetraTripRealtime.tsx`, `ArrivalsCard.tsx`, `dashboard/cards/StationCard.tsx`) — same rule. The arrivals/station cards only surface the "Last updated" line when a Metra realtime match is present (scheduled-only and CTA rendering is unchanged and exempt).
 
 Static-schedule components (timetables loaded from Firestore, not GTFS-RT) must show the schedule's published date, sourced from the `gtfs-meta/metra` doc.
 

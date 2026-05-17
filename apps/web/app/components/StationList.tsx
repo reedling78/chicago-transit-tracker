@@ -1,3 +1,4 @@
+import { displayStationName } from '@ctt/shared'
 import { Steps } from '@components/Steps'
 import type { Station } from '@lib/types'
 import { LINE_COLORS } from '@lib/constants'
@@ -78,7 +79,7 @@ export default function StationList({
               below={otherLines.length > 0 ? <TransferChips lines={otherLines} /> : undefined}
             >
               <p className="flex items-center gap-1.5 font-semibold text-gray-900 group-hover:underline dark:text-white">
-                {station.name}
+                {displayStationName(station.name)}
                 {station.accessibility.ada && <WheelchairIcon />}
               </p>
             </Steps.Item>

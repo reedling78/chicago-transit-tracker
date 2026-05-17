@@ -50,6 +50,25 @@ describe('Metra station detail page', () => {
     expect(screen.getByRole('link', { name: 'Metra Lines' })).toBeInTheDocument()
   })
 
+  it('shows the full proper name in the H1 but the short display name in the breadcrumb', async () => {
+    const { getStation } = await import('@lib/transit')
+    ;(getStation as jest.Mock).mockResolvedValueOnce({
+      ...mockMetraStation,
+      name: 'Chicago Union Station',
+    })
+
+    const ui = await MetraStationPage({ params })
+    render(ui)
+
+    // H1 keeps the full canonical name
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Chicago Union Station' }),
+    ).toBeInTheDocument()
+    // breadcrumb leaf (current page, no link) uses the short display name
+    const crumb = screen.getByText('Union Station')
+    expect(crumb).toHaveAttribute('aria-current', 'page')
+  })
+
   it('renders the Terminal badge', async () => {
     const ui = await MetraStationPage({ params })
     render(ui)

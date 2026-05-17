@@ -10,6 +10,10 @@ export type {
   FavoriteDensity,
 } from './types'
 export { favoriteKey, arrayToMap, mapToArray } from './favorites'
+export {
+  STATION_DISPLAY_NAME_OVERRIDES,
+  displayStationName,
+} from './station-names'
 export type {
   ServiceType,
   DirectionSchedule,
@@ -17,7 +21,14 @@ export type {
   StationTripEntry,
   StationTrips,
 } from './gtfs-types'
-export type { ArrivalItem, ArrivalGroup, ComputeArrivalGroupsInput } from './station-arrivals'
+export type {
+  ArrivalItem,
+  ArrivalGroup,
+  ComputeArrivalGroupsInput,
+  RealtimeTripStop,
+  RealtimeTripInfo,
+  MetraRealtimeIndex,
+} from './station-arrivals'
 export {
   pickServiceDay,
   minutesUntil,
@@ -25,6 +36,7 @@ export {
   formatClockLabel,
   shortenStationName,
   computeArrivalGroups,
+  indexMetraTripUpdates,
   applyDirectionFilter,
   listStationHeadsigns,
   summarizeCompact,

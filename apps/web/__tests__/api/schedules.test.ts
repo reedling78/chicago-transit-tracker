@@ -35,6 +35,24 @@ describe('GET /api/schedules/[slug]', () => {
     expect(body.directions).toHaveLength(1)
   })
 
+  it('normalizes direction headsigns to display names', async () => {
+    const stored = {
+      service: 'metra',
+      directions: [
+        { headsign: 'Chicago OTC', line: 'UP-W', weekday: [294], saturday: [], sunday: [] },
+      ],
+    }
+    mockGet.mockResolvedValue({ exists: true, data: () => stored })
+
+    const { GET } = await import('@/app/api/schedules/[slug]/route')
+    const req = new Request('http://localhost/api/schedules/lombard')
+    const res = await GET(req as never, { params: Promise.resolve({ slug: 'lombard' }) })
+
+    const body = await res.json()
+    expect(body.directions[0].headsign).toBe('Ogilvie TC')
+    expect(stored.directions[0].headsign).toBe('Chicago OTC')
+  })
+
   it('returns 404 for a missing slug', async () => {
     mockGet.mockResolvedValue({ exists: false })
 

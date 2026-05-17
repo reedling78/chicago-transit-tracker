@@ -1,36 +1,25 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { LINE_COLORS } from '@lib/constants'
 import type { StationSchedule, StationTrips } from '@lib/gtfs-types'
-
-interface Arrival {
-  headsign: string
-  line: string
-  departureMinutes: number // minutes since midnight
-  minutesAway: number
-  tripId?: string
-  lineSlug?: string
-}
+import {
+  computeArrivalGroups,
+  formatMinutesAway as sharedFormatMinutesAway,
+  indexMetraTripUpdates,
+} from '@ctt/shared'
+import { useMetraFeed } from '@lib/hooks/useMetraFeed'
 
 interface ArrivalsProps {
   slug: string
   service: 'cta' | 'metra'
   hasSchedule: boolean
+  /** Station GTFS `stop_id` — enables Metra realtime merge when present. */
+  metraStopId?: string | null
 }
 
-function getCurrentDayType(): 'weekday' | 'saturday' | 'sunday' {
-  const day = new Date().getDay() // 0=Sun, 6=Sat
-  if (day === 0) return 'sunday'
-  if (day === 6) return 'saturday'
-  return 'weekday'
-}
-
-function getCurrentMinutes(): number {
-  const now = new Date()
-  return now.getHours() * 60 + now.getMinutes()
-}
+export const formatMinutesAway = sharedFormatMinutesAway
 
 function formatTime(minutes: number): string {
   const h = Math.floor(minutes / 60) % 24
@@ -40,54 +29,8 @@ function formatTime(minutes: number): string {
   return `${hour}:${String(m).padStart(2, '0')} ${period}`
 }
 
-export function formatMinutesAway(minutesAway: number): string {
-  if (minutesAway < 1) return 'Due'
-  if (minutesAway < 60) return `${minutesAway} min`
-  const hours = Math.floor(minutesAway / 60)
-  const mins = minutesAway % 60
-  return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`
-}
-
-function computeArrivals(schedule: StationSchedule, trips: StationTrips | null): Arrival[] {
-  const dayType = getCurrentDayType()
-  const nowMinutes = getCurrentMinutes()
-  const arrivals: Arrival[] = []
-
-  // Build a (headsign|line|formattedTime) → { tripId, lineSlug } map for the current day type
-  const tripLookup = new Map<string, { tripId: string; lineSlug: string }>()
-  if (trips) {
-    for (const entry of trips[dayType]) {
-      const key = `${entry.headsign}|${entry.line}|${entry.departure}`
-      tripLookup.set(key, { tripId: entry.tripId, lineSlug: entry.lineSlug })
-    }
-  }
-
-  for (const dir of schedule.directions) {
-    const times = dir[dayType]
-    // Also check early next-day departures stored as minutes > 1440
-    const upcoming = times.filter((t) => t > nowMinutes).slice(0, 3)
-
-    for (const t of upcoming) {
-      const key = `${dir.headsign}|${dir.line}|${formatTime(t)}`
-      const match = tripLookup.get(key)
-      arrivals.push({
-        headsign: dir.headsign,
-        line: dir.line,
-        departureMinutes: t,
-        minutesAway: t - nowMinutes,
-        tripId: match?.tripId,
-        lineSlug: match?.lineSlug,
-      })
-    }
-  }
-
-  // Sort by direction (group them), then by time within each direction
-  arrivals.sort((a, b) => {
-    if (a.headsign !== b.headsign) return a.headsign.localeCompare(b.headsign)
-    return a.minutesAway - b.minutesAway
-  })
-
-  return arrivals
+function formatLastUpdated(epochMs: number): string {
+  return new Date(epochMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
 function SkeletonRow({ color }: { color: string }) {
@@ -102,12 +45,19 @@ function SkeletonRow({ color }: { color: string }) {
   )
 }
 
-export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) {
-  const [arrivals, setArrivals] = useState<Arrival[]>([])
+export default function Arrivals({ slug, service, hasSchedule, metraStopId }: ArrivalsProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const scheduleRef = useRef<StationSchedule | null>(null)
-  const tripsRef = useRef<StationTrips | null>(null)
+  const [scheduleState, setScheduleState] = useState<StationSchedule | null>(null)
+  const [tripsState, setTripsState] = useState<StationTrips | null>(null)
+  const [tick, setTick] = useState(0)
+  const isMetra = service === 'metra'
+
+  // Subscribe to the Metra realtime trip-updates feed only for Metra stations
+  // that have a GTFS stop id we can match against. The hook shares a single
+  // module-level poll across every subscriber (station page + dashboard cards).
+  const metraEnabled = isMetra && hasSchedule && !!metraStopId
+  const { data: feedData, fetchedAt } = useMetraFeed('tripupdates', { enabled: metraEnabled })
 
   useEffect(() => {
     if (!hasSchedule) return
@@ -118,52 +68,54 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
     })
 
     // For Metra stations, also fetch station-trips so we can link each row to
-    // its train detail page. A failure here is non-fatal — we still render
-    // arrivals, just without links.
-    const tripsPromise: Promise<StationTrips | null> =
-      service === 'metra'
-        ? fetch(`/api/metra/station-trips/${slug}`)
-            .then((r) => (r.ok ? (r.json() as Promise<StationTrips>) : null))
-            .catch(() => null)
-        : Promise.resolve(null)
+    // its train detail page (and match realtime by train number). A failure
+    // here is non-fatal — we still render arrivals, just without links/realtime.
+    const tripsPromise: Promise<StationTrips | null> = isMetra
+      ? fetch(`/api/metra/station-trips/${slug}`)
+          .then((r) => (r.ok ? (r.json() as Promise<StationTrips>) : null))
+          .catch(() => null)
+      : Promise.resolve(null)
 
     Promise.all([schedulePromise, tripsPromise])
       .then(([schedule, trips]) => {
-        scheduleRef.current = schedule
-        tripsRef.current = trips
-        setArrivals(computeArrivals(schedule, trips))
+        setScheduleState(schedule)
+        setTripsState(trips)
         setLoading(false)
       })
       .catch(() => {
         setError(true)
         setLoading(false)
       })
-  }, [slug, service, hasSchedule])
+  }, [slug, isMetra, hasSchedule])
 
-  // Recompute arrivals every 60 seconds without re-fetching
+  // Refresh countdowns every 60 seconds without re-fetching the schedule.
   useEffect(() => {
-    const id = setInterval(() => {
-      if (scheduleRef.current) {
-        setArrivals(computeArrivals(scheduleRef.current, tripsRef.current))
-      }
-    }, 60_000)
+    const id = setInterval(() => setTick((t) => t + 1), 60_000)
     return () => clearInterval(id)
   }, [])
 
+  const realtime = useMemo(
+    () => (metraEnabled ? indexMetraTripUpdates(feedData) : null),
+    [metraEnabled, feedData],
+  )
+
+  const groups = useMemo(() => {
+    if (!scheduleState) return []
+    return computeArrivalGroups({
+      schedule: scheduleState,
+      trips: tripsState,
+      now: new Date(),
+      service,
+      realtime,
+      metraStopId,
+    })
+    // `tick` drives the 60s refresh; feedData/realtime change drives live updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scheduleState, tripsState, service, realtime, metraStopId, fetchedAt, tick])
+
   if (!hasSchedule) return null
 
-  // Group arrivals by headsign for section headers
-  const grouped: { headsign: string; line: string; rows: Arrival[] }[] = []
-  for (const arrival of arrivals) {
-    const last = grouped[grouped.length - 1]
-    if (last && last.headsign === arrival.headsign) {
-      last.rows.push(arrival)
-    } else {
-      grouped.push({ headsign: arrival.headsign, line: arrival.line, rows: [arrival] })
-    }
-  }
-
-  // Pick a representative color for skeleton state
+  const hasLiveRow = groups.some((g) => g.items.some((i) => i.isLive || i.isCancelled))
   const skeletonColor = '#00a1de' // Blue Line as fallback
 
   return (
@@ -175,9 +127,24 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
         </svg>
         <p className="text-sm text-white">
           Scheduled arrivals — estimates based on{' '}
-          <span className="font-semibold">CTA timetable</span>
+          <span className="font-semibold">{isMetra ? 'Metra' : 'CTA'} timetable</span>
         </p>
+        {hasLiveRow && (
+          <span className="ml-auto flex items-center gap-1.5 rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-semibold text-green-300">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-400" />
+            </span>
+            Live
+          </span>
+        )}
       </div>
+
+      {hasLiveRow && fetchedAt && (
+        <div className="bg-gray-700/60 px-4 py-1.5 text-xs text-white/70 dark:bg-gray-800/60">
+          Last updated: {formatLastUpdated(fetchedAt)}
+        </div>
+      )}
 
       {loading && (
         <div>
@@ -200,7 +167,7 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
         </div>
       )}
 
-      {!loading && !error && arrivals.length === 0 && (
+      {!loading && !error && groups.length === 0 && (
         <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
           No upcoming departures found.
         </div>
@@ -208,7 +175,7 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
 
       {!loading &&
         !error &&
-        grouped.map((group) => {
+        groups.map((group) => {
           const colors = LINE_COLORS[group.line]
           const bg = colors?.bg ?? '#565a5c'
 
@@ -220,25 +187,43 @@ export default function Arrivals({ slug, service, hasSchedule }: ArrivalsProps) 
               </div>
 
               {/* Arrival rows */}
-              {group.rows.map((arrival, i) => {
+              {group.items.map((arrival, i) => {
                 const rowContent = (
                   <>
                     <div>
                       <p className="text-xs text-white/80">
-                        {arrival.line} Line · {formatTime(arrival.departureMinutes)} to
+                        {group.line} Line · {formatTime(arrival.departureMinutes)} to
                       </p>
                       <p className="text-base leading-tight font-bold text-white">
-                        {arrival.headsign}
+                        {group.headsign}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      <span className="text-2xl font-bold text-white tabular-nums">
-                        {formatMinutesAway(arrival.minutesAway)}
-                      </span>
-                      {/* Approximate indicator — distinguishes schedule from live data */}
-                      <span className="text-lg text-white/60" title="Scheduled estimate">
-                        ≈
-                      </span>
+                      {arrival.isCancelled ? (
+                        <span className="rounded bg-red-500/20 px-2 py-0.5 text-sm font-bold text-red-200">
+                          Cancelled
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-2xl font-bold text-white tabular-nums">
+                            {formatMinutesAway(arrival.minutesAway)}
+                          </span>
+                          {arrival.isLive ? (
+                            <span
+                              className="relative flex h-2.5 w-2.5"
+                              title="Live — based on Metra realtime data"
+                            >
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70 opacity-75" />
+                              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+                            </span>
+                          ) : (
+                            /* Approximate indicator — distinguishes schedule from live data */
+                            <span className="text-lg text-white/60" title="Scheduled estimate">
+                              ≈
+                            </span>
+                          )}
+                        </>
+                      )}
                     </div>
                   </>
                 )

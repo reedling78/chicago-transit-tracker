@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { displayStationName } from '@ctt/shared'
 import type { Favorite, Line, Station } from '@ctt/shared'
 import { favoriteRoute } from '@lib/favoriteRoute'
 import { useToggleFavorite } from '@lib/hooks/useToggleFavorite'
@@ -67,7 +68,7 @@ function useRowContent(
   if (favorite.type === 'station') {
     const station = stations?.find((s) => s.slug === favorite.id)
     return {
-      title: station?.name ?? favorite.id,
+      title: displayStationName(station?.name) ?? favorite.id,
       subtitle: station?.lines?.length ? station.lines.join(' • ') : null,
     }
   }

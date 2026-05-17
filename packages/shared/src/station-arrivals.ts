@@ -1,5 +1,8 @@
 import type { ServiceType, StationSchedule, StationTrips } from './gtfs-types'
 import type { FavoriteDirection } from './types'
+import type { FeedData } from './metra-status'
+import { longToNumber } from './metra-status'
+import { extractMetraTrainNumber, routeIdToLineSlug } from './metra-trip-matching'
 
 /** A single computed arrival inside a direction group. */
 export interface ArrivalItem {
@@ -9,6 +12,67 @@ export interface ArrivalItem {
   label: string
   tripId?: string
   lineSlug?: string
+  trainNumber?: string
+  /** True when `minutesAway` was recomputed from a Metra realtime prediction. */
+  isLive?: boolean
+  /** True when the matched Metra trip is canceled in the realtime feed. */
+  isCancelled?: boolean
+}
+
+/** Realtime info for one Metra trip, keyed inside {@link MetraRealtimeIndex}. */
+export interface RealtimeTripStop {
+  /** Predicted epoch (seconds) for this stop — departure preferred, else arrival. */
+  predictedEpoch: number | null
+  skipped: boolean
+}
+
+export interface RealtimeTripInfo {
+  canceled: boolean
+  /** Keyed by GTFS `stop_id` (for Metra, the station's `metraStopId`). */
+  stops: Map<string, RealtimeTripStop>
+}
+
+/** Index of Metra trip updates keyed by `${lineSlug}:${trainNumber}`. */
+export type MetraRealtimeIndex = Map<string, RealtimeTripInfo>
+
+// GTFS-RT ScheduleRelationship enum values we care about.
+const STU_SKIPPED = 1
+const TRIP_CANCELED = 3
+
+/**
+ * One-pass normalizer: turn a decoded Metra GTFS-RT trip-updates feed into a
+ * lookup keyed by `${lineSlug}:${trainNumber}`. Pure + platform-agnostic so
+ * web and mobile feed `computeArrivalGroups` the same shape.
+ */
+export function indexMetraTripUpdates(
+  feed: FeedData | null | undefined,
+): MetraRealtimeIndex {
+  const index: MetraRealtimeIndex = new Map()
+  if (!feed?.entity) return index
+
+  for (const entity of feed.entity) {
+    const tu = entity.tripUpdate
+    if (!tu?.trip) continue
+    const lineSlug = routeIdToLineSlug(tu.trip.routeId ?? null)
+    const tripId = tu.trip.tripId
+    if (!lineSlug || !tripId) continue
+
+    const trainNumber = extractMetraTrainNumber(tripId)
+    const stops = new Map<string, RealtimeTripStop>()
+    for (const stu of tu.stopTimeUpdate ?? []) {
+      if (!stu.stopId) continue
+      stops.set(stu.stopId, {
+        predictedEpoch: longToNumber(stu.departure?.time ?? stu.arrival?.time),
+        skipped: stu.scheduleRelationship === STU_SKIPPED,
+      })
+    }
+    index.set(`${lineSlug}:${trainNumber}`, {
+      canceled: tu.trip.scheduleRelationship === TRIP_CANCELED,
+      stops,
+    })
+  }
+
+  return index
 }
 
 /** A group of arrivals sharing a headsign + line. */
@@ -29,6 +93,10 @@ export interface ComputeArrivalGroupsInput {
   directionFilter?: FavoriteDirection
   /** Max arrivals returned per direction group. Defaults to 3. */
   limit?: number
+  /** Normalized Metra realtime trip updates (see {@link indexMetraTripUpdates}). */
+  realtime?: MetraRealtimeIndex | null
+  /** This station's GTFS `stop_id` (`Station.metraStopId`); required to merge realtime. */
+  metraStopId?: string | null
 }
 
 export function pickServiceDay(now: Date): ServiceType {
@@ -80,6 +148,8 @@ export function computeArrivalGroups({
   service,
   directionFilter = 'all',
   limit = 3,
+  realtime,
+  metraStopId,
 }: ComputeArrivalGroupsInput): ArrivalGroup[] {
   if (!schedule) return []
 
@@ -87,7 +157,7 @@ export function computeArrivalGroups({
   const nowMinutes = now.getHours() * 60 + now.getMinutes()
 
   // Build a (headsign|line|formattedLabel) → trip metadata lookup.
-  type TripMeta = { tripId: string; lineSlug: string; directionId: number }
+  type TripMeta = { tripId: string; lineSlug: string; trainNumber: string; directionId: number }
   const tripLookup = new Map<string, TripMeta>()
   if (trips) {
     for (const entry of trips[dayType]) {
@@ -95,10 +165,13 @@ export function computeArrivalGroups({
       tripLookup.set(key, {
         tripId: entry.tripId,
         lineSlug: entry.lineSlug,
+        trainNumber: entry.trainNumber,
         directionId: entry.directionId,
       })
     }
   }
+
+  const canMergeRealtime = service === 'metra' && Boolean(realtime) && Boolean(metraStopId)
 
   const groups: ArrivalGroup[] = []
 
@@ -114,13 +187,30 @@ export function computeArrivalGroups({
       const label = formatClockLabel(t)
       const match = tripLookup.get(`${dir.headsign}|${dir.line}|${label}`)
       if (match && groupDirectionId === undefined) groupDirectionId = match.directionId
-      items.push({
+
+      const item: ArrivalItem = {
         departureMinutes: t,
         minutesAway: t - nowMinutes,
         label,
         tripId: match?.tripId,
         lineSlug: match?.lineSlug,
-      })
+        trainNumber: match?.trainNumber,
+      }
+
+      if (canMergeRealtime && match?.lineSlug && match.trainNumber) {
+        const rt = realtime!.get(`${match.lineSlug}:${match.trainNumber}`)
+        if (rt?.canceled) {
+          item.isCancelled = true
+        } else {
+          const stop = rt?.stops.get(metraStopId!)
+          if (stop && !stop.skipped && stop.predictedEpoch != null) {
+            item.minutesAway = Math.round((stop.predictedEpoch * 1000 - now.getTime()) / 60_000)
+            item.isLive = true
+          }
+        }
+      }
+
+      items.push(item)
     }
 
     groups.push({

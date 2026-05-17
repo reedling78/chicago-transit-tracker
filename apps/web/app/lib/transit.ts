@@ -1,4 +1,5 @@
 import { cache } from 'react'
+import { displayStationName } from '@ctt/shared'
 import { getFirestore } from './firebase-admin'
 import type { Line, Station } from './types'
 import type { TripStop } from './metra-status'
@@ -21,7 +22,7 @@ function toLine(id: string, d: DocumentData): Line {
     service: d.service,
     color: d.color,
     textColor: d.textColor,
-    termini: d.termini ?? [],
+    termini: (d.termini ?? []).map(displayStationName),
     stationCount: d.stationCount ?? 0,
     routeMiles: d.routeMiles ?? 0,
     operatesOvernight: d.operatesOvernight ?? false,
@@ -33,7 +34,7 @@ function toLine(id: string, d: DocumentData): Line {
     description: d.description,
     ctaRouteId: d.ctaRouteId ?? null,
     metraLineCode: d.metraLineCode ?? null,
-    downtownTerminal: d.downtownTerminal ?? null,
+    downtownTerminal: displayStationName(d.downtownTerminal ?? null),
     operator: d.operator ?? null,
     countiesServed: d.countiesServed ?? [],
     photoUrl: d.photoUrl ?? null,
@@ -111,10 +112,13 @@ export const getMetraLineTrips = cache(async (lineSlug: string): Promise<MetraLi
     const d = doc.data()
     return {
       trainNumber: d.trainNumber,
-      headsign: d.headsign,
+      headsign: displayStationName(d.headsign),
       serviceType: d.serviceType,
       directionId: d.directionId ?? 0,
-      stops: (d.stops ?? []) as TripStop[],
+      stops: ((d.stops ?? []) as TripStop[]).map((s) => ({
+        ...s,
+        stationName: displayStationName(s.stationName),
+      })),
     }
   })
 })
