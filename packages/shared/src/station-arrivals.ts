@@ -51,6 +51,15 @@ export function formatMinutesAway(minutesAway: number): string {
   return mins === 0 ? `${hours}h` : `${hours}h ${mins}m`
 }
 
+/**
+ * Display-name shortener for compact surfaces (dashboard cards). Trims the
+ * redundant "Chicago " prefix from "Chicago Union Station" — the city is
+ * implicit on a Chicago transit app and the long form crowds tight rows.
+ */
+export function shortenStationName(name: string): string {
+  return name.replace(/\bChicago Union Station\b/g, 'Union Station')
+}
+
 export function formatClockLabel(minutesSinceMidnight: number): string {
   const h = Math.floor(minutesSinceMidnight / 60) % 24
   const m = minutesSinceMidnight % 60

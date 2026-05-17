@@ -25,6 +25,7 @@ export interface MetraTripLiveStatus {
   phase: TripPhase
   status: HeroStatus | null
   currentDerived: DerivedStop | undefined
+  derivedStops: DerivedStop[]
   firstStop: TripStop | undefined
   lastStop: TripStop | undefined
   vehiclePosition: VehiclePosition | null
@@ -144,6 +145,7 @@ export function useMetraTripLiveStatus(
     phase,
     status,
     currentDerived,
+    derivedStops,
     firstStop,
     lastStop,
     vehiclePosition: realtime?.vehiclePosition ?? null,

@@ -1,12 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
-  SERVICE_LABEL,
+  computeDestinationEta,
+  computeRightPanel,
   favoriteKey,
+  formatClockLabel,
+  formatMinutesAway,
+  minutesUntil,
+  parseDisplayTimeToMinutes,
+  shortenStationName,
   type Favorite,
   type Line,
   type Station,
@@ -19,14 +25,7 @@ import FavoriteMenu from '../FavoriteMenu'
 import MetraTripHeroStatusCardCompact from '../../MetraTripHeroStatusCardCompact'
 import TrainStopPickerModal from '../TrainStopPickerModal'
 import CardMenuButton from './CardMenuButton'
-import {
-  cardPill,
-  cardPillRow,
-  cardRow,
-  cardRowDragging,
-  cardSubtitle,
-  cardTitle,
-} from './cardClassNames'
+import { cardRow, cardRowDragging, cardSubtitle, cardTitle } from './cardClassNames'
 
 interface TrainCardProps {
   favorite: Favorite
@@ -58,6 +57,11 @@ export default function TrainCard({ favorite, lines, stations }: TrainCardProps)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: favoriteKey(favorite.type, favorite.id),
   })
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(id)
+  }, [])
   const { data: trip } = useFavoriteTripQuery(favorite.id)
   const { update } = useUpdateFavoriteSettings(favorite.type, favorite.id)
   const live = useMetraTripLiveStatus(trip ?? null)
@@ -74,25 +78,11 @@ export default function TrainCard({ favorite, lines, stations }: TrainCardProps)
 
   const title = trip
     ? originStop && destStop
-      ? `${originStop.stationName} to ${destStop.stationName}`
+      ? `${shortenStationName(originStop.stationName)} to ${shortenStationName(destStop.stationName)}`
       : `Train ${trainNumber}`
     : `Train ${trainNumber}`
 
-  const subtitleFallback = trip
-    ? trip.headsign
-      ? `To ${trip.headsign}`
-      : (trip.lineName ?? lineSlugFromId)
-    : 'Trip not currently scheduled'
-
-  const pills: { label: string; tone?: 'line' | 'express' }[] = []
-  if (trip) {
-    pills.push({ label: 'Metra' })
-    if (trip.line) pills.push({ label: trip.line, tone: 'line' })
-    if (trip.serviceType && trip.serviceType in SERVICE_LABEL) {
-      pills.push({ label: SERVICE_LABEL[trip.serviceType as keyof typeof SERVICE_LABEL] })
-    }
-    if (trip.isExpress) pills.push({ label: 'Express', tone: 'express' })
-  }
+  const subheader = trip ? `${trip.line ? `${trip.line} ` : ''}#${trainNumber}` : `#${trainNumber}`
 
   const lineSlug = trip?.lineSlug ?? lineSlugFromId
   const href = `/metra/${lineSlug}/train/${trainNumber}`
@@ -100,10 +90,14 @@ export default function TrainCard({ favorite, lines, stations }: TrainCardProps)
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    borderLeft: lineColor ? `4px solid ${lineColor}` : undefined,
   }
 
   const canPickStops = !!trip?.stops && trip.stops.length > 1
+
+  const liveShown = !!(live && live.status && !live.isNoData)
+  const depMin = originStop ? parseDisplayTimeToMinutes(originStop.departure) : null
+  const minsAway = depMin != null ? minutesUntil(now, depMin) : null
+  const showCountdown = !liveShown && !!trip && depMin != null
 
   return (
     <li
@@ -119,43 +113,55 @@ export default function TrainCard({ favorite, lines, stations }: TrainCardProps)
           {...listeners}
         >
           <p className={cardTitle}>{title}</p>
+          <p className={cardSubtitle}>{subheader}</p>
         </Link>
-        <span className="shrink-0 text-sm text-gray-500 tabular-nums dark:text-gray-400">
-          #{trainNumber}
-        </span>
+        {liveShown && (
+          <span
+            role="status"
+            aria-label="Receiving live data"
+            className="flex shrink-0 items-center gap-1.5"
+          >
+            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500" />
+            <span className="text-xs font-semibold text-green-600 dark:text-green-400">Live</span>
+          </span>
+        )}
         <CardMenuButton
           onPress={() => setMenuOpen((v) => !v)}
           isOpen={menuOpen}
           accessibilityLabel={`Open menu for ${title}`}
         />
       </div>
-      {pills.length > 0 ? (
-        <div className={cardPillRow}>
-          {pills.map((pill, i) => {
-            const inlineStyle =
-              pill.tone === 'line' && lineColor
-                ? { backgroundColor: lineColor, color: line?.textColor ?? '#fff' }
-                : undefined
-            return (
-              <span key={`${pill.label}-${i}`} className={cardPill} style={inlineStyle}>
-                {pill.label}
-              </span>
-            )
-          })}
-        </div>
-      ) : (
-        <p className={cardSubtitle}>{subtitleFallback}</p>
-      )}
-      {live && live.status && !live.isNoData && (
+      {liveShown && live && (
         <MetraTripHeroStatusCardCompact
-          status={live.status}
-          phase={live.phase}
-          currentDerived={live.currentDerived}
-          firstStop={live.firstStop}
-          lastStop={live.lastStop}
+          status={live.status!}
           vehiclePosition={live.vehiclePosition}
-          nowMs={live.nowMs}
+          nextStop={computeRightPanel(
+            live.phase,
+            live.currentDerived,
+            live.firstStop,
+            live.lastStop,
+            live.nowMs,
+          )}
+          destination={computeDestinationEta(destStop, live.derivedStops, live.nowMs)}
+          lineColor={lineColor}
+          lineTextColor={line?.textColor}
         />
+      )}
+      {showCountdown && depMin != null && (
+        <p className={cardSubtitle}>
+          {minsAway != null && minsAway >= 0 ? (
+            <>
+              Departs in{' '}
+              <span className="font-semibold text-gray-700 dark:text-gray-200">
+                {formatMinutesAway(minsAway)}
+              </span>{' '}
+              · {formatClockLabel(depMin)}
+              {originStop ? ` from ${originStop.stationName}` : ''}
+            </>
+          ) : (
+            `Departed ${formatClockLabel(depMin)}`
+          )}
+        </p>
       )}
       {menuOpen && (
         <FavoriteMenu

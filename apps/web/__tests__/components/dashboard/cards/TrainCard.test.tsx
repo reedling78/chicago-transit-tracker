@@ -127,7 +127,7 @@ describe('TrainCard', () => {
         <TrainCard favorite={fav} lines={lines} stations={undefined} />
       </ul>,
     )
-    expect(screen.getByText('Big Timber to Chicago Union Station')).toBeInTheDocument()
+    expect(screen.getByText('Big Timber to Union Station')).toBeInTheDocument()
   })
 
   it('uses overrides from the favorite to render a custom segment', () => {
@@ -148,31 +148,20 @@ describe('TrainCard', () => {
     expect(screen.getByText('Schaumburg to Western Avenue')).toBeInTheDocument()
   })
 
-  it('shows the right-meta as #trainNumber and the descriptive pill row', () => {
+  it('folds the agency, line, and train number into a single subheader (no pills)', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     render(
       <ul>
         <TrainCard favorite={fav} lines={lines} stations={undefined} />
       </ul>,
     )
-    expect(screen.getByText('#2222')).toBeInTheDocument()
-    expect(screen.getByText('Metra')).toBeInTheDocument()
-    expect(screen.getByText('MD-W')).toBeInTheDocument()
-    expect(screen.getByText('Weekday')).toBeInTheDocument()
+    expect(screen.getByText('MD-W #2222')).toBeInTheDocument()
+    // The standalone metadata pills are gone entirely.
+    expect(screen.queryByText('Weekday')).not.toBeInTheDocument()
     expect(screen.queryByText('Express')).not.toBeInTheDocument()
   })
 
-  it('renders an Express pill when the trip is flagged as express', () => {
-    mockUseFavoriteTripQuery.mockReturnValue({ data: { ...trip, isExpress: true } })
-    render(
-      <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
-      </ul>,
-    )
-    expect(screen.getByText('Express')).toBeInTheDocument()
-  })
-
-  it('falls back to "Train ${trainNumber}" + placeholder subtitle when trip data is missing', () => {
+  it('falls back to "Train ${trainNumber}" + bare #number subheader when trip data is missing', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: null })
     render(
       <ul>
@@ -184,7 +173,7 @@ describe('TrainCard', () => {
       </ul>,
     )
     expect(screen.getByText('Train 9999')).toBeInTheDocument()
-    expect(screen.getByText('Trip not currently scheduled')).toBeInTheDocument()
+    expect(screen.getByText('#9999')).toBeInTheDocument()
   })
 
   it('renders a link to /metra/{line}/train/{trainNumber}', () => {
@@ -197,7 +186,7 @@ describe('TrainCard', () => {
     expect(container.querySelector('a[href="/metra/md-w/train/2222"]')).not.toBeNull()
   })
 
-  it('applies a left-border accent in the line color when the line is known', () => {
+  it('does not paint a left-border line-color accent on the card', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     const { container } = render(
       <ul>
@@ -205,7 +194,7 @@ describe('TrainCard', () => {
       </ul>,
     )
     const li = container.querySelector('li')!
-    expect(li.getAttribute('style') ?? '').toMatch(/#C8872A|rgb\(200, ?135, ?42\)/i)
+    expect(li.getAttribute('style') ?? '').not.toMatch(/border-left|#C8872A|rgb\(200, ?135, ?42\)/i)
   })
 
   it('opens the menu and exposes train-stop picker entries when stops are loaded', () => {
@@ -215,7 +204,7 @@ describe('TrainCard', () => {
         <TrainCard favorite={fav} lines={lines} stations={undefined} />
       </ul>,
     )
-    fireEvent.click(screen.getByLabelText('Open menu for Big Timber to Chicago Union Station'))
+    fireEvent.click(screen.getByLabelText('Open menu for Big Timber to Union Station'))
     expect(screen.getByText('Set departure station…')).toBeInTheDocument()
     expect(screen.getByText('Set destination station…')).toBeInTheDocument()
   })
@@ -271,6 +260,7 @@ describe('TrainCard', () => {
       isNoData: false,
       status: { tone: 'ontime', label: 'On time' },
       currentDerived: undefined,
+      derivedStops: [],
       firstStop: trip.stops[0],
       lastStop: trip.stops[trip.stops.length - 1],
       vehiclePosition: null,
@@ -286,6 +276,117 @@ describe('TrainCard', () => {
     expect(screen.getByText('On time')).toBeInTheDocument()
   })
 
+  it('shows a countdown to the origin departure when there is no live data', () => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2026-04-25T05:48:00'))
+    try {
+      mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
+      mockUseLive.mockReturnValue(null)
+      const { container } = render(
+        <ul>
+          <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        </ul>,
+      )
+      expect(container.textContent).toContain('Departs in')
+      expect(container.textContent).toContain('12 min')
+      expect(container.textContent).toContain('6:00 AM')
+      expect(container.textContent).toContain('from Big Timber')
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('shows "Departed" once the origin departure time has passed with no live data', () => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2026-04-25T09:00:00'))
+    try {
+      mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
+      mockUseLive.mockReturnValue(null)
+      const { container } = render(
+        <ul>
+          <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        </ul>,
+      )
+      expect(container.textContent).toContain('Departed 6:00 AM')
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('shows a live indicator in the header and hides the tags when realtime data is available', () => {
+    mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
+    mockUseLive.mockReturnValue({
+      phase: 'active',
+      isNoData: false,
+      status: { tone: 'ontime', label: 'On time' },
+      currentDerived: undefined,
+      derivedStops: [],
+      firstStop: trip.stops[0],
+      lastStop: trip.stops[trip.stops.length - 1],
+      vehiclePosition: null,
+      error: null,
+      nowMs: Date.now(),
+      fetchedAt: Date.now(),
+    })
+    render(
+      <ul>
+        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+      </ul>,
+    )
+    expect(screen.getByText('On time')).toBeInTheDocument()
+    expect(screen.getByLabelText('Receiving live data')).toBeInTheDocument()
+    expect(screen.getByText('Live')).toBeInTheDocument()
+    // The consolidated subheader persists in the live state.
+    expect(screen.getByText('MD-W #2222')).toBeInTheDocument()
+    expect(screen.queryByText(/Departs in/)).not.toBeInTheDocument()
+  })
+
+  it('shows the status bar, next stop on the left, and the destination ETA on the right', () => {
+    const now = 1_700_000_000_000
+    mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
+    mockUseLive.mockReturnValue({
+      phase: 'active',
+      isNoData: false,
+      status: { tone: 'delayed', label: 'Delayed 7 min' },
+      currentDerived: {
+        stop: trip.stops[1],
+        status: 'current',
+        delayMinutes: 7,
+        skipped: false,
+        etaEpoch: Math.floor(now / 1000) + 120,
+      },
+      derivedStops: [
+        {
+          stop: trip.stops[3],
+          status: 'current',
+          delayMinutes: 7,
+          skipped: false,
+          etaEpoch: Math.floor(now / 1000) + 600,
+        },
+      ],
+      firstStop: trip.stops[0],
+      lastStop: trip.stops[trip.stops.length - 1],
+      vehiclePosition: null,
+      error: null,
+      nowMs: now,
+      fetchedAt: now,
+    })
+    render(
+      <ul>
+        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+      </ul>,
+    )
+    // Status bar
+    expect(screen.getByText('Delayed 7 min')).toBeInTheDocument()
+    // Next stop (left)
+    expect(screen.getByText('Next stop')).toBeInTheDocument()
+    expect(screen.getByText('Schaumburg')).toBeInTheDocument()
+    // Destination ETA (right)
+    expect(screen.getByText(/^Arrives /)).toBeInTheDocument()
+    expect(screen.getByText('Union Station')).toBeInTheDocument()
+    expect(screen.getByText('10 min')).toBeInTheDocument()
+  })
+
   it('hides the mini live-status panel when phase is nodata', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     mockUseLive.mockReturnValue({
@@ -293,6 +394,7 @@ describe('TrainCard', () => {
       isNoData: true,
       status: null,
       currentDerived: undefined,
+      derivedStops: [],
       firstStop: trip.stops[0],
       lastStop: trip.stops[trip.stops.length - 1],
       vehiclePosition: null,

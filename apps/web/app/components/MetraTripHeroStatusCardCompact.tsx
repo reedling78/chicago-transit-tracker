@@ -1,76 +1,92 @@
 import {
   TONE_CLASSES,
-  computeRightPanel,
   formatClockTime,
   longToNumber,
-  type DerivedStop,
+  shortenStationName,
+  type DestinationEta,
   type HeroStatus,
-  type TripPhase,
-  type TripStop,
+  type RightPanelCopy,
   type VehiclePosition,
 } from '@ctt/shared'
 
 export interface MetraTripHeroStatusCardCompactProps {
   status: HeroStatus
-  phase: TripPhase
-  currentDerived: DerivedStop | undefined
-  firstStop: TripStop | undefined
-  lastStop: TripStop | undefined
   vehiclePosition: VehiclePosition | null
-  nowMs: number
+  nextStop: RightPanelCopy | null
+  destination: DestinationEta | null
+  lineColor?: string
+  lineTextColor?: string
 }
 
 /**
- * One-line variant of MetraTripHeroStatusCard for use inside dashboard cards.
- * Shows: tone dot + label · next-stop time · scheduled time line. Hidden by
- * the parent when phase is `nodata`.
+ * Live panel for the dashboard TrainCard, mirroring StationCard's expanded
+ * layout: a "Service"-style header bar carrying the status + last-reported
+ * line, then a line-colored row split into the next stop (left) and the ETA
+ * to the user's destination stop (right).
  *
  * Per `.claude/rules/transit-compliance.md`, surfaces showing Metra realtime
- * data must include a "last reported" timestamp — rendered as the trailing
- * line.
+ * data must include a "last reported" timestamp — rendered in the header bar.
  */
 export default function MetraTripHeroStatusCardCompact({
   status,
-  phase,
-  currentDerived,
-  firstStop,
-  lastStop,
   vehiclePosition,
-  nowMs,
+  nextStop,
+  destination,
+  lineColor,
+  lineTextColor,
 }: MetraTripHeroStatusCardCompactProps) {
   const toneClass = TONE_CLASSES[status.tone]
-  const rightPanel = computeRightPanel(phase, currentDerived, firstStop, lastStop, nowMs)
-
   const timestampSec = vehiclePosition ? longToNumber(vehiclePosition.timestamp) : null
   const lastReported =
     timestampSec != null ? `Last reported ${formatClockTime(new Date(timestampSec * 1000))}` : null
+  const nextDetail = nextStop ? [nextStop.time, nextStop.subtext].filter(Boolean).join(' · ') : ''
+  const rowText = lineTextColor ?? '#fff'
 
   return (
-    <div className="mt-2 rounded-md border border-gray-100 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs">
-        <span className="flex items-center gap-1.5">
-          <span className={`h-2 w-2 rounded-full ${toneClass.dot}`} />
-          <span className={`font-semibold ${toneClass.text}`}>{status.label}</span>
-        </span>
-        {rightPanel && (
-          <>
-            <span className="text-gray-400 dark:text-gray-500">·</span>
-            <span className="text-gray-700 dark:text-gray-200">
-              <span className="font-medium">{rightPanel.title}:</span> {rightPanel.station}
-            </span>
-            {rightPanel.time && (
-              <span className="font-semibold text-gray-700 tabular-nums dark:text-gray-200">
-                {rightPanel.time}
-              </span>
-            )}
-            {rightPanel.subtext && (
-              <span className="text-gray-500 dark:text-gray-400">{rightPanel.subtext}</span>
-            )}
-          </>
+    <div className="-mx-4 mt-0.5 -mb-4 overflow-hidden rounded-b-lg border-t border-gray-100 dark:border-gray-700">
+      <div className="flex items-baseline justify-between gap-2 bg-gray-600 px-4 py-2 dark:bg-gray-700">
+        <span className={`truncate text-sm font-semibold ${toneClass.text}`}>{status.label}</span>
+        {lastReported && (
+          <span className="shrink-0 text-xs font-normal text-white/70">{lastReported}</span>
         )}
       </div>
-      {lastReported && (
-        <p className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">{lastReported}</p>
+      {(nextStop || destination) && (
+        <div
+          className="flex items-start justify-between gap-3 border-t border-black/10 px-4 py-3 [text-shadow:0_1px_2px_rgb(0_0_0_/_45%)]"
+          style={{ backgroundColor: lineColor ?? '#565a5c' }}
+        >
+          <div className="min-w-0">
+            {nextStop && (
+              <>
+                <p className="text-xs text-white/80">{nextStop.title}</p>
+                <p
+                  className="truncate text-base leading-tight font-bold"
+                  style={{ color: rowText }}
+                >
+                  {shortenStationName(nextStop.station)}
+                </p>
+                {nextDetail && <p className="mt-0.5 text-sm text-white/80">{nextDetail}</p>}
+              </>
+            )}
+          </div>
+          {destination && (
+            <div className="min-w-0 text-right">
+              <p className="text-xs text-white/80">
+                Arrives {destination.etaClock}
+                {destination.realtime ? '' : ' (est.)'}
+              </p>
+              <p className="truncate text-base leading-tight font-bold" style={{ color: rowText }}>
+                {shortenStationName(destination.station)}
+              </p>
+              <p
+                className="mt-0.5 text-sm leading-none font-bold tabular-nums"
+                style={{ color: rowText }}
+              >
+                {destination.etaLabel}
+              </p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

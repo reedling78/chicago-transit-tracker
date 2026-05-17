@@ -1,10 +1,11 @@
 import {
+  computeDestinationEta,
   computeRightPanel,
   filterFeedForTrip,
   isTripCompleted,
   matchEntityToTrip,
 } from '@lib/metra-trip-realtime-helpers'
-import type { TripStop, TripUpdate } from '@lib/metra-status'
+import type { DerivedStop, TripStop, TripUpdate } from '@lib/metra-status'
 
 function tripUpdate(
   tripId: string,
@@ -217,5 +218,55 @@ describe('computeRightPanel', () => {
 
   it('returns null for nodata phase', () => {
     expect(computeRightPanel('nodata', undefined, firstStop, lastStop, Date.now())).toBeNull()
+  })
+})
+
+describe('computeDestinationEta', () => {
+  const dest: TripStop = {
+    sequence: 10,
+    stationName: 'Union Station',
+    slug: 'union-station-metra',
+    arrival: '6:30 AM',
+    departure: '6:30 AM',
+  }
+  const now = 1_700_000_000_000
+
+  function derived(partial: Partial<DerivedStop> & { stop: TripStop }): DerivedStop {
+    return { status: 'upcoming', delayMinutes: null, skipped: false, etaEpoch: null, ...partial }
+  }
+
+  it('returns null when there is no destination stop', () => {
+    expect(computeDestinationEta(undefined, [], now)).toBeNull()
+  })
+
+  it('prefers the realtime etaEpoch for the matched destination (by slug)', () => {
+    const result = computeDestinationEta(
+      dest,
+      [derived({ stop: dest, etaEpoch: Math.floor(now / 1000) + 900 })],
+      now,
+    )
+    expect(result).toMatchObject({ station: 'Union Station', etaLabel: '15 min', realtime: true })
+  })
+
+  it('clamps a past realtime ETA to "Due"', () => {
+    const result = computeDestinationEta(
+      dest,
+      [derived({ stop: dest, etaEpoch: Math.floor(now / 1000) - 120 })],
+      now,
+    )
+    expect(result?.etaLabel).toBe('Due')
+    expect(result?.realtime).toBe(true)
+  })
+
+  it('falls back to scheduled arrival shifted by the known delay', () => {
+    // 6:30 AM + 5 min delay = 6:35 AM scheduled estimate
+    const midnight = new Date(now)
+    midnight.setHours(6, 20, 0, 0)
+    const result = computeDestinationEta(
+      dest,
+      [derived({ stop: dest, delayMinutes: 5 })],
+      midnight.getTime(),
+    )
+    expect(result).toMatchObject({ etaClock: '6:35 AM', realtime: false })
   })
 })

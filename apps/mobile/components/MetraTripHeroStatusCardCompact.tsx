@@ -1,14 +1,13 @@
 import { useMemo } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import {
-  computeRightPanel,
   formatClockTime,
   longToNumber,
-  type DerivedStop,
+  shortenStationName,
+  type DestinationEta,
   type HeroStatus,
+  type RightPanelCopy,
   type StatusTone,
-  type TripPhase,
-  type TripStop,
   type VehiclePosition,
 } from '@ctt/shared'
 import { useTheme } from '../lib/theme'
@@ -16,12 +15,11 @@ import type { Theme } from '../lib/theme'
 
 export interface MetraTripHeroStatusCardCompactProps {
   status: HeroStatus
-  phase: TripPhase
-  currentDerived: DerivedStop | undefined
-  firstStop: TripStop | undefined
-  lastStop: TripStop | undefined
   vehiclePosition: VehiclePosition | null
-  nowMs: number
+  nextStop: RightPanelCopy | null
+  destination: DestinationEta | null
+  lineColor?: string
+  lineTextColor?: string
 }
 
 function toneColor(tone: StatusTone, theme: Theme): string {
@@ -40,75 +38,138 @@ function toneColor(tone: StatusTone, theme: Theme): string {
 }
 
 /**
- * One-line variant of MetraTripHeroStatusCard for use inside dashboard cards.
- * Per `.claude/rules/transit-compliance.md`, surfaces showing Metra realtime
- * data must include a "last reported" timestamp.
+ * Live panel for the dashboard TrainCard, mirroring StationCard's expanded
+ * layout: a "Service"-style header bar carrying the status + last-reported
+ * line, then a line-colored row split into the next stop (left) and the ETA
+ * to the user's destination stop (right).
+ * Per `.claude/rules/transit-compliance.md`, the "last reported" timestamp is
+ * required wherever Metra realtime data is shown.
  */
 export default function MetraTripHeroStatusCardCompact({
   status,
-  phase,
-  currentDerived,
-  firstStop,
-  lastStop,
   vehiclePosition,
-  nowMs,
+  nextStop,
+  destination,
+  lineColor,
+  lineTextColor,
 }: MetraTripHeroStatusCardCompactProps) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
   const tone = toneColor(status.tone, theme)
-  const rightPanel = computeRightPanel(phase, currentDerived, firstStop, lastStop, nowMs)
   const timestampSec = vehiclePosition ? longToNumber(vehiclePosition.timestamp) : null
   const lastReported =
     timestampSec != null ? `Last reported ${formatClockTime(new Date(timestampSec * 1000))}` : null
+  const rowBg = lineColor ?? '#565a5c'
+  const rowText = lineTextColor ?? '#fff'
+  const nextDetail = nextStop ? [nextStop.time, nextStop.subtext].filter(Boolean).join(' · ') : ''
 
   return (
     <View style={styles.card}>
-      <View style={styles.row}>
-        <View style={[styles.dot, { backgroundColor: tone }]} />
-        <Text style={[styles.label, { color: tone }]}>{status.label}</Text>
-        {rightPanel && (
-          <>
-            <Text style={styles.divider}>·</Text>
-            <Text style={styles.station} numberOfLines={1}>
-              {rightPanel.title}: {rightPanel.station}
-            </Text>
-            {rightPanel.time && <Text style={styles.time}>{rightPanel.time}</Text>}
-          </>
-        )}
+      <View style={styles.headerBar}>
+        <Text style={[styles.headerText, { color: tone }]} numberOfLines={1}>
+          {status.label}
+        </Text>
+        {lastReported ? (
+          <Text style={styles.headerMeta} numberOfLines={1}>
+            {lastReported}
+          </Text>
+        ) : null}
       </View>
-      {lastReported && <Text style={styles.lastReported}>{lastReported}</Text>}
+      {(nextStop || destination) && (
+        <View style={[styles.row, { backgroundColor: rowBg }]}>
+          <View style={styles.rowLeft}>
+            {nextStop && (
+              <>
+                <Text style={styles.rowCaption}>{nextStop.title}</Text>
+                <Text style={[styles.rowStation, { color: rowText }]} numberOfLines={1}>
+                  {shortenStationName(nextStop.station)}
+                </Text>
+                {nextDetail ? (
+                  <Text style={styles.rowDetail} numberOfLines={1}>
+                    {nextDetail}
+                  </Text>
+                ) : null}
+              </>
+            )}
+          </View>
+          {destination && (
+            <View style={styles.rowRight}>
+              <Text style={styles.rowCaption}>
+                Arrives {destination.etaClock}
+                {destination.realtime ? '' : ' (est.)'}
+              </Text>
+              <Text style={[styles.rowStation, { color: rowText }]} numberOfLines={1}>
+                {shortenStationName(destination.station)}
+              </Text>
+              <Text style={[styles.rowMinutes, { color: rowText }]}>{destination.etaLabel}</Text>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   )
 }
 
 function makeStyles(theme: Theme) {
+  // Lifts white text off the saturated line-color row so it stays legible on
+  // light brand colors (e.g. Metra orange / UP yellow-ish).
+  const onColor = {
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  } as const
   return StyleSheet.create({
     // Negative horizontal + bottom margins cancel the parent card's padding
     // (cardStyles.row: paddingHorizontal 14, paddingVertical 12) so this
     // panel runs flush to the outer card edges. Bottom corners match the
     // parent card's radius; top corners stay square so the panel visually
-    // anchors to the pill row above.
+    // anchors to the header above.
     card: {
-      marginTop: theme.space[3],
+      marginTop: 2,
       marginHorizontal: -14,
       marginBottom: -theme.space[3],
-      paddingHorizontal: 14,
-      paddingVertical: theme.space[2] + 2,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border.subtle,
       borderBottomLeftRadius: theme.radius.sm + 2,
       borderBottomRightRadius: theme.radius.sm + 2,
-      backgroundColor: theme.colors.bg.elevated,
+      overflow: 'hidden',
     },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-    dot: { width: 8, height: 8, borderRadius: 4 },
-    label: { fontSize: 12, fontWeight: '700' },
-    divider: { color: theme.colors.text.muted, fontSize: 12 },
-    station: { color: theme.colors.text.secondary, fontSize: 12, flexShrink: 1 },
-    time: {
+    headerBar: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      gap: 8,
+      backgroundColor: theme.colors.border.subtle,
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[2],
+    },
+    headerText: { fontSize: 13, fontWeight: '600', flexShrink: 1 },
+    headerMeta: {
       color: theme.colors.text.secondary,
-      fontSize: 12,
-      fontWeight: '600',
-      fontVariant: ['tabular-nums'],
+      fontWeight: '400',
+      fontSize: 11,
+      textAlign: 'right',
     },
-    lastReported: { color: theme.colors.text.secondary, fontSize: 10, marginTop: 2 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 12,
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[3],
+      minHeight: 44,
+    },
+    rowLeft: { flex: 1, minWidth: 0, alignItems: 'flex-start' },
+    rowRight: { minWidth: 0, alignItems: 'flex-end' },
+    rowCaption: { color: 'rgba(255,255,255,0.85)', fontSize: 11, ...onColor },
+    rowStation: { fontSize: 15, fontWeight: '700', marginTop: 1, ...onColor },
+    rowDetail: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 1, ...onColor },
+    rowMinutes: {
+      fontSize: 13,
+      fontWeight: '700',
+      fontVariant: ['tabular-nums'],
+      marginTop: 1,
+      ...onColor,
+    },
   })
 }
