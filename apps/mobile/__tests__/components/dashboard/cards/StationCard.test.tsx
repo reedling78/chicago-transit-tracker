@@ -124,7 +124,7 @@ describe('StationCard', () => {
 
   it('renders expanded arrivals grouped by headsign', () => {
     mockScheduleQuery.mockReturnValue(loaded(ctaSchedule))
-    const { getByText, getAllByTestId } = render(
+    const { getByText, getAllByText, getAllByTestId } = render(
       <StationCard
         favorite={ctaFav}
         station={mockStation}
@@ -133,9 +133,12 @@ describe('StationCard', () => {
         onMenuPress={() => {}}
       />,
     )
-    expect(getByText('Toward Loop')).toBeTruthy()
-    expect(getByText("Toward O'Hare")).toBeTruthy()
-    expect(getAllByTestId('arrival-row')).toHaveLength(2)
+    expect(getByText('Service toward Loop')).toBeTruthy()
+    expect(getByText("Service toward O'Hare")).toBeTruthy()
+    const rows = getAllByTestId('arrival-row')
+    expect(rows).toHaveLength(2)
+    // Each row now carries the line/time label plus the scheduled-estimate marker.
+    expect(getAllByText('≈')).toHaveLength(2)
   })
 
   it('renders compact rows when density is compact', () => {
@@ -166,8 +169,8 @@ describe('StationCard', () => {
         onMenuPress={() => {}}
       />,
     )
-    expect(getByText('Toward Loop')).toBeTruthy()
-    expect(queryByText("Toward O'Hare")).toBeNull()
+    expect(getByText('Service toward Loop')).toBeTruthy()
+    expect(queryByText("Service toward O'Hare")).toBeNull()
   })
 
   it('only enables Metra trips query for Metra stations', () => {

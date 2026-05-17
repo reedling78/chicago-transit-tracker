@@ -62,7 +62,7 @@ export default function DashboardGrid() {
           items={favorites.map((f) => favoriteKey(f.type, f.id))}
           strategy={verticalListSortingStrategy}
         >
-          <ul className="space-y-2">
+          <ul className="space-y-4">
             {favorites.map((fav) => {
               if (fav.type === 'line') {
                 return (

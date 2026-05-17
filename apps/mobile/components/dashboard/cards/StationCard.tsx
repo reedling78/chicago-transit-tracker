@@ -164,7 +164,7 @@ function ArrivalsBody({ density, groups, loading, hasSchedule, styles }: Arrival
         return (
           <View key={g.headsign} testID="arrival-group">
             <View style={styles.groupHeader}>
-              <Text style={styles.groupHeaderText}>Toward {g.headsign}</Text>
+              <Text style={styles.groupHeaderText}>Service toward {g.headsign}</Text>
             </View>
             {g.items.map((item, i) => (
               <View
@@ -172,10 +172,20 @@ function ArrivalsBody({ density, groups, loading, hasSchedule, styles }: Arrival
                 style={[styles.expandedRow, { backgroundColor: bg }]}
                 testID="arrival-row"
               >
-                <Text style={styles.expandedRowSubtitle} numberOfLines={1}>
-                  {g.line} · {item.label}
-                </Text>
-                <Text style={styles.expandedRowMinutes}>{formatMinutesAway(item.minutesAway)}</Text>
+                <View style={styles.expandedRowLeft}>
+                  <Text style={styles.expandedRowSubtitle} numberOfLines={1}>
+                    {g.line} Line · {item.label} to
+                  </Text>
+                  <Text style={styles.expandedRowHeadsign} numberOfLines={1}>
+                    {g.headsign}
+                  </Text>
+                </View>
+                <View style={styles.expandedRowRight}>
+                  <Text style={styles.expandedRowMinutes}>
+                    {formatMinutesAway(item.minutesAway)}
+                  </Text>
+                  <Text style={styles.expandedRowApprox}>≈</Text>
+                </View>
               </View>
             ))}
           </View>
@@ -206,32 +216,48 @@ function makeLocalStyles(theme: Theme) {
     },
     groupHeader: {
       backgroundColor: theme.colors.border.subtle,
-      paddingHorizontal: 10,
-      paddingVertical: theme.space[1],
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[2],
     },
     groupHeaderText: {
       color: theme.colors.text.primary,
-      fontSize: 11,
+      fontSize: 13,
       fontWeight: '600',
     },
     expandedRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 10,
-      paddingVertical: 6,
+      paddingHorizontal: theme.space[4],
+      paddingVertical: theme.space[3],
       borderTopWidth: StyleSheet.hairlineWidth,
       // Hairline divider sitting on a saturated line color — kept literal
       // because the line colors come from CTA branding constants and don't
       // theme-swap.
-      borderTopColor: 'rgba(0,0,0,0.15)',
+      borderTopColor: 'rgba(0,0,0,0.1)',
+      minHeight: 44,
     },
-    expandedRowSubtitle: { color: theme.colors.text.onScrimMuted, fontSize: 11, flex: 1 },
-    expandedRowMinutes: { color: theme.colors.text.onScrim, fontWeight: '700', fontSize: 13 },
+    expandedRowLeft: { flex: 1 },
+    // Text on saturated line-color rows — always near-white regardless of mode.
+    expandedRowSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 11 },
+    expandedRowHeadsign: {
+      color: theme.colors.text.onScrim,
+      fontSize: 15,
+      fontWeight: '700',
+      marginTop: 1,
+    },
+    expandedRowRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    expandedRowMinutes: {
+      color: theme.colors.text.onScrim,
+      fontWeight: '700',
+      fontSize: 22,
+      fontVariant: ['tabular-nums'],
+    },
+    expandedRowApprox: { color: 'rgba(255,255,255,0.6)', fontSize: 17 },
     compactRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 },
-    compactHeadsign: { color: theme.colors.text.primary, fontSize: 13, fontWeight: '600' },
-    compactDot: { color: theme.colors.text.secondary, fontSize: 13 },
-    compactTimes: { color: theme.colors.text.secondary, fontSize: 13 },
+    compactHeadsign: { color: theme.colors.text.primary, fontSize: 15, fontWeight: '600' },
+    compactDot: { color: theme.colors.text.secondary, fontSize: 15 },
+    compactTimes: { color: theme.colors.text.secondary, fontSize: 15 },
     dot: { width: 8, height: 8, borderRadius: 4 },
     skeletonStack: { gap: 6 },
     skeletonShort: {
