@@ -29,8 +29,8 @@ export default function PrivacyScreen() {
         <Paragraph theme={theme}>
           You can browse transit information without creating an account. If you choose to sign in
           to save favorites, we collect the email address and basic profile information returned by
-          your sign-in provider (Apple, Google, Facebook, or email and password). We do not collect
-          payment details.
+          your sign-in provider (Apple, Google, or email and password). We do not collect payment
+          details.
         </Paragraph>
         <Paragraph theme={theme}>
           We use anonymized analytics to understand how the app is used. This may include pages

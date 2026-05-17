@@ -6,7 +6,6 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   OAuthProvider,
-  FacebookAuthProvider,
 } from 'firebase/auth'
 import { auth } from './firebase-client'
 
@@ -32,8 +31,4 @@ export function signInWithGoogle() {
 
 export function signInWithApple() {
   return signInWithPopup(auth, new OAuthProvider('apple.com'))
-}
-
-export function signInWithFacebook() {
-  return signInWithPopup(auth, new FacebookAuthProvider())
 }

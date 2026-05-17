@@ -6,7 +6,6 @@ const mockSignUpWithEmail = jest.fn()
 const mockResetPassword = jest.fn()
 const mockSignInWithGoogle = jest.fn()
 const mockSignInWithApple = jest.fn()
-const mockSignInWithFacebook = jest.fn()
 
 jest.mock('../../app/lib/auth', () => ({
   signInWithEmail: jest.fn((...args) => mockSignInWithEmail(...args)),
@@ -14,7 +13,6 @@ jest.mock('../../app/lib/auth', () => ({
   resetPassword: jest.fn((...args) => mockResetPassword(...args)),
   signInWithGoogle: jest.fn((...args) => mockSignInWithGoogle(...args)),
   signInWithApple: jest.fn((...args) => mockSignInWithApple(...args)),
-  signInWithFacebook: jest.fn((...args) => mockSignInWithFacebook(...args)),
 }))
 
 jest.mock('../../app/lib/firebase-client', () => ({
@@ -101,7 +99,7 @@ describe('AuthModal', () => {
     render(<AuthModal onClose={onClose} />)
     expect(screen.getByText('Google')).toBeInTheDocument()
     expect(screen.getByText('Apple')).toBeInTheDocument()
-    expect(screen.getByText('Facebook')).toBeInTheDocument()
+    expect(screen.queryByText('Facebook')).not.toBeInTheDocument()
   })
 
   it('calls signInWithGoogle when Google button is clicked', async () => {

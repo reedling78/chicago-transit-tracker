@@ -14,7 +14,6 @@ import {
   resetPassword,
   signInWithGoogle,
   signInWithApple,
-  signInWithFacebook,
 } from '../../app/lib/auth'
 
 describe('auth helpers', () => {
@@ -63,12 +62,6 @@ describe('auth helpers', () => {
   it('signInWithApple calls signInWithPopup with OAuthProvider', async () => {
     mockSignInWithPopup.mockResolvedValue({ user: { uid: '123' } })
     await signInWithApple()
-    expect(mockSignInWithPopup).toHaveBeenCalledWith(mockAuth, expect.anything())
-  })
-
-  it('signInWithFacebook calls signInWithPopup with FacebookAuthProvider', async () => {
-    mockSignInWithPopup.mockResolvedValue({ user: { uid: '123' } })
-    await signInWithFacebook()
     expect(mockSignInWithPopup).toHaveBeenCalledWith(mockAuth, expect.anything())
   })
 })

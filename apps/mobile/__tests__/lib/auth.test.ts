@@ -18,7 +18,6 @@ jest.mock('firebase/auth', () => {
   return {
     OAuthProvider: jest.fn().mockImplementation(() => ({ credential: credentialFn })),
     GoogleAuthProvider: { credential: jest.fn() },
-    FacebookAuthProvider: { credential: jest.fn() },
     signInWithCredential: jest.fn(() => Promise.resolve({ user: { uid: 'u-1' } })),
     signInWithEmailAndPassword: jest.fn(),
     createUserWithEmailAndPassword: jest.fn(),

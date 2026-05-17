@@ -37,7 +37,6 @@ export default function ProfileContent() {
   const providerLabels: Record<string, string> = {
     apple: 'Apple',
     google: 'Google',
-    facebook: 'Facebook',
     password: 'Email & Password',
   }
 

@@ -37,7 +37,6 @@ jest.mock('firebase/auth', () => ({
   onAuthStateChanged: (...args: unknown[]) => mockOnAuthStateChanged(...args),
   GoogleAuthProvider: jest.fn(),
   OAuthProvider: jest.fn(() => ({ credential: jest.fn() })),
-  FacebookAuthProvider: jest.fn(),
 }))
 
 jest.mock('../../app/lib/firebase-client', () => ({

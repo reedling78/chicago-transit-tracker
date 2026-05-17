@@ -17,7 +17,6 @@ jest.mock('../../lib/auth', () => ({
   signUpWithEmail: jest.fn(),
   resetPassword: jest.fn(),
   signInWithApple: jest.fn(),
-  signInWithFacebook: jest.fn(),
   signInWithGoogleCredential: jest.fn(),
   googleAuthConfig: { webClientId: '', iosClientId: '', androidClientId: '' },
 }))
@@ -48,10 +47,10 @@ describe('AuthScreen', () => {
     Platform.OS = 'ios'
   })
 
-  it('always renders Google and Facebook sign-in buttons', () => {
-    const { getByText } = render(<AuthScreen />)
+  it('always renders the Google sign-in button and no Facebook button', () => {
+    const { getByText, queryByText } = render(<AuthScreen />)
     expect(getByText('Sign in with Google')).toBeOnTheScreen()
-    expect(getByText('Sign in with Facebook')).toBeOnTheScreen()
+    expect(queryByText('Sign in with Facebook')).toBeNull()
   })
 
   it('opens directly in sign-up mode when mode=signUp is passed', () => {

@@ -7,10 +7,8 @@ import {
   signInWithCredential,
   OAuthProvider,
   GoogleAuthProvider,
-  FacebookAuthProvider,
 } from 'firebase/auth'
 import * as AppleAuthentication from 'expo-apple-authentication'
-import * as AuthSession from 'expo-auth-session'
 import * as WebBrowser from 'expo-web-browser'
 import * as Crypto from 'expo-crypto'
 import { auth } from './firebase'
@@ -43,12 +41,6 @@ export const googleAuthConfig = {
 const APPLE_SERVICE_ID = 'com.chicagotransittracker.web'
 const APPLE_BRIDGE_URL = 'https://chicagotransittracker.com/api/apple-redirect'
 const APPLE_CALLBACK_SCHEME = 'ctt://apple-callback'
-
-function requireClientId(id: string, provider: string): string {
-  if (!id)
-    throw new Error(`${provider} client ID is not configured. Set it in apps/mobile/lib/auth.ts`)
-  return id
-}
 
 export function signInWithEmail(email: string, password: string) {
   return signInWithEmailAndPassword(auth, email, password)
@@ -207,30 +199,5 @@ export function signInWithGoogleCredential(idToken: string) {
     throw new Error('Google client IDs are not configured. Set them in apps/mobile/lib/auth.ts')
   }
   const credential = GoogleAuthProvider.credential(idToken)
-  return signInWithCredential(auth, credential)
-}
-
-export async function signInWithFacebook() {
-  const redirectUri = AuthSession.makeRedirectUri()
-  const discovery = {
-    authorizationEndpoint: 'https://www.facebook.com/v19.0/dialog/oauth',
-    tokenEndpoint: 'https://graph.facebook.com/v19.0/oauth/access_token',
-  }
-
-  const FACEBOOK_APP_ID = '' // TODO: set from Facebook Developer Console
-
-  const request = new AuthSession.AuthRequest({
-    clientId: requireClientId(FACEBOOK_APP_ID, 'Facebook'),
-    redirectUri,
-    scopes: ['public_profile', 'email'],
-    responseType: AuthSession.ResponseType.Token,
-  })
-
-  const result = await request.promptAsync(discovery)
-  if (result.type !== 'success' || !result.params.access_token) {
-    throw new Error('Facebook sign-in was cancelled or failed')
-  }
-
-  const credential = FacebookAuthProvider.credential(result.params.access_token)
   return signInWithCredential(auth, credential)
 }
