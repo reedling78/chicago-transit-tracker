@@ -35,7 +35,6 @@ function resolveProvider(user: User): UserProfile['provider'] {
   const providerId = user.providerData[0]?.providerId
   if (providerId === 'apple.com') return 'apple'
   if (providerId === 'google.com') return 'google'
-  if (providerId === 'facebook.com') return 'facebook'
   return 'password'
 }
 

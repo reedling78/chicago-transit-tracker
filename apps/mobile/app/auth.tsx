@@ -19,7 +19,6 @@ import {
   signUpWithEmail,
   resetPassword,
   signInWithApple,
-  signInWithFacebook,
   signInWithGoogleCredential,
   googleAuthConfig,
 } from '../lib/auth'
@@ -74,10 +73,9 @@ export default function AuthScreen() {
     }
   }
 
-  async function handleSocial(provider: 'apple' | 'facebook') {
+  async function handleAppleSignIn() {
     try {
-      if (provider === 'apple') await signInWithApple()
-      else await signInWithFacebook()
+      await signInWithApple()
       router.back()
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'An error occurred')
@@ -147,16 +145,12 @@ export default function AuthScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          <TouchableOpacity style={styles.socialButton} onPress={() => handleSocial('apple')}>
+          <TouchableOpacity style={styles.socialButton} onPress={handleAppleSignIn}>
             <Text style={styles.socialButtonText}>Sign in with Apple</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.socialButton} onPress={() => promptGoogle()}>
             <Text style={styles.socialButtonText}>Sign in with Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.socialButton} onPress={() => handleSocial('facebook')}>
-            <Text style={styles.socialButtonText}>Sign in with Facebook</Text>
           </TouchableOpacity>
         </View>
       )}

@@ -53,7 +53,7 @@ export default function PrivacyPage() {
         <p>
           You can browse all transit information without creating an account. If you choose to sign
           in to save favorites, we collect the following from your sign-in provider (Apple, Google,
-          Facebook, or email and password) and store it in Firebase Authentication and Firestore:
+          or email and password) and store it in Firebase Authentication and Firestore:
         </p>
         <ul className="list-inside list-disc space-y-1 pl-2">
           <li>
@@ -61,8 +61,8 @@ export default function PrivacyPage() {
             email sign-in.
           </li>
           <li>
-            Display name and profile photo URL — supplied by Apple, Google, or Facebook during
-            social sign-in. Used only inside the app to label your account.
+            Display name and profile photo URL — supplied by Apple or Google during social sign-in.
+            Used only inside the app to label your account.
           </li>
           <li>
             Sign-in provider (e.g. <em>apple.com</em>, <em>google.com</em>) and a Firebase user ID.
@@ -130,9 +130,9 @@ export default function PrivacyPage() {
       <Section title="Third-Party Services">
         <p>
           <strong className="text-gray-700 dark:text-gray-300">Firebase Authentication</strong> —
-          stores account credentials and the email/profile fields described above. Apple, Google,
-          and Facebook social sign-in uses each provider&rsquo;s OAuth flow under their respective
-          privacy policies.
+          stores account credentials and the email/profile fields described above. Apple and Google
+          social sign-in uses each provider&rsquo;s OAuth flow under their respective privacy
+          policies.
         </p>
         <p>
           <strong className="text-gray-700 dark:text-gray-300">Firebase Firestore</strong> — stores

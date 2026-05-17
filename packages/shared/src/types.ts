@@ -146,7 +146,7 @@ export interface UserProfile {
   email: string | null
   displayName: string | null
   photoUrl: string | null
-  provider: 'apple' | 'google' | 'facebook' | 'password'
+  provider: 'apple' | 'google' | 'password'
   createdAt: string // ISO 8601
   updatedAt: string // ISO 8601
   /**

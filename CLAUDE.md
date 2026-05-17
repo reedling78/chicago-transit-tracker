@@ -226,7 +226,7 @@ apps/
       queryClient.ts              TanStack Query client factory (singleton)
       store/
         favorites.ts              Zustand store for favorites (AsyncStorage-persisted) + reorder action + pendingWrites guard
-      auth.ts                     Auth helpers — email/password, social (Apple, Google, Facebook)
+      auth.ts                     Auth helpers — email/password, social (Apple, Google)
       AuthContext.tsx              Auth context + onSnapshot live profile listener; hydrates favorites store (skipped while pendingWrites>0)
       theme/
         tokens.ts                 Light + dark token objects (semantic colors, numeric space + radius scales)
@@ -281,7 +281,7 @@ packages/
 - Tailwind CSS v4 (web, class-based dark mode via `@custom-variant dark`)
 - Firebase Admin SDK (build-time Firestore reads, web only)
 - Firebase JS SDK v11 (client-side Firestore reads + Auth, web and mobile)
-- Firebase Authentication (Email/Password, Apple, Google, Facebook)
+- Firebase Authentication (Email/Password, Apple, Google)
 - Firebase App Hosting (SSR deployment target for web)
 - gtfs-realtime-bindings (protobuf decode for Metra GTFS Realtime feeds)
 - Google Analytics 4 (G-KQ1MNGBQP2, loaded via `next/script afterInteractive`)
@@ -373,10 +373,10 @@ The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore re
 
 ### Firebase Authentication
 
-Both web and mobile use Firebase Auth with four providers: Email/Password, Apple, Google, and Facebook. Auth state is managed via a React context (`AuthProvider` + `useAuth()` hook) on each platform.
+Both web and mobile use Firebase Auth with three providers: Email/Password, Apple, and Google. Auth state is managed via a React context (`AuthProvider` + `useAuth()` hook) on each platform.
 
 - **Web:** `apps/web/app/lib/firebase-client.ts` initializes the Firebase client SDK (separate from the Admin SDK in `firebase-admin.ts`). Auth helpers in `apps/web/app/lib/auth.ts` use popup-based OAuth for social providers. `AuthProvider` wraps `<body>` children in the root layout.
-- **Mobile:** `apps/mobile/lib/firebase.ts` initializes Auth with `getReactNativePersistence(AsyncStorage)` so auth state persists between app sessions. Auth helpers in `apps/mobile/lib/auth.ts` use `expo-apple-authentication` (iOS) and `expo-auth-session` (Google/Facebook). `AuthProvider` wraps the app in `_layout.tsx`.
+- **Mobile:** `apps/mobile/lib/firebase.ts` initializes Auth with `getReactNativePersistence(AsyncStorage)` so auth state persists between app sessions. Auth helpers in `apps/mobile/lib/auth.ts` use `expo-apple-authentication` (iOS) and `expo-auth-session` (Google). `AuthProvider` wraps the app in `_layout.tsx`.
 - **Profile auto-creation:** When a user signs in for the first time, `AuthProvider` automatically creates a `profiles/{uid}` document in Firestore.
 - **Firestore rules:** The `profiles` collection uses owner-only access (`request.auth.uid == userId`). All other transit collections use explicit rules (no wildcard) to prevent accidental exposure.
 
@@ -444,7 +444,7 @@ Trips stopping at each Metra station, grouped by service type. Populated automat
 
 ### `profiles` — doc ID = Firebase Auth UID
 
-User profile documents, auto-created on first sign-in. Fields: `uid`, `email`, `displayName`, `photoUrl`, `provider` (`'apple' | 'google' | 'facebook' | 'password'`), `favorites` (map keyed by `${type}:${id}`, each entry storing `type`, `id`, `addedAt`, optional `position` for the mobile drag-reorder UI), `createdAt`, `updatedAt`. Protected by owner-only Firestore rules — users can only read/write their own profile.
+User profile documents, auto-created on first sign-in. Fields: `uid`, `email`, `displayName`, `photoUrl`, `provider` (`'apple' | 'google' | 'password'`), `favorites` (map keyed by `${type}:${id}`, each entry storing `type`, `id`, `addedAt`, optional `position` for the mobile drag-reorder UI), `createdAt`, `updatedAt`. Protected by owner-only Firestore rules — users can only read/write their own profile.
 
 ### `gtfs-meta` — doc ID = `cta` or `metra`
 

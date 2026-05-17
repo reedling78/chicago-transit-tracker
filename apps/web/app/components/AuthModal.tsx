@@ -7,7 +7,6 @@ import {
   resetPassword,
   signInWithGoogle,
   signInWithApple,
-  signInWithFacebook,
 } from '@lib/auth'
 
 type Mode = 'signIn' | 'signUp' | 'resetPassword'
@@ -60,12 +59,11 @@ export default function AuthModal({
     }
   }
 
-  async function handleSocial(provider: 'google' | 'apple' | 'facebook') {
+  async function handleSocial(provider: 'google' | 'apple') {
     setError('')
     try {
       if (provider === 'google') await signInWithGoogle()
-      else if (provider === 'apple') await signInWithApple()
-      else await signInWithFacebook()
+      else await signInWithApple()
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -180,7 +178,7 @@ export default function AuthModal({
               <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => handleSocial('google')}
@@ -194,13 +192,6 @@ export default function AuthModal({
                 className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 Apple
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSocial('facebook')}
-                className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-              >
-                Facebook
               </button>
             </div>
           </>
