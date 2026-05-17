@@ -6,8 +6,10 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
   computeArrivalGroups,
+  displayStationName,
   favoriteKey,
   formatMinutesAway,
+  indexMetraTripUpdates,
   LINE_COLORS,
   summarizeCompact,
   type ArrivalGroup,
@@ -18,6 +20,7 @@ import {
 } from '@ctt/shared'
 import { favoriteRoute } from '@lib/favoriteRoute'
 import { useStationScheduleQuery, useStationTripsQuery } from '@lib/hooks/useDashboardQueries'
+import { useMetraFeed } from '@lib/hooks/useMetraFeed'
 import FavoriteMenu from '../FavoriteMenu'
 import CardMenuButton from './CardMenuButton'
 import {
@@ -50,6 +53,10 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
   const scheduleQuery = useStationScheduleQuery(slug)
   const tripsQuery = useStationTripsQuery(slug, metra)
 
+  const metraStopId = station?.metraStopId ?? null
+  const realtimeEnabled = metra && !!metraStopId
+  const { data: feedData, fetchedAt } = useMetraFeed('tripupdates', { enabled: realtimeEnabled })
+
   // Tick a `now` value once a minute so minutes-until refreshes without a re-fetch.
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
@@ -60,6 +67,8 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
   const density: FavoriteDensity = favorite.density ?? 'expanded'
   const directionFilter = favorite.directionFilter ?? 'all'
 
+  const realtime = realtimeEnabled ? indexMetraTripUpdates(feedData) : null
+
   const groups = computeArrivalGroups({
     schedule: scheduleQuery.data ?? null,
     trips: metra ? (tripsQuery.data ?? null) : null,
@@ -67,7 +76,11 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
     service: metra ? 'metra' : 'cta',
     directionFilter,
     limit: density === 'compact' ? 2 : 3,
+    realtime,
+    metraStopId,
   })
+
+  const hasLiveRow = groups.some((g) => g.items.some((it) => it.isLive || it.isCancelled))
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -75,7 +88,7 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
   }
 
   const href = station ? favoriteRoute(favorite, lines, [station]) : null
-  const title = station?.name ?? favorite.id
+  const title = displayStationName(station?.name) ?? favorite.id
   const subtitle = station?.lines?.length ? station.lines.join(' • ') : null
   const meta = station ? (metra ? 'Metra' : 'CTA') : null
 
@@ -125,6 +138,7 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
             groups={groups}
             loading={scheduleQuery.isLoading}
             hasSchedule={scheduleQuery.data !== null && scheduleQuery.data !== undefined}
+            lastUpdated={hasLiveRow ? fetchedAt : null}
           />
         </div>
       )}
@@ -137,9 +151,15 @@ interface ArrivalsBodyProps {
   groups: ArrivalGroup[]
   loading: boolean
   hasSchedule: boolean
+  /** Epoch ms of the last realtime fetch when any row is live; null otherwise. */
+  lastUpdated: number | null
 }
 
-function ArrivalsBody({ density, groups, loading, hasSchedule }: ArrivalsBodyProps) {
+function formatLastUpdated(epochMs: number): string {
+  return new Date(epochMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+function ArrivalsBody({ density, groups, loading, hasSchedule, lastUpdated }: ArrivalsBodyProps) {
   if (loading) {
     return (
       <div data-testid="arrivals-skeleton" className="space-y-1.5 px-4 pb-4">
@@ -163,33 +183,49 @@ function ArrivalsBody({ density, groups, loading, hasSchedule }: ArrivalsBodyPro
     )
   }
 
+  const liveStrip = lastUpdated != null && (
+    <div className="flex items-center gap-1.5 px-4 pb-1 text-[11px] font-medium text-green-600 dark:text-green-400">
+      <span className="relative flex h-1.5 w-1.5">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
+      </span>
+      Live · Last updated: {formatLastUpdated(lastUpdated)}
+    </div>
+  )
+
   if (density === 'compact') {
     return (
-      <ul className="space-y-1.5 px-4 pb-4">
-        {groups.map((g) => (
-          <li
-            key={g.headsign}
-            className="flex items-center gap-2 text-base"
-            data-testid="arrival-row-compact"
-          >
-            <span
-              aria-hidden="true"
-              className="h-2.5 w-2.5 shrink-0 rounded-full"
-              style={{ backgroundColor: LINE_COLORS[g.line]?.bg ?? '#565a5c' }}
-            />
-            <span className="font-medium text-gray-900 dark:text-white">{g.headsign}</span>
-            <span className="text-gray-500 dark:text-gray-400">·</span>
-            <span className="text-gray-600 tabular-nums dark:text-gray-300">
-              {summarizeCompact(g, 2)}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <div className="pb-4">
+        {liveStrip}
+        <ul className="space-y-1.5 px-4">
+          {groups.map((g) => (
+            <li
+              key={g.headsign}
+              className="flex items-center gap-2 text-base"
+              data-testid="arrival-row-compact"
+            >
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: LINE_COLORS[g.line]?.bg ?? '#565a5c' }}
+              />
+              <span className="font-medium text-gray-900 dark:text-white">{g.headsign}</span>
+              <span className="text-gray-500 dark:text-gray-400">·</span>
+              <span className="text-gray-600 tabular-nums dark:text-gray-300">
+                {g.items.some((it) => it.isCancelled) && !g.items.some((it) => !it.isCancelled)
+                  ? 'Cancelled'
+                  : summarizeCompact(g, 2)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     )
   }
 
   return (
     <div className="overflow-hidden rounded-b-lg border-t border-gray-100 dark:border-gray-700">
+      {liveStrip}
       {groups.map((g) => {
         const bg = LINE_COLORS[g.line]?.bg ?? '#565a5c'
         return (
@@ -211,12 +247,30 @@ function ArrivalsBody({ density, groups, loading, hasSchedule }: ArrivalsBodyPro
                   <p className="text-base leading-tight font-bold text-white">{g.headsign}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className="text-2xl font-bold text-white tabular-nums">
-                    {formatMinutesAway(item.minutesAway)}
-                  </span>
-                  <span className="text-lg text-white/60" title="Scheduled estimate">
-                    ≈
-                  </span>
+                  {item.isCancelled ? (
+                    <span className="rounded bg-red-500/20 px-2 py-0.5 text-sm font-bold text-red-200">
+                      Cancelled
+                    </span>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-bold text-white tabular-nums">
+                        {formatMinutesAway(item.minutesAway)}
+                      </span>
+                      {item.isLive ? (
+                        <span
+                          className="relative flex h-2.5 w-2.5"
+                          title="Live — based on Metra realtime data"
+                        >
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70 opacity-75" />
+                          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+                        </span>
+                      ) : (
+                        <span className="text-lg text-white/60" title="Scheduled estimate">
+                          ≈
+                        </span>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             ))}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { displayStationName } from '@ctt/shared'
 import PageHeader from '@components/PageHeader'
 import { siteConfig } from '@lib/siteConfig'
 import { getLinesForService, getStationsForLine } from '@lib/transit'
@@ -110,7 +111,7 @@ export default async function SitemapPage() {
                     href={`/cta/${line.slug}/${station.slug}`}
                     className="text-sm text-blue-700 hover:underline dark:text-blue-400"
                   >
-                    {station.name}
+                    {displayStationName(station.name)}
                   </Link>
                 </li>
               ))}
@@ -138,7 +139,7 @@ export default async function SitemapPage() {
                     href={`/metra/${line.slug}/${station.slug}`}
                     className="text-sm text-blue-700 hover:underline dark:text-blue-400"
                   >
-                    {station.name}
+                    {displayStationName(station.name)}
                   </Link>
                 </li>
               ))}

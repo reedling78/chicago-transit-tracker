@@ -78,6 +78,18 @@ describe('MetraStationDetailScreen', () => {
     expect(screen.getAllByText('BNSF').length).toBeGreaterThan(0)
   })
 
+  it('keeps the full proper station name in the PageHeader title (no short override)', () => {
+    mockUseStation.mockReturnValue({
+      station: { ...mockMetraStation, name: 'Chicago Union Station' },
+      loading: false,
+    })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
+    render(<MetraStationDetailScreen />)
+    expect(screen.getByText('Chicago Union Station')).toBeOnTheScreen()
+    expect(screen.queryByText('Union Station')).toBeNull()
+  })
+
   it('places the favorite button in the PageHeader title row', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
     mockUseSchedule.mockReturnValue({ schedule: null, loading: true })

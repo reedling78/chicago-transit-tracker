@@ -77,6 +77,7 @@ export default function MetraStationDetailScreen() {
           service="metra"
           loading={scheduleLoading}
           trips={stationTrips}
+          metraStopId={station.metraStopId}
         />
 
         <View style={styles.section}>

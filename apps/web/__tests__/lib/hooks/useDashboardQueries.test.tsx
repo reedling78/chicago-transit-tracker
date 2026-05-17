@@ -13,7 +13,16 @@ jest.mock('firebase/firestore', () => ({
   getDocs: jest.fn(),
 }))
 
-import { useStationScheduleQuery, useStationTripsQuery } from '@lib/hooks/useDashboardQueries'
+import { getDoc, getDocs } from 'firebase/firestore'
+import {
+  useFavoriteTripQuery,
+  useLinesQuery,
+  useStationScheduleQuery,
+  useStationTripsQuery,
+} from '@lib/hooks/useDashboardQueries'
+
+const mockGetDoc = getDoc as jest.MockedFunction<typeof getDoc>
+const mockGetDocs = getDocs as jest.MockedFunction<typeof getDocs>
 
 const mockFetch = jest.fn()
 
@@ -26,7 +35,45 @@ function wrapper({ children }: { children: ReactNode }) {
 
 beforeEach(() => {
   mockFetch.mockReset()
+  mockGetDoc.mockReset()
+  mockGetDocs.mockReset()
   global.fetch = mockFetch as unknown as typeof fetch
+})
+
+describe('display-name normalization (direct Firestore reads)', () => {
+  it('useLinesQuery normalizes termini and downtownTerminal', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        {
+          data: () => ({
+            slug: 'up-n',
+            termini: ['Ogilvie Transportation Center', 'Kenosha'],
+            downtownTerminal: 'Ogilvie Transportation Center',
+          }),
+        },
+      ],
+    } as never)
+    const { result } = renderHook(() => useLinesQuery(), { wrapper })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data?.[0].termini).toEqual(['Ogilvie TC', 'Kenosha'])
+    expect(result.current.data?.[0].downtownTerminal).toBe('Ogilvie TC')
+  })
+
+  it('useFavoriteTripQuery normalizes headsign and stop station names', async () => {
+    mockGetDoc.mockResolvedValueOnce({
+      exists: () => true,
+      data: () => ({
+        trainNumber: '1200',
+        headsign: 'Chicago Union Station',
+        stops: [{ sequence: 1, stationName: 'Chicago Union Station', slug: 'union-station' }],
+      }),
+    } as never)
+    const { result } = renderHook(() => useFavoriteTripQuery('bnsf_1200'), { wrapper })
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data?.headsign).toBe('Union Station')
+    expect(result.current.data?.stops[0].stationName).toBe('Union Station')
+    expect(result.current.data?.stops[0].slug).toBe('union-station')
+  })
 })
 
 describe('useStationScheduleQuery', () => {

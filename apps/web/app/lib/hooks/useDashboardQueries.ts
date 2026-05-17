@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 import { db } from '@lib/firebase-client'
 import type { Line, Station, StationSchedule, StationTrips, MetraTripDetail } from '@ctt/shared'
+import { displayStationName } from '@ctt/shared'
 
 const ONE_DAY = 1000 * 60 * 60 * 24
 /**
@@ -18,7 +19,14 @@ export function useLinesQuery() {
     queryKey: ['dashboard', 'lines'],
     queryFn: async () => {
       const snap = await getDocs(collection(db, 'lines'))
-      return snap.docs.map((d) => d.data() as Line)
+      return snap.docs.map((d) => {
+        const line = d.data() as Line
+        return {
+          ...line,
+          termini: (line.termini ?? []).map(displayStationName),
+          downtownTerminal: displayStationName(line.downtownTerminal ?? null),
+        }
+      })
     },
     staleTime: ONE_DAY,
   })
@@ -72,7 +80,15 @@ export function useFavoriteTripQuery(tripId: string | null) {
       if (!tripId) return null
       const snap = await getDoc(doc(db, 'metra-trips', tripId))
       if (!snap.exists()) return null
-      return snap.data() as MetraTripDetail
+      const trip = snap.data() as MetraTripDetail
+      return {
+        ...trip,
+        headsign: displayStationName(trip.headsign),
+        stops: (trip.stops ?? []).map((s) => ({
+          ...s,
+          stationName: displayStationName(s.stationName),
+        })),
+      }
     },
     enabled: !!tripId,
     staleTime: ONE_DAY,

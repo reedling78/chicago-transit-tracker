@@ -3,7 +3,9 @@ import { StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import {
   computeArrivalGroups,
+  displayStationName,
   formatMinutesAway,
+  indexMetraTripUpdates,
   LINE_COLORS,
   summarizeCompact,
   type ArrivalGroup,
@@ -16,6 +18,7 @@ import { favoriteRoute } from '../../../lib/favoriteRoute'
 import { useTheme } from '../../../lib/theme'
 import type { Theme } from '../../../lib/theme'
 import { useStationScheduleQuery, useStationTripsQuery } from '../../../lib/useDashboardQueries'
+import { useMetraFeed } from '../../../lib/useMetraFeed'
 import PressableButton from '../../PressableButton'
 import CardMenuButton from './CardMenuButton'
 import { useCardStyles } from './cardStyles'
@@ -46,7 +49,7 @@ export default function StationCard({
   const { theme } = useTheme()
   const localStyles = useMemo(() => makeLocalStyles(theme), [theme])
   const target = station ? favoriteRoute(favorite, lines, [station]) : null
-  const title = station?.name ?? favorite.id
+  const title = displayStationName(station?.name) ?? favorite.id
   const subtitle = station?.lines?.join(' • ') ?? ''
   const metra = isMetraStation(station)
   const meta = metra ? 'Metra' : 'CTA'
@@ -54,6 +57,10 @@ export default function StationCard({
   const slug = station?.slug ?? null
   const scheduleQuery = useStationScheduleQuery(slug)
   const tripsQuery = useStationTripsQuery(slug, metra)
+
+  const metraStopId = station?.metraStopId ?? null
+  const realtimeEnabled = metra && !!metraStopId
+  const { data: feedData, fetchedAt } = useMetraFeed('tripupdates', { enabled: realtimeEnabled })
 
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
@@ -64,6 +71,8 @@ export default function StationCard({
   const density: FavoriteDensity = favorite.density ?? 'expanded'
   const directionFilter = favorite.directionFilter ?? 'all'
 
+  const realtime = realtimeEnabled ? indexMetraTripUpdates(feedData) : null
+
   const groups = computeArrivalGroups({
     schedule: scheduleQuery.data ?? null,
     trips: metra ? (tripsQuery.data ?? null) : null,
@@ -71,7 +80,11 @@ export default function StationCard({
     service: metra ? 'metra' : 'cta',
     directionFilter,
     limit: density === 'compact' ? 2 : 3,
+    realtime,
+    metraStopId,
   })
+
+  const hasLiveRow = groups.some((g) => g.items.some((it) => it.isLive || it.isCancelled))
 
   return (
     <PressableButton
@@ -106,6 +119,7 @@ export default function StationCard({
             groups={groups}
             loading={scheduleQuery.isLoading}
             hasSchedule={scheduleQuery.data !== null && scheduleQuery.data !== undefined}
+            lastUpdated={hasLiveRow ? fetchedAt : null}
             styles={localStyles}
           />
         </View>
@@ -119,10 +133,22 @@ interface ArrivalsBodyProps {
   groups: ArrivalGroup[]
   loading: boolean
   hasSchedule: boolean
+  lastUpdated: number | null
   styles: LocalStyles
 }
 
-function ArrivalsBody({ density, groups, loading, hasSchedule, styles }: ArrivalsBodyProps) {
+function formatLastUpdated(epochMs: number): string {
+  return new Date(epochMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+function ArrivalsBody({
+  density,
+  groups,
+  loading,
+  hasSchedule,
+  lastUpdated,
+  styles,
+}: ArrivalsBodyProps) {
   if (loading) {
     return (
       <View testID="arrivals-skeleton" style={styles.skeletonStack}>
@@ -140,25 +166,45 @@ function ArrivalsBody({ density, groups, loading, hasSchedule, styles }: Arrival
     return <Text style={styles.emptyText}>No upcoming departures.</Text>
   }
 
+  const liveStrip =
+    lastUpdated != null ? (
+      <View style={styles.liveStrip}>
+        <View style={styles.liveDotSmall} />
+        <Text style={styles.liveStripText}>
+          Live · Last updated: {formatLastUpdated(lastUpdated)}
+        </Text>
+      </View>
+    ) : null
+
   if (density === 'compact') {
     return (
       <View>
-        {groups.map((g) => (
-          <View key={g.headsign} style={styles.compactRow} testID="arrival-row-compact">
-            <View style={[styles.dot, { backgroundColor: LINE_COLORS[g.line]?.bg ?? '#565a5c' }]} />
-            <Text style={styles.compactHeadsign} numberOfLines={1}>
-              {g.headsign}
-            </Text>
-            <Text style={styles.compactDot}>·</Text>
-            <Text style={styles.compactTimes}>{summarizeCompact(g, 2)}</Text>
-          </View>
-        ))}
+        {liveStrip}
+        {groups.map((g) => {
+          const allCancelled =
+            g.items.some((it) => it.isCancelled) && !g.items.some((it) => !it.isCancelled)
+          return (
+            <View key={g.headsign} style={styles.compactRow} testID="arrival-row-compact">
+              <View
+                style={[styles.dot, { backgroundColor: LINE_COLORS[g.line]?.bg ?? '#565a5c' }]}
+              />
+              <Text style={styles.compactHeadsign} numberOfLines={1}>
+                {g.headsign}
+              </Text>
+              <Text style={styles.compactDot}>·</Text>
+              <Text style={styles.compactTimes}>
+                {allCancelled ? 'Cancelled' : summarizeCompact(g, 2)}
+              </Text>
+            </View>
+          )
+        })}
       </View>
     )
   }
 
   return (
     <View style={styles.expandedWrap}>
+      {liveStrip}
       {groups.map((g) => {
         const bg = LINE_COLORS[g.line]?.bg ?? '#565a5c'
         return (
@@ -181,10 +227,23 @@ function ArrivalsBody({ density, groups, loading, hasSchedule, styles }: Arrival
                   </Text>
                 </View>
                 <View style={styles.expandedRowRight}>
-                  <Text style={styles.expandedRowMinutes}>
-                    {formatMinutesAway(item.minutesAway)}
-                  </Text>
-                  <Text style={styles.expandedRowApprox}>≈</Text>
+                  {item.isCancelled ? (
+                    <Text style={styles.cancelledPill}>Cancelled</Text>
+                  ) : (
+                    <>
+                      <Text style={styles.expandedRowMinutes}>
+                        {formatMinutesAway(item.minutesAway)}
+                      </Text>
+                      {item.isLive ? (
+                        <View
+                          style={styles.liveDot}
+                          accessibilityLabel="Live — based on Metra realtime data"
+                        />
+                      ) : (
+                        <Text style={styles.expandedRowApprox}>≈</Text>
+                      )}
+                    </>
+                  )}
                 </View>
               </View>
             ))}
@@ -254,6 +313,32 @@ function makeLocalStyles(theme: Theme) {
       fontVariant: ['tabular-nums'],
     },
     expandedRowApprox: { color: 'rgba(255,255,255,0.6)', fontSize: 17 },
+    liveDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#ffffff' },
+    cancelledPill: {
+      color: '#fecaca',
+      backgroundColor: 'rgba(239,68,68,0.2)',
+      fontSize: 13,
+      fontWeight: '700',
+      borderRadius: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      overflow: 'hidden',
+    },
+    liveStrip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 14,
+      paddingTop: 2,
+      paddingBottom: 4,
+    },
+    liveDotSmall: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: theme.colors.status.onTime,
+    },
+    liveStripText: { color: theme.colors.status.onTime, fontSize: 11, fontWeight: '600' },
     compactRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 },
     compactHeadsign: { color: theme.colors.text.primary, fontSize: 15, fontWeight: '600' },
     compactDot: { color: theme.colors.text.secondary, fontSize: 15 },

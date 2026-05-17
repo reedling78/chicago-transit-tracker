@@ -5,11 +5,16 @@ import type {
   Line,
   Station,
   StationSchedule,
+  StationTripEntry,
   StationTrips,
   NormalizedAlert,
   TripStop,
 } from '@ctt/shared'
+import { displayStationName } from '@ctt/shared'
 import { FUNCTIONS_BASE_URL } from './config'
+
+const normalizeTripEntries = (entries: StationTripEntry[] = []): StationTripEntry[] =>
+  entries.map((e) => ({ ...e, headsign: displayStationName(e.headsign) }))
 
 export interface MetraTripDetail {
   tripId: string
@@ -30,7 +35,16 @@ export function useLines(service: 'cta' | 'metra') {
   useEffect(() => {
     const q = query(collection(db, 'lines'), where('service', '==', service))
     getDocs(q).then((snap) => {
-      setLines(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Line))
+      setLines(
+        snap.docs.map((d) => {
+          const line = { id: d.id, ...d.data() } as Line
+          return {
+            ...line,
+            termini: (line.termini ?? []).map(displayStationName),
+            downtownTerminal: displayStationName(line.downtownTerminal ?? null),
+          }
+        }),
+      )
       setLoading(false)
     })
   }, [service])
@@ -142,7 +156,14 @@ export function useSchedule(stationSlug: string) {
     getDoc(doc(db, 'schedules', stationSlug))
       .then((snap) => {
         if (snap.exists()) {
-          setSchedule(snap.data() as StationSchedule)
+          const data = snap.data() as StationSchedule
+          setSchedule({
+            ...data,
+            directions: (data.directions ?? []).map((d) => ({
+              ...d,
+              headsign: displayStationName(d.headsign),
+            })),
+          })
         }
         setLoading(false)
       })
@@ -167,7 +188,15 @@ export function useMetraTrip(lineSlug: string, trainNumber: string) {
     getDoc(doc(db, 'metra-trips', id))
       .then((snap) => {
         if (snap.exists()) {
-          setTrip(snap.data() as MetraTripDetail)
+          const data = snap.data() as MetraTripDetail
+          setTrip({
+            ...data,
+            headsign: displayStationName(data.headsign),
+            stops: (data.stops ?? []).map((s) => ({
+              ...s,
+              stationName: displayStationName(s.stationName),
+            })),
+          })
         } else {
           setTrip(null)
         }
@@ -189,7 +218,13 @@ export function useStationTrips(stationSlug: string) {
     getDoc(doc(db, 'metra-station-trips', stationSlug))
       .then((snap) => {
         if (snap.exists()) {
-          setStationTrips(snap.data() as StationTrips)
+          const data = snap.data() as StationTrips
+          setStationTrips({
+            ...data,
+            weekday: normalizeTripEntries(data.weekday),
+            saturday: normalizeTripEntries(data.saturday),
+            sunday: normalizeTripEntries(data.sunday),
+          })
         }
         setLoading(false)
       })

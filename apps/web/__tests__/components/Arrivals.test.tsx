@@ -1,5 +1,42 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import Arrivals, { formatMinutesAway } from '@components/Arrivals'
+import { useMetraFeed } from '@lib/hooks/useMetraFeed'
+import type { FeedData } from '@ctt/shared'
+
+jest.mock('@lib/hooks/useMetraFeed', () => ({
+  useMetraFeed: jest.fn(() => ({ data: null, error: null, fetchedAt: null, loading: false })),
+}))
+
+const mockedUseMetraFeed = useMetraFeed as jest.MockedFunction<typeof useMetraFeed>
+
+/** Minimal decoded GTFS-RT feed with one BNSF trip update. */
+function makeTripFeed(opts: {
+  trainNumber?: string
+  stopId: string
+  departureTime?: number
+  canceled?: boolean
+}): FeedData {
+  return {
+    entity: [
+      {
+        tripUpdate: {
+          trip: {
+            routeId: 'BNSF',
+            tripId: `BNSF_BN${opts.trainNumber ?? '1234'}_V4_A`,
+            scheduleRelationship: opts.canceled ? 3 : 0,
+          },
+          stopTimeUpdate: [
+            {
+              stopId: opts.stopId,
+              scheduleRelationship: 0,
+              departure: opts.departureTime != null ? { time: opts.departureTime } : undefined,
+            },
+          ],
+        },
+      },
+    ],
+  } as unknown as FeedData
+}
 
 // Fix current time to Monday 01:00 AM local so arrival times are stable in snapshots.
 // Fake only Date (not setTimeout/setInterval) so waitFor's internal polling still works.
@@ -70,6 +107,7 @@ const mockMetraStationTrips = {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  mockedUseMetraFeed.mockReturnValue({ data: null, error: null, fetchedAt: null, loading: false })
 })
 
 // Helper: route fetch mocks by URL so schedule + station-trips can both be stubbed.
@@ -225,6 +263,70 @@ describe('Arrivals', () => {
 
     // The 2:05 AM row has no matching trip entry, so it should remain a plain div
     expect(document.querySelectorAll('a[href^="/metra/"]')).toHaveLength(1)
+  })
+
+  it('shows a live indicator, Live badge, and last-updated when realtime matches', async () => {
+    mockFetchByUrl({
+      '/api/schedules/': mockMetraSchedule,
+      '/api/metra/station-trips/': mockMetraStationTrips,
+    })
+    const predicted = Math.floor((Date.now() + 9 * 60_000) / 1000)
+    mockedUseMetraFeed.mockReturnValue({
+      data: makeTripFeed({ trainNumber: '1234', stopId: 'CUS', departureTime: predicted }),
+      error: null,
+      fetchedAt: Date.now(),
+      loading: false,
+    })
+
+    render(
+      <Arrivals slug="union-station-metra" service="metra" hasSchedule={true} metraStopId="CUS" />,
+    )
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
+    })
+
+    expect(screen.getByText('Live')).toBeInTheDocument()
+    expect(screen.getByText(/last updated:/i)).toBeInTheDocument()
+    expect(screen.getByText('9 min')).toBeInTheDocument()
+    expect(screen.getByTitle(/live — based on metra realtime data/i)).toBeInTheDocument()
+  })
+
+  it('shows a Cancelled treatment for canceled trips', async () => {
+    mockFetchByUrl({
+      '/api/schedules/': mockMetraSchedule,
+      '/api/metra/station-trips/': mockMetraStationTrips,
+    })
+    mockedUseMetraFeed.mockReturnValue({
+      data: makeTripFeed({ trainNumber: '1234', stopId: 'CUS', canceled: true }),
+      error: null,
+      fetchedAt: Date.now(),
+      loading: false,
+    })
+
+    render(
+      <Arrivals slug="union-station-metra" service="metra" hasSchedule={true} metraStopId="CUS" />,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Cancelled')).toBeInTheDocument()
+    })
+  })
+
+  it('does not show a Live badge for CTA stations', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockSchedule,
+    }) as jest.Mock
+
+    render(<Arrivals slug="clark-lake" service="cta" hasSchedule={true} />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('95th/Dan Ryan').length).toBeGreaterThanOrEqual(1)
+    })
+
+    expect(screen.queryByText('Live')).not.toBeInTheDocument()
+    expect(screen.queryByText(/last updated:/i)).not.toBeInTheDocument()
   })
 
   it('still renders Metra arrivals when station-trips fetch fails', async () => {

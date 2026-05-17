@@ -26,7 +26,8 @@ exports[`Arrivals matches snapshot in loaded state 1`] = `
         <span
           class="font-semibold"
         >
-          CTA timetable
+          CTA
+           timetable
         </span>
       </p>
     </div>

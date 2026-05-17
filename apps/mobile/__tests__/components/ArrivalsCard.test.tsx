@@ -1,7 +1,43 @@
 import { render, screen, act, fireEvent } from '@testing-library/react-native'
-import type { StationSchedule } from '@ctt/shared'
+import type { FeedData, StationSchedule } from '@ctt/shared'
 import { ArrivalsCard, formatMinutesAway } from '../../components/ArrivalsCard'
 import { mockSchedule, mockStationTrips } from '../fixtures'
+import { useMetraFeed } from '../../lib/useMetraFeed'
+
+jest.mock('../../lib/useMetraFeed', () => ({
+  useMetraFeed: jest.fn(() => ({ data: null, error: null, fetchedAt: null, loading: false })),
+}))
+
+const mockedUseMetraFeed = useMetraFeed as jest.MockedFunction<typeof useMetraFeed>
+
+/** Minimal decoded GTFS-RT feed with one BNSF trip update. */
+function makeTripFeed(opts: {
+  trainNumber: string
+  stopId: string
+  departureTime?: number
+  canceled?: boolean
+}): FeedData {
+  return {
+    entity: [
+      {
+        tripUpdate: {
+          trip: {
+            routeId: 'BNSF',
+            tripId: `BNSF_BN${opts.trainNumber}_V4_A`,
+            scheduleRelationship: opts.canceled ? 3 : 0,
+          },
+          stopTimeUpdate: [
+            {
+              stopId: opts.stopId,
+              scheduleRelationship: 0,
+              departure: opts.departureTime != null ? { time: opts.departureTime } : undefined,
+            },
+          ],
+        },
+      },
+    ],
+  } as unknown as FeedData
+}
 
 // Mock @expo/vector-icons/Ionicons
 jest.mock('@expo/vector-icons/Ionicons', () => {
@@ -45,6 +81,8 @@ describe('ArrivalsCard', () => {
     // Wednesday at 6:00 AM (360 minutes since midnight)
     jest.setSystemTime(new Date(2026, 3, 15, 6, 0, 0))
     mockPush.mockClear()
+    mockedUseMetraFeed.mockReset()
+    mockedUseMetraFeed.mockReturnValue({ data: null, error: null, fetchedAt: null, loading: false })
   })
 
   afterEach(() => {
@@ -147,6 +185,57 @@ describe('ArrivalsCard', () => {
     render(<ArrivalsCard schedule={metraSchedule} service="metra" />)
     expect(screen.getByText('30 min')).toBeOnTheScreen()
     expect(screen.queryByTestId(/^arrival-row:/)).toBeNull()
+  })
+
+  it('shows a live indicator, Live badge, and last-updated when realtime matches', () => {
+    jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
+    const predicted = Math.floor((Date.now() + 12 * 60_000) / 1000)
+    mockedUseMetraFeed.mockReturnValue({
+      data: makeTripFeed({ trainNumber: '1200', stopId: 'CUS', departureTime: predicted }),
+      error: null,
+      fetchedAt: Date.now(),
+      loading: false,
+    })
+
+    render(
+      <ArrivalsCard
+        schedule={metraSchedule}
+        service="metra"
+        trips={mockStationTrips}
+        metraStopId="CUS"
+      />,
+    )
+
+    expect(screen.getByText('Live')).toBeOnTheScreen()
+    expect(screen.getByText(/Last updated:/)).toBeOnTheScreen()
+    expect(screen.getByText('12 min')).toBeOnTheScreen()
+    expect(screen.getByLabelText('Live — based on Metra realtime data')).toBeOnTheScreen()
+  })
+
+  it('shows a Cancelled treatment for canceled trips', () => {
+    jest.setSystemTime(new Date(2026, 3, 15, 5, 0, 0))
+    mockedUseMetraFeed.mockReturnValue({
+      data: makeTripFeed({ trainNumber: '1200', stopId: 'CUS', canceled: true }),
+      error: null,
+      fetchedAt: Date.now(),
+      loading: false,
+    })
+
+    render(
+      <ArrivalsCard
+        schedule={metraSchedule}
+        service="metra"
+        trips={mockStationTrips}
+        metraStopId="CUS"
+      />,
+    )
+
+    expect(screen.getByText('Cancelled')).toBeOnTheScreen()
+  })
+
+  it('does not subscribe to the Metra feed for CTA stations', () => {
+    render(<ArrivalsCard schedule={mockSchedule} service="cta" />)
+    expect(mockedUseMetraFeed).toHaveBeenCalledWith('tripupdates', { enabled: false })
   })
 
   it('does not render a tappable row when no trip matches the scheduled time', () => {

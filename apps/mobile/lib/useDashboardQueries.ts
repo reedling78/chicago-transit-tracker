@@ -2,6 +2,47 @@ import { useQuery } from '@tanstack/react-query'
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 import { db } from './firebase'
 import type { Line, Station, StationSchedule, StationTrips, MetraTripDetail } from '@ctt/shared'
+import { displayStationName } from '@ctt/shared'
+
+function normalizeLine(line: Line): Line {
+  return {
+    ...line,
+    termini: (line.termini ?? []).map(displayStationName),
+    downtownTerminal: displayStationName(line.downtownTerminal ?? null),
+  }
+}
+
+function normalizeSchedule(s: StationSchedule): StationSchedule {
+  return {
+    ...s,
+    directions: (s.directions ?? []).map((d) => ({
+      ...d,
+      headsign: displayStationName(d.headsign),
+    })),
+  }
+}
+
+function normalizeStationTrips(t: StationTrips): StationTrips {
+  const mapEntries = (entries: StationTrips['weekday'] = []) =>
+    entries.map((e) => ({ ...e, headsign: displayStationName(e.headsign) }))
+  return {
+    ...t,
+    weekday: mapEntries(t.weekday),
+    saturday: mapEntries(t.saturday),
+    sunday: mapEntries(t.sunday),
+  }
+}
+
+function normalizeTrip(trip: MetraTripDetail): MetraTripDetail {
+  return {
+    ...trip,
+    headsign: displayStationName(trip.headsign),
+    stops: (trip.stops ?? []).map((s) => ({
+      ...s,
+      stationName: displayStationName(s.stationName),
+    })),
+  }
+}
 
 const ONE_DAY = 1000 * 60 * 60 * 24
 /** Schedule data is regenerated hourly at most; refresh every 30 minutes. */
@@ -12,7 +53,7 @@ export function useLinesQuery() {
     queryKey: ['dashboard', 'lines'],
     queryFn: async () => {
       const snap = await getDocs(collection(db, 'lines'))
-      return snap.docs.map((d) => d.data() as Line)
+      return snap.docs.map((d) => normalizeLine(d.data() as Line))
     },
     staleTime: ONE_DAY,
   })
@@ -36,7 +77,7 @@ export function useStationScheduleQuery(slug: string | null) {
       if (!slug) return null
       const snap = await getDoc(doc(db, 'schedules', slug))
       if (!snap.exists()) return null
-      return snap.data() as StationSchedule
+      return normalizeSchedule(snap.data() as StationSchedule)
     },
     enabled: !!slug,
     staleTime: THIRTY_MINUTES,
@@ -50,7 +91,7 @@ export function useStationTripsQuery(slug: string | null, enabled = true) {
       if (!slug) return null
       const snap = await getDoc(doc(db, 'metra-station-trips', slug))
       if (!snap.exists()) return null
-      return snap.data() as StationTrips
+      return normalizeStationTrips(snap.data() as StationTrips)
     },
     enabled: enabled && !!slug,
     staleTime: THIRTY_MINUTES,
@@ -64,7 +105,7 @@ export function useFavoriteTripQuery(tripId: string | null) {
       if (!tripId) return null
       const snap = await getDoc(doc(db, 'metra-trips', tripId))
       if (!snap.exists()) return null
-      return snap.data() as MetraTripDetail
+      return normalizeTrip(snap.data() as MetraTripDetail)
     },
     enabled: !!tripId,
     staleTime: ONE_DAY,

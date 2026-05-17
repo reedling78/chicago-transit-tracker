@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { displayStationName } from '@ctt/shared'
 import { getFirestore } from '@lib/firebase-admin'
 import { getLinesForService } from '@lib/transit'
 import PageHeader from '@components/PageHeader'
@@ -30,7 +31,15 @@ async function readDetail(lineSlug: string, trainNumber: string): Promise<TripDe
   const db = getFirestore()
   const doc = await db.collection('metra-trips').doc(`${lineSlug}_${trainNumber}`).get()
   if (!doc.exists) return null
-  return doc.data() as TripDetail
+  const data = doc.data() as TripDetail
+  return {
+    ...data,
+    headsign: displayStationName(data.headsign),
+    stops: data.stops.map((s) => ({
+      ...s,
+      stationName: displayStationName(s.stationName),
+    })),
+  }
 }
 
 const SERVICE_LABEL: Record<string, string> = {

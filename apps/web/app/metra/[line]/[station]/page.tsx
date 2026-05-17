@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { displayStationName } from '@ctt/shared'
 import {
   getAllLines,
   getLinesForService,
@@ -80,7 +81,7 @@ export default async function MetraStationPage({ params }: Props) {
         breadcrumbItems={[
           { label: 'Metra Lines', href: '/metra' },
           { label: line?.name ?? lineSlug, href: `/metra/${lineSlug}` },
-          { label: station.name },
+          { label: displayStationName(station.name) },
         ]}
         badges={
           <>
@@ -116,7 +117,12 @@ export default async function MetraStationPage({ params }: Props) {
           <StationDetail station={station} />
         </div>
         <div className="w-full lg:w-1/3">
-          <Arrivals slug={stationSlug} service="metra" hasSchedule={!!station.metraStopId} />
+          <Arrivals
+            slug={stationSlug}
+            service="metra"
+            hasSchedule={!!station.metraStopId}
+            metraStopId={station.metraStopId}
+          />
         </div>
       </div>
       <StationTimetable slug={stationSlug} />
