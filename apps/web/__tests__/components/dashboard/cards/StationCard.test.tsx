@@ -136,9 +136,15 @@ describe('StationCard', () => {
         <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
-    expect(screen.getByText('Toward Loop')).toBeInTheDocument()
-    expect(screen.getByText("Toward O'Hare")).toBeInTheDocument()
-    expect(screen.getAllByTestId('arrival-row')).toHaveLength(2)
+    expect(screen.getByText('Service toward Loop')).toBeInTheDocument()
+    expect(screen.getByText("Service toward O'Hare")).toBeInTheDocument()
+    const rows = screen.getAllByTestId('arrival-row')
+    expect(rows).toHaveLength(2)
+    // Each row shows the line/time label, the bold headsign, and the
+    // scheduled-estimate marker (countdown formatting varies with the clock).
+    expect(rows[0]).toHaveTextContent('Red Line')
+    expect(rows[0]).toHaveTextContent('Loop')
+    expect(rows[0]).toHaveTextContent('≈')
   })
 
   it('renders compact rows when density is compact', () => {
@@ -161,8 +167,8 @@ describe('StationCard', () => {
         <StationCard favorite={filtered} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
-    expect(screen.getByText('Toward Loop')).toBeInTheDocument()
-    expect(screen.queryByText("Toward O'Hare")).toBeNull()
+    expect(screen.getByText('Service toward Loop')).toBeInTheDocument()
+    expect(screen.queryByText("Service toward O'Hare")).toBeNull()
   })
 
   it('renders empty state when schedule has no upcoming departures', () => {

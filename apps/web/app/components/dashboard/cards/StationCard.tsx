@@ -169,7 +169,7 @@ function ArrivalsBody({ density, groups, loading, hasSchedule }: ArrivalsBodyPro
         {groups.map((g) => (
           <li
             key={g.headsign}
-            className="flex items-center gap-2 text-sm"
+            className="flex items-center gap-2 text-base"
             data-testid="arrival-row-compact"
           >
             <span
@@ -194,22 +194,30 @@ function ArrivalsBody({ density, groups, loading, hasSchedule }: ArrivalsBodyPro
         const bg = LINE_COLORS[g.line]?.bg ?? '#565a5c'
         return (
           <div key={g.headsign} data-testid="arrival-group">
-            <div className="bg-gray-100 px-4 py-1 text-[11px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-              Toward {g.headsign}
+            <div className="bg-gray-600 px-4 py-2 dark:bg-gray-700">
+              <p className="text-sm font-semibold text-white">Service toward {g.headsign}</p>
             </div>
             {g.items.map((item, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between px-4 py-1.5 text-sm text-white"
+                className="flex items-center justify-between border-t border-black/10 px-4 py-3"
                 style={{ backgroundColor: bg }}
                 data-testid="arrival-row"
               >
-                <span className="text-xs text-white/80">
-                  {g.line} · {item.label}
-                </span>
-                <span className="font-bold tabular-nums">
-                  {formatMinutesAway(item.minutesAway)}
-                </span>
+                <div>
+                  <p className="text-xs text-white/80">
+                    {g.line} Line · {item.label} to
+                  </p>
+                  <p className="text-base leading-tight font-bold text-white">{g.headsign}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="text-2xl font-bold text-white tabular-nums">
+                    {formatMinutesAway(item.minutesAway)}
+                  </span>
+                  <span className="text-lg text-white/60" title="Scheduled estimate">
+                    ≈
+                  </span>
+                </div>
               </div>
             ))}
           </div>

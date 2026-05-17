@@ -16,7 +16,7 @@ function makeCardStyles(theme: Theme) {
       paddingHorizontal: 14,
       backgroundColor: theme.colors.bg.surface,
       borderRadius: theme.radius.sm + 2,
-      marginBottom: theme.space[2],
+      marginBottom: theme.space[4],
       gap: theme.space[3],
     },
     rowDragging: {
