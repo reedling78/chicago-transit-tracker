@@ -35,22 +35,6 @@ function makeCardStyles(theme: Theme) {
       borderRadius: theme.radius.full,
     },
     chipText: { fontSize: 12, fontWeight: '700' },
-    pillRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      alignItems: 'center',
-      gap: theme.space[1] + 2,
-      marginTop: theme.space[1],
-    },
-    pill: {
-      paddingHorizontal: theme.space[2],
-      paddingVertical: 2,
-      borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.border.subtle,
-    },
-    pillText: { color: theme.colors.text.secondary, fontSize: 11, fontWeight: '500' },
-    /** 4px-thick strip painted on the leading edge using the line color. */
-    accentBorder: { borderLeftWidth: 4 },
   })
 }
 

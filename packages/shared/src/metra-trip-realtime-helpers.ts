@@ -7,7 +7,9 @@
  */
 
 import { extractMetraTrainNumber, routeIdToLineSlug } from './metra-trip-matching'
-import type { FeedData, TripStop, TripUpdate, VehiclePosition } from './metra-status'
+import { formatClockTime, parseDisplayTimeToMinutes } from './metra-status'
+import type { DerivedStop, FeedData, TripStop, TripUpdate, VehiclePosition } from './metra-status'
+import { formatClockLabel, formatMinutesAway, minutesUntil } from './station-arrivals'
 
 export type FeedEntity = NonNullable<FeedData['entity']>[number]
 
@@ -137,4 +139,52 @@ export function computeRightPanel(
 
 function formatEtaClockTime(d: Date): string {
   return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+export interface DestinationEta {
+  station: string
+  /** "42 min" | "Due" | "1h 5m" */
+  etaLabel: string
+  /** Clock time of the (estimated) arrival, e.g. "11:24 PM". */
+  etaClock: string
+  /** True when backed by a realtime ETA; false for a scheduled+delay estimate. */
+  realtime: boolean
+}
+
+/**
+ * ETA to the user's chosen destination stop on an active trip. Prefers the
+ * realtime `etaEpoch` for that stop; falls back to the scheduled arrival
+ * shifted by the stop's (or trip's) known delay. Returns null when the
+ * destination can't be resolved or has no scheduled time.
+ */
+export function computeDestinationEta(
+  destStop: TripStop | undefined,
+  derivedStops: DerivedStop[],
+  nowMs: number,
+): DestinationEta | null {
+  if (!destStop) return null
+  const derived = derivedStops.find(
+    (d) =>
+      (destStop.slug != null && d.stop.slug === destStop.slug) ||
+      d.stop.sequence === destStop.sequence,
+  )
+  if (derived?.etaEpoch != null) {
+    const etaMs = derived.etaEpoch * 1000
+    const mins = Math.round((etaMs - nowMs) / 60_000)
+    return {
+      station: destStop.stationName,
+      etaLabel: formatMinutesAway(Math.max(mins, 0)),
+      etaClock: formatClockTime(new Date(etaMs)),
+      realtime: true,
+    }
+  }
+  const schedMin = parseDisplayTimeToMinutes(destStop.arrival)
+  if (schedMin == null) return null
+  const adj = schedMin + (derived?.delayMinutes ?? 0)
+  return {
+    station: destStop.stationName,
+    etaLabel: formatMinutesAway(Math.max(minutesUntil(new Date(nowMs), adj), 0)),
+    etaClock: formatClockLabel(((adj % 1440) + 1440) % 1440),
+    realtime: false,
+  }
 }

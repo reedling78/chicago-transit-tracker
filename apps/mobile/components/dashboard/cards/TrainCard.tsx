@@ -1,7 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { Animated, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import {
-  SERVICE_LABEL,
+  computeDestinationEta,
+  computeRightPanel,
+  formatClockLabel,
+  formatMinutesAway,
+  minutesUntil,
+  parseDisplayTimeToMinutes,
+  shortenStationName,
   type Favorite,
   type Line,
   type MetraTripDetail,
@@ -9,7 +16,6 @@ import {
 } from '@ctt/shared'
 import { useFavoriteTripQuery } from '../../../lib/useDashboardQueries'
 import { useMetraTripLiveStatus } from '../../../lib/useMetraTripLiveStatus'
-import { useTheme } from '../../../lib/theme'
 import MetraTripHeroStatusCardCompact from '../../MetraTripHeroStatusCardCompact'
 import PressableButton from '../../PressableButton'
 import CardMenuButton from './CardMenuButton'
@@ -36,6 +42,28 @@ function pickStop(
   return fallback
 }
 
+/** Pulsing dot in the card header — signals the trip is on live data. */
+function LiveDot() {
+  const opacity = useRef(new Animated.Value(1)).current
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.3, duration: 700, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
+      ]),
+    )
+    loop.start()
+    return () => loop.stop()
+  }, [opacity])
+  return (
+    <Animated.View
+      accessibilityRole="image"
+      accessibilityLabel="Receiving live data"
+      style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#22c55e', opacity }}
+    />
+  )
+}
+
 export default function TrainCard({
   favorite,
   lines,
@@ -45,7 +73,11 @@ export default function TrainCard({
 }: TrainCardProps) {
   const router = useRouter()
   const cardStyles = useCardStyles()
-  const { theme } = useTheme()
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(id)
+  }, [])
   const { data: trip } = useFavoriteTripQuery(favorite.id) as { data: MetraTripDetail | null }
   const live = useMetraTripLiveStatus(trip ?? null)
   const [lineSlugFromId, trainNumberFromId] = favorite.id.split('_')
@@ -61,20 +93,15 @@ export default function TrainCard({
 
   const title =
     trip && originStop && destStop
-      ? `${originStop.stationName} to ${destStop.stationName}`
+      ? `${shortenStationName(originStop.stationName)} to ${shortenStationName(destStop.stationName)}`
       : `Train ${trainNumber}`
 
-  const pills: { label: string; tone?: 'line' }[] = []
-  if (trip) {
-    pills.push({ label: 'Metra' })
-    if (trip.line) pills.push({ label: trip.line, tone: 'line' })
-    if (trip.serviceType && trip.serviceType in SERVICE_LABEL) {
-      pills.push({ label: SERVICE_LABEL[trip.serviceType as keyof typeof SERVICE_LABEL] })
-    }
-    if (trip.isExpress) pills.push({ label: 'Express' })
-  }
+  const subheader = trip ? `${trip.line ? `${trip.line} ` : ''}#${trainNumber}` : `#${trainNumber}`
 
-  const accent = lineColor ? { ...cardStyles.accentBorder, borderLeftColor: lineColor } : null
+  const liveShown = !!(live && live.status && !live.isNoData)
+  const depMin = originStop ? parseDisplayTimeToMinutes(originStop.departure) : null
+  const minsAway = depMin != null ? minutesUntil(now, depMin) : null
+  const showCountdown = !liveShown && !!trip && depMin != null
 
   return (
     <PressableButton
@@ -84,49 +111,49 @@ export default function TrainCard({
       accessibilityRole="link"
       accessibilityLabel={title}
       feedback="subtle"
-      style={[cardStyles.row, styles.container, accent, isActive && cardStyles.rowDragging]}
+      style={[cardStyles.row, styles.container, isActive && cardStyles.rowDragging]}
     >
       <View style={styles.headerRow}>
-        <Text style={[cardStyles.title, styles.titleFlex]} numberOfLines={1}>
-          {title}
-        </Text>
-        <Text style={cardStyles.meta}>#{trainNumber}</Text>
+        <View style={cardStyles.content}>
+          <Text style={cardStyles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          <Text style={cardStyles.subtitle} numberOfLines={1}>
+            {subheader}
+          </Text>
+        </View>
+        {liveShown && (
+          <View style={styles.liveBadge}>
+            <LiveDot />
+            <Text style={styles.liveText}>Live</Text>
+          </View>
+        )}
         <CardMenuButton onPress={onMenuPress} accessibilityLabel={`Open menu for ${title}`} />
       </View>
-      {pills.length > 0 ? (
-        <View style={cardStyles.pillRow}>
-          {pills.map((pill, i) => {
-            const overrideStyle =
-              pill.tone === 'line' && lineColor ? { backgroundColor: lineColor } : null
-            const textOverrideStyle =
-              pill.tone === 'line'
-                ? {
-                    color: line?.textColor ?? theme.colors.text.onScrim,
-                    fontWeight: '700' as const,
-                  }
-                : null
-            return (
-              <View key={`${pill.label}-${i}`} style={[cardStyles.pill, overrideStyle]}>
-                <Text style={[cardStyles.pillText, textOverrideStyle]}>{pill.label}</Text>
-              </View>
-            )
-          })}
-        </View>
-      ) : (
-        <Text style={cardStyles.subtitle}>
-          {trip?.headsign ? `To ${trip.headsign}` : 'Trip not currently scheduled'}
-        </Text>
-      )}
-      {live && live.status && !live.isNoData && (
+      {liveShown && live && (
         <MetraTripHeroStatusCardCompact
-          status={live.status}
-          phase={live.phase}
-          currentDerived={live.currentDerived}
-          firstStop={live.firstStop}
-          lastStop={live.lastStop}
+          status={live.status!}
           vehiclePosition={live.vehiclePosition}
-          nowMs={live.nowMs}
+          nextStop={computeRightPanel(
+            live.phase,
+            live.currentDerived,
+            live.firstStop,
+            live.lastStop,
+            live.nowMs,
+          )}
+          destination={computeDestinationEta(destStop, live.derivedStops, live.nowMs)}
+          lineColor={lineColor}
+          lineTextColor={line?.textColor}
         />
+      )}
+      {showCountdown && depMin != null && (
+        <Text style={cardStyles.subtitle}>
+          {minsAway != null && minsAway >= 0
+            ? `Departs in ${formatMinutesAway(minsAway)} · ${formatClockLabel(depMin)}${
+                originStop ? ` from ${originStop.stationName}` : ''
+              }`
+            : `Departed ${formatClockLabel(depMin)}`}
+        </Text>
       )}
     </PressableButton>
   )
@@ -136,11 +163,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'stretch',
+    gap: 10,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  titleFlex: { flex: 1 },
+  liveBadge: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  liveText: { color: '#22c55e', fontSize: 12, fontWeight: '700' },
 })

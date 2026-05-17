@@ -17,16 +17,13 @@ export type {
   StationTripEntry,
   StationTrips,
 } from './gtfs-types'
-export type {
-  ArrivalItem,
-  ArrivalGroup,
-  ComputeArrivalGroupsInput,
-} from './station-arrivals'
+export type { ArrivalItem, ArrivalGroup, ComputeArrivalGroupsInput } from './station-arrivals'
 export {
   pickServiceDay,
   minutesUntil,
   formatMinutesAway,
   formatClockLabel,
+  shortenStationName,
   computeArrivalGroups,
   applyDirectionFilter,
   listStationHeadsigns,
@@ -50,12 +47,7 @@ export type {
 } from './pace-types'
 export { extractMetraTrainNumber, routeIdToLineSlug } from './metra-trip-matching'
 export type { PulseInputTrain, PulseTone, HealthResult, HealthInput } from './cta-pulse'
-export {
-  terminalKeyFor,
-  aggregateByTerminal,
-  nextArrivalFor,
-  computeHealth,
-} from './cta-pulse'
+export { terminalKeyFor, aggregateByTerminal, nextArrivalFor, computeHealth } from './cta-pulse'
 export type {
   TripStop,
   TripUpdate,
@@ -88,10 +80,12 @@ export type {
   FilteredEntity,
   CompletionInput,
   RightPanelCopy,
+  DestinationEta,
 } from './metra-trip-realtime-helpers'
 export {
   matchEntityToTrip,
   filterFeedForTrip,
   isTripCompleted,
   computeRightPanel,
+  computeDestinationEta,
 } from './metra-trip-realtime-helpers'

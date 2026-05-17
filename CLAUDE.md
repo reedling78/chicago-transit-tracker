@@ -111,7 +111,7 @@ apps/
             CardMenuButton.tsx    Trailing ⋯ Pressable used on every card
             LineCard.tsx          Favorite-line row (title + termini + accent left border)
             StationCard.tsx       Favorite-station row — direction filter + density + arrivals
-            TrainCard.tsx         Favorite-train row — origin/destination header + pills + mini live status
+            TrainCard.tsx         Favorite-train row — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
         profile/
           FavoritesManager.tsx    Profile favorites manager (Lines/Stations/Trains sections + Clear all)
           FavoritesSection.tsx    Section header + list of FavoriteRows
@@ -127,7 +127,7 @@ apps/
         metra-realtime.ts         Client-side fetch + protobuf decode for Metra feeds
         metra-status.ts           Shared status derivation for Metra trips
         cta-train-tracker.ts      Client-side fetch + types for CTA Train Tracker positions
-        ../components/MetraTripHeroStatusCardCompact.tsx Mini one-row variant of the trip hero status card (used inside TrainCard)
+        ../components/MetraTripHeroStatusCardCompact.tsx TrainCard live panel — StationCard-style gray status/last-reported bar + line-colored next-stop | destination-ETA row
         transit.ts                Data access — getLinesForService, getLine, getMetraLineTrips, etc.
         types.ts                  Re-exports from @ctt/shared
         constants.ts              Re-exports from @ctt/shared
@@ -205,7 +205,7 @@ apps/
           CardMenuButton.tsx      Trailing ⋯ Pressable used on every card
           LineCard.tsx            Favorite-line row (title + termini + colored chip)
           StationCard.tsx         Favorite-station row — direction filter + density + arrivals
-          TrainCard.tsx           Favorite-train row — origin/destination header + pills + mini live status
+          TrainCard.tsx           Favorite-train row — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
       profile/
         FavoritesManager.tsx      Profile favorites manager (Lines/Stations/Trains sections + Clear all)
         FavoritesSection.tsx      Section header + list of FavoriteRows
@@ -266,7 +266,7 @@ packages/
       cta-pulse.ts                Pure aggregation + health helpers for CTA service pulse
       metra-trip-matching.ts      Helpers for matching Metra realtime entities
       favorites.ts                Pure helpers for favorites (favoriteKey, mapToArray, arrayToMap)
-      station-arrivals.ts         Pure helpers for computing arrival groups + applying per-favorite direction filters
+      station-arrivals.ts         Pure helpers for arrival groups, per-favorite direction filters, and station-name shortening
 ```
 
 ---

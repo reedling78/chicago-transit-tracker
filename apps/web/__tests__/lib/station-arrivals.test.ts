@@ -6,6 +6,7 @@ import {
   listStationHeadsigns,
   minutesUntil,
   pickServiceDay,
+  shortenStationName,
   summarizeCompact,
 } from '@ctt/shared'
 import type { ArrivalGroup, StationSchedule, StationTrips } from '@ctt/shared'
@@ -246,5 +247,22 @@ describe('summarizeCompact', () => {
   it('returns "—" for empty items', () => {
     const group: ArrivalGroup = { headsign: 'Loop', line: 'Red', items: [] }
     expect(summarizeCompact(group)).toBe('—')
+  })
+})
+
+describe('shortenStationName', () => {
+  it('shortens "Chicago Union Station" to "Union Station"', () => {
+    expect(shortenStationName('Chicago Union Station')).toBe('Union Station')
+  })
+
+  it('shortens the name within a longer label', () => {
+    expect(shortenStationName('Big Timber to Chicago Union Station')).toBe(
+      'Big Timber to Union Station',
+    )
+  })
+
+  it('leaves other station names untouched', () => {
+    expect(shortenStationName('Elgin')).toBe('Elgin')
+    expect(shortenStationName('LaGrange Road')).toBe('LaGrange Road')
   })
 })
