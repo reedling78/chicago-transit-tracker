@@ -222,6 +222,79 @@ describe('applyDirectionFilter', () => {
   })
 })
 
+describe('computeArrivalGroups — direction-filter hardening', () => {
+  // Regression: the dashboard StationCard passes a per-favorite inbound/outbound
+  // filter. When `metra-station-trips` is stale/empty for the active service day
+  // (e.g. not yet re-synced), every group's directionId was undefined and the
+  // inbound/outbound filter dropped them all → false "No upcoming departures."
+  it('keeps scheduled Metra groups when station-trips is empty for the day', () => {
+    const groups = computeArrivalGroups({
+      schedule: metraSchedule,
+      trips: { weekday: [], saturday: [], sunday: [] },
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      directionFilter: 'inbound',
+    })
+    // Trains ARE scheduled — must not collapse to empty just because the
+    // station-trips join had nothing to classify direction with.
+    expect(groups.length).toBeGreaterThan(0)
+    expect(groups.map((g) => g.headsign).sort()).toEqual(['Aurora', 'Chicago'])
+  })
+
+  // Layer 1: a group's direction should be derivable from ANY same
+  // headsign/line station-trip entry for the service day, even when no
+  // currently-upcoming scheduled time matched a station-trip departure.
+  it('classifies group direction from headsign/line when no upcoming time matches', () => {
+    const trips: StationTrips = {
+      weekday: [
+        {
+          tripId: 'C1',
+          trainNumber: 'C1',
+          headsign: 'Chicago',
+          departure: '7:00 AM', // does not match any upcoming schedule label
+          line: 'BNSF',
+          lineSlug: 'bnsf',
+          directionId: 1,
+        },
+        {
+          tripId: 'A1',
+          trainNumber: 'A1',
+          headsign: 'Aurora',
+          departure: '7:05 AM',
+          line: 'BNSF',
+          lineSlug: 'bnsf',
+          directionId: 0,
+        },
+      ],
+      saturday: [],
+      sunday: [],
+    }
+    const groups = computeArrivalGroups({
+      schedule: metraSchedule,
+      trips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      directionFilter: 'inbound',
+    })
+    expect(groups).toHaveLength(1)
+    expect(groups[0].headsign).toBe('Chicago')
+    expect(groups[0].directionId).toBe(1)
+  })
+})
+
+describe('applyDirectionFilter — unclassified Metra groups', () => {
+  it('keeps Metra groups with an undefined directionId rather than dropping them', () => {
+    const groups: ArrivalGroup[] = [
+      { headsign: 'Chicago', line: 'BNSF', items: [], directionId: undefined },
+      { headsign: 'Aurora', line: 'BNSF', items: [], directionId: 0 },
+    ]
+    const result = applyDirectionFilter(groups, 'inbound', 'metra')
+    // The classified outbound group is filtered out; the unclassified group is
+    // retained (better to show scheduled trains than a false empty state).
+    expect(result.map((g) => g.headsign)).toEqual(['Chicago'])
+  })
+})
+
 describe('listStationHeadsigns', () => {
   it('returns distinct headsigns in input order', () => {
     expect(listStationHeadsigns(ctaSchedule)).toEqual(['Loop', "O'Hare"])
