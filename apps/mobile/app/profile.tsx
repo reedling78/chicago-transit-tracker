@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { ScrollView, Text, StyleSheet, View } from 'react-native'
-import { useRouter } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import { useAuth } from '../lib/AuthContext'
 import { signOut } from '../lib/auth'
@@ -106,86 +106,108 @@ export default function ProfileScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
+  const headerScreen = (
+    <Stack.Screen
+      options={{
+        headerTransparent: true,
+        headerStyle: { backgroundColor: theme.colors.bg.canvas },
+        headerShadowVisible: false,
+        headerTitle: 'Chicago Transit Tracker',
+        headerTitleAlign: 'left',
+        headerTitleStyle: { color: theme.colors.text.primary, fontWeight: '700' },
+      }}
+    />
+  )
+
   if (loading) {
     return (
-      <View style={[styles.staticContainer, { paddingTop: headerInset + 24 }]}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <>
+        {headerScreen}
+        <View style={[styles.staticContainer, { paddingTop: headerInset + 24 }]}>
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </>
     )
   }
 
   if (!profile) {
     return (
+      <>
+        {headerScreen}
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={[styles.scrollContent, { paddingTop: headerInset + 24 }]}
+        >
+          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.emptyText}>Sign in to view your profile.</Text>
+          <PressableButton
+            style={styles.signInButton}
+            onPress={() => router.replace('/auth')}
+            haptic="light"
+            accessibilityRole="button"
+            accessibilityLabel="Sign In"
+          >
+            <Text style={styles.signInButtonText}>Sign In</Text>
+          </PressableButton>
+          <ThemeToggle />
+          <Footer />
+        </ScrollView>
+      </>
+    )
+  }
+
+  return (
+    <>
+      {headerScreen}
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={[styles.scrollContent, { paddingTop: headerInset + 24 }]}
       >
         <Text style={styles.title}>Profile</Text>
-        <Text style={styles.emptyText}>Sign in to view your profile.</Text>
+
+        <View style={styles.card}>
+          <View style={styles.field}>
+            <Text style={styles.label}>Email</Text>
+            <Text style={styles.value}>{profile.email || 'Not set'}</Text>
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Sign-in Provider</Text>
+            <Text style={styles.value}>{providerLabels[profile.provider] || profile.provider}</Text>
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Member Since</Text>
+            <Text style={styles.value}>
+              {new Date(profile.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </Text>
+          </View>
+        </View>
+
+        <ThemeToggle />
+
         <PressableButton
-          style={styles.signInButton}
-          onPress={() => router.replace('/auth')}
+          style={styles.signOutButton}
+          onPress={async () => {
+            await signOut()
+            router.replace('/')
+          }}
           haptic="light"
           accessibilityRole="button"
-          accessibilityLabel="Sign In"
+          accessibilityLabel="Sign Out"
         >
-          <Text style={styles.signInButtonText}>Sign In</Text>
+          <Text style={styles.signOutText}>Sign Out</Text>
         </PressableButton>
-        <ThemeToggle />
+
+        <FavoritesManager />
+
         <Footer />
       </ScrollView>
-    )
-  }
-
-  return (
-    <ScrollView
-      style={styles.scrollContainer}
-      contentContainerStyle={[styles.scrollContent, { paddingTop: headerInset + 24 }]}
-    >
-      <Text style={styles.title}>Profile</Text>
-
-      <View style={styles.card}>
-        <View style={styles.field}>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{profile.email || 'Not set'}</Text>
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Sign-in Provider</Text>
-          <Text style={styles.value}>{providerLabels[profile.provider] || profile.provider}</Text>
-        </View>
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Member Since</Text>
-          <Text style={styles.value}>
-            {new Date(profile.createdAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </Text>
-        </View>
-      </View>
-
-      <ThemeToggle />
-
-      <PressableButton
-        style={styles.signOutButton}
-        onPress={async () => {
-          await signOut()
-          router.replace('/')
-        }}
-        haptic="light"
-        accessibilityRole="button"
-        accessibilityLabel="Sign Out"
-      >
-        <Text style={styles.signOutText}>Sign Out</Text>
-      </PressableButton>
-
-      <FavoritesManager />
-
-      <Footer />
-    </ScrollView>
+    </>
   )
 }
 

@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { useNavigation } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useTheme } from '../lib/theme'
@@ -23,9 +23,12 @@ export default function HeaderBackButton() {
       feedback="subtle"
       style={styles.touchable}
     >
-      <View style={[styles.circle, { backgroundColor: theme.colors.bg.scrim }]}>
-        <Ionicons name="chevron-back" size={22} color={theme.colors.text.onScrim} />
-      </View>
+      <Ionicons
+        name="chevron-back"
+        size={26}
+        color={theme.colors.text.primary}
+        style={styles.icon}
+      />
     </PressableButton>
   )
 }
@@ -38,11 +41,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  circle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
+  // Flat icon — a soft shadow keeps it legible over full-bleed photo headers
+  // without the frosted-pill background.
+  icon: {
+    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 })

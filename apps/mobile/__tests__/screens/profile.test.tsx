@@ -4,10 +4,20 @@ import { useAuth } from '../../lib/AuthContext'
 import { signOut } from '../../lib/auth'
 
 const mockReplace = jest.fn()
+const capturedScreenOptions: Record<string, unknown>[] = []
 
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ replace: mockReplace }),
-}))
+jest.mock('expo-router', () => {
+  const StackScreen = (props: { options?: Record<string, unknown> }) => {
+    capturedScreenOptions.push(props.options ?? {})
+    return null
+  }
+  StackScreen.displayName = 'StackScreen'
+  const Stack = { Screen: StackScreen }
+  return {
+    Stack,
+    useRouter: () => ({ replace: mockReplace }),
+  }
+})
 
 jest.mock('../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,
@@ -33,9 +43,25 @@ const mockSignOut = signOut as jest.MockedFunction<typeof signOut>
 
 beforeEach(() => {
   jest.clearAllMocks()
+  capturedScreenOptions.length = 0
 })
 
 describe('ProfileScreen', () => {
+  it('configures the traditional app header with the site title', () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      profile: null,
+      loading: false,
+    } as ReturnType<typeof useAuth>)
+    render(<ProfileScreen />)
+    expect(capturedScreenOptions).toHaveLength(1)
+    const opts = capturedScreenOptions[0]
+    expect(opts.headerTransparent).toBe(true)
+    expect(opts.headerTitle).toBe('Chicago Transit Tracker')
+    expect(opts.headerTitleAlign).toBe('left')
+    expect(opts.headerLeft).toBeUndefined()
+  })
+
   it('shows a loading state while auth is resolving', () => {
     mockUseAuth.mockReturnValue({
       user: null,

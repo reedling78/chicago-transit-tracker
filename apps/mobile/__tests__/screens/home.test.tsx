@@ -15,6 +15,15 @@ jest.mock('expo-router', () => {
   return { Stack }
 })
 
+jest.mock('../../components/HeaderUserIcon', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require('react-native')
+  return {
+    __esModule: true,
+    default: () => <Text testID="header-user-icon">profile</Text>,
+  }
+})
+
 jest.mock('../../components/dashboard/Dashboard', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text } = require('react-native')
@@ -34,9 +43,15 @@ describe('HomeScreen', () => {
     expect(getByTestId('dashboard-stub')).toBeOnTheScreen()
   })
 
-  it('hides the navigator header on the dashboard screen', () => {
+  it('shows a traditional app header with the site title and profile button', () => {
     render(<HomeScreen />)
     expect(capturedOptions).toHaveLength(1)
-    expect(capturedOptions[0]).toEqual({ headerShown: false })
+    const opts = capturedOptions[0]
+    expect(opts.headerShown).toBe(true)
+    expect(opts.headerTransparent).toBe(true)
+    expect(opts.headerTitle).toBe('Chicago Transit Tracker')
+    expect(opts.headerTitleAlign).toBe('left')
+    expect(typeof opts.headerRight).toBe('function')
+    expect(typeof opts.headerLeft).toBe('function')
   })
 })
