@@ -107,6 +107,66 @@ BNSF_BN1234_V4_B,CUS,2,07:30:00,07:30:00`,
   return zip
 }
 
+// Metra reuses weekend train numbers (e.g. 2700) for BOTH Saturday and Sunday
+// as separate trip_id calendar variants. The Saturday variant also has a
+// same-service `_AA` duplicate that must still collapse within Saturday.
+function makeMetraGtfsZipWithCrossServiceDayTrainNumber(): AdmZip {
+  const zip = new AdmZip()
+
+  zip.addFile(
+    'stops.txt',
+    Buffer.from(
+      `stop_id,stop_name
+ROUTE59,Route 59
+CUS,Chicago Union Station`,
+    ),
+  )
+
+  zip.addFile(
+    'routes.txt',
+    Buffer.from(
+      `route_id,route_short_name,route_long_name
+BNSF,BNSF,BNSF Railway`,
+    ),
+  )
+
+  zip.addFile(
+    'calendar.txt',
+    Buffer.from(
+      `service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday
+SAT,0,0,0,0,0,1,0
+SUN,0,0,0,0,0,0,1`,
+    ),
+  )
+
+  // Train 2700: a Saturday variant (+ a same-service _AA duplicate) and a
+  // distinct Sunday variant at a different time.
+  zip.addFile(
+    'trips.txt',
+    Buffer.from(
+      `trip_id,route_id,service_id,trip_headsign,trip_short_name,direction_id
+BNSF_BN2700_V4_A,BNSF,SAT,Chicago Union Station,2700,1
+BNSF_BN2700_V4_AA,BNSF,SAT,Chicago Union Station,2700,1
+BNSF_BN2700_V4_B,BNSF,SUN,Chicago Union Station,2700,1`,
+    ),
+  )
+
+  zip.addFile(
+    'stop_times.txt',
+    Buffer.from(
+      `trip_id,stop_id,stop_sequence,arrival_time,departure_time
+BNSF_BN2700_V4_A,ROUTE59,1,08:12:00,08:12:00
+BNSF_BN2700_V4_A,CUS,2,09:00:00,09:00:00
+BNSF_BN2700_V4_AA,ROUTE59,1,08:12:00,08:12:00
+BNSF_BN2700_V4_AA,CUS,2,09:00:00,09:00:00
+BNSF_BN2700_V4_B,ROUTE59,1,10:12:00,10:12:00
+BNSF_BN2700_V4_B,CUS,2,11:00:00,11:00:00`,
+    ),
+  )
+
+  return zip
+}
+
 describe('parseMetraTrips', () => {
   const stopIdToSlug = new Map([
     ['ROUTE59', 'route-59'],
@@ -196,6 +256,43 @@ describe('parseMetraTrips', () => {
     // Each station has one entry for train 1234, not three
     expect(result.stationTrips.get('route-59')!.weekday).toHaveLength(1)
     expect(result.stationTrips.get('union-station-metra')!.weekday).toHaveLength(1)
+  })
+
+  it('keeps every service day when a train number is reused across days', () => {
+    const zip = makeMetraGtfsZipWithCrossServiceDayTrainNumber()
+    const result = parseMetraTrips(
+      zip,
+      new Map([
+        ['ROUTE59', 'route-59'],
+        ['CUS', 'union-station-metra'],
+      ]),
+      new Map([
+        ['ROUTE59', 'Route 59'],
+        ['CUS', 'Chicago Union Station'],
+      ]),
+      lineCodeToSlug,
+      lineCodeToName,
+    )
+
+    // Still one detail doc — the collection is one-doc-per-train by design.
+    expect(result.tripDetails.size).toBe(1)
+    expect(result.tripDetails.has('bnsf_2700')).toBe(true)
+
+    // Station trips: train 2700 present on BOTH Saturday and Sunday, and the
+    // same-service `_AA` duplicate did not double-list within Saturday.
+    const route59 = result.stationTrips.get('route-59')!
+    expect(route59.saturday).toHaveLength(1)
+    expect(route59.saturday[0].trainNumber).toBe('2700')
+    expect(route59.saturday[0].departure).toBe('8:12 AM')
+    expect(route59.sunday).toHaveLength(1)
+    expect(route59.sunday[0].trainNumber).toBe('2700')
+    expect(route59.sunday[0].departure).toBe('10:12 AM')
+
+    // Line index likewise carries both service days.
+    const index = result.tripIndexes.get('bnsf')!
+    expect(index.saturday).toHaveLength(1)
+    expect(index.sunday).toHaveLength(1)
+    expect(index.weekday).toHaveLength(0)
   })
 
   it('flags express trips when stop count is well below the line max', () => {

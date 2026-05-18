@@ -90,7 +90,13 @@ export function parseMetraTrips(
   const trips = parseGTFS(readZipFile(zip, 'trips.txt'))
 
   const tripDetails = new Map<string, TripDetail>()
+  // Collapses calendar variants into one `metra-trips` doc per train number.
   const seenTrainDocIds = new Set<string>()
+  // Scoped per service type so a train number reused across service days
+  // (Metra reuses weekend numbers for both Saturday and Sunday) keeps an
+  // entry for each day, while still collapsing same-service `_A`/`_AA`/`_B`
+  // calendar variants into one row per service day.
+  const seenTrainServiceKeys = new Set<string>()
 
   const lineIndexData = new Map<
     string,
@@ -135,11 +141,11 @@ export function parseMetraTrips(
     const trainNumber = t.trip_short_name?.trim() || extractMetraTrainNumber(t.trip_id)
     const docId = metraTrainDocId(lineSlug, trainNumber)
 
-    // Deduplicate: Metra emits multiple trip_id variants (_A, _AA, _B) per
-    // train number representing different calendar periods. They share the
-    // same stops, times, and headsigns, so we only keep the first one.
-    if (seenTrainDocIds.has(docId)) continue
-    seenTrainDocIds.add(docId)
+    // The `metra-trips` collection is one doc per train number. Metra emits
+    // multiple trip_id variants (_A, _AA, _B) per train number; keep only the
+    // first for the detail doc (its docId can't hold more than one anyway).
+    const isNewTrainDoc = !seenTrainDocIds.has(docId)
+    if (isNewTrainDoc) seenTrainDocIds.add(docId)
 
     // Build stop sequence
     const stops = stopRows.map((st) => ({
@@ -150,20 +156,29 @@ export function parseMetraTrips(
       departure: formatGTFSTime(st.departure_time || st.arrival_time),
     }))
 
-    tripDetails.set(docId, {
-      tripId: docId,
-      trainNumber,
-      headsign,
-      line: lineCode,
-      lineSlug,
-      lineName,
-      serviceType,
-      directionId,
-      stops,
-      // Provisional; resolved in a second pass once we know the max stop count
-      // per (lineSlug, serviceType, directionId) group.
-      isExpress: false,
-    })
+    if (isNewTrainDoc) {
+      tripDetails.set(docId, {
+        tripId: docId,
+        trainNumber,
+        headsign,
+        line: lineCode,
+        lineSlug,
+        lineName,
+        serviceType,
+        directionId,
+        stops,
+        // Provisional; resolved in a second pass once we know the max stop count
+        // per (lineSlug, serviceType, directionId) group.
+        isExpress: false,
+      })
+    }
+
+    // Station-trips and line-index are per service type. Dedupe per
+    // (train, serviceType) so a train number reused across service days keeps
+    // a row for each day, while same-service calendar variants stay collapsed.
+    const serviceKey = `${docId}|${serviceType}`
+    if (seenTrainServiceKeys.has(serviceKey)) continue
+    seenTrainServiceKeys.add(serviceKey)
 
     // Add each stop to that station's trip list
     for (const st of stopRows) {
