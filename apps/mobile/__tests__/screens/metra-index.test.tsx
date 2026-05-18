@@ -62,9 +62,9 @@ describe('MetraLinesScreen', () => {
     expect(screen.getByText('Service Alerts')).toBeOnTheScreen()
   })
 
-  it('renders the global Footer at the end of the list', () => {
+  it('does not render the Footer', () => {
     mockUseLines.mockReturnValue({ lines: [mockMetraLine], loading: false })
     render(<MetraLinesScreen />)
-    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+    expect(screen.queryByTestId('footer')).toBeNull()
   })
 })

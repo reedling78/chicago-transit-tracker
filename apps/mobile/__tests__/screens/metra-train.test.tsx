@@ -132,9 +132,9 @@ describe('MetraTrainDetailScreen', () => {
     expect(screen.getByText('realtime:1200')).toBeOnTheScreen()
   })
 
-  it('renders the global Footer at the end of the scroll content', () => {
+  it('does not render the Footer', () => {
     mockUseMetraTrip.mockReturnValue({ trip: null, loading: false })
     render(<MetraTrainDetailScreen />)
-    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+    expect(screen.queryByTestId('footer')).toBeNull()
   })
 })

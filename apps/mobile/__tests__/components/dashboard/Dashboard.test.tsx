@@ -48,8 +48,8 @@ describe('Dashboard (mobile)', () => {
     expect(getByTestId('dash-hero')).toBeTruthy()
   })
 
-  it('renders the global Footer below the marketing hero', () => {
-    const { getByTestId } = render(<Dashboard />)
-    expect(getByTestId('footer')).toBeOnTheScreen()
+  it('does not render the Footer', () => {
+    const { queryByTestId } = render(<Dashboard />)
+    expect(queryByTestId('footer')).toBeNull()
   })
 })

@@ -51,8 +51,8 @@ describe('PrivacyScreen', () => {
     expect(getByText('Changes to This Policy')).toBeOnTheScreen()
   })
 
-  it('renders the Footer at the end of the scroll content', () => {
-    const { getByTestId } = render(<PrivacyScreen />)
-    expect(getByTestId('footer')).toBeOnTheScreen()
+  it('does not render the Footer', () => {
+    const { queryByTestId } = render(<PrivacyScreen />)
+    expect(queryByTestId('footer')).toBeNull()
   })
 })

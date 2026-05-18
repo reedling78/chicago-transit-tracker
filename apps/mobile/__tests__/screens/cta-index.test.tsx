@@ -61,9 +61,9 @@ describe('CtaLinesScreen', () => {
     expect(screen.getByText('Service Alerts')).toBeOnTheScreen()
   })
 
-  it('renders the global Footer at the end of the list', () => {
+  it('does not render the Footer', () => {
     mockUseLines.mockReturnValue({ lines: [mockLine], loading: false })
     render(<CtaLinesScreen />)
-    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+    expect(screen.queryByTestId('footer')).toBeNull()
   })
 })

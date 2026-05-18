@@ -7,7 +7,6 @@ import type { Theme } from '../../../../lib/theme'
 import MetraTripRealtime from '../../../../components/MetraTripRealtime'
 import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
-import Footer from '../../../../components/Footer'
 
 const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
@@ -47,7 +46,6 @@ export default function MetraTrainDetailScreen() {
           </View>
         )}
         {!loading && trip && <MetraTripRealtime trip={trip} lineSlug={lineSlug} />}
-        <Footer />
       </ScrollView>
     </>
   )

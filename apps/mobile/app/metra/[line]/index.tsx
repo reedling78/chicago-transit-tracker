@@ -5,7 +5,6 @@ import { useTheme } from '../../../lib/theme'
 import StationTimeline from '../../../components/StationTimeline'
 import PageHeader from '../../../components/PageHeader'
 import FavoriteButton from '../../../components/FavoriteButton'
-import Footer from '../../../components/Footer'
 
 const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
 
@@ -50,7 +49,6 @@ export default function MetraLineDetailScreen() {
             currentLine={line.shortName}
           />
         )}
-        <Footer />
       </ScrollView>
     </>
   )
