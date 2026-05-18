@@ -6,7 +6,6 @@ import LineListItem from '../../components/LineListItem'
 import AlertBanner from '../../components/AlertBanner'
 import CTALineIcon from '../../components/CTALineIcon'
 import PageHeader from '../../components/PageHeader'
-import Footer from '../../components/Footer'
 
 export default function CtaLinesScreen() {
   const { lines, loading } = useLines('cta')
@@ -36,7 +35,6 @@ export default function CtaLinesScreen() {
             <AlertBanner service="cta" href="/cta/alerts" />
           </>
         }
-        ListFooterComponent={<Footer />}
         renderItem={({ item }) => {
           const accentColor = CTA_LINE_COLORS[item.shortName]?.bg ?? item.color
           return (

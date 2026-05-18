@@ -61,8 +61,8 @@ describe('TermsScreen', () => {
     expect(getByText('Changes to These Terms')).toBeOnTheScreen()
   })
 
-  it('renders the Footer at the end of the scroll content', () => {
-    const { getByTestId } = render(<TermsScreen />)
-    expect(getByTestId('footer')).toBeOnTheScreen()
+  it('does not render the Footer', () => {
+    const { queryByTestId } = render(<TermsScreen />)
+    expect(queryByTestId('footer')).toBeNull()
   })
 })

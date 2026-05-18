@@ -6,7 +6,6 @@ import StationTimeline from '../../components/StationTimeline'
 import PageHeader from '../../components/PageHeader'
 import CTALineIcon from '../../components/CTALineIcon'
 import FavoriteButton from '../../components/FavoriteButton'
-import Footer from '../../components/Footer'
 
 export default function CtaLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()
@@ -49,7 +48,6 @@ export default function CtaLineDetailScreen() {
             currentLine={line.shortName}
           />
         )}
-        <Footer />
       </ScrollView>
     </>
   )

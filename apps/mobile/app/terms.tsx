@@ -3,7 +3,6 @@ import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Stack } from 'expo-router'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import { useTheme, type Theme } from '../lib/theme'
-import Footer from '../components/Footer'
 
 export default function TermsScreen() {
   const headerInset = useNavHeaderInset()
@@ -106,8 +105,6 @@ export default function TermsScreen() {
             after changes are posted constitutes your acceptance of the revised terms.
           </Paragraph>
         </Section>
-
-        <Footer />
       </ScrollView>
     </>
   )

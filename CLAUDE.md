@@ -192,7 +192,7 @@ apps/
       HeaderBackButton.tsx        Flat chevron back button (no scrim circle, soft shadow for photo legibility) used as Stack headerLeft (returns null at root)
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
-      Footer.tsx                  Two-link footer (Terms · Privacy) appended at the end of every scrolling screen
+      Footer.tsx                  Two-link footer (Terms · Privacy) — rendered only on the profile screen
       PressableButton.tsx         Snappy press primitive — Pressable + tuned scale/opacity feedback, Android ripple, opt-in expo-haptics
       dashboard/
         Dashboard.tsx             Home screen orchestrator — DashboardGrid is the single scroller (header + DashboardHero passed as ListHeader/ListFooter)

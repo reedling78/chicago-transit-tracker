@@ -83,10 +83,10 @@ describe('MetraLineDetailScreen', () => {
     expect(stub.props.children).toBe('line:bnsf')
   })
 
-  it('renders the global Footer at the end of the scroll content', () => {
+  it('does not render the Footer', () => {
     mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
     render(<MetraLineDetailScreen />)
-    expect(screen.getByTestId('footer')).toBeOnTheScreen()
+    expect(screen.queryByTestId('footer')).toBeNull()
   })
 })

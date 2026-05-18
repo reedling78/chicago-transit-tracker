@@ -3,7 +3,6 @@ import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Stack } from 'expo-router'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import { useTheme, type Theme } from '../lib/theme'
-import Footer from '../components/Footer'
 
 export default function PrivacyScreen() {
   const headerInset = useNavHeaderInset()
@@ -117,8 +116,6 @@ export default function PrivacyScreen() {
             changes are posted constitutes acceptance of the updated policy.
           </Paragraph>
         </Section>
-
-        <Footer />
       </ScrollView>
     </>
   )
