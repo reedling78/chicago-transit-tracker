@@ -159,6 +159,10 @@ export function computeArrivalGroups({
   // Build a (headsign|line|formattedLabel) → trip metadata lookup.
   type TripMeta = { tripId: string; lineSlug: string; trainNumber: string; directionId: number }
   const tripLookup = new Map<string, TripMeta>()
+  // All trips for a headsign/line on a service day share a direction, so this
+  // lets a group's direction be resolved even when no currently-upcoming
+  // scheduled time lines up with a station-trip departure (stale/partial sync).
+  const dirByHeadsignLine = new Map<string, number>()
   if (trips) {
     for (const entry of trips[dayType]) {
       const key = `${entry.headsign}|${entry.line}|${entry.departure}`
@@ -168,6 +172,8 @@ export function computeArrivalGroups({
         trainNumber: entry.trainNumber,
         directionId: entry.directionId,
       })
+      const dirKey = `${entry.headsign}|${entry.line}`
+      if (!dirByHeadsignLine.has(dirKey)) dirByHeadsignLine.set(dirKey, entry.directionId)
     }
   }
 
@@ -213,6 +219,10 @@ export function computeArrivalGroups({
       items.push(item)
     }
 
+    if (groupDirectionId === undefined) {
+      groupDirectionId = dirByHeadsignLine.get(`${dir.headsign}|${dir.line}`)
+    }
+
     groups.push({
       headsign: dir.headsign,
       line: dir.line,
@@ -235,7 +245,11 @@ export function applyDirectionFilter(
 
   if (service === 'metra' && (directionFilter === 'inbound' || directionFilter === 'outbound')) {
     const wanted = directionFilter === 'inbound' ? 1 : 0
-    return groups.filter((g) => g.directionId === wanted)
+    // Keep groups we couldn't classify (directionId undefined) instead of
+    // dropping them. If station-trips is entirely missing for the day this
+    // shows both directions rather than a false "No upcoming departures."; it
+    // self-corrects on the next successful sync.
+    return groups.filter((g) => g.directionId === wanted || g.directionId === undefined)
   }
 
   // CTA (or any non-inbound/outbound value): exact headsign match.
