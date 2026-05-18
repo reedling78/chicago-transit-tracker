@@ -5,7 +5,6 @@ import { useAuth } from '../../lib/AuthContext'
 import { useFavoritesStore } from '../../lib/store/favorites'
 import { useTheme } from '../../lib/theme'
 import type { Theme } from '../../lib/theme'
-import HeaderUserIcon from '../HeaderUserIcon'
 import PressableButton from '../PressableButton'
 
 export default function DashboardHeader() {
@@ -20,7 +19,6 @@ export default function DashboardHeader() {
   if (!user) {
     return (
       <View style={styles.unauthedHero}>
-        <Text style={styles.heroHeadline}>Chicago Transit Tracker</Text>
         <Text style={styles.heroTagline}>
           Real-time schedules, routes, and station info for every line in the Chicago metro area.
         </Text>
@@ -51,14 +49,11 @@ export default function DashboardHeader() {
   }
 
   const firstName = profile?.displayName?.split(' ')[0]
-  const heading = firstName ? `Welcome back, ${firstName}` : 'Chicago Transit Tracker'
+  const heading = firstName ? `Welcome back, ${firstName}` : 'Welcome back'
 
   return (
     <View style={styles.authedHeader}>
-      <View style={styles.headingRow}>
-        <Text style={styles.heading}>{heading}</Text>
-        <HeaderUserIcon />
-      </View>
+      <Text style={styles.heading}>{heading}</Text>
       {favorites.length === 0 && (
         <View style={styles.emptyCard}>
           <Text style={styles.emptyTitle}>No favorites yet</Text>
@@ -98,13 +93,6 @@ function makeStyles(theme: Theme) {
       paddingHorizontal: theme.space[2],
       marginBottom: theme.space[6],
       alignItems: 'center',
-    },
-    heroHeadline: {
-      color: theme.colors.text.primary,
-      fontSize: 32,
-      fontWeight: '700',
-      textAlign: 'center',
-      marginBottom: theme.space[3],
     },
     heroTagline: {
       color: theme.colors.text.secondary,
@@ -149,17 +137,11 @@ function makeStyles(theme: Theme) {
       fontWeight: '600',
     },
     authedHeader: { marginBottom: theme.space[4] },
-    headingRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: theme.space[3],
-    },
     heading: {
       color: theme.colors.text.primary,
       fontSize: 22,
       fontWeight: '700',
-      flexShrink: 1,
+      marginBottom: theme.space[3],
     },
     emptyCard: {
       backgroundColor: theme.colors.bg.surface,

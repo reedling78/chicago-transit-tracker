@@ -1,15 +1,39 @@
 import { render } from '@testing-library/react-native'
 import PrivacyScreen from '../../app/privacy'
 
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn() }),
-}))
+const capturedScreenOptions: Record<string, unknown>[] = []
+
+jest.mock('expo-router', () => {
+  const StackScreen = (props: { options?: Record<string, unknown> }) => {
+    capturedScreenOptions.push(props.options ?? {})
+    return null
+  }
+  StackScreen.displayName = 'StackScreen'
+  return {
+    Stack: { Screen: StackScreen },
+    useRouter: () => ({ push: jest.fn() }),
+  }
+})
 
 jest.mock('../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,
 }))
 
+beforeEach(() => {
+  capturedScreenOptions.length = 0
+})
+
 describe('PrivacyScreen', () => {
+  it('configures the traditional app header with the site title', () => {
+    render(<PrivacyScreen />)
+    expect(capturedScreenOptions).toHaveLength(1)
+    const opts = capturedScreenOptions[0]
+    expect(opts.headerTransparent).toBe(true)
+    expect(opts.headerTitle).toBe('Chicago Transit Tracker')
+    expect(opts.headerTitleAlign).toBe('left')
+    expect(opts.headerLeft).toBeUndefined()
+  })
+
   it('renders the page title and lede', () => {
     const { getByText } = render(<PrivacyScreen />)
     expect(getByText('Privacy Policy')).toBeOnTheScreen()

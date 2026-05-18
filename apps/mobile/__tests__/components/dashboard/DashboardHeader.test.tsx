@@ -31,9 +31,9 @@ describe('DashboardHeader (mobile)', () => {
       mockUseAuth.mockReturnValue({ user: null, profile: null, loading: false })
     })
 
-    it('shows headline, tagline, and both CTA buttons', () => {
-      const { getByText } = render(<DashboardHeader />)
-      expect(getByText('Chicago Transit Tracker')).toBeTruthy()
+    it('shows tagline and both CTA buttons but not a duplicate site title', () => {
+      const { getByText, queryByText } = render(<DashboardHeader />)
+      expect(queryByText('Chicago Transit Tracker')).toBeNull()
       expect(getByText(/Real-time schedules, routes/)).toBeTruthy()
       expect(getByText(/Sign up to customize your dashboard/)).toBeTruthy()
       expect(getByText('Sign up')).toBeTruthy()
@@ -65,7 +65,7 @@ describe('DashboardHeader (mobile)', () => {
 
     it('shows the generic heading when no displayName is available', () => {
       const { getByText } = render(<DashboardHeader />)
-      expect(getByText('Chicago Transit Tracker')).toBeTruthy()
+      expect(getByText('Welcome back')).toBeTruthy()
     })
 
     it('uses the displayName when available', () => {
@@ -94,12 +94,9 @@ describe('DashboardHeader (mobile)', () => {
       expect(queryByText('Log in')).toBeNull()
     })
 
-    it('renders the profile icon button on the right and routes to /profile when pressed', () => {
-      const { getByLabelText } = render(<DashboardHeader />)
-      const profileIcon = getByLabelText('Profile')
-      expect(profileIcon).toBeTruthy()
-      fireEvent.press(profileIcon)
-      expect(mockPush).toHaveBeenCalledWith('/profile')
+    it('does not render the profile icon (it now lives in the navigator header)', () => {
+      const { queryByLabelText } = render(<DashboardHeader />)
+      expect(queryByLabelText('Profile')).toBeNull()
     })
   })
 
@@ -110,10 +107,10 @@ describe('DashboardHeader (mobile)', () => {
       useFavoritesStore.getState().hydrate(favs)
     })
 
-    it('shows the heading and profile icon but not the empty card', () => {
-      const { getByText, getByLabelText, queryByText } = render(<DashboardHeader />)
-      expect(getByText('Chicago Transit Tracker')).toBeTruthy()
-      expect(getByLabelText('Profile')).toBeTruthy()
+    it('shows the heading but not the profile icon or the empty card', () => {
+      const { getByText, queryByLabelText, queryByText } = render(<DashboardHeader />)
+      expect(getByText('Welcome back')).toBeTruthy()
+      expect(queryByLabelText('Profile')).toBeNull()
       expect(queryByText('No favorites yet')).toBeNull()
     })
   })
