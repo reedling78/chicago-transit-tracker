@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router'
-import Dashboard from '../components/dashboard/Dashboard'
-import HeaderUserIcon from '../components/HeaderUserIcon'
-import { useTheme } from '../lib/theme'
+import Dashboard from '../../components/dashboard/Dashboard'
+import HeaderUserIcon from '../../components/HeaderUserIcon'
+import { useTheme } from '../../lib/theme'
 
 export default function HomeScreen() {
   const { theme } = useTheme()

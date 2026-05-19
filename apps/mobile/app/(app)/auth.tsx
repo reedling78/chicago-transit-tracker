@@ -11,9 +11,9 @@ import {
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as Google from 'expo-auth-session/providers/google'
-import { useNavHeaderInset } from '../lib/useNavHeaderInset'
-import { useTheme } from '../lib/theme'
-import type { Theme } from '../lib/theme'
+import { useNavHeaderInset } from '../../lib/useNavHeaderInset'
+import { useTheme } from '../../lib/theme'
+import type { Theme } from '../../lib/theme'
 import {
   signInWithEmail,
   signUpWithEmail,
@@ -21,7 +21,7 @@ import {
   signInWithApple,
   signInWithGoogleCredential,
   googleAuthConfig,
-} from '../lib/auth'
+} from '../../lib/auth'
 
 type Mode = 'signIn' | 'signUp' | 'resetPassword'
 

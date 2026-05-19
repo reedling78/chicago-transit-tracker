@@ -4,11 +4,10 @@ import { useLine, useLineStations } from '../../../lib/hooks'
 import { useTheme } from '../../../lib/theme'
 import StationTimeline from '../../../components/StationTimeline'
 import PageHeader from '../../../components/PageHeader'
+import CTALineIcon from '../../../components/CTALineIcon'
 import FavoriteButton from '../../../components/FavoriteButton'
 
-const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
-
-export default function MetraLineDetailScreen() {
+export default function CtaLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()
   const { line, loading: lineLoading } = useLine(lineSlug)
   const { stations, loading: stationsLoading } = useLineStations(lineSlug, line?.shortName ?? '')
@@ -37,7 +36,7 @@ export default function MetraLineDetailScreen() {
           compact
           title={line.name}
           description={line.termini.join(' ↔ ')}
-          imageSrc={metraHeroImage}
+          icon={<CTALineIcon line={line.shortName} size={36} />}
         />
         {stationsLoading ? (
           <ActivityIndicator size="large" color={line.color} style={{ marginTop: 24 }} />
@@ -45,7 +44,7 @@ export default function MetraLineDetailScreen() {
           <StationTimeline
             stations={stations}
             lineColor={line.color}
-            stationHrefPrefix="/metra/station"
+            stationHrefPrefix="/cta/station"
             currentLine={line.shortName}
           />
         )}
@@ -55,7 +54,7 @@ export default function MetraLineDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { flex: 1 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 16, paddingBottom: 16 },
 })
