@@ -148,7 +148,7 @@ jest.mock('@gorhom/bottom-sheet', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react')
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require('react-native')
+  const { View, ScrollView } = require('react-native')
   const Passthrough = React.forwardRef(function BottomSheetModalStub(
     { children, onDismiss }: { children?: React.ReactNode; onDismiss?: () => void },
     ref: React.Ref<unknown>,
@@ -175,6 +175,7 @@ jest.mock('@gorhom/bottom-sheet', () => {
     BottomSheetModal: Passthrough,
     BottomSheetModalProvider: ContainerPassthrough,
     BottomSheetView: ContainerPassthrough,
+    BottomSheetScrollView: ScrollView,
     BottomSheetBackdrop: () => null,
   }
 })

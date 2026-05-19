@@ -7,6 +7,7 @@ import {
   formatClockLabel,
   formatMinutesAway,
   minutesUntil,
+  nextServiceRunLabel,
   parseDisplayTimeToMinutes,
   shortenStationName,
   type Favorite,
@@ -152,7 +153,11 @@ export default function TrainCard({
             ? `Departs in ${formatMinutesAway(minsAway)} · ${formatClockLabel(depMin)}${
                 originStop ? ` from ${originStop.stationName}` : ''
               }`
-            : `Departed ${formatClockLabel(depMin)}`}
+            : `Departed ${formatClockLabel(depMin)}${
+                trip?.serviceType
+                  ? ` · Next train ${nextServiceRunLabel(trip.serviceType, now)}`
+                  : ''
+              }`}
         </Text>
       )}
     </PressableButton>

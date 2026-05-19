@@ -1,7 +1,13 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet'
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { Favorite, TripStop } from '@ctt/shared'
 import { useFavoritesStore } from '../../lib/store/favorites'
 import { useFavoriteTripQuery } from '../../lib/useDashboardQueries'
@@ -18,7 +24,7 @@ export interface TrainStopPickerSheetHandle {
   open: (args: OpenArgs) => void
 }
 
-const SNAP_POINTS = ['70%']
+const SNAP_POINTS = ['80%']
 
 const TrainStopPickerSheet = forwardRef<TrainStopPickerSheetHandle>(
   function TrainStopPickerSheet(_props, ref) {
@@ -78,6 +84,7 @@ function PickerContents({ args, dismiss }: PickerContentsProps) {
   const { data: trip } = useFavoriteTripQuery(favorite.id)
   const { update } = useUpdateFavoriteSettings(favorite.type, favorite.id)
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
   const styles = useMemo(() => makeStyles(theme), [theme])
   // Read the live store so the user's current overrides anchor the eligibility
   // rules even after a previous picker selection in the same session.
@@ -105,11 +112,13 @@ function PickerContents({ args, dismiss }: PickerContentsProps) {
   )
 
   return (
-    <View>
+    <View style={styles.flex}>
       <Text style={styles.title}>
         {mode === 'origin' ? 'Set departure station' : 'Set destination station'}
       </Text>
-      <ScrollView>
+      <BottomSheetScrollView
+        contentContainerStyle={{ paddingBottom: theme.space[6] + insets.bottom }}
+      >
         {eligible.length === 0 ? (
           <Text style={styles.empty}>No eligible stops.</Text>
         ) : (
@@ -149,7 +158,7 @@ function PickerContents({ args, dismiss }: PickerContentsProps) {
             )
           })
         )}
-      </ScrollView>
+      </BottomSheetScrollView>
     </View>
   )
 }
@@ -165,9 +174,9 @@ function makeStyles(theme: Theme) {
     handle: { backgroundColor: theme.colors.border.strong },
     content: {
       paddingHorizontal: theme.space[4],
-      paddingBottom: theme.space[6],
       flex: 1,
     },
+    flex: { flex: 1 },
     title: {
       color: theme.colors.text.primary,
       fontSize: 18,

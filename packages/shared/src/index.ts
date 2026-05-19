@@ -77,6 +77,7 @@ export type {
 } from './metra-status'
 export {
   SERVICE_LABEL,
+  nextServiceRunLabel,
   TONE_CLASSES,
   longToNumber,
   parseDisplayTimeToMinutes,

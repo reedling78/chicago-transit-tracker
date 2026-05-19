@@ -1,9 +1,8 @@
 import { createRef } from 'react'
-import { Alert } from 'react-native'
 import { render, fireEvent, act } from '@testing-library/react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import type { Favorite, StationSchedule } from '@ctt/shared'
+import type { Favorite, MetraTripDetail, StationSchedule } from '@ctt/shared'
 import FavoriteMenuSheet, {
   type FavoriteMenuSheetHandle,
 } from '../../../components/dashboard/FavoriteMenuSheet'
@@ -31,9 +30,39 @@ jest.mock('../../../lib/useUpdateFavoriteSettings', () => ({
 }))
 
 const mockScheduleQuery = jest.fn()
+const mockFavoriteTripQuery = jest.fn()
 jest.mock('../../../lib/useDashboardQueries', () => ({
   useStationScheduleQuery: (slug: string | null) => mockScheduleQuery(slug),
+  useFavoriteTripQuery: (id: string | null) => mockFavoriteTripQuery(id),
 }))
+
+const trip: MetraTripDetail = {
+  tripId: 'md-w_2222',
+  trainNumber: '2222',
+  headsign: 'Chicago Union Station',
+  line: 'MD-W',
+  lineSlug: 'md-w',
+  lineName: 'Milwaukee District West',
+  serviceType: 'weekday',
+  directionId: 1,
+  isExpress: false,
+  stops: [
+    {
+      sequence: 1,
+      stationName: 'Big Timber',
+      slug: 'big-timber',
+      arrival: '6:00 AM',
+      departure: '6:00 AM',
+    },
+    {
+      sequence: 10,
+      stationName: 'Chicago Union Station',
+      slug: 'union-station-metra',
+      arrival: '7:05 AM',
+      departure: '7:05 AM',
+    },
+  ],
+}
 
 const ctaSchedule: StationSchedule = {
   directions: [
@@ -52,6 +81,8 @@ beforeEach(() => {
   useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
   mockScheduleQuery.mockReset()
   mockScheduleQuery.mockReturnValue({ data: null, isLoading: false, dataUpdatedAt: 0 })
+  mockFavoriteTripQuery.mockReset()
+  mockFavoriteTripQuery.mockReturnValue({ data: null })
 })
 
 describe('FavoriteMenuSheet', () => {
@@ -75,8 +106,8 @@ describe('FavoriteMenuSheet', () => {
     act(() => ref.current?.open(fav))
     expect(getByText('Red Line')).toBeTruthy()
     expect(getByText('Open details')).toBeTruthy()
-    expect(getByText('Mute alerts')).toBeTruthy()
-    expect(getByText('Share')).toBeTruthy()
+    expect(queryByText('Mute alerts')).toBeNull()
+    expect(queryByText('Share')).toBeNull()
     expect(getByText('Remove from favorites')).toBeTruthy()
     // Line favorites should NOT show View / Show toggle rows.
     expect(queryByText('VIEW')).toBeNull()
@@ -94,32 +125,6 @@ describe('FavoriteMenuSheet', () => {
     expect(mockPush).toHaveBeenCalledWith('/cta/red')
   })
 
-  it('Mute alerts triggers a placeholder alert', () => {
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation()
-    const ref = createRef<FavoriteMenuSheetHandle>()
-    const { getByText } = render(
-      <FavoriteMenuSheet ref={ref} lines={[mockLine]} stations={[mockStation]} />,
-      { wrapper },
-    )
-    act(() => ref.current?.open({ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }))
-    fireEvent.press(getByText('Mute alerts'))
-    expect(alertSpy).toHaveBeenCalledWith('Coming soon', expect.stringContaining('alert'))
-    alertSpy.mockRestore()
-  })
-
-  it('Share triggers a placeholder alert', () => {
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation()
-    const ref = createRef<FavoriteMenuSheetHandle>()
-    const { getByText } = render(
-      <FavoriteMenuSheet ref={ref} lines={[mockLine]} stations={[mockStation]} />,
-      { wrapper },
-    )
-    act(() => ref.current?.open({ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }))
-    fireEvent.press(getByText('Share'))
-    expect(alertSpy).toHaveBeenCalledWith('Coming soon', expect.stringContaining('Sharing'))
-    alertSpy.mockRestore()
-  })
-
   it('Remove from favorites invokes toggle()', () => {
     const ref = createRef<FavoriteMenuSheetHandle>()
     const { getByText } = render(
@@ -132,6 +137,33 @@ describe('FavoriteMenuSheet', () => {
   })
 
   describe('train favorites', () => {
+    it('shows "{origin} to {destination}" title and "{line} #{number}" subtitle from the trip', () => {
+      mockFavoriteTripQuery.mockReturnValue({ data: trip })
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const { getByText } = render(
+        <FavoriteMenuSheet ref={ref} lines={[mockMetraLine]} stations={[mockMetraStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({ type: 'train', id: 'md-w_2222', addedAt: '2026-04-25T10:00:00Z' }),
+      )
+      expect(getByText('Big Timber to Union Station')).toBeTruthy()
+      expect(getByText('MD-W #2222')).toBeTruthy()
+    })
+
+    it('falls back to "Train {number}" when trip data is unavailable', () => {
+      mockFavoriteTripQuery.mockReturnValue({ data: null })
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const { getByText } = render(
+        <FavoriteMenuSheet ref={ref} lines={[mockMetraLine]} stations={[mockMetraStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({ type: 'train', id: 'md-w_2222', addedAt: '2026-04-25T10:00:00Z' }),
+      )
+      expect(getByText('Train 2222')).toBeTruthy()
+    })
+
     it('shows Set departure / destination items when onSetTrainStop is provided', () => {
       const ref = createRef<FavoriteMenuSheetHandle>()
       const onSetTrainStop = jest.fn()

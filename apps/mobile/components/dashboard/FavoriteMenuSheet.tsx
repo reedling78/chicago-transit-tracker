@@ -1,20 +1,22 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet'
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
 import {
   listStationHeadsigns,
+  shortenStationName,
   type Favorite,
   type FavoriteDensity,
   type FavoriteDirection,
   type Line,
   type Station,
+  type TripStop,
 } from '@ctt/shared'
 import { favoriteRoute } from '../../lib/favoriteRoute'
 import { useToggleFavorite } from '../../lib/useToggleFavorite'
 import { useUpdateFavoriteSettings } from '../../lib/useUpdateFavoriteSettings'
-import { useStationScheduleQuery } from '../../lib/useDashboardQueries'
+import { useFavoriteTripQuery, useStationScheduleQuery } from '../../lib/useDashboardQueries'
 import { useTheme } from '../../lib/theme'
 import type { Theme } from '../../lib/theme'
 
@@ -105,9 +107,24 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
   const { toggle } = useToggleFavorite(favorite.type, favorite.id)
   const { update } = useUpdateFavoriteSettings(favorite.type, favorite.id)
   const route = favoriteRoute(favorite, lines, stations)
-  const title = labelForFavorite(favorite, lines, stations)
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
+
+  const isTrain = favorite.type === 'train'
+  const { data: trip } = useFavoriteTripQuery(isTrain ? favorite.id : null)
+  const [, trainNumberFromId] = favorite.id.split('_')
+  const trainNumber = trip?.trainNumber ?? trainNumberFromId ?? favorite.id
+  const originStop = pickStop(trip?.stops, favorite.trainOriginStopSlug, trip?.stops?.[0])
+  const destStop = pickStop(
+    trip?.stops,
+    favorite.trainDestinationStopSlug,
+    trip?.stops?.[(trip?.stops?.length ?? 0) - 1],
+  )
+  const title =
+    isTrain && trip && originStop && destStop
+      ? `${shortenStationName(originStop.stationName)} to ${shortenStationName(destStop.stationName)}`
+      : labelForFavorite(favorite, lines, stations)
+  const subtitle = isTrain && trip ? `${trip.line ? `${trip.line} ` : ''}#${trainNumber}` : null
 
   const isStation = favorite.type === 'station'
   const station = isStation ? stations?.find((s) => s.slug === favorite.id) : undefined
@@ -136,9 +153,14 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
 
   return (
     <View>
-      <Text style={styles.title} numberOfLines={1}>
+      <Text style={[styles.title, subtitle ? styles.titleTight : null]} numberOfLines={1}>
         {title}
       </Text>
+      {subtitle ? (
+        <Text style={styles.subtitle} numberOfLines={1}>
+          {subtitle}
+        </Text>
+      ) : null}
       {isStation ? (
         <>
           <ToggleRow
@@ -190,22 +212,6 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
           />
         </>
       ) : null}
-      <MenuItem
-        label="Mute alerts"
-        styles={styles}
-        onPress={() => {
-          dismiss()
-          Alert.alert('Coming soon', 'Per-favorite alert muting is on the roadmap.')
-        }}
-      />
-      <MenuItem
-        label="Share"
-        styles={styles}
-        onPress={() => {
-          dismiss()
-          Alert.alert('Coming soon', 'Sharing is on the roadmap.')
-        }}
-      />
       <MenuItem
         label="Remove from favorites"
         destructive
@@ -286,6 +292,19 @@ function MenuItem({ label, onPress, destructive, disabled, styles }: MenuItemPro
   )
 }
 
+function pickStop(
+  stops: TripStop[] | undefined,
+  slug: string | undefined,
+  fallback: TripStop | undefined,
+): TripStop | undefined {
+  if (!stops?.length) return fallback
+  if (slug) {
+    const match = stops.find((s) => s.slug === slug)
+    if (match) return match
+  }
+  return fallback
+}
+
 function labelForFavorite(
   favorite: Favorite,
   lines: Line[] | undefined,
@@ -312,6 +331,15 @@ function makeStyles(theme: Theme) {
       color: theme.colors.text.primary,
       fontSize: 18,
       fontWeight: '700',
+      marginBottom: theme.space[3],
+      paddingHorizontal: theme.space[1],
+    },
+    titleTight: { marginBottom: 2 },
+    subtitle: {
+      color: theme.colors.text.secondary,
+      fontSize: 13,
+      fontWeight: '500',
+      marginTop: 2,
       marginBottom: theme.space[3],
       paddingHorizontal: theme.space[1],
     },

@@ -21,4 +21,5 @@ export {
   isTripScheduledEndPast,
   deriveStopState,
   computeHeroStatus,
+  nextServiceRunLabel,
 } from '@ctt/shared'

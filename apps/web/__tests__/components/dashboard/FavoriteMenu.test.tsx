@@ -52,7 +52,7 @@ beforeEach(() => {
 })
 
 describe('FavoriteMenu', () => {
-  it('renders all four base menu items', () => {
+  it('renders the base menu items without removed placeholders', () => {
     render(
       <FavoriteMenu
         favorite={lineFav}
@@ -62,9 +62,28 @@ describe('FavoriteMenu', () => {
       />,
     )
     expect(screen.getByText('Open details')).toBeInTheDocument()
-    expect(screen.getByText('Mute alerts')).toBeInTheDocument()
-    expect(screen.getByText('Share')).toBeInTheDocument()
     expect(screen.getByText('Remove from favorites')).toBeInTheDocument()
+    expect(screen.queryByText('Mute alerts')).toBeNull()
+    expect(screen.queryByText('Share')).toBeNull()
+  })
+
+  it('renders a header block for train favorites when header is provided', () => {
+    const trainFav: Favorite = {
+      type: 'train',
+      id: 'md-w_2222',
+      addedAt: '2026-04-25T10:00:00Z',
+    }
+    render(
+      <FavoriteMenu
+        favorite={trainFav}
+        lines={[mockMetraLine]}
+        stations={[mockMetraStation]}
+        header={{ title: 'Schaumburg to Union Station', subtitle: 'MD-W #2222' }}
+        onClose={() => {}}
+      />,
+    )
+    expect(screen.getByText('Schaumburg to Union Station')).toBeInTheDocument()
+    expect(screen.getByText('MD-W #2222')).toBeInTheDocument()
   })
 
   it('does not show View / Show toggle rows for line favorites', () => {
@@ -100,19 +119,6 @@ describe('FavoriteMenu', () => {
       <FavoriteMenu favorite={lineFav} lines={undefined} stations={undefined} onClose={() => {}} />,
     )
     expect(screen.getByText('Open details')).toBeDisabled()
-  })
-
-  it('Mute alerts and Share are disabled placeholders', () => {
-    render(
-      <FavoriteMenu
-        favorite={lineFav}
-        lines={[mockLine]}
-        stations={[mockStation]}
-        onClose={() => {}}
-      />,
-    )
-    expect(screen.getByText('Mute alerts')).toBeDisabled()
-    expect(screen.getByText('Share')).toBeDisabled()
   })
 
   it('Remove from favorites invokes toggle and closes', () => {
