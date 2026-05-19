@@ -22,6 +22,11 @@ export default function MetraTrainDetailScreen() {
     <>
       <Stack.Screen
         options={{
+          headerTitle: trip?.lineName
+            ? `${trip.lineName} #${train}`
+            : train
+              ? `Train ${train}`
+              : 'Train',
           headerRight: () => <FavoriteButton type="train" id={`${lineSlug}_${train}`} />,
         }}
       />

@@ -49,21 +49,27 @@ describe('AppStackLayout (app group)', () => {
       headerShadowVisible: boolean
       headerBackVisible: boolean
       headerStyle: { backgroundColor: string }
+      headerTitleAlign: string
       title: string
     }
     expect(options.headerTransparent).toBe(true)
     expect(options.headerShadowVisible).toBe(false)
     expect(options.headerBackVisible).toBe(false)
     expect(options.headerStyle.backgroundColor).toBe('transparent')
+    expect(options.headerTitleAlign).toBe('left')
     expect(options.title).toBe('')
     expect(getByText('HeaderBackButton')).toBeOnTheScreen()
   })
 
-  it('registers the auth screen as a modal', () => {
+  it('registers the auth screen as a header-less modal', () => {
     const { getByTestId } = render(<AppStackLayout />)
     const screen = getByTestId('stack-screen-auth')
-    const options = JSON.parse(screen.props['data-options']) as { presentation?: string }
+    const options = JSON.parse(screen.props['data-options']) as {
+      presentation?: string
+      headerShown?: boolean
+    }
     expect(options.presentation).toBe('modal')
+    expect(options.headerShown).toBe(false)
   })
 
   it('renders the status bar', () => {

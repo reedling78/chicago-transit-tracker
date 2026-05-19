@@ -23,12 +23,7 @@ export default function HeaderBackButton() {
       feedback="subtle"
       style={styles.touchable}
     >
-      <Ionicons
-        name="chevron-back"
-        size={26}
-        color={theme.colors.text.primary}
-        style={styles.icon}
-      />
+      <Ionicons name="chevron-back" size={26} color={theme.colors.text.primary} />
     </PressableButton>
   )
 }
@@ -40,12 +35,5 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  // Flat icon — a soft shadow keeps it legible over full-bleed photo headers
-  // without the frosted-pill background.
-  icon: {
-    textShadowColor: 'rgba(0, 0, 0, 0.45)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
 })

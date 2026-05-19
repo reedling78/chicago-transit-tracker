@@ -38,6 +38,13 @@ describe('theme tokens', () => {
     expect(darkTheme.colors.text.onScrimMuted).toMatch(/^rgba\(255,255,255/)
   })
 
+  it('defines a translucent header fill + theme-aware hairline in both modes', () => {
+    expect(darkTheme.colors.bg.headerTranslucent).toBe('rgba(15,15,30,0.88)')
+    expect(lightTheme.colors.bg.headerTranslucent).toBe('rgba(249,250,251,0.88)')
+    expect(darkTheme.colors.border.hairline).toBe('rgba(255,255,255,0.12)')
+    expect(lightTheme.colors.border.hairline).toBe('rgba(0,0,0,0.12)')
+  })
+
   it('exposes themes by mode via the `themes` map', () => {
     expect(themes.light).toBe(lightTheme)
     expect(themes.dark).toBe(darkTheme)

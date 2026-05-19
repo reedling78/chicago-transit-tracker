@@ -11,16 +11,7 @@ export default function PrivacyScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerTransparent: true,
-          headerStyle: { backgroundColor: theme.colors.bg.canvas },
-          headerShadowVisible: false,
-          headerTitle: 'Chicago Transit Tracker',
-          headerTitleAlign: 'left',
-          headerTitleStyle: { color: theme.colors.text.primary, fontWeight: '700' },
-        }}
-      />
+      <Stack.Screen options={{ headerTitle: 'Chicago Transit Tracker' }} />
       <ScrollView
         style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}
         contentContainerStyle={[styles.content, { paddingTop: headerInset + 24 }]}

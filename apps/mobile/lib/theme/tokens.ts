@@ -6,6 +6,8 @@ export interface ThemeColors {
     surface: string
     elevated: string
     scrim: string
+    /** Navigator header fill — canvas color at reduced alpha so content shows faintly behind. */
+    headerTranslucent: string
   }
   text: {
     primary: string
@@ -20,6 +22,8 @@ export interface ThemeColors {
   border: {
     subtle: string
     strong: string
+    /** Theme-aware 1px divider that reads in both light and dark. */
+    hairline: string
   }
   accent: {
     primary: string
@@ -93,6 +97,7 @@ export const darkTheme: Theme = {
       surface: '#1f2937',
       elevated: '#111827',
       scrim: 'rgba(0,0,0,0.45)',
+      headerTranslucent: 'rgba(15,15,30,0.88)',
     },
     text: {
       primary: '#ffffff',
@@ -105,6 +110,7 @@ export const darkTheme: Theme = {
     border: {
       subtle: '#374151',
       strong: '#4b5563',
+      hairline: 'rgba(255,255,255,0.12)',
     },
     accent: {
       primary: '#3b82f6',
@@ -124,6 +130,7 @@ export const lightTheme: Theme = {
       surface: '#ffffff',
       elevated: '#ffffff',
       scrim: 'rgba(0,0,0,0.45)',
+      headerTranslucent: 'rgba(249,250,251,0.88)',
     },
     text: {
       primary: '#111827',
@@ -136,6 +143,7 @@ export const lightTheme: Theme = {
     border: {
       subtle: '#e5e7eb',
       strong: '#d1d5db',
+      hairline: 'rgba(0,0,0,0.12)',
     },
     accent: {
       primary: '#2563eb',

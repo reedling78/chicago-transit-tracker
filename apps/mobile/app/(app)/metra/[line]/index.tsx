@@ -26,6 +26,7 @@ export default function MetraLineDetailScreen() {
     <>
       <Stack.Screen
         options={{
+          headerTitle: line.name,
           headerRight: () => <FavoriteButton type="line" id={line.slug} />,
         }}
       />

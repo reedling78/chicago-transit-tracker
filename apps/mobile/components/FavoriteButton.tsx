@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 import { useRouter } from 'expo-router'
 import { useToggleFavorite } from '../lib/useToggleFavorite'
@@ -25,7 +25,7 @@ export default function FavoriteButton({ type, id, color, fillColor = '#ef4444' 
   const router = useRouter()
   const { theme } = useTheme()
   const pendingAddRef = useRef(false)
-  const strokeColor = color ?? theme.colors.text.onScrim
+  const strokeColor = color ?? theme.colors.text.primary
 
   useEffect(() => {
     if (user && pendingAddRef.current) {
@@ -59,18 +59,16 @@ export default function FavoriteButton({ type, id, color, fillColor = '#ef4444' 
       haptic="light"
       style={styles.touchable}
     >
-      <View style={[styles.circle, { backgroundColor: theme.colors.bg.scrim }]}>
-        <Svg width={22} height={22} viewBox="0 0 24 24">
-          <Path
-            d={HEART_PATH}
-            stroke={strokeColor}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill={isFavorited ? fillColor : 'none'}
-          />
-        </Svg>
-      </View>
+      <Svg width={24} height={24} viewBox="0 0 24 24">
+        <Path
+          d={HEART_PATH}
+          stroke={strokeColor}
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill={isFavorited ? fillColor : 'none'}
+        />
+      </Svg>
     </PressableButton>
   )
 }
@@ -80,13 +78,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     marginRight: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  circle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },

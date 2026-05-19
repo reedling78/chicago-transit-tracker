@@ -1,4 +1,5 @@
 import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
+import { Stack } from 'expo-router'
 import { useLines } from '../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
 import { useTheme } from '../../../lib/theme'
@@ -20,6 +21,7 @@ export default function MetraLinesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}>
+      <Stack.Screen options={{ headerTitle: 'Chicago Transit Tracker' }} />
       <FlatList
         data={lines}
         keyExtractor={(item) => item.slug}
