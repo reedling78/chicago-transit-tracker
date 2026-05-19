@@ -17,7 +17,7 @@ export default function HeaderMenuButton() {
       feedback="subtle"
       style={styles.touchable}
     >
-      <Ionicons name="menu" size={28} color={theme.colors.text.primary} style={styles.icon} />
+      <Ionicons name="menu" size={28} color={theme.colors.text.primary} />
     </PressableButton>
   )
 }
@@ -29,10 +29,5 @@ const styles = StyleSheet.create({
     marginRight: 8,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    textShadowColor: 'rgba(0, 0, 0, 0.45)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
 })

@@ -4,10 +4,17 @@ import { mockLine } from '../fixtures'
 import { useLines } from '../../lib/hooks'
 import CtaLinesScreen from '../../app/(app)/cta/index'
 
-jest.mock('expo-router', () => ({
-  Link: ({ children }: { children: ReactNode }) => children,
-  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
-}))
+jest.mock('expo-router', () => {
+  const Stack = () => null
+  Stack.displayName = 'Stack'
+  Stack.Screen = () => null
+  Stack.Screen.displayName = 'StackScreen'
+  return {
+    Stack,
+    Link: ({ children }: { children: ReactNode }) => children,
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+  }
+})
 
 jest.mock('expo-linear-gradient', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

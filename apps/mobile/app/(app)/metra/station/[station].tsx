@@ -33,6 +33,7 @@ export default function MetraStationDetailScreen() {
     <>
       <Stack.Screen
         options={{
+          headerTitle: station.name,
           headerRight: () => <FavoriteButton type="station" id={station.slug} />,
         }}
       />

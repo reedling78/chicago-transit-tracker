@@ -32,6 +32,7 @@ export default function CtaStationDetailScreen() {
     <>
       <Stack.Screen
         options={{
+          headerTitle: station.name,
           headerRight: () => <FavoriteButton type="station" id={station.slug} />,
         }}
       />
