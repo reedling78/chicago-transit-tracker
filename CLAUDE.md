@@ -155,24 +155,26 @@ apps/
       tsconfig.json               CommonJS tsconfig for ts-node script execution
   mobile/
     app/
-      _layout.tsx                 Root Stack — transparent header, AuthProvider, HeaderBackButton (left)
-      index.tsx                   Home screen — renders Dashboard
-      auth.tsx                    Sign in/up/reset screen (modal presentation)
-      profile.tsx                 User profile screen
-      terms.tsx                   Terms of Use screen — mirrors web copy, includes Metra non-affiliation wording
-      privacy.tsx                 Privacy Policy screen — mirrors web copy
-      cta/
-        index.tsx                 CTA line list
-        alerts.tsx                CTA service alerts screen
-        [line].tsx                CTA line detail
-        station/[station].tsx     CTA station detail
-      metra/
-        index.tsx                 Metra line list
-        alerts.tsx                Metra service alerts screen
-        [line]/
-          index.tsx               Metra line detail
-          train/[trainNumber].tsx Metra train detail screen — fetches via useMetraTrip + renders MetraTripRealtime
-        station/[station].tsx     Metra station detail
+      _layout.tsx                 Root Drawer — providers + expo-router Drawer wrapping the (app) Stack; drawerContent = MenuDrawerContent
+      (app)/                      Route group (group segment NOT part of URLs) holding every real screen + the Stack layout
+        _layout.tsx               The Stack — transparent header, HeaderBackButton (left), auth modal
+        index.tsx                 Home screen — renders Dashboard; headerRight = HeaderMenuButton (hamburger opens the Menu drawer)
+        auth.tsx                  Sign in/up/reset screen (modal presentation)
+        terms.tsx                 Terms of Use screen — mirrors web copy, includes Metra non-affiliation wording
+        privacy.tsx               Privacy Policy screen — mirrors web copy
+        apple-callback.tsx        Apple OAuth deep-link callback
+        cta/
+          index.tsx               CTA line list
+          alerts.tsx              CTA service alerts screen
+          [line].tsx              CTA line detail
+          station/[station].tsx   CTA station detail
+        metra/
+          index.tsx               Metra line list
+          alerts.tsx              Metra service alerts screen
+          [line]/
+            index.tsx             Metra line detail
+            train/[trainNumber].tsx Metra train detail screen — fetches via useMetraTrip + renders MetraTripRealtime
+          station/[station].tsx   Metra station detail
     components/
       AlertBanner.tsx             Alert link banner with live count (used on index pages)
       AlertCard.tsx               Single alert card with route badges and link
@@ -188,11 +190,15 @@ apps/
       MetraTripStopTimeline.tsx   Per-stop timeline for the active trip — wraps Steps with status mapping
       MetraTripHeroStatusCard.tsx Two-panel live status card (RN port of the web component)
       Steps/                      Reusable vertical-step primitive (Steps + Steps.Item) — RN port; per-row segments, halo bullet for current
-      HeaderUserIcon.tsx          Flat Stack header user icon (no scrim circle) — navigates to auth/profile; used as headerRight on the home screen
+      HeaderMenuButton.tsx        Flat hamburger header icon — dispatches DrawerActions.openDrawer(); headerRight on the home screen
       HeaderBackButton.tsx        Flat chevron back button (no scrim circle, soft shadow for photo legibility) used as Stack headerLeft (returns null at root)
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
       FavoriteButton.tsx          Heart toggle for line/station/train detail headers
-      Footer.tsx                  Two-link footer (Terms · Privacy) — rendered only on the profile screen
+      Footer.tsx                  Two-link footer (Terms · Privacy) — currently unused; Menu drawer's Legal section provides the Terms/Privacy path
+      menu/
+        MenuDrawerContent.tsx     Side-drawer body — safe-area-inset scroll view with Menu/Dashboard/Profile/Legal sections
+        MenuSection.tsx           Labeled section wrapper (uppercase heading, accessibilityRole="header")
+        MenuNavRow.tsx            Pressable nav row (icon + label) — closes the drawer then navigates
       PressableButton.tsx         Snappy press primitive — Pressable + tuned scale/opacity feedback, Android ripple, opt-in expo-haptics
       dashboard/
         Dashboard.tsx             Home screen orchestrator — DashboardGrid is the single scroller (header + DashboardHero passed as ListHeader/ListFooter)
@@ -207,9 +213,10 @@ apps/
           StationCard.tsx         Favorite-station row — direction filter + density + arrivals
           TrainCard.tsx           Favorite-train row — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
       profile/
+        ProfilePanel.tsx          Profile card + theme toggle + sign out/in — rendered in the Menu drawer's Profile section
         FavoritesManager.tsx      Profile favorites manager (Lines/Stations/Trains sections + Clear all)
         FavoritesSection.tsx      Section header + list of FavoriteRows
-        FavoriteRow.tsx           Single favorite row with deep link + trash button
+        FavoriteRow.tsx           Single favorite row with deep link + trash button — train rows show "{origin} to {dest}" + "{line} #{num}"
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
@@ -288,6 +295,7 @@ packages/
 - Firebase Cloud Functions (2nd gen) with Cloud Scheduler (automated GTFS sync)
 - react-native-gesture-handler + react-native-reanimated + react-native-draggable-flatlist (mobile dashboard drag-to-reorder)
 - @gorhom/bottom-sheet (mobile favorite-card overflow menu)
+- @react-navigation/drawer (mobile Menu side drawer — root navigator wrapping the (app) Stack)
 - expo-haptics (mobile — opt-in tactile feedback on `PressableButton`)
 - @dnd-kit/core + @dnd-kit/sortable + @dnd-kit/utilities (web dashboard drag-to-reorder)
 - Jest 30 + React Testing Library
@@ -363,7 +371,7 @@ The web app runs as a server-side rendered Next.js app deployed to Firebase App 
 
 ### Mobile app (Expo)
 
-The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing) with a single flat root Stack — no bottom tabs. Non-photo top-level screens (`app/index.tsx`, `profile.tsx`, `terms.tsx`, `privacy.tsx`) render a traditional opaque app header via a per-screen `Stack.Screen` override: a left-aligned `Chicago Transit Tracker` title on an opaque `bg.canvas` background, with `headerTransparent: true` so content scrolls underneath. The home screen additionally renders `HeaderUserIcon` as `headerRight`; the pushed screens (profile/terms/privacy) keep the global `HeaderBackButton` on the left and add no right icon. The home Dashboard ("My Trains") still renders edge-to-edge — when signed in `DashboardHeader` shows only the "Welcome back, {name}" greeting (the site title and profile icon now live in the app header); when signed out it shows the tagline and Sign up / Log in CTAs (no duplicate headline). CTA and Metra browsing happens by tapping cards on the dashboard. The global Stack default still uses `headerTransparent: true` with a transparent `headerStyle.backgroundColor` so full-bleed `PageHeader` photos extend edge-to-edge under the navigator on detail screens. `HeaderBackButton` is the custom `headerLeft` (returns `null` at root) — a flat chevron (no scrim circle) with a soft shadow for legibility over photo headers; `HeaderUserIcon` is styled to match. All detail screens (`/cta/[line]`, `/metra/[line]`, station and train screens) render `PageHeader` with `compact` enabled — station screens use `station.photoUrl` with the service default as fallback; line and train screens use the service default directly (`hero-header.jpg` for CTA, `hero-header-metra.jpg` for Metra). The favorite heart sits in the navigator's `headerRight` on detail screens. Screens without a `PageHeader` use `useNavHeaderInset()` to inset their content below the header.
+The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing). The root `app/_layout.tsx` is an expo-router `Drawer` (`@react-navigation/drawer`, `headerShown: false`, `drawerType: 'front'`) holding the providers; its single screen is the `(app)` route group whose `app/(app)/_layout.tsx` is the actual `Stack`. The `(app)` group segment is **not** part of any URL, so `router.push('/metra')`, deep links, etc. are unchanged — it exists only so the whole Stack can be wrapped by the Drawer. There are no bottom tabs and no standalone profile route. The **Menu** opens as a side drawer (swipe-from-edge or the home-screen hamburger): `MenuDrawerContent` renders four labeled sections — **Menu** (nav rows: Dashboard `/`, Metra `/metra`, CTA `/cta`), **Dashboard** (the existing `FavoritesManager`), **Profile** (`ProfilePanel`: profile card + theme toggle + sign out/in), **Legal** (Privacy, Terms). Nav rows close the drawer then navigate. `MenuDrawerContent` composes `useSafeAreaInsets()` into its scroll container so content never sits under the status bar / home indicator. Non-photo screens (`app/(app)/index.tsx`, `terms.tsx`, `privacy.tsx`) render a left-aligned `Chicago Transit Tracker` title on an opaque `bg.canvas` background via a per-screen `Stack.Screen` override, with `headerTransparent: true` so content scrolls underneath. The home screen renders `HeaderMenuButton` (a flat hamburger that dispatches `DrawerActions.openDrawer()`) as `headerRight`; pushed screens keep `HeaderBackButton` on the left. The home Dashboard ("My Trains") renders edge-to-edge — signed in, `DashboardHeader` shows only the "Welcome back, {name}" greeting; signed out, the tagline and Sign up / Log in CTAs. CTA and Metra browsing happens by tapping cards on the dashboard or via the Menu drawer. The inner Stack default still uses `headerTransparent: true` with a transparent `headerStyle.backgroundColor` so full-bleed `PageHeader` photos extend edge-to-edge under the navigator on detail screens. `HeaderBackButton` is the custom `headerLeft` (returns `null` at root) — a flat chevron (no scrim circle) with a soft shadow for legibility over photo headers; `HeaderMenuButton` is styled to match. All detail screens (`/cta/[line]`, `/metra/[line]`, station and train screens) render `PageHeader` with `compact` enabled — station screens use `station.photoUrl` with the service default as fallback; line and train screens use the service default directly (`hero-header.jpg` for CTA, `hero-header-metra.jpg` for Metra). The favorite heart sits in the navigator's `headerRight` on detail screens. Screens without a `PageHeader` use `useNavHeaderInset()` to inset their content below the header.
 
 ### Dark mode
 

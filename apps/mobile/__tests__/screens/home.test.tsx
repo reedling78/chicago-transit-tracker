@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import { render } from '@testing-library/react-native'
 import HomeScreen from '../../app/(app)/index'
 
@@ -57,7 +58,7 @@ describe('HomeScreen', () => {
 
   it('renders the HeaderMenuButton in the header', () => {
     render(<HomeScreen />)
-    const headerRight = capturedOptions[0].headerRight as () => JSX.Element
+    const headerRight = capturedOptions[0].headerRight as () => ReactElement
     const { getByText } = render(headerRight())
     expect(getByText('menu-button')).toBeOnTheScreen()
   })

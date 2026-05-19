@@ -8,9 +8,12 @@ import { ThemeProvider } from '../../lib/theme'
 jest.mock('expo-router/drawer', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native')
-  const Drawer = ({ drawerContent }: { drawerContent: () => React.ReactNode }) => (
-    <View testID="drawer">{drawerContent({ navigation: { closeDrawer: jest.fn() } })}</View>
-  )
+  const Drawer = ({
+    drawerContent,
+  }: {
+    drawerContent: (props: { navigation: { closeDrawer: () => void } }) => ReactNode
+  }) => <View testID="drawer">{drawerContent({ navigation: { closeDrawer: jest.fn() } })}</View>
+  Drawer.displayName = 'Drawer'
   const DrawerScreen = () => null
   DrawerScreen.displayName = 'DrawerScreen'
   Drawer.Screen = DrawerScreen
