@@ -8,6 +8,7 @@ import {
   isTripScheduledEndPast,
   longToNumber,
   minutesSinceMidnight,
+  nextServiceRunLabel,
   parseDisplayTimeToMinutes,
   type RealtimeState,
   type TripStop,
@@ -220,5 +221,28 @@ describe('computeHeroStatus', () => {
       label: '3 min early',
       tone: 'early',
     })
+  })
+})
+
+describe('nextServiceRunLabel', () => {
+  // 2024-01-01 = Mon, 02 Tue, 03 Wed, 05 Fri, 06 Sat, 07 Sun.
+  it('returns "tomorrow" for a weekday train on a Tuesday', () => {
+    expect(nextServiceRunLabel('weekday', new Date(2024, 0, 2, 12, 0, 0))).toBe('tomorrow')
+  })
+
+  it('returns "Monday" for a weekday train on a Friday', () => {
+    expect(nextServiceRunLabel('weekday', new Date(2024, 0, 5, 12, 0, 0))).toBe('Monday')
+  })
+
+  it('returns "Monday" for a weekday train on a Saturday', () => {
+    expect(nextServiceRunLabel('weekday', new Date(2024, 0, 6, 12, 0, 0))).toBe('Monday')
+  })
+
+  it('returns "Saturday" for a Saturday train on a Wednesday', () => {
+    expect(nextServiceRunLabel('saturday', new Date(2024, 0, 3, 12, 0, 0))).toBe('Saturday')
+  })
+
+  it('returns "Sunday" for a Sunday train that already ran today (Sunday)', () => {
+    expect(nextServiceRunLabel('sunday', new Date(2024, 0, 7, 12, 0, 0))).toBe('Sunday')
   })
 })

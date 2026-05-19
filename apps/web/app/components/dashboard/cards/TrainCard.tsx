@@ -11,6 +11,7 @@ import {
   formatClockLabel,
   formatMinutesAway,
   minutesUntil,
+  nextServiceRunLabel,
   parseDisplayTimeToMinutes,
   shortenStationName,
   type Favorite,
@@ -159,7 +160,9 @@ export default function TrainCard({ favorite, lines, stations }: TrainCardProps)
               {originStop ? ` from ${originStop.stationName}` : ''}
             </>
           ) : (
-            `Departed ${formatClockLabel(depMin)}`
+            `Departed ${formatClockLabel(depMin)}${
+              trip?.serviceType ? ` · Next train ${nextServiceRunLabel(trip.serviceType, now)}` : ''
+            }`
           )}
         </p>
       )}
@@ -168,6 +171,7 @@ export default function TrainCard({ favorite, lines, stations }: TrainCardProps)
           favorite={favorite}
           lines={lines}
           stations={stations}
+          header={{ title, subtitle: subheader }}
           onSetTrainStop={canPickStops ? (which) => setPickerMode(which) : undefined}
           onClose={() => setMenuOpen(false)}
         />

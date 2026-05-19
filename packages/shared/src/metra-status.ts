@@ -35,6 +35,31 @@ export const SERVICE_LABEL: Record<MetraServiceType, string> = {
   sunday: 'Sunday',
 }
 
+function serviceRunsOnDay(serviceType: MetraServiceType, dayOfWeek: number): boolean {
+  // dayOfWeek: 0 = Sunday … 6 = Saturday (JS Date.getDay()).
+  if (serviceType === 'saturday') return dayOfWeek === 6
+  if (serviceType === 'sunday') return dayOfWeek === 0
+  return dayOfWeek >= 1 && dayOfWeek <= 5
+}
+
+/**
+ * Human label for the next day this service type runs, relative to `now`.
+ * Day-of-week approximation of GTFS service — does not account for Metra
+ * holiday/special schedules. Acceptable for an at-a-glance dashboard hint.
+ * Returns 'tomorrow' for the next calendar day, otherwise the weekday name.
+ */
+export function nextServiceRunLabel(serviceType: MetraServiceType, now: Date): string {
+  for (let offset = 1; offset <= 7; offset++) {
+    const candidate = new Date(now)
+    candidate.setDate(candidate.getDate() + offset)
+    if (serviceRunsOnDay(serviceType, candidate.getDay())) {
+      if (offset === 1) return 'tomorrow'
+      return candidate.toLocaleDateString('en-US', { weekday: 'long' })
+    }
+  }
+  return 'tomorrow'
+}
+
 export type FeedMessage = transit_realtime.IFeedMessage
 /** Structural alias of FeedMessage. Web's useMetraFeed exports an identical type. */
 export type FeedData = FeedMessage

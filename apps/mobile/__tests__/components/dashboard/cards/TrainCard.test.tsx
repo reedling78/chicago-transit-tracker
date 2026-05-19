@@ -213,8 +213,9 @@ describe('TrainCard (mobile)', () => {
     }
   })
 
-  it('shows "Departed" once the origin departure has passed with no live data', () => {
+  it('shows "Departed … · Next train Monday" on a Saturday for a weekday train', () => {
     jest.useFakeTimers()
+    // 2026-04-25 is a Saturday; the next weekday run is Monday.
     jest.setSystemTime(new Date('2026-04-25T09:00:00'))
     try {
       mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
@@ -222,7 +223,23 @@ describe('TrainCard (mobile)', () => {
       const { getByText } = render(
         <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
       )
-      expect(getByText('Departed 6:00 AM')).toBeTruthy()
+      expect(getByText('Departed 6:00 AM · Next train Monday')).toBeTruthy()
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('shows "Next train tomorrow" on a weekday for a weekday train', () => {
+    jest.useFakeTimers()
+    // 2026-04-21 is a Tuesday; the next weekday run is Wednesday (tomorrow).
+    jest.setSystemTime(new Date('2026-04-21T09:00:00'))
+    try {
+      mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
+      mockUseLive.mockReturnValue(null)
+      const { getByText } = render(
+        <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+      )
+      expect(getByText('Departed 6:00 AM · Next train tomorrow')).toBeTruthy()
     } finally {
       jest.useRealTimers()
     }

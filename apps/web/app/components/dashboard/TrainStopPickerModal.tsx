@@ -70,7 +70,7 @@ export default function TrainStopPickerModal({
             ×
           </button>
         </div>
-        <ul className="flex-1 overflow-y-auto py-1">
+        <ul className="min-h-0 flex-1 overflow-y-auto py-1 pb-2">
           {eligibleStops.length === 0 && (
             <li className="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">
               No eligible stops.

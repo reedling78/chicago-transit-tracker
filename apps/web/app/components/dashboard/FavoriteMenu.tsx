@@ -22,6 +22,12 @@ interface FavoriteMenuProps {
   /** Schedule for the favorited station (if any). Used to populate CTA headsign chips. */
   schedule?: StationSchedule | null
   /**
+   * Optional non-interactive header shown at the top of the menu. Train cards
+   * pass the resolved "{origin} to {destination}" title plus "{line} #{number}"
+   * so the menu identifies the trip without re-resolving stop data here.
+   */
+  header?: { title: string; subtitle: string }
+  /**
    * Train favorites only. Invoked when the user picks "Set departure station…"
    * or "Set destination station…" — the TrainCard owns the picker modal state.
    * Items are hidden when this prop is omitted (e.g. trip data unavailable).
@@ -35,6 +41,7 @@ export default function FavoriteMenu({
   lines,
   stations,
   schedule,
+  header,
   onSetTrainStop,
   onClose,
 }: FavoriteMenuProps) {
@@ -93,6 +100,14 @@ export default function FavoriteMenu({
       aria-label="Favorite actions"
       className="absolute top-full right-0 z-30 mt-1 w-64 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
     >
+      {header && (
+        <div className="border-b border-gray-200 px-4 py-2.5 dark:border-gray-700">
+          <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+            {header.title}
+          </p>
+          <p className="truncate text-xs text-gray-500 dark:text-gray-400">{header.subtitle}</p>
+        </div>
+      )}
       {isStation && (
         <>
           <ToggleRow
@@ -139,8 +154,6 @@ export default function FavoriteMenu({
           />
         </>
       )}
-      <MenuItem label="Mute alerts" disabled title="Coming soon" onSelect={() => {}} />
-      <MenuItem label="Share" disabled title="Coming soon" onSelect={() => {}} />
       <div className="my-1 border-t border-gray-200 dark:border-gray-700" />
       <MenuItem
         label="Remove from favorites"
@@ -198,17 +211,15 @@ interface MenuItemProps {
   onSelect: () => void
   disabled?: boolean
   destructive?: boolean
-  title?: string
 }
 
-function MenuItem({ label, onSelect, disabled, destructive, title }: MenuItemProps) {
+function MenuItem({ label, onSelect, disabled, destructive }: MenuItemProps) {
   return (
     <button
       type="button"
       role="menuitem"
       onClick={onSelect}
       disabled={disabled}
-      title={title}
       className={[
         'block w-full px-4 py-2 text-left text-sm transition',
         disabled
