@@ -1,4 +1,5 @@
 import { render, fireEvent } from '@testing-library/react-native'
+import { shortenStationName } from '@ctt/shared'
 import type { Favorite, Line, Station } from '@ctt/shared'
 import FavoriteRow from '../../../components/profile/FavoriteRow'
 
@@ -83,7 +84,7 @@ describe('FavoriteRow (mobile)', () => {
     const fav: Favorite = { type: 'train', id: 'bnsf_1200', addedAt: '2026-01-01T00:00:00Z' }
     const { getByText } = render(<FavoriteRow favorite={fav} lines={lines} stations={stations} />)
     expect(getByText('Train 1200')).toBeOnTheScreen()
-    expect(getByText('To Aurora')).toBeOnTheScreen()
+    expect(getByText('bnsf #1200')).toBeOnTheScreen()
   })
 
   it('navigates to the deep link when the row is pressed', () => {
@@ -102,5 +103,41 @@ describe('FavoriteRow (mobile)', () => {
     )
     fireEvent.press(getByLabelText('Remove Red Line from favorites'))
     expect(mockToggle).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('FavoriteRow train label', () => {
+  const renderRow = (fav: Favorite) =>
+    render(<FavoriteRow favorite={fav} lines={[]} stations={[]} />)
+
+  it('shows origin to destination plus the train number when the trip is loaded', () => {
+    mockUseFavoriteTripQuery.mockReturnValue({
+      data: {
+        trainNumber: '1224',
+        line: 'BNSF',
+        stops: [
+          { slug: 'union-station-metra', stationName: 'Chicago Union Station', departure: '5:00 PM' },
+          { slug: 'naperville', stationName: 'Naperville', departure: '5:45 PM' },
+        ],
+      },
+    })
+    const EXPECTED_TITLE = `${shortenStationName('Chicago Union Station')} to ${shortenStationName('Naperville')}`
+    const { getByText } = renderRow({
+      type: 'train',
+      id: 'bnsf_1224',
+      addedAt: '2026-01-01T00:00:00Z',
+    } as Favorite)
+    expect(getByText(EXPECTED_TITLE)).toBeTruthy()
+    expect(getByText(/#1224/)).toBeTruthy()
+  })
+
+  it('falls back to "Train {n}" when the trip is not loaded', () => {
+    mockUseFavoriteTripQuery.mockReturnValue({ data: null })
+    const { getByText } = renderRow({
+      type: 'train',
+      id: 'bnsf_1224',
+      addedAt: '2026-01-01T00:00:00Z',
+    } as Favorite)
+    expect(getByText('Train 1224')).toBeTruthy()
   })
 })

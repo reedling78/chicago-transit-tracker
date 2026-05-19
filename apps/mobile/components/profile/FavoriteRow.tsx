@@ -2,8 +2,8 @@ import { useMemo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { displayStationName } from '@ctt/shared'
-import type { Favorite, Line, Station } from '@ctt/shared'
+import { displayStationName, shortenStationName } from '@ctt/shared'
+import type { Favorite, Line, Station, TripStop } from '@ctt/shared'
 import { favoriteRoute } from '../../lib/favoriteRoute'
 import { useToggleFavorite } from '../../lib/useToggleFavorite'
 import { useFavoriteTripQuery } from '../../lib/useDashboardQueries'
@@ -57,6 +57,19 @@ export default function FavoriteRow({ favorite, lines, stations, isLast }: Favor
   )
 }
 
+function pickStop(
+  stops: TripStop[] | undefined,
+  slug: string | undefined,
+  fallback: TripStop | undefined,
+): TripStop | undefined {
+  if (!stops?.length) return fallback
+  if (slug) {
+    const match = stops.find((s) => s.slug === slug)
+    if (match) return match
+  }
+  return fallback
+}
+
 function useRowContent(
   favorite: Favorite,
   lines: Line[] | undefined,
@@ -79,14 +92,20 @@ function useRowContent(
       subtitle: station?.lines?.length ? station.lines.join(' • ') : null,
     }
   }
-  const [lineSlug, trainNumberFromId] = favorite.id.split('_')
+  const [, trainNumberFromId] = favorite.id.split('_')
   const trainNumber = trip?.trainNumber ?? trainNumberFromId ?? favorite.id
+  const firstStop = trip?.stops?.[0]
+  const lastStop = trip?.stops?.[trip.stops.length - 1]
+  const originStop = pickStop(trip?.stops, favorite.trainOriginStopSlug, firstStop)
+  const destStop = pickStop(trip?.stops, favorite.trainDestinationStopSlug, lastStop)
+  const title =
+    trip && originStop && destStop
+      ? `${shortenStationName(originStop.stationName)} to ${shortenStationName(destStop.stationName)}`
+      : `Train ${trainNumber}`
   const subtitle = trip
-    ? trip.headsign
-      ? `To ${trip.headsign}`
-      : (trip.lineName ?? lineSlug)
+    ? `${trip.line ? `${trip.line} ` : ''}#${trainNumber}`
     : 'Trip not currently scheduled'
-  return { title: `Train ${trainNumber}`, subtitle }
+  return { title, subtitle }
 }
 
 function makeStyles(theme: Theme) {
