@@ -96,8 +96,8 @@ beforeEach(() => {
 })
 
 describe('StationCard', () => {
-  it('renders title, lines subtitle, and CTA meta tag', () => {
-    const { getByText } = render(
+  it('renders title and a CTA "<service> <lines> Line" subheader (no separate meta tag)', () => {
+    const { getByText, queryByText } = render(
       <StationCard
         favorite={ctaFav}
         station={mockStation}
@@ -107,12 +107,12 @@ describe('StationCard', () => {
       />,
     )
     expect(getByText('Clark/Lake')).toBeTruthy()
-    expect(getByText('Red • Blue • Green • Brown • Purple • Pink • Orange')).toBeTruthy()
-    expect(getByText('CTA')).toBeTruthy()
+    expect(getByText('CTA Red • Blue • Green • Brown • Purple • Pink • Orange Line')).toBeTruthy()
+    expect(queryByText('CTA')).toBeNull()
   })
 
-  it('renders Metra meta for Metra stations', () => {
-    const { getByText } = render(
+  it('renders a Metra subheader with no trailing "Line"', () => {
+    const { getByText, queryByText } = render(
       <StationCard
         favorite={metraFav}
         station={mockMetraStation}
@@ -121,7 +121,8 @@ describe('StationCard', () => {
         onMenuPress={() => {}}
       />,
     )
-    expect(getByText('Metra')).toBeTruthy()
+    expect(getByText('Metra BNSF')).toBeTruthy()
+    expect(queryByText('Metra')).toBeNull()
   })
 
   it('navigates via the station route on press', () => {
@@ -241,7 +242,7 @@ describe('StationCard', () => {
       loading: false,
     })
 
-    const { getByText, getByLabelText } = render(
+    const { getByText, queryByText, getByLabelText } = render(
       <StationCard
         favorite={metraFav}
         station={mockMetraStation}
@@ -251,9 +252,46 @@ describe('StationCard', () => {
       />,
     )
 
-    expect(getByText(/Live · Last updated:/)).toBeTruthy()
+    // Live treatment moved to a header badge; the compliance timestamp is a
+    // de-emphasized "Updated H:MM" footnote.
+    expect(getByText('Live')).toBeTruthy()
+    expect(getByText(/^Updated /)).toBeTruthy()
+    expect(queryByText(/Live · Last updated:/)).toBeNull()
     expect(getByLabelText('Live — based on Metra realtime data')).toBeTruthy()
     expect(getByText('12 min')).toBeTruthy()
+  })
+
+  it('navigates to the train detail screen when a Metra expanded row is pressed', () => {
+    mockScheduleQuery.mockReturnValue(loaded(metraSchedule))
+    mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
+    const { getByLabelText } = render(
+      <StationCard
+        favorite={metraFav}
+        station={mockMetraStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+    fireEvent.press(getByLabelText('Open train 1234 toward Chicago'))
+    expect(mockPush).toHaveBeenCalledWith('/metra/bnsf/train/1234')
+  })
+
+  it('navigates to the soonest train when a Metra compact row is pressed', () => {
+    mockScheduleQuery.mockReturnValue(loaded(metraSchedule))
+    mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
+    const compactMetraFav: Favorite = { ...metraFav, density: 'compact' }
+    const { getByLabelText } = render(
+      <StationCard
+        favorite={compactMetraFav}
+        station={mockMetraStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+    fireEvent.press(getByLabelText('Open train toward Chicago'))
+    expect(mockPush).toHaveBeenCalledWith('/metra/bnsf/train/1234')
   })
 
   it('shows a Cancelled treatment for canceled Metra trips', () => {

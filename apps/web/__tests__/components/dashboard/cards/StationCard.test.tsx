@@ -128,7 +128,7 @@ const metraTrips = {
 }
 
 describe('StationCard', () => {
-  it('renders title, lines subtitle, and CTA meta', () => {
+  it('renders title and a CTA "<service> <lines> Line" subheader (no separate meta chip)', () => {
     render(
       <ul>
         <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
@@ -136,18 +136,20 @@ describe('StationCard', () => {
     )
     expect(screen.getByText('Clark/Lake')).toBeInTheDocument()
     expect(
-      screen.getByText('Red • Blue • Green • Brown • Purple • Pink • Orange'),
+      screen.getByText('CTA Red • Blue • Green • Brown • Purple • Pink • Orange Line'),
     ).toBeInTheDocument()
-    expect(screen.getByText('CTA')).toBeInTheDocument()
+    // The standalone "CTA"/"Metra" chip next to the menu is gone.
+    expect(screen.queryByText('CTA')).toBeNull()
   })
 
-  it('renders Metra meta for Metra stations', () => {
+  it('renders a Metra subheader with no trailing "Line"', () => {
     render(
       <ul>
         <StationCard favorite={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
       </ul>,
     )
-    expect(screen.getByText('Metra')).toBeInTheDocument()
+    expect(screen.getByText('Metra BNSF')).toBeInTheDocument()
+    expect(screen.queryByText('Metra')).toBeNull()
   })
 
   it('renders a link via favoriteRoute', () => {
@@ -260,9 +262,51 @@ describe('StationCard', () => {
       </ul>,
     )
 
-    expect(screen.getByText(/live · last updated:/i)).toBeInTheDocument()
+    // Live treatment now lives in the header badge; the compliance timestamp
+    // moves to a de-emphasized "Updated H:MM" footnote.
+    expect(screen.getByText('Live')).toBeInTheDocument()
+    expect(screen.getByText(/^Updated /)).toBeInTheDocument()
+    expect(screen.queryByText(/live · last updated:/i)).toBeNull()
     expect(screen.getByTitle(/live — based on metra realtime data/i)).toBeInTheDocument()
     expect(screen.getByText('12 min')).toBeInTheDocument()
+  })
+
+  it('links Metra expanded rows to the train detail page; CTA rows are not links', () => {
+    mockScheduleQuery.mockReturnValue(loadedSchedule(metraSchedule))
+    mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
+    const { container } = render(
+      <ul>
+        <StationCard favorite={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
+      </ul>,
+    )
+    expect(container.querySelector('a[href="/metra/bnsf/train/1234"]')).not.toBeNull()
+
+    // CTA arrivals carry no train identity, so rows stay non-links.
+    mockScheduleQuery.mockReturnValue(loadedSchedule(ctaSchedule))
+    const cta = render(
+      <ul>
+        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+      </ul>,
+    )
+    const ctaRows = cta.container.querySelectorAll('[data-testid="arrival-row"]')
+    expect(ctaRows.length).toBeGreaterThan(0)
+    ctaRows.forEach((row) => expect(row.tagName).not.toBe('A'))
+  })
+
+  it('links Metra compact rows to the soonest train in the group', () => {
+    mockScheduleQuery.mockReturnValue(loadedSchedule(metraSchedule))
+    mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
+    const compactMetraFav: Favorite = { ...metraFav, density: 'compact' }
+    const { container } = render(
+      <ul>
+        <StationCard
+          favorite={compactMetraFav}
+          station={mockMetraStation}
+          lines={[mockMetraLine]}
+        />
+      </ul>,
+    )
+    expect(container.querySelector('a[href="/metra/bnsf/train/1234"]')).not.toBeNull()
   })
 
   it('shows a Cancelled treatment for canceled Metra trips', () => {

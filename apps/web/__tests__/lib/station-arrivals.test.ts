@@ -8,6 +8,7 @@ import {
   minutesUntil,
   pickServiceDay,
   shortenStationName,
+  stationCardSubheader,
   summarizeCompact,
 } from '@ctt/shared'
 import type { ArrivalGroup, FeedData, StationSchedule, StationTrips } from '@ctt/shared'
@@ -301,6 +302,25 @@ describe('listStationHeadsigns', () => {
   })
   it('returns [] for null', () => {
     expect(listStationHeadsigns(null)).toEqual([])
+  })
+})
+
+describe('stationCardSubheader', () => {
+  it('Metra single line — no "Line" suffix', () => {
+    expect(stationCardSubheader('metra', ['MD-W'])).toBe('Metra MD-W')
+  })
+  it('Metra multi line — joined with bullet', () => {
+    expect(stationCardSubheader('metra', ['MD-W', 'UP-NW'])).toBe('Metra MD-W • UP-NW')
+  })
+  it('CTA single line — single trailing "Line"', () => {
+    expect(stationCardSubheader('cta', ['Blue'])).toBe('CTA Blue Line')
+  })
+  it('CTA multi line — one trailing "Line"', () => {
+    expect(stationCardSubheader('cta', ['Blue', 'Pink'])).toBe('CTA Blue • Pink Line')
+  })
+  it('no lines — service name only', () => {
+    expect(stationCardSubheader('metra', [])).toBe('Metra')
+    expect(stationCardSubheader('cta', [])).toBe('CTA')
   })
 })
 

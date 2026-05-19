@@ -110,7 +110,7 @@ apps/
             cardClassNames.ts     Shared Tailwind strings for all favorite card rows
             CardMenuButton.tsx    Trailing ⋯ Pressable used on every card
             LineCard.tsx          Favorite-line row (title + termini + accent left border)
-            StationCard.tsx       Favorite-station row — direction filter + density + arrivals
+            StationCard.tsx       Favorite-station row — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
             TrainCard.tsx         Favorite-train row — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
         profile/
           FavoritesManager.tsx    Profile favorites manager (Lines/Stations/Trains sections + Clear all)
@@ -210,7 +210,7 @@ apps/
           cardStyles.ts           Shared `useCardStyles()` hook returning theme-aware StyleSheet for all favorite card rows
           CardMenuButton.tsx      Trailing ⋯ Pressable used on every card
           LineCard.tsx            Favorite-line row (title + termini + colored chip)
-          StationCard.tsx         Favorite-station row — direction filter + density + arrivals
+          StationCard.tsx         Favorite-station row — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
           TrainCard.tsx           Favorite-train row — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
       profile/
         ProfilePanel.tsx          Profile card + theme toggle + sign out/in — rendered in the Menu drawer's Profile section
@@ -273,7 +273,7 @@ packages/
       cta-pulse.ts                Pure aggregation + health helpers for CTA service pulse
       metra-trip-matching.ts      Helpers for matching Metra realtime entities
       favorites.ts                Pure helpers for favorites (favoriteKey, mapToArray, arrayToMap)
-      station-arrivals.ts         Pure helpers for arrival groups, per-favorite direction filters, and station-name shortening
+      station-arrivals.ts         Pure helpers for arrival groups, per-favorite direction filters, station-name shortening, and the station-card subheader string (stationCardSubheader)
 ```
 
 ---

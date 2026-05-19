@@ -26,6 +26,7 @@ jest.mock('@lib/hooks/useUpdateFavoriteSettings', () => ({
 }))
 
 import FavoriteMenu from '@components/dashboard/FavoriteMenu'
+import { useFavoritesStore } from '@lib/store/favorites'
 import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../fixtures'
 
 const lineFav: Favorite = { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }
@@ -49,6 +50,7 @@ const ctaSchedule: StationSchedule = {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  useFavoritesStore.getState().clear()
 })
 
 describe('FavoriteMenu', () => {
@@ -195,6 +197,25 @@ describe('FavoriteMenu', () => {
       expect(screen.getByRole('menuitemradio', { name: "O'Hare" })).toBeInTheDocument()
       fireEvent.click(screen.getByRole('menuitemradio', { name: 'Loop' }))
       expect(mockUpdate).toHaveBeenCalledWith({ directionFilter: 'Loop' })
+    })
+
+    it('reflects the live store selection, not just the prop snapshot', () => {
+      // Prop says expanded (default); the live store says compact. The open
+      // menu must follow the store so a fresh tap updates the radio immediately.
+      useFavoritesStore.getState().hydrate([{ ...ctaStationFav, density: 'compact' }])
+      render(
+        <FavoriteMenu
+          favorite={ctaStationFav}
+          lines={[mockLine]}
+          stations={[mockStation]}
+          schedule={ctaSchedule}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.getByRole('menuitemradio', { name: 'Compact' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      )
     })
 
     it('marks the active option with aria-checked', () => {

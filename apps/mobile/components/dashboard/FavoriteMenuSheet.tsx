@@ -17,6 +17,7 @@ import { favoriteRoute } from '../../lib/favoriteRoute'
 import { useToggleFavorite } from '../../lib/useToggleFavorite'
 import { useUpdateFavoriteSettings } from '../../lib/useUpdateFavoriteSettings'
 import { useFavoriteTripQuery, useStationScheduleQuery } from '../../lib/useDashboardQueries'
+import { useFavoritesStore } from '../../lib/store/favorites'
 import { useTheme } from '../../lib/theme'
 import type { Theme } from '../../lib/theme'
 
@@ -110,6 +111,13 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
+  // Subscribe to the live store so View/Show selections re-render the open
+  // sheet immediately (the `favorite` prop is a snapshot from sheet-open time).
+  const liveFavorite = useFavoritesStore((s) =>
+    s.favorites.find((f) => f.type === favorite.type && f.id === favorite.id),
+  )
+  const effective = liveFavorite ?? favorite
+
   const isTrain = favorite.type === 'train'
   const { data: trip } = useFavoriteTripQuery(isTrain ? favorite.id : null)
   const [, trainNumberFromId] = favorite.id.split('_')
@@ -129,8 +137,8 @@ function MenuContents({ favorite, lines, stations, onSetTrainStop, dismiss }: Me
   const isStation = favorite.type === 'station'
   const station = isStation ? stations?.find((s) => s.slug === favorite.id) : undefined
   const isMetra = station?.service === 'metra' || station?.service === 'both'
-  const density: FavoriteDensity = favorite.density ?? 'expanded'
-  const direction: FavoriteDirection = favorite.directionFilter ?? 'all'
+  const density: FavoriteDensity = effective.density ?? 'expanded'
+  const direction: FavoriteDirection = effective.directionFilter ?? 'all'
 
   // Only fetch schedule for non-Metra (CTA) stations to populate headsign chips.
   const scheduleQuery = useStationScheduleQuery(isStation && !isMetra ? favorite.id : null)
