@@ -6,7 +6,7 @@ import StationTimeline from '../../../../components/StationTimeline'
 import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
 
-const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
+const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
 export default function MetraLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()

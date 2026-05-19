@@ -30,7 +30,7 @@ export default function MetraLinesScreen() {
               compact
               title="Metra Lines"
               description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties."
-              imageSrc={require('../../assets/hero-header-metra.jpg')}
+              imageSrc={require('../../../assets/hero-header-metra.jpg')}
             />
             <AlertBanner service="metra" href="/metra/alerts" />
           </>

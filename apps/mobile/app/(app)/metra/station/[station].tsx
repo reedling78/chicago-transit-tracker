@@ -10,7 +10,7 @@ import { MetraTimetable } from '../../../../components/MetraTimetable'
 import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
 
-const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
+const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
 export default function MetraStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()

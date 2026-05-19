@@ -8,7 +8,7 @@ import MetraTripRealtime from '../../../../../components/MetraTripRealtime'
 import PageHeader from '../../../../../components/PageHeader'
 import FavoriteButton from '../../../../../components/FavoriteButton'
 
-const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
+const metraHeroImage = require('../../../../../assets/hero-header-metra.jpg')
 
 export default function MetraTrainDetailScreen() {
   const { line, trainNumber } = useLocalSearchParams<{ line: string; trainNumber: string }>()

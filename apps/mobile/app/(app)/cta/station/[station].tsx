@@ -10,7 +10,7 @@ import { CTAScheduleTable } from '../../../../components/CTAScheduleTable'
 import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
 
-const ctaHeroImage = require('../../../assets/hero-header.jpg')
+const ctaHeroImage = require('../../../../assets/hero-header.jpg')
 
 export default function CtaStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()
