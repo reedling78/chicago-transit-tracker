@@ -257,6 +257,21 @@ export function applyDirectionFilter(
 }
 
 /**
+ * Subheader string for a dashboard station card: the service name followed by
+ * the station's line names. CTA gets a single trailing "Line" (e.g.
+ * "CTA Blue Line", "CTA Blue • Pink Line"); Metra does not ("Metra MD-W").
+ */
+export function stationCardSubheader(
+  service: 'metra' | 'cta',
+  lineNames: string[],
+): string {
+  const svc = service === 'metra' ? 'Metra' : 'CTA'
+  if (lineNames.length === 0) return svc
+  const joined = lineNames.join(' • ')
+  return service === 'metra' ? `${svc} ${joined}` : `${svc} ${joined} Line`
+}
+
+/**
  * Distinct headsigns served by a station, derived from a schedule. Used to
  * populate the CTA chip list in the favorite-card menu.
  */

@@ -236,6 +236,37 @@ describe('FavoriteMenuSheet', () => {
       expect(mockUpdate).toHaveBeenCalledWith({ density: 'compact' })
     })
 
+    it('reflects the live store selection so radios update while the sheet is open', () => {
+      // Store says compact; the opened favorite snapshot has no density. The
+      // open sheet must follow the store, not the stale snapshot.
+      useFavoritesStore.setState({
+        favorites: [
+          {
+            type: 'station',
+            id: 'clark-lake',
+            addedAt: '2026-04-25T10:00:00Z',
+            density: 'compact',
+          },
+        ],
+        hydrated: true,
+        pendingWrites: 0,
+      })
+      const ref = createRef<FavoriteMenuSheetHandle>()
+      const { getByLabelText } = render(
+        <FavoriteMenuSheet ref={ref} lines={[mockLine]} stations={[mockStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'station',
+          id: 'clark-lake',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      expect(getByLabelText('View: Compact').props.accessibilityState.selected).toBe(true)
+      expect(getByLabelText('View: Expanded').props.accessibilityState.selected).toBe(false)
+    })
+
     it('renders Inbound/Outbound toggles for Metra stations', () => {
       const ref = createRef<FavoriteMenuSheetHandle>()
       const { getByLabelText } = render(

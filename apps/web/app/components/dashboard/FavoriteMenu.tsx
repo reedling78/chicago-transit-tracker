@@ -14,6 +14,7 @@ import {
 import { favoriteRoute } from '@lib/favoriteRoute'
 import { useToggleFavorite } from '@lib/hooks/useToggleFavorite'
 import { useUpdateFavoriteSettings } from '@lib/hooks/useUpdateFavoriteSettings'
+import { useFavoritesStore } from '@lib/store/favorites'
 
 interface FavoriteMenuProps {
   favorite: Favorite
@@ -71,11 +72,18 @@ export default function FavoriteMenu({
     }
   }, [onClose])
 
+  // Subscribe to the live store so View/Show selections re-render the open
+  // menu immediately (the `favorite` prop is a snapshot from menu-open time).
+  const liveFavorite = useFavoritesStore((s) =>
+    s.favorites.find((f) => f.type === favorite.type && f.id === favorite.id),
+  )
+  const effective = liveFavorite ?? favorite
+
   const isStation = favorite.type === 'station'
   const station = isStation ? stations?.find((s) => s.slug === favorite.id) : undefined
   const isMetra = station?.service === 'metra' || station?.service === 'both'
-  const density: FavoriteDensity = favorite.density ?? 'expanded'
-  const direction: FavoriteDirection = favorite.directionFilter ?? 'all'
+  const density: FavoriteDensity = effective.density ?? 'expanded'
+  const direction: FavoriteDirection = effective.directionFilter ?? 'all'
 
   const directionOptions: { key: FavoriteDirection; label: string }[] = isStation
     ? isMetra
