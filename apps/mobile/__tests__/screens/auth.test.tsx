@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react-native'
 import { Platform } from 'react-native'
-import AuthScreen from '../../app/auth'
+import AuthScreen from '../../app/(app)/auth'
 
 const mockSearchParams: { mode?: string } = {}
 jest.mock('expo-router', () => ({

@@ -8,7 +8,9 @@ jest.mock('expo-router/drawer', () => {
   const Drawer = ({ drawerContent }: { drawerContent: () => React.ReactNode }) => (
     <View testID="drawer">{drawerContent({ navigation: { closeDrawer: jest.fn() } })}</View>
   )
-  Drawer.Screen = () => null
+  const DrawerScreen = () => null
+  DrawerScreen.displayName = 'DrawerScreen'
+  Drawer.Screen = DrawerScreen
   return { Drawer }
 })
 jest.mock(

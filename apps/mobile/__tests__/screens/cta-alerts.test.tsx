@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react-native'
-import CtaAlertsScreen from '../../app/cta/alerts'
+import CtaAlertsScreen from '../../app/(app)/cta/alerts'
 
 jest.mock('../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,

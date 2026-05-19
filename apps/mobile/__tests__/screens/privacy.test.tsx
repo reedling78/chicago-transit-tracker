@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react-native'
-import PrivacyScreen from '../../app/privacy'
+import PrivacyScreen from '../../app/(app)/privacy'
 
 const capturedScreenOptions: Record<string, unknown>[] = []
 

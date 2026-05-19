@@ -23,7 +23,13 @@ export default function HeaderMenuButton() {
 }
 
 const styles = StyleSheet.create({
-  touchable: { width: 44, height: 44, marginRight: 8, alignItems: 'center', justifyContent: 'center' },
+  touchable: {
+    width: 44,
+    height: 44,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   icon: {
     textShadowColor: 'rgba(0, 0, 0, 0.45)',
     textShadowOffset: { width: 0, height: 1 },

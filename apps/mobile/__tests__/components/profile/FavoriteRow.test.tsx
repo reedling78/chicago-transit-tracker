@@ -116,7 +116,11 @@ describe('FavoriteRow train label', () => {
         trainNumber: '1224',
         line: 'BNSF',
         stops: [
-          { slug: 'union-station-metra', stationName: 'Chicago Union Station', departure: '5:00 PM' },
+          {
+            slug: 'union-station-metra',
+            stationName: 'Chicago Union Station',
+            departure: '5:00 PM',
+          },
           { slug: 'naperville', stationName: 'Naperville', departure: '5:45 PM' },
         ],
       },
