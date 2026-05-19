@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockLine, mockStation } from '../fixtures'
 import { useLine, useLineStations } from '../../lib/hooks'
-import CtaLineDetailScreen from '../../app/cta/[line]'
+import CtaLineDetailScreen from '../../app/(app)/cta/[line]'
 
 jest.mock('expo-linear-gradient', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

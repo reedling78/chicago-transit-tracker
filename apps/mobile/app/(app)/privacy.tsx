@@ -1,8 +1,8 @@
 import { useMemo, type ReactNode } from 'react'
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Stack } from 'expo-router'
-import { useNavHeaderInset } from '../lib/useNavHeaderInset'
-import { useTheme, type Theme } from '../lib/theme'
+import { useNavHeaderInset } from '../../lib/useNavHeaderInset'
+import { useTheme, type Theme } from '../../lib/theme'
 
 export default function PrivacyScreen() {
   const headerInset = useNavHeaderInset()

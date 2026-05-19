@@ -1,7 +1,7 @@
 import { render, waitFor } from '@testing-library/react-native'
 import { useLocalSearchParams } from 'expo-router'
 
-import AppleCallbackScreen from '../../app/apple-callback'
+import AppleCallbackScreen from '../../app/(app)/apple-callback'
 import { completeAppleSignInFromCallback } from '../../lib/auth'
 
 const mockReplace = jest.fn()

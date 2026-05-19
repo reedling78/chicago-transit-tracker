@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react-native'
-import MetraAlertsScreen from '../../app/metra/alerts'
+import MetraAlertsScreen from '../../app/(app)/metra/alerts'
 
 jest.mock('../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,

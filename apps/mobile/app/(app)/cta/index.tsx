@@ -1,13 +1,14 @@
 import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native'
-import { useLines } from '../../lib/hooks'
-import { LINE_COLORS } from '@ctt/shared'
-import { useTheme } from '../../lib/theme'
-import LineListItem from '../../components/LineListItem'
-import AlertBanner from '../../components/AlertBanner'
-import PageHeader from '../../components/PageHeader'
+import { useLines } from '../../../lib/hooks'
+import { CTA_LINE_COLORS } from '@ctt/shared'
+import { useTheme } from '../../../lib/theme'
+import LineListItem from '../../../components/LineListItem'
+import AlertBanner from '../../../components/AlertBanner'
+import CTALineIcon from '../../../components/CTALineIcon'
+import PageHeader from '../../../components/PageHeader'
 
-export default function MetraLinesScreen() {
-  const { lines, loading } = useLines('metra')
+export default function CtaLinesScreen() {
+  const { lines, loading } = useLines('cta')
   const { theme } = useTheme()
 
   if (loading) {
@@ -28,21 +29,21 @@ export default function MetraLinesScreen() {
           <>
             <PageHeader
               compact
-              title="Metra Lines"
-              description="11 commuter rail lines connecting Chicago to the suburbs across 6 counties."
-              imageSrc={require('../../assets/hero-header-metra.jpg')}
+              title="CTA Lines"
+              description="8 color-coded rapid transit lines serving Chicago and the inner suburbs."
             />
-            <AlertBanner service="metra" href="/metra/alerts" />
+            <AlertBanner service="cta" href="/cta/alerts" />
           </>
         }
         renderItem={({ item }) => {
-          const accentColor = LINE_COLORS[item.shortName]?.bg ?? item.color
+          const accentColor = CTA_LINE_COLORS[item.shortName]?.bg ?? item.color
           return (
             <LineListItem
-              href={`/metra/${item.slug}`}
+              href={`/cta/${item.slug}`}
               title={item.name}
               subtitle={item.termini.join(' — ')}
               accentColor={accentColor}
+              icon={<CTALineIcon line={item.shortName} size={36} />}
             />
           )
         }}

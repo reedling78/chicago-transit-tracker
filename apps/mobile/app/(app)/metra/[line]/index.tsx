@@ -1,13 +1,14 @@
 import { View, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useLine, useLineStations } from '../../lib/hooks'
-import { useTheme } from '../../lib/theme'
-import StationTimeline from '../../components/StationTimeline'
-import PageHeader from '../../components/PageHeader'
-import CTALineIcon from '../../components/CTALineIcon'
-import FavoriteButton from '../../components/FavoriteButton'
+import { useLine, useLineStations } from '../../../../lib/hooks'
+import { useTheme } from '../../../../lib/theme'
+import StationTimeline from '../../../../components/StationTimeline'
+import PageHeader from '../../../../components/PageHeader'
+import FavoriteButton from '../../../../components/FavoriteButton'
 
-export default function CtaLineDetailScreen() {
+const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
+
+export default function MetraLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()
   const { line, loading: lineLoading } = useLine(lineSlug)
   const { stations, loading: stationsLoading } = useLineStations(lineSlug, line?.shortName ?? '')
@@ -36,7 +37,7 @@ export default function CtaLineDetailScreen() {
           compact
           title={line.name}
           description={line.termini.join(' ↔ ')}
-          icon={<CTALineIcon line={line.shortName} size={36} />}
+          imageSrc={metraHeroImage}
         />
         {stationsLoading ? (
           <ActivityIndicator size="large" color={line.color} style={{ marginTop: 24 }} />
@@ -44,7 +45,7 @@ export default function CtaLineDetailScreen() {
           <StationTimeline
             stations={stations}
             lineColor={line.color}
-            stationHrefPrefix="/cta/station"
+            stationHrefPrefix="/metra/station"
             currentLine={line.shortName}
           />
         )}
@@ -54,7 +55,7 @@ export default function CtaLineDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { flex: 1 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 16, paddingBottom: 16 },
 })

@@ -1,16 +1,16 @@
 import { View, ScrollView, StyleSheet } from 'react-native'
-import { useNavHeaderInset } from '../../lib/useNavHeaderInset'
-import { useTheme } from '../../lib/theme'
-import CTAAlerts from '../../components/CTAAlerts'
+import { useNavHeaderInset } from '../../../lib/useNavHeaderInset'
+import { useTheme } from '../../../lib/theme'
+import MetraAlerts from '../../../components/MetraAlerts'
 
-export default function CtaAlertsScreen() {
+export default function MetraAlertsScreen() {
   const headerInset = useNavHeaderInset()
   const { theme } = useTheme()
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: headerInset + 16 }]}>
-        <CTAAlerts />
+        <MetraAlerts />
       </ScrollView>
     </View>
   )

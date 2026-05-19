@@ -1,6 +1,6 @@
 import { ActivityIndicator } from 'react-native'
 import { render, screen } from '@testing-library/react-native'
-import MetraTrainDetailScreen from '../../app/metra/[line]/train/[trainNumber]'
+import MetraTrainDetailScreen from '../../app/(app)/metra/[line]/train/[trainNumber]'
 import { useMetraTrip } from '../../lib/hooks'
 
 jest.mock('expo-linear-gradient', () => {

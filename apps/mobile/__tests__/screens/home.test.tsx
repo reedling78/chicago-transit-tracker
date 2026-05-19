@@ -1,5 +1,6 @@
+import type { ReactElement } from 'react'
 import { render } from '@testing-library/react-native'
-import HomeScreen from '../../app/index'
+import HomeScreen from '../../app/(app)/index'
 
 const capturedOptions: Record<string, unknown>[] = []
 
@@ -15,12 +16,12 @@ jest.mock('expo-router', () => {
   return { Stack }
 })
 
-jest.mock('../../components/HeaderUserIcon', () => {
+jest.mock('../../components/HeaderMenuButton', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text } = require('react-native')
   return {
     __esModule: true,
-    default: () => <Text testID="header-user-icon">profile</Text>,
+    default: () => <Text testID="header-menu-button">menu-button</Text>,
   }
 })
 
@@ -43,7 +44,7 @@ describe('HomeScreen', () => {
     expect(getByTestId('dashboard-stub')).toBeOnTheScreen()
   })
 
-  it('shows a traditional app header with the site title and profile button', () => {
+  it('shows a traditional app header with the site title and menu button', () => {
     render(<HomeScreen />)
     expect(capturedOptions).toHaveLength(1)
     const opts = capturedOptions[0]
@@ -53,5 +54,12 @@ describe('HomeScreen', () => {
     expect(opts.headerTitleAlign).toBe('left')
     expect(typeof opts.headerRight).toBe('function')
     expect(typeof opts.headerLeft).toBe('function')
+  })
+
+  it('renders the HeaderMenuButton in the header', () => {
+    render(<HomeScreen />)
+    const headerRight = capturedOptions[0].headerRight as () => ReactElement
+    const { getByText } = render(headerRight())
+    expect(getByText('menu-button')).toBeOnTheScreen()
   })
 })

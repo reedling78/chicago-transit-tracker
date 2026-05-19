@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react-native'
-import TermsScreen from '../../app/terms'
+import TermsScreen from '../../app/(app)/terms'
 
 const capturedScreenOptions: Record<string, unknown>[] = []
 

@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
-import { useTheme } from '../lib/theme'
-import { completeAppleSignInFromCallback } from '../lib/auth'
+import { useTheme } from '../../lib/theme'
+import { completeAppleSignInFromCallback } from '../../lib/auth'
 
 // Receives the deep link from the Apple OAuth web bridge
 // (https://chicagotransittracker.com/api/apple-redirect → ctt://apple-callback?…)

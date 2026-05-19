@@ -1,16 +1,16 @@
 import { useMemo } from 'react'
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useStation, useSchedule, useStationTrips } from '../../../lib/hooks'
+import { useStation, useSchedule, useStationTrips } from '../../../../lib/hooks'
 import { LINE_COLORS } from '@ctt/shared'
-import { useTheme } from '../../../lib/theme'
-import type { Theme } from '../../../lib/theme'
-import { ArrivalsCard } from '../../../components/ArrivalsCard'
-import { MetraTimetable } from '../../../components/MetraTimetable'
-import PageHeader from '../../../components/PageHeader'
-import FavoriteButton from '../../../components/FavoriteButton'
+import { useTheme } from '../../../../lib/theme'
+import type { Theme } from '../../../../lib/theme'
+import { ArrivalsCard } from '../../../../components/ArrivalsCard'
+import { MetraTimetable } from '../../../../components/MetraTimetable'
+import PageHeader from '../../../../components/PageHeader'
+import FavoriteButton from '../../../../components/FavoriteButton'
 
-const metraHeroImage = require('../../../assets/hero-header-metra.jpg')
+const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
 export default function MetraStationDetailScreen() {
   const { station: stationSlug } = useLocalSearchParams<{ station: string }>()
