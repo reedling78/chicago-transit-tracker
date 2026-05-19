@@ -1,6 +1,14 @@
 import { render } from '@testing-library/react-native'
 import MetraAlertsScreen from '../../app/(app)/metra/alerts'
 
+jest.mock('expo-router', () => {
+  const Stack = () => null
+  Stack.displayName = 'Stack'
+  Stack.Screen = () => null
+  Stack.Screen.displayName = 'StackScreen'
+  return { Stack }
+})
+
 jest.mock('../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,
 }))

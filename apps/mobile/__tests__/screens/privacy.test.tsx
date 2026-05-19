@@ -28,9 +28,8 @@ describe('PrivacyScreen', () => {
     render(<PrivacyScreen />)
     expect(capturedScreenOptions).toHaveLength(1)
     const opts = capturedScreenOptions[0]
-    expect(opts.headerTransparent).toBe(true)
+    // Shared header chrome is inherited from the Stack; the screen only sets the title.
     expect(opts.headerTitle).toBe('Chicago Transit Tracker')
-    expect(opts.headerTitleAlign).toBe('left')
     expect(opts.headerLeft).toBeUndefined()
   })
 

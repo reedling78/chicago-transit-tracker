@@ -25,6 +25,7 @@ export default function CtaLineDetailScreen() {
     <>
       <Stack.Screen
         options={{
+          headerTitle: line.name,
           headerRight: () => <FavoriteButton type="line" id={line.slug} />,
         }}
       />

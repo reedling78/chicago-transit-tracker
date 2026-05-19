@@ -1,4 +1,5 @@
 import { View, ScrollView, StyleSheet } from 'react-native'
+import { Stack } from 'expo-router'
 import { useNavHeaderInset } from '../../../lib/useNavHeaderInset'
 import { useTheme } from '../../../lib/theme'
 import MetraAlerts from '../../../components/MetraAlerts'
@@ -9,6 +10,7 @@ export default function MetraAlertsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}>
+      <Stack.Screen options={{ headerTitle: 'Service Alerts' }} />
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: headerInset + 16 }]}>
         <MetraAlerts />
       </ScrollView>

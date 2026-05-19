@@ -48,10 +48,9 @@ describe('HomeScreen', () => {
     render(<HomeScreen />)
     expect(capturedOptions).toHaveLength(1)
     const opts = capturedOptions[0]
-    expect(opts.headerShown).toBe(true)
-    expect(opts.headerTransparent).toBe(true)
+    // Shared chrome (transparent bg, hairline, title align) is inherited from
+    // the Stack screenOptions; the screen only sets its own title + buttons.
     expect(opts.headerTitle).toBe('Chicago Transit Tracker')
-    expect(opts.headerTitleAlign).toBe('left')
     expect(typeof opts.headerRight).toBe('function')
     expect(typeof opts.headerLeft).toBe('function')
   })
