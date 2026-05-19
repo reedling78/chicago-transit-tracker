@@ -135,6 +135,34 @@ describe('FavoriteRow train label', () => {
     expect(getByText(/#1224/)).toBeTruthy()
   })
 
+  it('uses the trainOriginStopSlug / trainDestinationStopSlug overrides when set', () => {
+    mockUseFavoriteTripQuery.mockReturnValue({
+      data: {
+        trainNumber: '1224',
+        line: 'BNSF',
+        stops: [
+          {
+            slug: 'union-station-metra',
+            stationName: 'Chicago Union Station',
+            departure: '5:00 PM',
+          },
+          { slug: 'western-avenue', stationName: 'Western Avenue', departure: '5:10 PM' },
+          { slug: 'la-grange-road', stationName: 'La Grange Road', departure: '5:25 PM' },
+          { slug: 'naperville', stationName: 'Naperville', departure: '5:45 PM' },
+        ],
+      },
+    })
+    const EXPECTED_TITLE = `${shortenStationName('Western Avenue')} to ${shortenStationName('La Grange Road')}`
+    const { getByText } = renderRow({
+      type: 'train',
+      id: 'bnsf_1224',
+      addedAt: '2026-01-01T00:00:00Z',
+      trainOriginStopSlug: 'western-avenue',
+      trainDestinationStopSlug: 'la-grange-road',
+    } as Favorite)
+    expect(getByText(EXPECTED_TITLE)).toBeTruthy()
+  })
+
   it('falls back to "Train {n}" when the trip is not loaded', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: null })
     const { getByText } = renderRow({

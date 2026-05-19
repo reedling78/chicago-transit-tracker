@@ -42,4 +42,12 @@ describe('MenuDrawerContent (mobile)', () => {
     expect(getByText('favorites-manager')).toBeTruthy()
     expect(getByText('profile-panel')).toBeTruthy()
   })
+
+  it('exposes section headings with the header accessibility role', () => {
+    mockUseAuth.mockReturnValue({ profile: { email: 'a@b.com' }, loading: false })
+    const { getByText } = render(<MenuDrawerContent navigation={nav} />)
+    for (const heading of ['Menu', 'Profile', 'Legal']) {
+      expect(getByText(heading).props.accessibilityRole).toBe('header')
+    }
+  })
 })

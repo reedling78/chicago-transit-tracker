@@ -7,7 +7,9 @@ export default function MenuSection({ title, children }: { title: string; childr
   const styles = useMemo(() => makeStyles(theme), [theme])
   return (
     <View style={styles.section}>
-      <Text style={styles.heading}>{title}</Text>
+      <Text accessibilityRole="header" style={styles.heading}>
+        {title}
+      </Text>
       <View>{children}</View>
     </View>
   )

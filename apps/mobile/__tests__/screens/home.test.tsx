@@ -43,7 +43,7 @@ describe('HomeScreen', () => {
     expect(getByTestId('dashboard-stub')).toBeOnTheScreen()
   })
 
-  it('shows a traditional app header with the site title and profile button', () => {
+  it('shows a traditional app header with the site title and menu button', () => {
     render(<HomeScreen />)
     expect(capturedOptions).toHaveLength(1)
     const opts = capturedOptions[0]

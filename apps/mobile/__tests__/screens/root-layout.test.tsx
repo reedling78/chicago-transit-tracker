@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import { render } from '@testing-library/react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import RootLayout from '../../app/_layout'
+import { ThemeProvider } from '../../lib/theme'
 
 jest.mock('expo-router/drawer', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -13,17 +16,11 @@ jest.mock('expo-router/drawer', () => {
   Drawer.Screen = DrawerScreen
   return { Drawer }
 })
-jest.mock(
-  '../../components/menu/MenuDrawerContent',
-  () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Text } = require('react-native')
-    return { __esModule: true, default: () => <Text>menu-drawer-content</Text> }
-  },
-  // MenuDrawerContent is created in a later task; virtual-mock it so this
-  // suite can verify the Drawer wiring before the real module lands.
-  { virtual: true },
-)
+jest.mock('../../components/menu/MenuDrawerContent', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { Text } = require('react-native')
+  return { __esModule: true, default: () => <Text>menu-drawer-content</Text> }
+})
 
 jest.mock('react-native-safe-area-context', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -59,5 +56,17 @@ describe('RootLayout (mobile)', () => {
   it('renders a Drawer wrapping the app with MenuDrawerContent', () => {
     const { getByText } = render(<RootLayout />)
     expect(getByText('menu-drawer-content')).toBeTruthy()
+  })
+
+  it('wraps the Drawer in GestureHandlerRootView, ThemeProvider, and BottomSheetModalProvider', () => {
+    // The Drawer needs gesture-handler + reanimated at runtime, the
+    // bottom-sheet provider backs FavoriteMenuSheet, and ThemeProvider
+    // supplies the context every component reads via useTheme(). These
+    // UNSAFE_getByType lookups throw if the corresponding wrapper is
+    // removed from app/_layout.tsx — a real regression guard.
+    const { UNSAFE_getByType } = render(<RootLayout />)
+    expect(UNSAFE_getByType(GestureHandlerRootView)).toBeTruthy()
+    expect(UNSAFE_getByType(ThemeProvider)).toBeTruthy()
+    expect(UNSAFE_getByType(BottomSheetModalProvider)).toBeTruthy()
   })
 })
