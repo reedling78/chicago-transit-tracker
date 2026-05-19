@@ -1,15 +1,27 @@
 import { render } from '@testing-library/react-native'
+import { StyleSheet } from 'react-native'
 import MenuDrawerContent from '../../../components/menu/MenuDrawerContent'
 
 jest.mock('@react-navigation/drawer', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ScrollView } = require('react-native')
   return {
-    DrawerContentScrollView: ({ children }: { children: React.ReactNode }) => (
-      <ScrollView>{children}</ScrollView>
+    DrawerContentScrollView: ({
+      children,
+      contentContainerStyle,
+    }: {
+      children: React.ReactNode
+      contentContainerStyle?: unknown
+    }) => (
+      <ScrollView testID="drawer-scroll" contentContainerStyle={contentContainerStyle}>
+        {children}
+      </ScrollView>
     ),
   }
 })
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }),
+}))
 const mockUseAuth = jest.fn()
 jest.mock('../../../lib/AuthContext', () => ({ useAuth: () => mockUseAuth() }))
 jest.mock('../../../components/profile/ProfilePanel', () => {
@@ -41,6 +53,16 @@ describe('MenuDrawerContent (mobile)', () => {
     expect(getByText('Legal')).toBeTruthy()
     expect(getByText('favorites-manager')).toBeTruthy()
     expect(getByText('profile-panel')).toBeTruthy()
+  })
+
+  it('insets the scroll content past the safe area (status bar / home indicator)', () => {
+    mockUseAuth.mockReturnValue({ profile: { email: 'a@b.com' }, loading: false })
+    const { getByTestId } = render(<MenuDrawerContent navigation={nav} />)
+    const style = StyleSheet.flatten(getByTestId('drawer-scroll').props.contentContainerStyle)
+    // paddingTop must exceed the 47px top inset (inset + section spacing),
+    // so menu content never sits under the status bar / notch.
+    expect(style.paddingTop).toBeGreaterThan(47)
+    expect(style.paddingBottom).toBeGreaterThan(34)
   })
 
   it('exposes section headings with the header accessibility role', () => {

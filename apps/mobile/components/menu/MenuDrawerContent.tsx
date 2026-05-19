@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { DrawerContentScrollView } from '@react-navigation/drawer'
 import type { DrawerContentComponentProps } from '@react-navigation/drawer'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme, type Theme } from '../../lib/theme'
 import MenuSection from './MenuSection'
 import MenuNavRow from './MenuNavRow'
@@ -10,6 +11,7 @@ import FavoritesManager from '../profile/FavoritesManager'
 
 export default function MenuDrawerContent(props: DrawerContentComponentProps) {
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
   const styles = useMemo(() => makeStyles(theme), [theme])
   const close = () => props.navigation.closeDrawer()
 
@@ -17,7 +19,10 @@ export default function MenuDrawerContent(props: DrawerContentComponentProps) {
     <DrawerContentScrollView
       {...props}
       style={{ backgroundColor: theme.colors.bg.canvas }}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: insets.top + theme.space[4], paddingBottom: insets.bottom + theme.space[8] },
+      ]}
     >
       <MenuSection title="Menu">
         <MenuNavRow icon="grid-outline" label="Dashboard" href="/" onNavigate={close} />
@@ -37,15 +42,12 @@ export default function MenuDrawerContent(props: DrawerContentComponentProps) {
         <MenuNavRow icon="shield-outline" label="Privacy" href="/privacy" onNavigate={close} />
         <MenuNavRow icon="document-text-outline" label="Terms" href="/terms" onNavigate={close} />
       </MenuSection>
-
-      <View style={styles.spacer} />
     </DrawerContentScrollView>
   )
 }
 
 function makeStyles(theme: Theme) {
   return StyleSheet.create({
-    content: { paddingHorizontal: theme.space[5], paddingTop: theme.space[4] },
-    spacer: { height: theme.space[8] },
+    content: { paddingHorizontal: theme.space[5] },
   })
 }
