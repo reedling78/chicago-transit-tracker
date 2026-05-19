@@ -1,33 +1,11 @@
-import { Stack } from 'expo-router'
-import { StatusBar } from 'expo-status-bar'
+import { Drawer } from 'expo-router/drawer'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { AuthProvider } from '../lib/AuthContext'
-import { ThemeProvider, useTheme } from '../lib/theme'
-import HeaderBackButton from '../components/HeaderBackButton'
+import { ThemeProvider } from '../lib/theme'
 import QueryProvider from '../components/QueryProvider'
-
-function ThemedShell() {
-  const { resolvedMode } = useTheme()
-  return (
-    <>
-      <StatusBar style={resolvedMode === 'light' ? 'dark' : 'light'} />
-      <Stack
-        screenOptions={{
-          headerTransparent: true,
-          headerStyle: { backgroundColor: 'transparent' },
-          headerShadowVisible: false,
-          title: '',
-          headerBackVisible: false,
-          headerLeft: () => <HeaderBackButton />,
-        }}
-      >
-        <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
-      </Stack>
-    </>
-  )
-}
+import MenuDrawerContent from '../components/menu/MenuDrawerContent'
 
 export default function RootLayout() {
   return (
@@ -37,7 +15,17 @@ export default function RootLayout() {
           <AuthProvider>
             <BottomSheetModalProvider>
               <SafeAreaProvider>
-                <ThemedShell />
+                <Drawer
+                  drawerContent={(props) => <MenuDrawerContent {...props} />}
+                  screenOptions={{
+                    headerShown: false,
+                    drawerType: 'front',
+                    drawerStyle: { width: '85%', maxWidth: 360 },
+                    swipeEdgeWidth: 40,
+                  }}
+                >
+                  <Drawer.Screen name="(app)" />
+                </Drawer>
               </SafeAreaProvider>
             </BottomSheetModalProvider>
           </AuthProvider>

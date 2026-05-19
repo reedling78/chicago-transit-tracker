@@ -2,35 +2,26 @@ import type { ReactNode } from 'react'
 import { render } from '@testing-library/react-native'
 import RootLayout from '../../app/_layout'
 
-jest.mock('expo-router', () => {
+jest.mock('expo-router/drawer', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { View } = require('react-native')
-  const Stack = (props: { children?: unknown; screenOptions?: Record<string, unknown> }) => (
-    <View testID="stack" data-options={JSON.stringify(props.screenOptions ?? {})}>
-      {/* render header slots so we can assert they are wired up */}
-      {(props.screenOptions?.headerLeft as undefined | (() => ReactNode))?.()}
-      {(props.screenOptions?.headerRight as undefined | (() => ReactNode))?.()}
-      {(props.screenOptions?.headerTitle as undefined | (() => ReactNode))?.() ?? null}
-      {props.children as ReactNode}
-    </View>
+  const Drawer = ({ drawerContent }: { drawerContent: () => React.ReactNode }) => (
+    <View testID="drawer">{drawerContent({ navigation: { closeDrawer: jest.fn() } })}</View>
   )
-  const StackScreen = (props: { name: string; options?: Record<string, unknown> }) => (
-    <View
-      testID={`stack-screen-${props.name}`}
-      data-options={JSON.stringify(props.options ?? {})}
-    />
-  )
-  StackScreen.displayName = 'StackScreen'
-  Stack.displayName = 'Stack'
-  Stack.Screen = StackScreen
-  return { Stack }
+  Drawer.Screen = () => null
+  return { Drawer }
 })
-
-jest.mock('expo-status-bar', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { View } = require('react-native')
-  return { StatusBar: () => <View testID="status-bar" /> }
-})
+jest.mock(
+  '../../components/menu/MenuDrawerContent',
+  () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Text } = require('react-native')
+    return { __esModule: true, default: () => <Text>menu-drawer-content</Text> }
+  },
+  // MenuDrawerContent is created in a later task; virtual-mock it so this
+  // suite can verify the Drawer wiring before the real module lands.
+  { virtual: true },
+)
 
 jest.mock('react-native-safe-area-context', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -62,57 +53,9 @@ jest.mock('../../components/QueryProvider', () => {
   }
 })
 
-jest.mock('../../components/HeaderBackButton', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { Text } = require('react-native')
-  return {
-    __esModule: true,
-    default: () => <Text>HeaderBackButton</Text>,
-  }
-})
-
-describe('RootLayout', () => {
-  it('renders the root Stack with transparent header options and the back-button slot', () => {
-    const { getByTestId, getByText, queryByText } = render(<RootLayout />)
-    const stack = getByTestId('stack')
-    const options = JSON.parse(stack.props['data-options']) as {
-      headerTransparent: boolean
-      headerShadowVisible: boolean
-      headerBackVisible: boolean
-      headerStyle: { backgroundColor: string }
-      title: string
-    }
-    expect(options.headerTransparent).toBe(true)
-    expect(options.headerShadowVisible).toBe(false)
-    expect(options.headerBackVisible).toBe(false)
-    expect(options.headerStyle.backgroundColor).toBe('transparent')
-    expect(options.title).toBe('')
-
-    // Back button is wired up; the auth/user header slot has been removed
-    expect(getByText('HeaderBackButton')).toBeOnTheScreen()
-    expect(queryByText('HeaderUserIcon')).toBeNull()
-  })
-
-  it('registers the auth screen as a modal', () => {
-    const { getByTestId } = render(<RootLayout />)
-    const screen = getByTestId('stack-screen-auth')
-    const options = JSON.parse(screen.props['data-options']) as { presentation?: string }
-    expect(options.presentation).toBe('modal')
-  })
-
-  it('still renders the Stack through the gesture-handler + bottom-sheet providers', () => {
-    // The global mocks for react-native-gesture-handler and @gorhom/bottom-sheet
-    // render their wrappers as passthrough Views, so this test guards against
-    // accidentally removing either provider — without them, BottomSheetModal
-    // (used by FavoriteMenuSheet) can't render and DraggableFlatList silently
-    // breaks at runtime.
-    const { getByTestId } = render(<RootLayout />)
-    expect(getByTestId('stack')).toBeOnTheScreen()
-  })
-
-  it('mounts the ThemeProvider so the theme context is available app-wide', () => {
-    // Crashes here mean the ThemeProvider was unmounted from the root tree.
-    // Removing it would break every component that calls useTheme().
-    expect(() => render(<RootLayout />)).not.toThrow()
+describe('RootLayout (mobile)', () => {
+  it('renders a Drawer wrapping the app with MenuDrawerContent', () => {
+    const { getByText } = render(<RootLayout />)
+    expect(getByText('menu-drawer-content')).toBeTruthy()
   })
 })
