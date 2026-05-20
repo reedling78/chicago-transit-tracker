@@ -9,6 +9,7 @@ import { ArrivalsCard } from '../../../../components/ArrivalsCard'
 import { MetraTimetable } from '../../../../components/MetraTimetable'
 import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
+import { headerRightItem } from '../../../../lib/headerItems'
 
 const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
@@ -34,7 +35,7 @@ export default function MetraStationDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: station.name,
-          headerRight: () => <FavoriteButton type="station" id={station.slug} />,
+          ...headerRightItem(<FavoriteButton type="station" id={station.slug} />),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>

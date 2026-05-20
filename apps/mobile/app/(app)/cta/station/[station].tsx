@@ -9,6 +9,7 @@ import { ArrivalsCard } from '../../../../components/ArrivalsCard'
 import { CTAScheduleTable } from '../../../../components/CTAScheduleTable'
 import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
+import { headerRightItem } from '../../../../lib/headerItems'
 
 const ctaHeroImage = require('../../../../assets/hero-header.jpg')
 
@@ -33,7 +34,7 @@ export default function CtaStationDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: station.name,
-          headerRight: () => <FavoriteButton type="station" id={station.slug} />,
+          ...headerRightItem(<FavoriteButton type="station" id={station.slug} />),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
