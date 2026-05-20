@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router'
 import Dashboard from '../../components/dashboard/Dashboard'
 import HeaderMenuButton from '../../components/HeaderMenuButton'
+import { headerLeftItem, headerRightItem } from '../../lib/headerItems'
 
 export default function HomeScreen() {
   return (
@@ -8,8 +9,8 @@ export default function HomeScreen() {
       <Stack.Screen
         options={{
           headerTitle: 'Chicago Transit Tracker',
-          headerLeft: () => null,
-          headerRight: () => <HeaderMenuButton />,
+          ...headerLeftItem(null),
+          ...headerRightItem(<HeaderMenuButton />),
         }}
       />
       <Dashboard />

@@ -5,6 +5,7 @@ import { useTheme } from '../../../../lib/theme'
 import StationTimeline from '../../../../components/StationTimeline'
 import PageHeader from '../../../../components/PageHeader'
 import FavoriteButton from '../../../../components/FavoriteButton'
+import { headerRightItem } from '../../../../lib/headerItems'
 
 const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
@@ -27,7 +28,7 @@ export default function MetraLineDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: line.name,
-          headerRight: () => <FavoriteButton type="line" id={line.slug} />,
+          ...headerRightItem(<FavoriteButton type="line" id={line.slug} />),
         }}
       />
       <ScrollView

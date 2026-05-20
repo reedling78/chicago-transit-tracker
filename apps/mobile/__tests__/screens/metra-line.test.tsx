@@ -30,8 +30,16 @@ jest.mock('react-native-svg', () => {
 jest.mock('expo-router', () => {
   const Stack = () => null
   Stack.displayName = 'Stack'
-  const StackScreen = (props: { options?: { headerRight?: () => ReactNode } }) =>
-    props.options?.headerRight ? props.options.headerRight() : null
+  const StackScreen = (props: {
+    options?: {
+      headerRight?: () => ReactNode
+      unstable_headerRightItems?: () => { element: ReactNode }[]
+    }
+  }) => {
+    const items = props.options?.unstable_headerRightItems?.()
+    if (items && items.length > 0) return items[0].element as React.ReactElement
+    return props.options?.headerRight ? (props.options.headerRight() as React.ReactElement) : null
+  }
   StackScreen.displayName = 'StackScreen'
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {

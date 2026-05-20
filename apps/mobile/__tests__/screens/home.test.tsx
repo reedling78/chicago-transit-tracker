@@ -51,14 +51,42 @@ describe('HomeScreen', () => {
     // Shared chrome (transparent bg, hairline, title align) is inherited from
     // the Stack screenOptions; the screen only sets its own title + buttons.
     expect(opts.headerTitle).toBe('Chicago Transit Tracker')
-    expect(typeof opts.headerRight).toBe('function')
-    expect(typeof opts.headerLeft).toBe('function')
+    // iOS uses unstable_headerRightItems (the Liquid Glass opt-out path);
+    // Android uses headerRight. Either way, exactly one of these is wired up.
+    const hasRight =
+      typeof opts.headerRight === 'function' || typeof opts.unstable_headerRightItems === 'function'
+    expect(hasRight).toBe(true)
+    const hasLeft =
+      typeof opts.headerLeft === 'function' || typeof opts.unstable_headerLeftItems === 'function'
+    expect(hasLeft).toBe(true)
   })
 
   it('renders the HeaderMenuButton in the header', () => {
     render(<HomeScreen />)
-    const headerRight = capturedOptions[0].headerRight as () => ReactElement
-    const { getByText } = render(headerRight())
+    const opts = capturedOptions[0]
+    const items = (
+      opts.unstable_headerRightItems as undefined | (() => { element: ReactElement }[])
+    )?.()
+    const element = items ? items[0].element : (opts.headerRight as () => ReactElement)()
+    const { getByText } = render(element)
     expect(getByText('menu-button')).toBeOnTheScreen()
+  })
+
+  it('opts the menu button out of the iOS 26 Liquid Glass background', () => {
+    render(<HomeScreen />)
+    const opts = capturedOptions[0]
+    const items = (
+      opts.unstable_headerRightItems as
+        | undefined
+        | (() => { type: string; hidesSharedBackground?: boolean }[])
+    )?.()
+    if (items) {
+      // iOS: the screen registers a custom item with the glass background hidden.
+      expect(items).toHaveLength(1)
+      expect(items[0]).toMatchObject({ type: 'custom', hidesSharedBackground: true })
+    } else {
+      // Android branch: nothing to opt out of, just confirm the legacy slot is wired.
+      expect(typeof opts.headerRight).toBe('function')
+    }
   })
 })

@@ -7,6 +7,7 @@ import type { Theme } from '../../../../../lib/theme'
 import MetraTripRealtime from '../../../../../components/MetraTripRealtime'
 import PageHeader from '../../../../../components/PageHeader'
 import FavoriteButton from '../../../../../components/FavoriteButton'
+import { headerRightItem } from '../../../../../lib/headerItems'
 
 const metraHeroImage = require('../../../../../assets/hero-header-metra.jpg')
 
@@ -27,7 +28,7 @@ export default function MetraTrainDetailScreen() {
             : train
               ? `Train ${train}`
               : 'Train',
-          headerRight: () => <FavoriteButton type="train" id={`${lineSlug}_${train}`} />,
+          ...headerRightItem(<FavoriteButton type="train" id={`${lineSlug}_${train}`} />),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>

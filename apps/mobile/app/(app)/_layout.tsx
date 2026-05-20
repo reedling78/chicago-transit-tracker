@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useTheme } from '../../lib/theme'
 import HeaderBackButton from '../../components/HeaderBackButton'
 import AppHeaderBackground from '../../components/AppHeaderBackground'
+import { headerLeftItem } from '../../lib/headerItems'
 
 export default function AppStackLayout() {
   const { theme, resolvedMode } = useTheme()
@@ -19,7 +20,7 @@ export default function AppStackLayout() {
           headerTitleStyle: { color: theme.colors.text.primary, fontWeight: '700' },
           title: '',
           headerBackVisible: false,
-          headerLeft: () => <HeaderBackButton />,
+          ...headerLeftItem(<HeaderBackButton />),
         }}
       >
         <Stack.Screen name="auth" options={{ presentation: 'modal', headerShown: false }} />
