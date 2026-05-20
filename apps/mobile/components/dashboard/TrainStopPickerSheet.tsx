@@ -8,15 +8,15 @@ import {
 } from '@gorhom/bottom-sheet'
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import type { Favorite, TripStop } from '@ctt/shared'
-import { useFavoritesStore } from '../../lib/store/favorites'
-import { useFavoriteTripQuery } from '../../lib/useDashboardQueries'
-import { useUpdateFavoriteSettings } from '../../lib/useUpdateFavoriteSettings'
+import type { DashboardItem, TripStop } from '@ctt/shared'
+import { useDashboardStore } from '../../lib/store/dashboard'
+import { useDashboardItemTripQuery } from '../../lib/useDashboardQueries'
+import { useUpdateDashboardItemSettings } from '../../lib/useUpdateDashboardItemSettings'
 import { useTheme } from '../../lib/theme'
 import type { Theme } from '../../lib/theme'
 
 interface OpenArgs {
-  favorite: Favorite
+  item: DashboardItem
   mode: 'origin' | 'destination'
 }
 
@@ -80,18 +80,18 @@ interface PickerContentsProps {
 }
 
 function PickerContents({ args, dismiss }: PickerContentsProps) {
-  const { favorite, mode } = args
-  const { data: trip } = useFavoriteTripQuery(favorite.id)
-  const { update } = useUpdateFavoriteSettings(favorite.type, favorite.id)
+  const { item, mode } = args
+  const { data: trip } = useDashboardItemTripQuery(item.id)
+  const { update } = useUpdateDashboardItemSettings(item.type, item.id)
   const { theme } = useTheme()
   const insets = useSafeAreaInsets()
   const styles = useMemo(() => makeStyles(theme), [theme])
   // Read the live store so the user's current overrides anchor the eligibility
   // rules even after a previous picker selection in the same session.
-  const liveFavorite = useFavoritesStore((s) =>
-    s.favorites.find((f) => f.type === favorite.type && f.id === favorite.id),
+  const liveItem = useDashboardStore((s) =>
+    s.items.find((f) => f.type === item.type && f.id === item.id),
   )
-  const effective = liveFavorite ?? favorite
+  const effective = liveItem ?? item
 
   const stops = trip?.stops ?? []
   const firstStop = stops[0]

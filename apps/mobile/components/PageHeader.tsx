@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
 import { View, Text, Image, StyleSheet, type ImageSourcePropType } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import type { FavoriteType } from '@ctt/shared'
+import type { DashboardItemType } from '@ctt/shared'
 import { useNavHeaderInset } from '../lib/useNavHeaderInset'
 import { useTheme } from '../lib/theme'
-import FavoriteButton from './FavoriteButton'
+import DashboardAddButton from './DashboardAddButton'
 
 interface PageHeaderProps {
   title?: string
@@ -13,16 +13,17 @@ interface PageHeaderProps {
   badges?: ReactNode
   icon?: ReactNode
   imageSrc?: ImageSourcePropType
-  favorite?: { type: FavoriteType; id: string }
+  /**
+   * When provided, renders a "+ Dashboard" pill at the bottom-right of the hero
+   * so users can add the current line/station/train to their dashboard.
+   */
+  dashboardItem?: { type: DashboardItemType; id: string }
   compact?: boolean
   children?: ReactNode
 }
 
 const defaultImage = require('../assets/hero-header.jpg')
 
-// Photo gradient stops are a fixed visual treatment, not theme-dependent —
-// the photo behind them is always dark, so the gradient stays the same in
-// both modes. Tokenized text colors apply on top.
 const GRADIENT_STOPS = ['transparent', 'rgba(0,0,0,0.20)', 'rgba(0,0,0,0.85)'] as const
 const TEXT_SHADOW = 'rgba(0,0,0,0.3)'
 
@@ -32,7 +33,7 @@ export default function PageHeader({
   badges,
   icon,
   imageSrc = defaultImage,
-  favorite,
+  dashboardItem,
   compact = false,
   children,
 }: PageHeaderProps) {
@@ -51,8 +52,8 @@ export default function PageHeader({
       />
       <View style={[styles.content, compact && styles.contentCompact]}>
         {badges && <View style={styles.badges}>{badges}</View>}
-        {(title || favorite) && (
-          <View style={styles.titleRow}>
+        <View style={styles.bottomRow}>
+          <View style={styles.bottomTextCol}>
             {title && (
               <View style={styles.titleInner}>
                 {icon && <View style={styles.iconWrapper}>{icon}</View>}
@@ -67,25 +68,25 @@ export default function PageHeader({
                 </Text>
               </View>
             )}
-            {favorite && (
-              <View style={styles.favoriteWrapper}>
-                <FavoriteButton type={favorite.type} id={favorite.id} />
-              </View>
+            {description && (
+              <Text
+                style={[
+                  styles.description,
+                  compact && styles.descriptionCompact,
+                  { color: theme.colors.text.onScrimMuted },
+                ]}
+              >
+                {description}
+              </Text>
             )}
+            {children && <View style={styles.children}>{children}</View>}
           </View>
-        )}
-        {description && (
-          <Text
-            style={[
-              styles.description,
-              compact && styles.descriptionCompact,
-              { color: theme.colors.text.onScrimMuted },
-            ]}
-          >
-            {description}
-          </Text>
-        )}
-        {children && <View style={styles.children}>{children}</View>}
+          {dashboardItem && (
+            <View style={styles.actionWrapper}>
+              <DashboardAddButton type={dashboardItem.type} id={dashboardItem.id} />
+            </View>
+          )}
+        </View>
       </View>
     </View>
   )
@@ -122,14 +123,16 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
-  titleRow: {
+  bottomRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: 12,
   },
-  titleInner: {
+  bottomTextCol: {
     flexShrink: 1,
     flexGrow: 1,
+  },
+  titleInner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
   iconWrapper: {
     flexShrink: 0,
   },
-  favoriteWrapper: {
+  actionWrapper: {
     flexShrink: 0,
   },
   title: {

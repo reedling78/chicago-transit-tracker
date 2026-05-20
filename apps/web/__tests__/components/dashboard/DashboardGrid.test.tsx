@@ -3,7 +3,7 @@
  */
 import { render, screen, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import type { Favorite } from '@ctt/shared'
+import type { DashboardItem } from '@ctt/shared'
 
 const mockUseAuth = jest.fn()
 jest.mock('@components/AuthProvider', () => ({
@@ -16,23 +16,23 @@ const mockUseFavoriteTripQuery = jest.fn()
 jest.mock('@lib/hooks/useDashboardQueries', () => ({
   useLinesQuery: () => mockUseLinesQuery(),
   useStationsQuery: () => mockUseStationsQuery(),
-  useFavoriteTripQuery: (id: string | null) => mockUseFavoriteTripQuery(id),
+  useDashboardItemTripQuery: (id: string | null) => mockUseFavoriteTripQuery(id),
   useStationScheduleQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
   useStationTripsQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
 }))
 
-jest.mock('@lib/hooks/useUpdateFavoriteSettings', () => ({
-  useUpdateFavoriteSettings: () => ({ update: jest.fn(), isUpdating: false }),
+jest.mock('@lib/hooks/useUpdateDashboardItemSettings', () => ({
+  useUpdateDashboardItemSettings: () => ({ update: jest.fn(), isUpdating: false }),
 }))
 
 const mockReorder = jest.fn()
-jest.mock('@lib/hooks/useReorderFavorites', () => ({
-  useReorderFavorites: () => ({ reorder: mockReorder, isReordering: false }),
+jest.mock('@lib/hooks/useReorderDashboardItems', () => ({
+  useReorderDashboardItems: () => ({ reorder: mockReorder, isReordering: false }),
 }))
 
-jest.mock('@lib/hooks/useToggleFavorite', () => ({
-  useToggleFavorite: () => ({
-    isFavorited: true,
+jest.mock('@lib/hooks/useToggleDashboardItem', () => ({
+  useToggleDashboardItem: () => ({
+    isOnDashboard: true,
     toggle: jest.fn(),
     isToggling: false,
     needsAuth: false,
@@ -44,7 +44,7 @@ jest.mock('next/navigation', () => ({
 }))
 
 import DashboardGrid from '@components/dashboard/DashboardGrid'
-import { useFavoritesStore } from '@lib/store/favorites'
+import { useDashboardStore } from '@lib/store/dashboard'
 import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../fixtures'
 
 function getCapturedDragEnd():
@@ -59,7 +59,7 @@ function getCapturedDragEnd():
   return lib.__captured.lastOnDragEnd
 }
 
-const allFavorites: Favorite[] = [
+const allFavorites: DashboardItem[] = [
   { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' },
   { type: 'station', id: 'clark-lake', addedAt: '2026-04-25T11:00:00Z' },
   { type: 'train', id: 'bnsf_1234', addedAt: '2026-04-25T12:00:00Z' },
@@ -67,7 +67,7 @@ const allFavorites: Favorite[] = [
 
 beforeEach(() => {
   jest.clearAllMocks()
-  useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+  useDashboardStore.setState({ items: [], hydrated: false, pendingWrites: 0 })
   localStorage.clear()
   mockUseLinesQuery.mockReturnValue({ data: [mockLine, mockMetraLine] })
   mockUseStationsQuery.mockReturnValue({ data: [mockStation, mockMetraStation] })
@@ -97,7 +97,7 @@ describe('DashboardGrid', () => {
 
   it('renders one card per favorite, mixed types', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     render(<DashboardGrid />)
     expect(screen.getByText('Red Line')).toBeInTheDocument()
     expect(screen.getByText('Clark/Lake')).toBeInTheDocument()
@@ -106,14 +106,14 @@ describe('DashboardGrid', () => {
 
   it('shows the long-press / menu hint when favorites are present', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     render(<DashboardGrid />)
     expect(screen.getByText(/drag a card to reorder/i)).toBeInTheDocument()
   })
 
   it('calls reorder() with the new order on drag-end', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     render(<DashboardGrid />)
     const onDragEnd = getCapturedDragEnd()
     expect(onDragEnd).toBeDefined()
@@ -129,7 +129,7 @@ describe('DashboardGrid', () => {
 
   it('does not call reorder when drop target is the same as drag source', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     render(<DashboardGrid />)
     const onDragEnd = getCapturedDragEnd()
     act(() => onDragEnd?.({ active: { id: 'line:red' }, over: { id: 'line:red' } }))

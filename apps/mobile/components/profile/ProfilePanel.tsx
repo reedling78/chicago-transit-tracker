@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuth } from '../../lib/AuthContext'
 import { signOut } from '../../lib/auth'
 import { useTheme, type Theme, type ThemeModeSetting } from '../../lib/theme'
+import { useDashboardStore } from '../../lib/store/dashboard'
+import { useClearAllDashboardItems } from '../../lib/useClearAllDashboardItems'
 import PressableButton from '../PressableButton'
 
 const THEME_MODES: { value: ThemeModeSetting; label: string }[] = [
@@ -53,6 +55,20 @@ export default function ProfilePanel() {
   const router = useRouter()
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
+  const itemCount = useDashboardStore((s) => s.items.length)
+  const { clearAll, isClearing } = useClearAllDashboardItems()
+
+  const confirmClearAll = () => {
+    if (itemCount === 0) return
+    Alert.alert(
+      'Clear all dashboard items?',
+      `Remove all ${itemCount} item${itemCount === 1 ? '' : 's'} from your dashboard.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Clear all', style: 'destructive', onPress: () => clearAll() },
+      ],
+    )
+  }
 
   if (loading) {
     return <Text style={styles.loadingText}>Loading...</Text>
@@ -101,6 +117,19 @@ export default function ProfilePanel() {
 
       <ThemeToggle />
 
+      {itemCount > 0 && (
+        <PressableButton
+          style={styles.clearAllButton}
+          onPress={confirmClearAll}
+          disabled={isClearing}
+          haptic="light"
+          accessibilityRole="button"
+          accessibilityLabel="Clear all dashboard items"
+        >
+          <Text style={styles.clearAllText}>Clear all dashboard items</Text>
+        </PressableButton>
+      )}
+
       <PressableButton
         style={styles.signOutButton}
         onPress={async () => {
@@ -145,6 +174,15 @@ function makeStyles(theme: Theme) {
       alignItems: 'center',
     },
     signOutText: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
+    clearAllButton: {
+      borderColor: theme.colors.status.delayed,
+      borderWidth: 1,
+      backgroundColor: 'transparent',
+      borderRadius: theme.radius.md - 2,
+      padding: 14,
+      alignItems: 'center',
+    },
+    clearAllText: { color: theme.colors.status.delayed, fontSize: 16, fontWeight: '600' },
   })
 }
 

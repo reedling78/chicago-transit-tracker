@@ -34,6 +34,8 @@ jest.mock('expo-router', () => {
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
     useLocalSearchParams: () => ({ line: 'bnsf', trainNumber: '1200' }),
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+    useNavigation: () => ({ dispatch: jest.fn() }),
     Link: ({ children }: { children: React.ReactNode }) =>
       ReactMock.createElement(ReactMock.Fragment, null, children),
     Stack,
@@ -67,7 +69,7 @@ describe('MetraTrainDetailScreen', () => {
     expect(screen.UNSAFE_queryByType(ActivityIndicator)).not.toBeNull()
   })
 
-  it('renders the train number in the PageHeader even while loading', () => {
+  it('falls back to "Train {n}" in the PageHeader while the trip is loading', () => {
     mockUseMetraTrip.mockReturnValue({ trip: null, loading: true })
     render(<MetraTrainDetailScreen />)
     expect(screen.getByText('Train 1200')).toBeOnTheScreen()
@@ -80,7 +82,33 @@ describe('MetraTrainDetailScreen', () => {
     expect(screen.getByText("We couldn't find 1200 on the BNSF line.")).toBeOnTheScreen()
   })
 
-  it('renders the train number and line name in the PageHeader when the trip resolves', () => {
+  it('renders origin → destination as the PageHeader title and "{line} #{n}" as the subtitle when the trip resolves', () => {
+    mockUseMetraTrip.mockReturnValue({
+      trip: {
+        tripId: 't',
+        trainNumber: '1200',
+        headsign: 'Aurora',
+        line: 'BNSF',
+        lineSlug: 'bnsf',
+        lineName: 'BNSF Railway',
+        serviceType: 'weekday',
+        directionId: 0,
+        stops: [
+          { slug: 'union-station', stationName: 'Chicago Union Station', departure: '5:42 PM' },
+          { slug: 'aurora', stationName: 'Aurora', departure: '7:01 PM' },
+        ],
+      } as never,
+      loading: false,
+    })
+    render(<MetraTrainDetailScreen />)
+    // Title mirrors the dashboard TrainCard's origin → destination pattern,
+    // with Chicago Union Station shortened to Union Station.
+    expect(screen.getByText('Union Station to Aurora')).toBeOnTheScreen()
+    // Description is now line + train number, not the line name on its own.
+    expect(screen.getByText('BNSF #1200')).toBeOnTheScreen()
+  })
+
+  it('still falls back to "Train {n}" when the trip has no stops', () => {
     mockUseMetraTrip.mockReturnValue({
       trip: {
         tripId: 't',
@@ -92,32 +120,32 @@ describe('MetraTrainDetailScreen', () => {
         serviceType: 'weekday',
         directionId: 0,
         stops: [],
-      },
+      } as never,
       loading: false,
     })
     render(<MetraTrainDetailScreen />)
     expect(screen.getByText('Train 1200')).toBeOnTheScreen()
-    expect(screen.getByText('BNSF Railway')).toBeOnTheScreen()
+    expect(screen.getByText('BNSF #1200')).toBeOnTheScreen()
   })
 
-  it('places the favorite button in the PageHeader title row', () => {
+  it('renders the menu button in the header right', () => {
     mockUseMetraTrip.mockReturnValue({
-      trip: {
-        tripId: 't',
-        trainNumber: '1200',
-        headsign: 'Aurora',
-        line: 'BNSF',
-        lineSlug: 'bnsf',
-        lineName: 'BNSF Railway',
-        serviceType: 'weekday',
-        directionId: 0,
-        stops: [],
-      },
+      trip: { lineSlug: 'bnsf', trainNumber: '1234' } as never,
       loading: false,
     })
     render(<MetraTrainDetailScreen />)
-    const stub = screen.getByTestId('favorite-button-stub')
-    expect(stub).toBeOnTheScreen()
+    const menuButton = screen.getByLabelText('Open menu')
+    expect(menuButton).toBeOnTheScreen()
+  })
+
+  it('renders the DashboardAddButton on the hero for the train', () => {
+    mockUseMetraTrip.mockReturnValue({
+      trip: { lineSlug: 'bnsf', trainNumber: '1200' } as never,
+      loading: false,
+    })
+    render(<MetraTrainDetailScreen />)
+    const stub = screen.getByTestId('dashboard-add-button-stub')
+    // Built from the URL params (line=bnsf, trainNumber=1200), not the trip body
     expect(stub.props.children).toBe('train:bnsf_1200')
   })
 

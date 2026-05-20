@@ -3,14 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@components/AuthProvider'
-import { useFavoritesStore } from '@lib/store/favorites'
+import { useDashboardStore } from '@lib/store/dashboard'
 import AuthModal from '@components/AuthModal'
 
 type AuthOpen = 'signIn' | 'signUp' | null
 
 export default function DashboardHeader() {
   const { user, profile, loading } = useAuth()
-  const favorites = useFavoritesStore((s) => s.favorites)
+  const items = useDashboardStore((s) => s.items)
   const [authOpen, setAuthOpen] = useState<AuthOpen>(null)
 
   if (loading) return null
@@ -38,7 +38,8 @@ export default function DashboardHeader() {
               area.
             </p>
             <p className="mt-10 text-base text-gray-600 dark:text-white/70">
-              Sign up to customize your dashboard with your favorite lines, stations, and trains.
+              Sign up to customize your dashboard with the lines, stations, and trains you care
+              about.
             </p>
             <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <button
@@ -69,11 +70,12 @@ export default function DashboardHeader() {
   return (
     <div>
       <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">{heading}</h2>
-      {favorites.length === 0 && (
+      {items.length === 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
-          <p className="font-medium text-gray-900 dark:text-white">No favorites yet</p>
+          <p className="font-medium text-gray-900 dark:text-white">Your dashboard is empty</p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Tap the heart on any line, station, or train to save it here. Or jump in below:
+            Tap &quot;+ Dashboard&quot; on any line, station, or train page to add it here. Or jump
+            in below:
           </p>
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Link

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Breadcrumb, { type BreadcrumbItem } from './Breadcrumb'
-import FavoriteButton from './FavoriteButton'
-import type { FavoriteType } from '@ctt/shared'
+import DashboardAddButton from './DashboardAddButton'
+import type { DashboardItemType } from '@ctt/shared'
 
 interface PageHeaderProps {
   title: string
@@ -14,8 +14,12 @@ interface PageHeaderProps {
   icon?: React.ReactNode
   /** Background hero image — defaults to the CTA/Chicago photo */
   imageSrc?: string
-  /** When provided, renders a FavoriteButton at top-right (next to the breadcrumb). */
-  favorite?: { type: FavoriteType; id: string }
+  /**
+   * When provided, renders a DashboardAddButton pinned to the bottom-right of
+   * the hero so users can add the current page (line/station/train) to their
+   * dashboard.
+   */
+  dashboardItem?: { type: DashboardItemType; id: string }
   /** Extra content rendered below the description — e.g. line colour chips */
   children?: React.ReactNode
 }
@@ -27,7 +31,7 @@ export default function PageHeader({
   badges,
   icon,
   imageSrc = '/hero-header.jpg',
-  favorite,
+  dashboardItem,
   children,
 }: PageHeaderProps) {
   const titleHeading = (
@@ -64,30 +68,32 @@ export default function PageHeader({
         aria-hidden="true"
       />
 
-      {/* Top: breadcrumb + favorite (right-aligned) */}
-      {((breadcrumbItems && breadcrumbItems.length > 0) || favorite) && (
-        <div className="relative z-10 mx-auto flex w-full max-w-7xl items-start justify-between gap-3 px-4 pt-5 sm:px-6 lg:px-8">
+      {/* Top: breadcrumb only */}
+      {breadcrumbItems && breadcrumbItems.length > 0 && (
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl items-start gap-3 px-4 pt-5 sm:px-6 lg:px-8">
           <div className="min-w-0 flex-1">
-            {breadcrumbItems && breadcrumbItems.length > 0 && (
-              <Breadcrumb items={breadcrumbItems} />
-            )}
+            <Breadcrumb items={breadcrumbItems} />
           </div>
-          {favorite && (
-            <div className="-mt-2 shrink-0">
-              <FavoriteButton type={favorite.type} id={favorite.id} />
-            </div>
-          )}
         </div>
       )}
 
       {/* Bottom: main content — mt-auto pins to the bottom of the flex column */}
       <div className="relative z-10 mx-auto mt-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        {badges && <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>}
-        {titleHeading}
-        {description && (
-          <p className="mt-3 max-w-2xl text-sm text-white/85 sm:text-base">{description}</p>
-        )}
-        {children && <div className="mt-4">{children}</div>}
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            {badges && <div className="mb-3 flex flex-wrap items-center gap-2">{badges}</div>}
+            {titleHeading}
+            {description && (
+              <p className="mt-3 max-w-2xl text-sm text-white/85 sm:text-base">{description}</p>
+            )}
+            {children && <div className="mt-4">{children}</div>}
+          </div>
+          {dashboardItem && (
+            <div className="shrink-0">
+              <DashboardAddButton type={dashboardItem.type} id={dashboardItem.id} />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )

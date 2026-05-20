@@ -48,6 +48,7 @@ jest.mock('expo-router', () => {
     Link: ({ children }: { children: ReactNode }) => children,
     useLocalSearchParams: () => ({ line: 'red' }),
     useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+    useNavigation: () => ({ dispatch: jest.fn() }),
     Stack,
   }
 })
@@ -83,14 +84,19 @@ describe('CtaLineDetailScreen', () => {
     expect(screen.getByText('Clark/Lake')).toBeOnTheScreen()
   })
 
-  it('places the favorite button in the PageHeader title row', () => {
+  it('renders the menu button in the header right', () => {
     mockUseLine.mockReturnValue({ line: mockLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockStation], loading: false })
     render(<CtaLineDetailScreen />)
-    // FavoriteButton is globally stubbed in jest.setup.ts; verify the stub appears
-    // with the correct type/id, which proves the component is wired into the header.
-    const stub = screen.getByTestId('favorite-button-stub')
-    expect(stub).toBeOnTheScreen()
+    const menuButton = screen.getByLabelText('Open menu')
+    expect(menuButton).toBeOnTheScreen()
+  })
+
+  it('renders the DashboardAddButton on the hero for the line', () => {
+    mockUseLine.mockReturnValue({ line: mockLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockStation], loading: false })
+    render(<CtaLineDetailScreen />)
+    const stub = screen.getByTestId('dashboard-add-button-stub')
     expect(stub.props.children).toBe('line:red')
   })
 

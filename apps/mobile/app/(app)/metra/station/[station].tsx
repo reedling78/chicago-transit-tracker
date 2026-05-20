@@ -8,7 +8,7 @@ import type { Theme } from '../../../../lib/theme'
 import { ArrivalsCard } from '../../../../components/ArrivalsCard'
 import { MetraTimetable } from '../../../../components/MetraTimetable'
 import PageHeader from '../../../../components/PageHeader'
-import FavoriteButton from '../../../../components/FavoriteButton'
+import HeaderMenuButton from '../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../lib/headerItems'
 
 const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
@@ -35,7 +35,7 @@ export default function MetraStationDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: station.name,
-          ...headerRightItem(<FavoriteButton type="station" id={station.slug} />),
+          ...headerRightItem(<HeaderMenuButton />),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -44,6 +44,7 @@ export default function MetraStationDetailScreen() {
           title={station.name}
           description={station.address}
           imageSrc={station.photoUrl ? { uri: station.photoUrl } : metraHeroImage}
+          dashboardItem={{ type: 'station', id: station.slug }}
           badges={
             <>
               <Text style={badgeStyles.service}>

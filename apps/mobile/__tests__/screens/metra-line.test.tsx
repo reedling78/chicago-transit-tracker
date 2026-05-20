@@ -46,6 +46,7 @@ jest.mock('expo-router', () => {
     Link: ({ children }: { children: ReactNode }) => children,
     useLocalSearchParams: () => ({ line: 'bnsf' }),
     useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+    useNavigation: () => ({ dispatch: jest.fn() }),
     Stack,
   }
 })
@@ -82,12 +83,19 @@ describe('MetraLineDetailScreen', () => {
     expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('places the favorite button in the PageHeader title row', () => {
+  it('renders the menu button in the header right', () => {
     mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
     render(<MetraLineDetailScreen />)
-    const stub = screen.getByTestId('favorite-button-stub')
-    expect(stub).toBeOnTheScreen()
+    const menuButton = screen.getByLabelText('Open menu')
+    expect(menuButton).toBeOnTheScreen()
+  })
+
+  it('renders the DashboardAddButton on the hero for the line', () => {
+    mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
+    render(<MetraLineDetailScreen />)
+    const stub = screen.getByTestId('dashboard-add-button-stub')
     expect(stub.props.children).toBe('line:bnsf')
   })
 

@@ -7,27 +7,27 @@ import { CSS } from '@dnd-kit/utilities'
 import {
   computeArrivalGroups,
   displayStationName,
-  favoriteKey,
+  dashboardItemKey,
   formatMinutesAway,
   indexMetraTripUpdates,
   LINE_COLORS,
   stationCardSubheader,
   summarizeCompact,
   type ArrivalGroup,
-  type Favorite,
-  type FavoriteDensity,
+  type DashboardItem,
+  type DashboardItemDensity,
   type Line,
   type Station,
 } from '@ctt/shared'
-import { favoriteRoute } from '@lib/favoriteRoute'
+import { dashboardItemRoute } from '@lib/dashboardItemRoute'
 import { useStationScheduleQuery, useStationTripsQuery } from '@lib/hooks/useDashboardQueries'
 import { useMetraFeed } from '@lib/hooks/useMetraFeed'
-import FavoriteMenu from '../FavoriteMenu'
+import DashboardItemMenu from '../DashboardItemMenu'
 import CardMenuButton from './CardMenuButton'
 import { cardLink, cardRow, cardRowDragging, cardSubtitle, cardTitle } from './cardClassNames'
 
 interface StationCardProps {
-  favorite: Favorite
+  item: DashboardItem
   station: Station | undefined
   lines: Line[] | undefined
 }
@@ -36,10 +36,10 @@ function isMetraStation(station: Station | undefined): boolean {
   return station?.service === 'metra' || station?.service === 'both'
 }
 
-export default function StationCard({ favorite, station, lines }: StationCardProps) {
+export default function StationCard({ item, station, lines }: StationCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: favoriteKey(favorite.type, favorite.id),
+    id: dashboardItemKey(item.type, item.id),
   })
 
   const slug = station?.slug ?? null
@@ -58,8 +58,8 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
     return () => clearInterval(id)
   }, [])
 
-  const density: FavoriteDensity = favorite.density ?? 'expanded'
-  const directionFilter = favorite.directionFilter ?? 'all'
+  const density: DashboardItemDensity = item.density ?? 'expanded'
+  const directionFilter = item.directionFilter ?? 'all'
 
   const realtime = realtimeEnabled ? indexMetraTripUpdates(feedData) : null
 
@@ -81,8 +81,8 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
     transition,
   }
 
-  const href = station ? favoriteRoute(favorite, lines, [station]) : null
-  const title = displayStationName(station?.name) ?? favorite.id
+  const href = station ? dashboardItemRoute(item, lines, [station]) : null
+  const title = displayStationName(station?.name) ?? item.id
   const subtitle = station
     ? stationCardSubheader(metra ? 'metra' : 'cta', station.lines ?? [])
     : null
@@ -126,8 +126,8 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
           accessibilityLabel={`Open menu for ${title}`}
         />
         {menuOpen && (
-          <FavoriteMenu
-            favorite={favorite}
+          <DashboardItemMenu
+            item={item}
             lines={lines}
             stations={station ? [station] : undefined}
             schedule={scheduleQuery.data ?? null}
@@ -151,7 +151,7 @@ export default function StationCard({ favorite, station, lines }: StationCardPro
 }
 
 interface ArrivalsBodyProps {
-  density: FavoriteDensity
+  density: DashboardItemDensity
   groups: ArrivalGroup[]
   loading: boolean
   hasSchedule: boolean

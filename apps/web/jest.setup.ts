@@ -20,21 +20,21 @@ if (typeof globalThis.Headers === 'undefined') {
   globalThis.Headers = class StubHeaders {} as unknown as typeof Headers
 }
 
-// FavoriteButton transitively depends on TanStack Query (useToggleFavorite ->
-// useMutation), Firebase Auth, and the favorites Zustand store. Page-level
+// DashboardAddButton transitively depends on TanStack Query (useToggleDashboardItem ->
+// useMutation), Firebase Auth, and the dashboard Zustand store. Page-level
 // tests render PageHeader-using pages without those providers, so stub the
-// component globally. The real FavoriteButton is unit-tested in its own file
+// component globally. The real DashboardAddButton is unit-tested in its own file
 // (which calls jest.unmock).
-jest.mock('@components/FavoriteButton', () => {
+jest.mock('@components/DashboardAddButton', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react')
   return {
     __esModule: true,
     default: ({ type, id }: { type: string; id: string }) =>
       React.createElement('div', {
-        'data-testid': 'favorite-button-stub',
-        'data-favorite-type': type,
-        'data-favorite-id': id,
+        'data-testid': 'dashboard-add-button-stub',
+        'data-dashboard-item-type': type,
+        'data-dashboard-item-id': id,
       }),
   }
 })

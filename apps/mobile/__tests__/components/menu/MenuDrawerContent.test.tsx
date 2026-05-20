@@ -29,10 +29,10 @@ jest.mock('../../../components/profile/ProfilePanel', () => {
   const { Text } = require('react-native')
   return { __esModule: true, default: () => <Text>profile-panel</Text> }
 })
-jest.mock('../../../components/profile/FavoritesManager', () => {
+jest.mock('../../../components/menu/DashboardItemsList', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text } = require('react-native')
-  return { __esModule: true, default: () => <Text>favorites-manager</Text> }
+  return { __esModule: true, default: () => <Text>dashboard-items-list</Text> }
 })
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }))
 jest.mock('@expo/vector-icons/Ionicons', () => {
@@ -49,9 +49,10 @@ describe('MenuDrawerContent (mobile)', () => {
     const { getByText, getAllByText } = render(<MenuDrawerContent navigation={nav} />)
     expect(getByText('Menu')).toBeTruthy()
     expect(getAllByText('Dashboard').length).toBeGreaterThan(0)
+    expect(getByText('Dashboard Items')).toBeTruthy()
     expect(getByText('Profile')).toBeTruthy()
     expect(getByText('Legal')).toBeTruthy()
-    expect(getByText('favorites-manager')).toBeTruthy()
+    expect(getByText('dashboard-items-list')).toBeTruthy()
     expect(getByText('profile-panel')).toBeTruthy()
   })
 
@@ -68,7 +69,7 @@ describe('MenuDrawerContent (mobile)', () => {
   it('exposes section headings with the header accessibility role', () => {
     mockUseAuth.mockReturnValue({ profile: { email: 'a@b.com' }, loading: false })
     const { getByText } = render(<MenuDrawerContent navigation={nav} />)
-    for (const heading of ['Menu', 'Profile', 'Legal']) {
+    for (const heading of ['Menu', 'Dashboard Items', 'Profile', 'Legal']) {
       expect(getByText(heading).props.accessibilityRole).toBe('header')
     }
   })

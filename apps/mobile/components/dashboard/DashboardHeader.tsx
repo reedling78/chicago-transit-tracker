@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useAuth } from '../../lib/AuthContext'
-import { useFavoritesStore } from '../../lib/store/favorites'
+import { useDashboardStore } from '../../lib/store/dashboard'
 import { useTheme } from '../../lib/theme'
 import type { Theme } from '../../lib/theme'
 import PressableButton from '../PressableButton'
@@ -10,7 +10,7 @@ import PressableButton from '../PressableButton'
 export default function DashboardHeader() {
   const router = useRouter()
   const { user, profile, loading } = useAuth()
-  const favorites = useFavoritesStore((s) => s.favorites)
+  const items = useDashboardStore((s) => s.items)
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
@@ -23,7 +23,7 @@ export default function DashboardHeader() {
           Real-time schedules, routes, and station info for every line in the Chicago metro area.
         </Text>
         <Text style={styles.heroPrompt}>
-          Sign up to customize your dashboard with your favorite lines, stations, and trains.
+          Sign up to customize your dashboard with the lines, stations, and trains you care about.
         </Text>
         <View style={styles.heroButtonRow}>
           <PressableButton
@@ -54,9 +54,9 @@ export default function DashboardHeader() {
   return (
     <View style={styles.authedHeader}>
       <Text style={styles.heading}>{heading}</Text>
-      {favorites.length === 0 && (
+      {items.length === 0 && (
         <View style={styles.emptyCard}>
-          <Text style={styles.emptyTitle}>No favorites yet</Text>
+          <Text style={styles.emptyTitle}>Your dashboard is empty</Text>
           <Text style={styles.emptySubtitle}>
             Tap the heart on any line, station, or train to save it here. Or jump in below:
           </Text>

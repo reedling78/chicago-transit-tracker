@@ -1,5 +1,5 @@
 import { render, fireEvent } from '@testing-library/react-native'
-import type { Favorite, Line, MetraTripDetail } from '@ctt/shared'
+import type { Line, MetraTripDetail } from '@ctt/shared'
 import TrainCard from '../../../../components/dashboard/cards/TrainCard'
 
 const mockPush = jest.fn()
@@ -9,7 +9,7 @@ jest.mock('expo-router', () => ({
 
 const mockUseFavoriteTripQuery = jest.fn()
 jest.mock('../../../../lib/useDashboardQueries', () => ({
-  useFavoriteTripQuery: (tripId: string | null) => mockUseFavoriteTripQuery(tripId),
+  useDashboardItemTripQuery: (tripId: string | null) => mockUseFavoriteTripQuery(tripId),
 }))
 
 const mockUseLive = jest.fn()
@@ -101,7 +101,7 @@ describe('TrainCard (mobile)', () => {
   it('renders an "origin to destination" header from the trip stops', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     const { getByText } = render(
-      <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+      <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
     )
     expect(getByText('Big Timber to Union Station')).toBeTruthy()
   })
@@ -110,7 +110,7 @@ describe('TrainCard (mobile)', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     const { getByText } = render(
       <TrainCard
-        favorite={{
+        item={{
           ...fav,
           trainOriginStopSlug: 'schaumburg',
           trainDestinationStopSlug: 'western-avenue-metra',
@@ -126,7 +126,7 @@ describe('TrainCard (mobile)', () => {
   it('folds the agency, line, and train number into a single subheader (no pills)', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     const { getByText, queryByText } = render(
-      <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+      <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
     )
     expect(getByText('MD-W #2222')).toBeTruthy()
     expect(queryByText('Weekday')).toBeNull()
@@ -137,7 +137,7 @@ describe('TrainCard (mobile)', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: null })
     const { getByText } = render(
       <TrainCard
-        favorite={{ type: 'train', id: 'bnsf_9999', addedAt: '2026-04-25T10:00:00Z' }}
+        item={{ type: 'train', id: 'bnsf_9999', addedAt: '2026-04-25T10:00:00Z' }}
         lines={undefined}
         onLongPress={() => {}}
         onMenuPress={() => {}}
@@ -150,7 +150,7 @@ describe('TrainCard (mobile)', () => {
   it('navigates to /metra/{line}/train/{trainNumber} on press', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: null })
     const { getByLabelText } = render(
-      <TrainCard favorite={fav} lines={undefined} onLongPress={() => {}} onMenuPress={() => {}} />,
+      <TrainCard item={fav} lines={undefined} onLongPress={() => {}} onMenuPress={() => {}} />,
     )
     fireEvent.press(getByLabelText('Train 2222'))
     expect(mockPush).toHaveBeenCalledWith('/metra/md-w/train/2222')
@@ -172,7 +172,7 @@ describe('TrainCard (mobile)', () => {
       fetchedAt: Date.now(),
     })
     const { getByText } = render(
-      <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+      <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
     )
     expect(getByText('On time')).toBeTruthy()
   })
@@ -193,7 +193,7 @@ describe('TrainCard (mobile)', () => {
       fetchedAt: 0,
     })
     const { queryByText } = render(
-      <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+      <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
     )
     expect(queryByText('On time')).toBeNull()
   })
@@ -205,7 +205,7 @@ describe('TrainCard (mobile)', () => {
       mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
       mockUseLive.mockReturnValue(null)
       const { getByText } = render(
-        <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+        <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
       )
       expect(getByText('Departs in 12 min · 6:00 AM from Big Timber')).toBeTruthy()
     } finally {
@@ -221,7 +221,7 @@ describe('TrainCard (mobile)', () => {
       mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
       mockUseLive.mockReturnValue(null)
       const { getByText } = render(
-        <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+        <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
       )
       expect(getByText('Departed 6:00 AM · Next train Monday')).toBeTruthy()
     } finally {
@@ -237,7 +237,7 @@ describe('TrainCard (mobile)', () => {
       mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
       mockUseLive.mockReturnValue(null)
       const { getByText } = render(
-        <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+        <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
       )
       expect(getByText('Departed 6:00 AM · Next train tomorrow')).toBeTruthy()
     } finally {
@@ -261,7 +261,7 @@ describe('TrainCard (mobile)', () => {
       fetchedAt: Date.now(),
     })
     const { getByText, getByLabelText, queryByText } = render(
-      <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+      <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
     )
     expect(getByText('On time')).toBeTruthy()
     expect(getByLabelText('Receiving live data')).toBeTruthy()
@@ -301,7 +301,7 @@ describe('TrainCard (mobile)', () => {
       fetchedAt: now,
     })
     const { getByText } = render(
-      <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
+      <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={() => {}} />,
     )
     expect(getByText('Delayed 7 min')).toBeTruthy()
     expect(getByText('Next stop')).toBeTruthy()
@@ -315,7 +315,7 @@ describe('TrainCard (mobile)', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     const onMenuPress = jest.fn()
     const { getByLabelText } = render(
-      <TrainCard favorite={fav} lines={lines} onLongPress={() => {}} onMenuPress={onMenuPress} />,
+      <TrainCard item={fav} lines={lines} onLongPress={() => {}} onMenuPress={onMenuPress} />,
     )
     fireEvent.press(getByLabelText('Open menu for Big Timber to Union Station'))
     expect(onMenuPress).toHaveBeenCalled()

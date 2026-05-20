@@ -3,7 +3,7 @@
  */
 import { render, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import type { Favorite, Line, MetraTripDetail } from '@ctt/shared'
+import type { Line, MetraTripDetail } from '@ctt/shared'
 
 const mockPush = jest.fn()
 jest.mock('next/navigation', () => ({
@@ -12,14 +12,14 @@ jest.mock('next/navigation', () => ({
 
 const mockUseFavoriteTripQuery = jest.fn()
 jest.mock('@lib/hooks/useDashboardQueries', () => ({
-  useFavoriteTripQuery: (tripId: string | null) => mockUseFavoriteTripQuery(tripId),
+  useDashboardItemTripQuery: (tripId: string | null) => mockUseFavoriteTripQuery(tripId),
   useStationScheduleQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
   useStationTripsQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
 }))
 
-jest.mock('@lib/hooks/useToggleFavorite', () => ({
-  useToggleFavorite: () => ({
-    isFavorited: true,
+jest.mock('@lib/hooks/useToggleDashboardItem', () => ({
+  useToggleDashboardItem: () => ({
+    isOnDashboard: true,
     toggle: jest.fn(),
     isToggling: false,
     needsAuth: false,
@@ -27,8 +27,8 @@ jest.mock('@lib/hooks/useToggleFavorite', () => ({
 }))
 
 const mockUpdate = jest.fn()
-jest.mock('@lib/hooks/useUpdateFavoriteSettings', () => ({
-  useUpdateFavoriteSettings: () => ({ update: mockUpdate, isUpdating: false }),
+jest.mock('@lib/hooks/useUpdateDashboardItemSettings', () => ({
+  useUpdateDashboardItemSettings: () => ({ update: mockUpdate, isUpdating: false }),
 }))
 
 const mockUseLive = jest.fn()
@@ -124,7 +124,7 @@ describe('TrainCard', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     expect(screen.getByText('Big Timber to Union Station')).toBeInTheDocument()
@@ -135,7 +135,7 @@ describe('TrainCard', () => {
     render(
       <ul>
         <TrainCard
-          favorite={{
+          item={{
             ...fav,
             trainOriginStopSlug: 'schaumburg',
             trainDestinationStopSlug: 'western-avenue-metra',
@@ -152,7 +152,7 @@ describe('TrainCard', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     expect(screen.getByText('MD-W #2222')).toBeInTheDocument()
@@ -166,7 +166,7 @@ describe('TrainCard', () => {
     render(
       <ul>
         <TrainCard
-          favorite={{ type: 'train', id: 'bnsf_9999', addedAt: '2026-04-25T10:00:00Z' }}
+          item={{ type: 'train', id: 'bnsf_9999', addedAt: '2026-04-25T10:00:00Z' }}
           lines={undefined}
           stations={undefined}
         />
@@ -180,7 +180,7 @@ describe('TrainCard', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: null })
     const { container } = render(
       <ul>
-        <TrainCard favorite={fav} lines={undefined} stations={undefined} />
+        <TrainCard item={fav} lines={undefined} stations={undefined} />
       </ul>,
     )
     expect(container.querySelector('a[href="/metra/md-w/train/2222"]')).not.toBeNull()
@@ -190,7 +190,7 @@ describe('TrainCard', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     const { container } = render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     const li = container.querySelector('li')!
@@ -201,7 +201,7 @@ describe('TrainCard', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     fireEvent.click(screen.getByLabelText('Open menu for Big Timber to Union Station'))
@@ -213,7 +213,7 @@ describe('TrainCard', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: { ...trip, stops: [] } })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     fireEvent.click(screen.getByLabelText(/Open menu/))
@@ -224,7 +224,7 @@ describe('TrainCard', () => {
     mockUseFavoriteTripQuery.mockReturnValue({ data: trip })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     fireEvent.click(screen.getByLabelText(/Open menu/))
@@ -240,7 +240,7 @@ describe('TrainCard', () => {
     render(
       <ul>
         <TrainCard
-          favorite={{ ...fav, trainOriginStopSlug: 'western-avenue-metra' }}
+          item={{ ...fav, trainOriginStopSlug: 'western-avenue-metra' }}
           lines={lines}
           stations={undefined}
         />
@@ -270,7 +270,7 @@ describe('TrainCard', () => {
     })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     expect(screen.getByText('On time')).toBeInTheDocument()
@@ -284,7 +284,7 @@ describe('TrainCard', () => {
       mockUseLive.mockReturnValue(null)
       const { container } = render(
         <ul>
-          <TrainCard favorite={fav} lines={lines} stations={undefined} />
+          <TrainCard item={fav} lines={lines} stations={undefined} />
         </ul>,
       )
       expect(container.textContent).toContain('Departs in')
@@ -305,7 +305,7 @@ describe('TrainCard', () => {
       mockUseLive.mockReturnValue(null)
       const { container } = render(
         <ul>
-          <TrainCard favorite={fav} lines={lines} stations={undefined} />
+          <TrainCard item={fav} lines={lines} stations={undefined} />
         </ul>,
       )
       expect(container.textContent).toContain('Departed 6:00 AM · Next train Monday')
@@ -323,7 +323,7 @@ describe('TrainCard', () => {
       mockUseLive.mockReturnValue(null)
       const { container } = render(
         <ul>
-          <TrainCard favorite={fav} lines={lines} stations={undefined} />
+          <TrainCard item={fav} lines={lines} stations={undefined} />
         </ul>,
       )
       expect(container.textContent).toContain('Departed 6:00 AM · Next train tomorrow')
@@ -349,7 +349,7 @@ describe('TrainCard', () => {
     })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     expect(screen.getByText('On time')).toBeInTheDocument()
@@ -392,7 +392,7 @@ describe('TrainCard', () => {
     })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     // Status bar
@@ -423,7 +423,7 @@ describe('TrainCard', () => {
     })
     render(
       <ul>
-        <TrainCard favorite={fav} lines={lines} stations={undefined} />
+        <TrainCard item={fav} lines={lines} stations={undefined} />
       </ul>,
     )
     expect(screen.queryByText('On time')).not.toBeInTheDocument()

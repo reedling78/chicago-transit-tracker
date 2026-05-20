@@ -10,12 +10,12 @@ import {
   stationCardSubheader,
   summarizeCompact,
   type ArrivalGroup,
-  type Favorite,
-  type FavoriteDensity,
+  type DashboardItem,
+  type DashboardItemDensity,
   type Line,
   type Station,
 } from '@ctt/shared'
-import { favoriteRoute } from '../../../lib/favoriteRoute'
+import { dashboardItemRoute } from '../../../lib/dashboardItemRoute'
 import { useTheme } from '../../../lib/theme'
 import type { Theme } from '../../../lib/theme'
 import { useStationScheduleQuery, useStationTripsQuery } from '../../../lib/useDashboardQueries'
@@ -25,7 +25,7 @@ import CardMenuButton from './CardMenuButton'
 import { useCardStyles } from './cardStyles'
 
 interface StationCardProps {
-  favorite: Favorite
+  item: DashboardItem
   station: Station | undefined
   lines: Line[] | undefined
   onLongPress: () => void
@@ -60,7 +60,7 @@ function LiveDot() {
 }
 
 export default function StationCard({
-  favorite,
+  item,
   station,
   lines,
   onLongPress,
@@ -71,8 +71,8 @@ export default function StationCard({
   const cardStyles = useCardStyles()
   const { theme } = useTheme()
   const localStyles = useMemo(() => makeLocalStyles(theme), [theme])
-  const target = station ? favoriteRoute(favorite, lines, [station]) : null
-  const title = displayStationName(station?.name) ?? favorite.id
+  const target = station ? dashboardItemRoute(item, lines, [station]) : null
+  const title = displayStationName(station?.name) ?? item.id
   const metra = isMetraStation(station)
   const subtitle = station ? stationCardSubheader(metra ? 'metra' : 'cta', station.lines ?? []) : ''
 
@@ -90,8 +90,8 @@ export default function StationCard({
     return () => clearInterval(id)
   }, [])
 
-  const density: FavoriteDensity = favorite.density ?? 'expanded'
-  const directionFilter = favorite.directionFilter ?? 'all'
+  const density: DashboardItemDensity = item.density ?? 'expanded'
+  const directionFilter = item.directionFilter ?? 'all'
 
   const realtime = realtimeEnabled ? indexMetraTripUpdates(feedData) : null
 
@@ -162,7 +162,7 @@ export default function StationCard({
 }
 
 interface ArrivalsBodyProps {
-  density: FavoriteDensity
+  density: DashboardItemDensity
   groups: ArrivalGroup[]
   loading: boolean
   hasSchedule: boolean

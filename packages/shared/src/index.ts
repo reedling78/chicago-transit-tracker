@@ -4,12 +4,12 @@ export type {
   UserProfile,
   NormalizedAlert,
   NormalizedAlertRoute,
-  Favorite,
-  FavoriteType,
-  FavoriteDirection,
-  FavoriteDensity,
+  DashboardItem,
+  DashboardItemType,
+  DashboardItemDirection,
+  DashboardItemDensity,
 } from './types'
-export { favoriteKey, arrayToMap, mapToArray } from './favorites'
+export { dashboardItemKey, arrayToMap, mapToArray } from './dashboard-items'
 export {
   STATION_DISPLAY_NAME_OVERRIDES,
   displayStationName,

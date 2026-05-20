@@ -10,12 +10,12 @@ import {
   nextServiceRunLabel,
   parseDisplayTimeToMinutes,
   shortenStationName,
-  type Favorite,
+  type DashboardItem,
   type Line,
   type MetraTripDetail,
   type TripStop,
 } from '@ctt/shared'
-import { useFavoriteTripQuery } from '../../../lib/useDashboardQueries'
+import { useDashboardItemTripQuery } from '../../../lib/useDashboardQueries'
 import { useMetraTripLiveStatus } from '../../../lib/useMetraTripLiveStatus'
 import MetraTripHeroStatusCardCompact from '../../MetraTripHeroStatusCardCompact'
 import PressableButton from '../../PressableButton'
@@ -23,7 +23,7 @@ import CardMenuButton from './CardMenuButton'
 import { useCardStyles } from './cardStyles'
 
 interface TrainCardProps {
-  favorite: Favorite
+  item: DashboardItem
   lines: Line[] | undefined
   onLongPress: () => void
   onMenuPress: () => void
@@ -66,7 +66,7 @@ function LiveDot() {
 }
 
 export default function TrainCard({
-  favorite,
+  item,
   lines,
   onLongPress,
   onMenuPress,
@@ -79,18 +79,18 @@ export default function TrainCard({
     const id = setInterval(() => setNow(new Date()), 60_000)
     return () => clearInterval(id)
   }, [])
-  const { data: trip } = useFavoriteTripQuery(favorite.id) as { data: MetraTripDetail | null }
+  const { data: trip } = useDashboardItemTripQuery(item.id) as { data: MetraTripDetail | null }
   const live = useMetraTripLiveStatus(trip ?? null)
-  const [lineSlugFromId, trainNumberFromId] = favorite.id.split('_')
-  const trainNumber = trip?.trainNumber ?? trainNumberFromId ?? favorite.id
+  const [lineSlugFromId, trainNumberFromId] = item.id.split('_')
+  const trainNumber = trip?.trainNumber ?? trainNumberFromId ?? item.id
   const line = lines?.find((l) => l.slug === (trip?.lineSlug ?? lineSlugFromId))
   const lineColor = line?.color
   const lineSlug = trip?.lineSlug ?? lineSlugFromId
 
   const firstStop = trip?.stops?.[0]
   const lastStop = trip?.stops?.[trip.stops.length - 1]
-  const originStop = pickStop(trip?.stops, favorite.trainOriginStopSlug, firstStop)
-  const destStop = pickStop(trip?.stops, favorite.trainDestinationStopSlug, lastStop)
+  const originStop = pickStop(trip?.stops, item.trainOriginStopSlug, firstStop)
+  const destStop = pickStop(trip?.stops, item.trainDestinationStopSlug, lastStop)
 
   const title =
     trip && originStop && destStop

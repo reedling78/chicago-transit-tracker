@@ -16,21 +16,21 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { favoriteKey } from '@ctt/shared'
+import { dashboardItemKey } from '@ctt/shared'
 import { useAuth } from '@components/AuthProvider'
-import { useFavoritesStore } from '@lib/store/favorites'
+import { useDashboardStore } from '@lib/store/dashboard'
 import { useLinesQuery, useStationsQuery } from '@lib/hooks/useDashboardQueries'
-import { useReorderFavorites } from '@lib/hooks/useReorderFavorites'
+import { useReorderDashboardItems } from '@lib/hooks/useReorderDashboardItems'
 import LineCard from './cards/LineCard'
 import StationCard from './cards/StationCard'
 import TrainCard from './cards/TrainCard'
 
 export default function DashboardGrid() {
   const { user, loading } = useAuth()
-  const favorites = useFavoritesStore((s) => s.favorites)
+  const items = useDashboardStore((s) => s.items)
   const { data: lines } = useLinesQuery()
   const { data: stations } = useStationsQuery()
-  const { reorder } = useReorderFavorites()
+  const { reorder } = useReorderDashboardItems()
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -41,14 +41,14 @@ export default function DashboardGrid() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    const fromIndex = favorites.findIndex((f) => favoriteKey(f.type, f.id) === active.id)
-    const toIndex = favorites.findIndex((f) => favoriteKey(f.type, f.id) === over.id)
+    const fromIndex = items.findIndex((i) => dashboardItemKey(i.type, i.id) === active.id)
+    const toIndex = items.findIndex((i) => dashboardItemKey(i.type, i.id) === over.id)
     if (fromIndex === -1 || toIndex === -1) return
-    const newOrder = arrayMove(favorites, fromIndex, toIndex)
+    const newOrder = arrayMove(items, fromIndex, toIndex)
     reorder(newOrder)
   }
 
-  if (loading || !user || favorites.length === 0) return null
+  if (loading || !user || items.length === 0) return null
 
   return (
     <div>
@@ -59,35 +59,35 @@ export default function DashboardGrid() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={favorites.map((f) => favoriteKey(f.type, f.id))}
+          items={items.map((i) => dashboardItemKey(i.type, i.id))}
           strategy={verticalListSortingStrategy}
         >
           <ul className="space-y-4">
-            {favorites.map((fav) => {
-              if (fav.type === 'line') {
+            {items.map((item) => {
+              if (item.type === 'line') {
                 return (
                   <LineCard
-                    key={favoriteKey(fav.type, fav.id)}
-                    favorite={fav}
-                    line={(lines ?? []).find((l) => l.slug === fav.id)}
+                    key={dashboardItemKey(item.type, item.id)}
+                    item={item}
+                    line={(lines ?? []).find((l) => l.slug === item.id)}
                     lines={lines}
                   />
                 )
               }
-              if (fav.type === 'station') {
+              if (item.type === 'station') {
                 return (
                   <StationCard
-                    key={favoriteKey(fav.type, fav.id)}
-                    favorite={fav}
-                    station={(stations ?? []).find((s) => s.slug === fav.id)}
+                    key={dashboardItemKey(item.type, item.id)}
+                    item={item}
+                    station={(stations ?? []).find((s) => s.slug === item.id)}
                     lines={lines}
                   />
                 )
               }
               return (
                 <TrainCard
-                  key={favoriteKey(fav.type, fav.id)}
-                  favorite={fav}
+                  key={dashboardItemKey(item.type, item.id)}
+                  item={item}
                   lines={lines}
                   stations={stations}
                 />

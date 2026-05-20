@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 import { ScrollView, View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
+import { shortenStationName } from '@ctt/shared'
 import { useMetraTrip } from '../../../../../lib/hooks'
 import { useTheme } from '../../../../../lib/theme'
 import type { Theme } from '../../../../../lib/theme'
 import MetraTripRealtime from '../../../../../components/MetraTripRealtime'
 import PageHeader from '../../../../../components/PageHeader'
-import FavoriteButton from '../../../../../components/FavoriteButton'
+import HeaderMenuButton from '../../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../../lib/headerItems'
 
 const metraHeroImage = require('../../../../../assets/hero-header-metra.jpg')
@@ -19,24 +20,38 @@ export default function MetraTrainDetailScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
 
+  // Mirror the dashboard TrainCard: title is "{origin} to {destination}",
+  // subtitle is "{line} #{trainNumber}". Falls back to "Train {n}" until trip
+  // data loads.
+  const firstStop = trip?.stops?.[0]
+  const lastStop = trip?.stops?.[trip.stops.length - 1]
+  const heroTitle =
+    trip && firstStop && lastStop
+      ? `${shortenStationName(firstStop.stationName)} to ${shortenStationName(lastStop.stationName)}`
+      : train
+        ? `Train ${train}`
+        : 'Train'
+  const heroSubtitle = trip
+    ? `${trip.line ? `${trip.line} ` : ''}#${trip.trainNumber ?? train}`
+    : undefined
+
   return (
     <>
       <Stack.Screen
         options={{
-          headerTitle: trip?.lineName
-            ? `${trip.lineName} #${train}`
-            : train
-              ? `Train ${train}`
-              : 'Train',
-          ...headerRightItem(<FavoriteButton type="train" id={`${lineSlug}_${train}`} />),
+          headerTitle: heroTitle,
+          ...headerRightItem(<HeaderMenuButton />),
         }}
       />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <PageHeader
           compact
-          title={train ? `Train ${train}` : 'Train'}
-          description={trip?.lineName}
+          title={heroTitle}
+          description={heroSubtitle}
           imageSrc={metraHeroImage}
+          dashboardItem={
+            lineSlug && train ? { type: 'train', id: `${lineSlug}_${train}` } : undefined
+          }
         />
         {loading && (
           <View style={styles.center}>

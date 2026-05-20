@@ -1,12 +1,12 @@
 import { Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
-import type { Favorite, Line } from '@ctt/shared'
+import type { DashboardItem, Line } from '@ctt/shared'
 import PressableButton from '../../PressableButton'
 import CardMenuButton from './CardMenuButton'
 import { useCardStyles } from './cardStyles'
 
 interface LineCardProps {
-  favorite: Favorite
+  item: DashboardItem
   line: Line | undefined
   onLongPress: () => void
   onMenuPress: () => void
@@ -14,7 +14,7 @@ interface LineCardProps {
 }
 
 export default function LineCard({
-  favorite,
+  item,
   line,
   onLongPress,
   onMenuPress,
@@ -23,7 +23,7 @@ export default function LineCard({
   const router = useRouter()
   const cardStyles = useCardStyles()
   const target = line ? `/${line.service}/${line.slug}` : null
-  const title = line?.name ?? favorite.id
+  const title = line?.name ?? item.id
 
   return (
     <PressableButton

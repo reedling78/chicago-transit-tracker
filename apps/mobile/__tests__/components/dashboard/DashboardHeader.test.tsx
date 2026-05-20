@@ -1,8 +1,8 @@
 import { render, fireEvent } from '@testing-library/react-native'
-import type { Favorite } from '@ctt/shared'
+import type { DashboardItem } from '@ctt/shared'
 
 import DashboardHeader from '../../../components/dashboard/DashboardHeader'
-import { useFavoritesStore } from '../../../lib/store/favorites'
+import { useDashboardStore } from '../../../lib/store/dashboard'
 
 const mockUseAuth = jest.fn()
 jest.mock('../../../lib/AuthContext', () => ({
@@ -16,7 +16,7 @@ jest.mock('expo-router', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks()
-  useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+  useDashboardStore.setState({ items: [], hydrated: false, pendingWrites: 0 })
 })
 
 describe('DashboardHeader (mobile)', () => {
@@ -80,7 +80,7 @@ describe('DashboardHeader (mobile)', () => {
 
     it('shows the empty card with quick links to /cta and /metra', () => {
       const { getByText, getByLabelText } = render(<DashboardHeader />)
-      expect(getByText('No favorites yet')).toBeTruthy()
+      expect(getByText('Your dashboard is empty')).toBeTruthy()
       fireEvent.press(getByLabelText('Browse CTA'))
       expect(mockPush).toHaveBeenCalledWith('/cta')
       fireEvent.press(getByLabelText('Browse Metra'))
@@ -103,15 +103,15 @@ describe('DashboardHeader (mobile)', () => {
   describe('authed with favorites', () => {
     beforeEach(() => {
       mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, profile: null, loading: false })
-      const favs: Favorite[] = [{ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }]
-      useFavoritesStore.getState().hydrate(favs)
+      const favs: DashboardItem[] = [{ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }]
+      useDashboardStore.getState().hydrate(favs)
     })
 
     it('shows the heading but not the profile icon or the empty card', () => {
       const { getByText, queryByLabelText, queryByText } = render(<DashboardHeader />)
       expect(getByText('Welcome back')).toBeTruthy()
       expect(queryByLabelText('Profile')).toBeNull()
-      expect(queryByText('No favorites yet')).toBeNull()
+      expect(queryByText('Your dashboard is empty')).toBeNull()
     })
   })
 })

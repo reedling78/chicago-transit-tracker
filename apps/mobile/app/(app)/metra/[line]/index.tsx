@@ -4,7 +4,7 @@ import { useLine, useLineStations } from '../../../../lib/hooks'
 import { useTheme } from '../../../../lib/theme'
 import StationTimeline from '../../../../components/StationTimeline'
 import PageHeader from '../../../../components/PageHeader'
-import FavoriteButton from '../../../../components/FavoriteButton'
+import HeaderMenuButton from '../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../lib/headerItems'
 
 const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
@@ -28,7 +28,7 @@ export default function MetraLineDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: line.name,
-          ...headerRightItem(<FavoriteButton type="line" id={line.slug} />),
+          ...headerRightItem(<HeaderMenuButton />),
         }}
       />
       <ScrollView
@@ -40,6 +40,7 @@ export default function MetraLineDetailScreen() {
           title={line.name}
           description={line.termini.join(' ↔ ')}
           imageSrc={metraHeroImage}
+          dashboardItem={{ type: 'line', id: line.slug }}
         />
         {stationsLoading ? (
           <ActivityIndicator size="large" color={line.color} style={{ marginTop: 24 }} />

@@ -5,7 +5,7 @@ import { useTheme } from '../../../lib/theme'
 import StationTimeline from '../../../components/StationTimeline'
 import PageHeader from '../../../components/PageHeader'
 import CTALineIcon from '../../../components/CTALineIcon'
-import FavoriteButton from '../../../components/FavoriteButton'
+import HeaderMenuButton from '../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../lib/headerItems'
 
 export default function CtaLineDetailScreen() {
@@ -27,7 +27,7 @@ export default function CtaLineDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: line.name,
-          ...headerRightItem(<FavoriteButton type="line" id={line.slug} />),
+          ...headerRightItem(<HeaderMenuButton />),
         }}
       />
       <ScrollView
@@ -39,6 +39,7 @@ export default function CtaLineDetailScreen() {
           title={line.name}
           description={line.termini.join(' ↔ ')}
           icon={<CTALineIcon line={line.shortName} size={36} />}
+          dashboardItem={{ type: 'line', id: line.slug }}
         />
         {stationsLoading ? (
           <ActivityIndicator size="large" color={line.color} style={{ marginTop: 24 }} />

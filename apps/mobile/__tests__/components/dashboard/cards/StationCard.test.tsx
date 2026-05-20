@@ -1,5 +1,5 @@
 import { render, fireEvent } from '@testing-library/react-native'
-import type { Favorite, FeedData, StationSchedule } from '@ctt/shared'
+import type { FeedData, StationSchedule } from '@ctt/shared'
 
 import StationCard from '../../../../components/dashboard/cards/StationCard'
 import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../../fixtures'
@@ -99,7 +99,7 @@ describe('StationCard', () => {
   it('renders title and a CTA "<service> <lines> Line" subheader (no separate meta tag)', () => {
     const { getByText, queryByText } = render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -114,7 +114,7 @@ describe('StationCard', () => {
   it('renders a Metra subheader with no trailing "Line"', () => {
     const { getByText, queryByText } = render(
       <StationCard
-        favorite={metraFav}
+        item={metraFav}
         station={mockMetraStation}
         lines={[mockMetraLine]}
         onLongPress={() => {}}
@@ -128,7 +128,7 @@ describe('StationCard', () => {
   it('navigates via the station route on press', () => {
     const { getByLabelText } = render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -143,7 +143,7 @@ describe('StationCard', () => {
     const onMenuPress = jest.fn()
     const { getByLabelText } = render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -157,7 +157,7 @@ describe('StationCard', () => {
   it('renders the favorite id when station data has not loaded', () => {
     const { getByText } = render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={undefined}
         lines={undefined}
         onLongPress={() => {}}
@@ -170,7 +170,7 @@ describe('StationCard', () => {
   it('shows skeleton while schedule loads', () => {
     const { getByTestId } = render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -184,7 +184,7 @@ describe('StationCard', () => {
     mockScheduleQuery.mockReturnValue(loaded(ctaSchedule))
     const { getByText, getAllByText, getAllByTestId } = render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -204,7 +204,7 @@ describe('StationCard', () => {
     const compactFav: Favorite = { ...ctaFav, density: 'compact' }
     const { queryByTestId, getAllByTestId } = render(
       <StationCard
-        favorite={compactFav}
+        item={compactFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -220,7 +220,7 @@ describe('StationCard', () => {
     const filtered: Favorite = { ...ctaFav, directionFilter: 'Loop' }
     const { getByText, queryByText } = render(
       <StationCard
-        favorite={filtered}
+        item={filtered}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -244,7 +244,7 @@ describe('StationCard', () => {
 
     const { getByText, queryByText, getByLabelText } = render(
       <StationCard
-        favorite={metraFav}
+        item={metraFav}
         station={mockMetraStation}
         lines={[mockMetraLine]}
         onLongPress={() => {}}
@@ -266,7 +266,7 @@ describe('StationCard', () => {
     mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
     const { getByLabelText } = render(
       <StationCard
-        favorite={metraFav}
+        item={metraFav}
         station={mockMetraStation}
         lines={[mockMetraLine]}
         onLongPress={() => {}}
@@ -283,7 +283,7 @@ describe('StationCard', () => {
     const compactMetraFav: Favorite = { ...metraFav, density: 'compact' }
     const { getByLabelText } = render(
       <StationCard
-        favorite={compactMetraFav}
+        item={compactMetraFav}
         station={mockMetraStation}
         lines={[mockMetraLine]}
         onLongPress={() => {}}
@@ -306,7 +306,7 @@ describe('StationCard', () => {
 
     const { getByText } = render(
       <StationCard
-        favorite={metraFav}
+        item={metraFav}
         station={mockMetraStation}
         lines={[mockMetraLine]}
         onLongPress={() => {}}
@@ -321,7 +321,7 @@ describe('StationCard', () => {
     mockScheduleQuery.mockReturnValue(loaded(ctaSchedule))
     render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}
@@ -335,7 +335,7 @@ describe('StationCard', () => {
     mockScheduleQuery.mockReturnValue(loaded(ctaSchedule))
     render(
       <StationCard
-        favorite={ctaFav}
+        item={ctaFav}
         station={mockStation}
         lines={[mockLine]}
         onLongPress={() => {}}

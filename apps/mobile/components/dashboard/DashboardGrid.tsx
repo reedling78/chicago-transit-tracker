@@ -1,17 +1,17 @@
 import { useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import DraggableFlatList, { type RenderItemParams } from 'react-native-draggable-flatlist'
-import type { Favorite, Line, Station } from '@ctt/shared'
+import type { DashboardItem, Line, Station } from '@ctt/shared'
 import { useAuth } from '../../lib/AuthContext'
-import { useFavoritesStore } from '../../lib/store/favorites'
+import { useDashboardStore } from '../../lib/store/dashboard'
 import { useLinesQuery, useStationsQuery } from '../../lib/useDashboardQueries'
-import { useReorderFavorites } from '../../lib/useReorderFavorites'
+import { useReorderDashboardItems } from '../../lib/useReorderDashboardItems'
 import { useTheme } from '../../lib/theme'
 import type { Theme } from '../../lib/theme'
 import LineCard from './cards/LineCard'
 import StationCard from './cards/StationCard'
 import TrainCard from './cards/TrainCard'
-import FavoriteMenuSheet, { type FavoriteMenuSheetHandle } from './FavoriteMenuSheet'
+import DashboardItemMenuSheet, { type DashboardItemMenuSheetHandle } from './DashboardItemMenuSheet'
 import TrainStopPickerSheet, { type TrainStopPickerSheetHandle } from './TrainStopPickerSheet'
 
 interface DashboardGridProps {
@@ -26,30 +26,30 @@ export default function DashboardGrid({
   contentTopInset = 0,
 }: DashboardGridProps = {}) {
   const { user, loading } = useAuth()
-  const favorites = useFavoritesStore((s) => s.favorites)
+  const items = useDashboardStore((s) => s.items)
   const { data: lines } = useLinesQuery()
   const { data: stations } = useStationsQuery()
-  const { reorder } = useReorderFavorites()
+  const { reorder } = useReorderDashboardItems()
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
-  const sheetRef = useRef<FavoriteMenuSheetHandle>(null)
+  const sheetRef = useRef<DashboardItemMenuSheetHandle>(null)
   const pickerRef = useRef<TrainStopPickerSheetHandle>(null)
 
   const lineMap = new Map((lines ?? []).map((l) => [l.slug, l]))
   const stationMap = new Map((stations ?? []).map((s) => [s.slug, s]))
 
-  const onMenuPress = useCallback((favorite: Favorite) => {
-    sheetRef.current?.open(favorite)
+  const onMenuPress = useCallback((item: DashboardItem) => {
+    sheetRef.current?.open(item)
   }, [])
 
-  const onSetTrainStop = useCallback((favorite: Favorite, mode: 'origin' | 'destination') => {
-    pickerRef.current?.open({ favorite, mode })
+  const onSetTrainStop = useCallback((item: DashboardItem, mode: 'origin' | 'destination') => {
+    pickerRef.current?.open({ item, mode })
   }, [])
 
   const renderItem = useCallback(
-    ({ item, drag, isActive }: RenderItemParams<Favorite>) =>
-      renderFavoriteCard({
-        favorite: item,
+    ({ item, drag, isActive }: RenderItemParams<DashboardItem>) =>
+      renderItemCard({
+        item,
         lines,
         lineMap,
         stationMap,
@@ -61,7 +61,7 @@ export default function DashboardGrid({
     [lines, stationMap.size, lineMap.size, onMenuPress],
   )
 
-  const showList = !loading && !!user && favorites.length > 0
+  const showList = !loading && !!user && items.length > 0
 
   if (!showList) {
     return (
@@ -83,8 +83,8 @@ export default function DashboardGrid({
 
   return (
     <>
-      <DraggableFlatList<Favorite>
-        data={favorites}
+      <DraggableFlatList<DashboardItem>
+        data={items}
         keyExtractor={(item) => `${item.type}:${item.id}`}
         renderItem={renderItem}
         onDragEnd={({ data }) => reorder(data)}
@@ -93,7 +93,7 @@ export default function DashboardGrid({
         ListHeaderComponent={header ? <View>{header}</View> : null}
         ListFooterComponent={listFooter}
       />
-      <FavoriteMenuSheet
+      <DashboardItemMenuSheet
         ref={sheetRef}
         lines={lines}
         stations={stations}
@@ -105,17 +105,17 @@ export default function DashboardGrid({
 }
 
 interface RenderArgs {
-  favorite: Favorite
+  item: DashboardItem
   lines: Line[] | undefined
   lineMap: Map<string, Line>
   stationMap: Map<string, Station>
   drag: () => void
   isActive: boolean
-  onMenuPress: (fav: Favorite) => void
+  onMenuPress: (fav: DashboardItem) => void
 }
 
-function renderFavoriteCard({
-  favorite,
+function renderItemCard({
+  item,
   lines,
   lineMap,
   stationMap,
@@ -123,35 +123,35 @@ function renderFavoriteCard({
   isActive,
   onMenuPress,
 }: RenderArgs) {
-  if (favorite.type === 'line') {
+  if (item.type === 'line') {
     return (
       <LineCard
-        favorite={favorite}
-        line={lineMap.get(favorite.id)}
+        item={item}
+        line={lineMap.get(item.id)}
         onLongPress={drag}
-        onMenuPress={() => onMenuPress(favorite)}
+        onMenuPress={() => onMenuPress(item)}
         isActive={isActive}
       />
     )
   }
-  if (favorite.type === 'station') {
+  if (item.type === 'station') {
     return (
       <StationCard
-        favorite={favorite}
-        station={stationMap.get(favorite.id)}
+        item={item}
+        station={stationMap.get(item.id)}
         lines={lines}
         onLongPress={drag}
-        onMenuPress={() => onMenuPress(favorite)}
+        onMenuPress={() => onMenuPress(item)}
         isActive={isActive}
       />
     )
   }
   return (
     <TrainCard
-      favorite={favorite}
+      item={item}
       lines={lines}
       onLongPress={drag}
-      onMenuPress={() => onMenuPress(favorite)}
+      onMenuPress={() => onMenuPress(item)}
       isActive={isActive}
     />
   )

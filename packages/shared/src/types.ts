@@ -87,51 +87,51 @@ export interface NormalizedAlert {
   service: 'cta' | 'metra'
 }
 
-export type FavoriteType = 'line' | 'station' | 'train'
+export type DashboardItemType = 'line' | 'station' | 'train'
 
 /**
- * Per-favorite direction filter for station cards.
+ * Per-item direction filter for station cards.
  * - `'all'` — show every direction (default).
  * - `'inbound'` / `'outbound'` — Metra only; matches `directionId` 1 / 0.
  * - any other string — CTA headsign to filter to (e.g. `'Loop'`).
  */
-export type FavoriteDirection = 'all' | 'inbound' | 'outbound' | string
+export type DashboardItemDirection = 'all' | 'inbound' | 'outbound' | string
 
-/** Per-favorite render density for station cards. */
-export type FavoriteDensity = 'compact' | 'expanded'
+/** Per-item render density for station cards. */
+export type DashboardItemDensity = 'compact' | 'expanded'
 
-export interface Favorite {
-  type: FavoriteType
+export interface DashboardItem {
+  type: DashboardItemType
   /**
    * For `line`: line slug (e.g. `red`, `bnsf`).
    * For `station`: station slug (e.g. `clark-lake`, `union-station-metra`).
    * For `train`: `${lineSlug}_${trainNumber}` matching the `metra-trips` doc id.
    */
   id: string
-  /** ISO 8601 timestamp when the user favorited this item. */
+  /** ISO 8601 timestamp when the user added this item. */
   addedAt: string
   /**
-   * User-controlled sort position. Lower = higher in the list. Set by the mobile
+   * User-controlled sort position. Lower = higher in the list. Set by the
    * dashboard's drag-to-reorder UI; absent for items that have never been reordered
    * (which fall to the bottom of the list, ordered by `addedAt` desc within that bucket).
    */
   position?: number
   /**
    * Station-card filter. Defaults to `'all'` when omitted. Ignored for `line` /
-   * `train` favorites.
+   * `train` items.
    */
-  directionFilter?: FavoriteDirection
+  directionFilter?: DashboardItemDirection
   /**
    * Station-card render density. Defaults to `'expanded'` when omitted. Ignored
-   * for `line` / `train` favorites.
+   * for `line` / `train` items.
    */
-  density?: FavoriteDensity
+  density?: DashboardItemDensity
   /**
    * Train-card origin stop override. When set, the dashboard TrainCard renders
    * the trip's segment starting at this stop (matched by `slug` against the
    * trip's `stops[]`) instead of the trip's first stop. Falls back silently if
    * the saved slug is no longer on the trip. Ignored for `line` / `station`
-   * favorites.
+   * items.
    */
   trainOriginStopSlug?: string
   /**
@@ -150,10 +150,10 @@ export interface UserProfile {
   createdAt: string // ISO 8601
   updatedAt: string // ISO 8601
   /**
-   * User's favorited lines, stations, and trains, sorted by `addedAt` desc.
-   * Stored on Firestore as a map keyed by `favoriteKey(type, id)` for atomic
-   * per-favorite writes; projected to this ordered array in app code via
-   * `mapToArray()`.
+   * User's dashboard items (lines, stations, trains), sorted by `addedAt` desc.
+   * Stored on Firestore as a map keyed by `dashboardItemKey(type, id)` under the
+   * `favorites` field (kept for back-compat with existing user docs); projected
+   * to this ordered array in app code via `mapToArray()`.
    */
-  favorites: Favorite[]
+  favorites: DashboardItem[]
 }

@@ -73,7 +73,7 @@ export function useStationTripsQuery(slug: string | null, enabled = true) {
   })
 }
 
-export function useFavoriteTripQuery(tripId: string | null) {
+export function useDashboardItemTripQuery(tripId: string | null) {
   return useQuery<MetraTripDetail | null>({
     queryKey: ['dashboard', 'metra-trip', tripId],
     queryFn: async () => {

@@ -18,8 +18,8 @@ jest.mock('firebase/firestore', () => ({
 const mockHydrate = jest.fn()
 const mockClear = jest.fn()
 let mockPendingWrites = 0
-jest.mock('@lib/store/favorites', () => ({
-  useFavoritesStore: {
+jest.mock('@lib/store/dashboard', () => ({
+  useDashboardStore: {
     getState: () => ({
       hydrate: mockHydrate,
       clear: mockClear,
