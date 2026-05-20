@@ -21,7 +21,8 @@ jest.mock('expo-router', () => {
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
     useLocalSearchParams: () => ({ station: 'aurora' }),
-    useRouter: () => ({ push: jest.fn() }),
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+    useNavigation: () => ({ dispatch: jest.fn() }),
     Stack,
   }
 })
@@ -98,13 +99,21 @@ describe('MetraStationDetailScreen', () => {
     expect(screen.queryByText('Union Station')).toBeNull()
   })
 
-  it('places the favorite button in the PageHeader title row', () => {
+  it('renders the menu button in the header right', () => {
     mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
-    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
-    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: true })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: false })
+    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: false })
     render(<MetraStationDetailScreen />)
-    const stub = screen.getByTestId('favorite-button-stub')
-    expect(stub).toBeOnTheScreen()
+    const menuButton = screen.getByLabelText('Open menu')
+    expect(menuButton).toBeOnTheScreen()
+  })
+
+  it('renders the DashboardAddButton on the hero for the station', () => {
+    mockUseStation.mockReturnValue({ station: mockMetraStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: null, loading: false })
+    mockUseStationTrips.mockReturnValue({ stationTrips: null, loading: false })
+    render(<MetraStationDetailScreen />)
+    const stub = screen.getByTestId('dashboard-add-button-stub')
     expect(stub.props.children).toBe('station:aurora')
   })
 

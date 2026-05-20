@@ -6,7 +6,7 @@ import type { MetraTripDetail } from '@ctt/shared'
 import TrainStopPickerSheet, {
   type TrainStopPickerSheetHandle,
 } from '../../../components/dashboard/TrainStopPickerSheet'
-import { useFavoritesStore } from '../../../lib/store/favorites'
+import { useDashboardStore } from '../../../lib/store/dashboard'
 
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 34, left: 0, right: 0 }),
@@ -14,12 +14,12 @@ jest.mock('react-native-safe-area-context', () => ({
 
 const mockFavoriteTripQuery = jest.fn()
 jest.mock('../../../lib/useDashboardQueries', () => ({
-  useFavoriteTripQuery: (id: string | null) => mockFavoriteTripQuery(id),
+  useDashboardItemTripQuery: (id: string | null) => mockFavoriteTripQuery(id),
 }))
 
 const mockUpdate = jest.fn()
-jest.mock('../../../lib/useUpdateFavoriteSettings', () => ({
-  useUpdateFavoriteSettings: () => ({ update: mockUpdate, isUpdating: false }),
+jest.mock('../../../lib/useUpdateDashboardItemSettings', () => ({
+  useUpdateDashboardItemSettings: () => ({ update: mockUpdate, isUpdating: false }),
 }))
 
 const trip: MetraTripDetail = {
@@ -64,7 +64,7 @@ function wrapper({ children }: { children: ReactNode }) {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+  useDashboardStore.setState({ items: [], hydrated: false, pendingWrites: 0 })
   mockFavoriteTripQuery.mockReset()
   mockFavoriteTripQuery.mockReturnValue({ data: trip })
 })
@@ -75,7 +75,7 @@ describe('TrainStopPickerSheet', () => {
     const { getByText } = render(<TrainStopPickerSheet ref={ref} />, { wrapper })
     act(() =>
       ref.current?.open({
-        favorite: { type: 'train', id: 'md-w_2222', addedAt: '2026-04-25T10:00:00Z' },
+        item: { type: 'train', id: 'md-w_2222', addedAt: '2026-04-25T10:00:00Z' },
         mode: 'origin',
       }),
     )

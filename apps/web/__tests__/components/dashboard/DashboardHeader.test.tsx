@@ -3,7 +3,7 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import type { Favorite } from '@ctt/shared'
+import type { DashboardItem } from '@ctt/shared'
 
 const mockUseAuth = jest.fn()
 jest.mock('@components/AuthProvider', () => ({
@@ -27,11 +27,11 @@ jest.mock('@components/AuthModal', () => {
 })
 
 import DashboardHeader from '@components/dashboard/DashboardHeader'
-import { useFavoritesStore } from '@lib/store/favorites'
+import { useDashboardStore } from '@lib/store/dashboard'
 
 beforeEach(() => {
   jest.clearAllMocks()
-  useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+  useDashboardStore.setState({ items: [], hydrated: false, pendingWrites: 0 })
   localStorage.clear()
 })
 
@@ -79,7 +79,7 @@ describe('DashboardHeader', () => {
     it('does not render the "Your Dashboard" heading or empty card', () => {
       render(<DashboardHeader />)
       expect(screen.queryByText('Your Dashboard')).not.toBeInTheDocument()
-      expect(screen.queryByText('No favorites yet')).not.toBeInTheDocument()
+      expect(screen.queryByText('Your dashboard is empty')).not.toBeInTheDocument()
     })
   })
 
@@ -109,7 +109,7 @@ describe('DashboardHeader', () => {
 
     it('shows the empty card with quick links to /cta and /metra', () => {
       render(<DashboardHeader />)
-      expect(screen.getByText('No favorites yet')).toBeInTheDocument()
+      expect(screen.getByText('Your dashboard is empty')).toBeInTheDocument()
       const ctaLink = screen.getByRole('link', { name: /Browse CTA/ })
       const metraLink = screen.getByRole('link', { name: /Browse Metra/ })
       expect(ctaLink).toHaveAttribute('href', '/cta')
@@ -131,14 +131,14 @@ describe('DashboardHeader', () => {
         profile: null,
         loading: false,
       })
-      const favs: Favorite[] = [{ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }]
-      useFavoritesStore.getState().hydrate(favs)
+      const favs: DashboardItem[] = [{ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }]
+      useDashboardStore.getState().hydrate(favs)
     })
 
     it('shows the heading but not the empty card', () => {
       render(<DashboardHeader />)
       expect(screen.getByRole('heading', { name: 'Your Dashboard' })).toBeInTheDocument()
-      expect(screen.queryByText('No favorites yet')).not.toBeInTheDocument()
+      expect(screen.queryByText('Your dashboard is empty')).not.toBeInTheDocument()
     })
   })
 })

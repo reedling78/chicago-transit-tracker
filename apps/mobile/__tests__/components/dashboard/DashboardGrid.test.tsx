@@ -1,10 +1,10 @@
 import { render, fireEvent, act } from '@testing-library/react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import type { Favorite } from '@ctt/shared'
+import type { DashboardItem } from '@ctt/shared'
 
 import DashboardGrid from '../../../components/dashboard/DashboardGrid'
-import { useFavoritesStore } from '../../../lib/store/favorites'
+import { useDashboardStore } from '../../../lib/store/dashboard'
 import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../fixtures'
 
 const mockUseAuth = jest.fn()
@@ -18,24 +18,24 @@ const mockUseFavoriteTripQuery = jest.fn()
 jest.mock('../../../lib/useDashboardQueries', () => ({
   useLinesQuery: () => mockUseLinesQuery(),
   useStationsQuery: () => mockUseStationsQuery(),
-  useFavoriteTripQuery: (id: string | null) => mockUseFavoriteTripQuery(id),
+  useDashboardItemTripQuery: (id: string | null) => mockUseFavoriteTripQuery(id),
   useStationScheduleQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
   useStationTripsQuery: () => ({ data: null, isLoading: false, dataUpdatedAt: 0 }),
 }))
 
-jest.mock('../../../lib/useUpdateFavoriteSettings', () => ({
-  useUpdateFavoriteSettings: () => ({ update: jest.fn(), isUpdating: false }),
+jest.mock('../../../lib/useUpdateDashboardItemSettings', () => ({
+  useUpdateDashboardItemSettings: () => ({ update: jest.fn(), isUpdating: false }),
 }))
 
 const mockReorder = jest.fn()
-jest.mock('../../../lib/useReorderFavorites', () => ({
-  useReorderFavorites: () => ({ reorder: mockReorder, isReordering: false }),
+jest.mock('../../../lib/useReorderDashboardItems', () => ({
+  useReorderDashboardItems: () => ({ reorder: mockReorder, isReordering: false }),
 }))
 
 const mockToggle = jest.fn()
-jest.mock('../../../lib/useToggleFavorite', () => ({
-  useToggleFavorite: () => ({
-    isFavorited: true,
+jest.mock('../../../lib/useToggleDashboardItem', () => ({
+  useToggleDashboardItem: () => ({
+    isOnDashboard: true,
     toggle: mockToggle,
     isToggling: false,
     needsAuth: false,
@@ -62,7 +62,7 @@ function wrapper({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>
 }
 
-const allFavorites: Favorite[] = [
+const allFavorites: DashboardItem[] = [
   { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' },
   { type: 'station', id: 'clark-lake', addedAt: '2026-04-25T11:00:00Z' },
   { type: 'train', id: 'bnsf_1234', addedAt: '2026-04-25T12:00:00Z' },
@@ -70,7 +70,7 @@ const allFavorites: Favorite[] = [
 
 beforeEach(() => {
   jest.clearAllMocks()
-  useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+  useDashboardStore.setState({ items: [], hydrated: false, pendingWrites: 0 })
   mockUseLinesQuery.mockReturnValue({ data: [mockLine, mockMetraLine] })
   mockUseStationsQuery.mockReturnValue({ data: [mockStation, mockMetraStation] })
   mockUseFavoriteTripQuery.mockReturnValue({
@@ -119,7 +119,7 @@ describe('DashboardGrid', () => {
 
   it('shows the long-press / menu hint footer when favorites are present', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     const { getByText } = render(<DashboardGrid />, { wrapper })
     expect(getByText(/long-press a card/i)).toBeTruthy()
   })
@@ -128,12 +128,12 @@ describe('DashboardGrid', () => {
     // Header was removed because the dashboard route already serves as the
     // favorites surface — a "Favorites" heading was redundant.
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     const populated = render(<DashboardGrid />, { wrapper })
     expect(populated.queryByText('Favorites')).toBeNull()
     populated.unmount()
 
-    useFavoritesStore.setState({ favorites: [], hydrated: false, pendingWrites: 0 })
+    useDashboardStore.setState({ items: [], hydrated: false, pendingWrites: 0 })
     const empty = render(<DashboardGrid />, { wrapper })
     expect(empty.queryByText('Favorites')).toBeNull()
     empty.unmount()
@@ -145,7 +145,7 @@ describe('DashboardGrid', () => {
 
   it('renders one card per favorite, mixed types', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     const { getByText } = render(<DashboardGrid />, { wrapper })
     expect(getByText('Red Line')).toBeTruthy()
     expect(getByText('Clark/Lake')).toBeTruthy()
@@ -154,20 +154,20 @@ describe('DashboardGrid', () => {
 
   it('opens the menu sheet when the overflow on a card is tapped', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate([allFavorites[0]])
+    useDashboardStore.getState().hydrate([allFavorites[0]])
     const { getByLabelText, getByText } = render(<DashboardGrid />, { wrapper })
     fireEvent.press(getByLabelText('Open menu for Red Line'))
     expect(getByText('Open details')).toBeTruthy()
-    expect(getByText('Remove from favorites')).toBeTruthy()
+    expect(getByText('Remove from dashboard')).toBeTruthy()
   })
 
   it('calls reorder() with the new order on drag-end', () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'u1' }, loading: false })
-    useFavoritesStore.getState().hydrate(allFavorites)
+    useDashboardStore.getState().hydrate(allFavorites)
     render(<DashboardGrid />, { wrapper })
     const onDragEnd = getCapturedDragEnd()
     expect(onDragEnd).toBeDefined()
-    const newOrder: Favorite[] = [allFavorites[2], allFavorites[0], allFavorites[1]]
+    const newOrder: DashboardItem[] = [allFavorites[2], allFavorites[0], allFavorites[1]]
     act(() => onDragEnd?.({ data: newOrder }))
     expect(mockReorder).toHaveBeenCalledWith(newOrder)
   })

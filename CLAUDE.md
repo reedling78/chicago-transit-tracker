@@ -95,30 +95,27 @@ apps/
         LinkCard.tsx              Clickable list card used on service and line pages
         LineDetail.tsx            Full line detail layout
         StationDetail.tsx         Full station detail layout
-        AuthProvider.tsx          Auth context + onSnapshot live profile listener; hydrates favorites store (client component)
+        AuthProvider.tsx          Auth context + onSnapshot live profile listener; hydrates dashboard items store (client component)
         UserMenu.tsx              Navbar user icon / avatar dropdown (client component)
         AuthModal.tsx             Sign in/up/reset modal (client component)
         QueryProvider.tsx         TanStack Query + persist-client wrapper (localStorage)
-        FavoriteButton.tsx        Heart toggle for line/station/train detail headers
+        DashboardAddButton.tsx    "+ Dashboard" pill on the hero photo of every line/station/train detail page
         dashboard/
-          Dashboard.tsx           Home dashboard orchestrator (renders Hero + DashboardGrid)
+          Dashboard.tsx           Home dashboard orchestrator (DashboardHeader + two-column DashboardGrid / DashboardItemsList at lg+, then Hero)
           DashboardHeader.tsx     Greeting + Profile / Sign-in CTA on the dashboard
-          DashboardGrid.tsx       Unified mixed-type favorites list — drag (mouse/touch) to reorder, ⋯ to open menu
-          FavoriteMenu.tsx        Anchored dropdown invoked from each card's ⋯ button
-          TrainStopPickerModal.tsx Stop picker for train favorites — sets origin/destination override
+          DashboardGrid.tsx       Unified mixed-type dashboard items list — drag (mouse/touch) to reorder, ⋯ to open menu
+          DashboardItemsList.tsx  Read-only grouped nav list (Trains / Stations / Lines) shown in the right column of the home dashboard
+          DashboardItemMenu.tsx   Anchored dropdown invoked from each card's ⋯ button
+          TrainStopPickerModal.tsx Stop picker for train items — sets origin/destination override
           cards/
-            cardClassNames.ts     Shared Tailwind strings for all favorite card rows
+            cardClassNames.ts     Shared Tailwind strings for all dashboard card rows
             CardMenuButton.tsx    Trailing ⋯ Pressable used on every card
-            LineCard.tsx          Favorite-line row (title + termini + accent left border)
-            StationCard.tsx       Favorite-station row — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
-            TrainCard.tsx         Favorite-train row — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
-        profile/
-          FavoritesManager.tsx    Profile favorites manager (Lines/Stations/Trains sections + Clear all)
-          FavoritesSection.tsx    Section header + list of FavoriteRows
-          FavoriteRow.tsx         Single favorite row with deep link + trash button
+            LineCard.tsx          Line dashboard card (title + termini + accent left border)
+            StationCard.tsx       Station dashboard card — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
+            TrainCard.tsx         Train dashboard card — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
       profile/
         page.tsx                  User profile page (server shell + metadata)
-        ProfileContent.tsx        Profile display (client component) — renders FavoritesManager
+        ProfileContent.tsx        Profile display (client component) — profile fields, Sign Out, and "Clear all dashboard items" button
       lib/
         firebase-admin.ts         Firestore singleton (Admin SDK) — web only
         firebase-client.ts        Firebase client SDK init — Auth + Firestore (client-side)
@@ -134,18 +131,18 @@ apps/
         siteConfig.ts             Re-exports from @ctt/shared
         cta-pulse.ts              Re-exports from @ctt/shared
         metra-trip-matching.ts    Re-exports from @ctt/shared
-        favorites.ts              Re-exports from @ctt/shared (Favorite, favoriteKey, mapToArray)
+        dashboard-items.ts        Re-exports from @ctt/shared (DashboardItem, dashboardItemKey, mapToArray)
         queryClient.ts            TanStack Query client factory (browser-cached singleton)
         store/
-          favorites.ts            Zustand store for favorites (localStorage-persisted)
+          dashboard.ts            Zustand store for dashboard items (localStorage-persisted)
         hooks/
-          useToggleFavorite.ts    Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
-          useReorderFavorites.ts  Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
-          useClearAllFavorites.ts Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
+          useToggleDashboardItem.ts  Optimistic dashboard-item toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
+          useReorderDashboardItems.ts  Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
+          useClearAllDashboardItems.ts  Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
           useDashboardQueries.ts  TanStack Query reads for lines/stations/metra-trip/station-schedule/station-trips on the dashboard
-          useUpdateFavoriteSettings.ts  Persist per-favorite settings (direction filter, density, train stop overrides) to Firestore + store
+          useUpdateDashboardItemSettings.ts  Persist per-item settings (direction filter, density, train stop overrides) to Firestore + store
           useMetraTripLiveStatus.ts  Polling hook returning derived realtime state for a Metra trip (used by TrainCard mini hero)
-        favoriteRoute.ts          Pure helper: resolves a Favorite to its deep-link route
+        dashboardItemRoute.ts     Pure helper: resolves a DashboardItem to its deep-link route
     __tests__/                    Jest + React Testing Library test suites
     scripts/
       seed-lines.ts               Seeds 19 lines into Firestore
@@ -190,53 +187,50 @@ apps/
       MetraTripStopTimeline.tsx   Per-stop timeline for the active trip — wraps Steps with status mapping
       MetraTripHeroStatusCard.tsx Two-panel live status card (RN port of the web component)
       Steps/                      Reusable vertical-step primitive (Steps + Steps.Item) — RN port; per-row segments, halo bullet for current
-      HeaderMenuButton.tsx        Flat hamburger header icon (no scrim, text.primary) — dispatches DrawerActions.openDrawer(); headerRight on the home screen
+      HeaderMenuButton.tsx        Flat hamburger header icon (no scrim, text.primary) — dispatches DrawerActions.openDrawer(); used as headerRight on the home and every detail screen
       HeaderBackButton.tsx        Flat chevron back button (no scrim, no shadow, text.primary) used as Stack headerLeft (returns null at root)
-      AppHeaderBackground.tsx     Navigator headerBackground — absolute-fill translucent canvas (~88% alpha) + theme-aware hairline bottom divider
       QueryProvider.tsx           TanStack Query + persist-client wrapper (AsyncStorage)
-      FavoriteButton.tsx          Heart toggle for line/station/train detail headers
+      DashboardAddButton.tsx      Compact "+ Dashboard" pill rendered on the hero photo of every line/station/train detail screen
       Footer.tsx                  Two-link footer (Terms · Privacy) — currently unused; Menu drawer's Legal section provides the Terms/Privacy path
       menu/
-        MenuDrawerContent.tsx     Side-drawer body — safe-area-inset scroll view with Menu/Dashboard/Profile/Legal sections
+        MenuDrawerContent.tsx     Side-drawer body — safe-area-inset scroll view with Menu / Dashboard Items / Profile / Legal sections
         MenuSection.tsx           Labeled section wrapper (uppercase heading, accessibilityRole="header")
         MenuNavRow.tsx            Pressable nav row (icon + label) — closes the drawer then navigates
+        DashboardItemsList.tsx    Read-only grouped nav list (Trains / Stations / Lines) rendered inside the drawer's Dashboard Items section — train rows fetch the trip per row and show "{origin} to {destination}" + "{line} #{num}"
       PressableButton.tsx         Snappy press primitive — Pressable + tuned scale/opacity feedback, Android ripple, opt-in expo-haptics
       dashboard/
         Dashboard.tsx             Home screen orchestrator — DashboardGrid is the single scroller (header + DashboardHero passed as ListHeader/ListFooter)
         DashboardHero.tsx         CTA + Metra service nav cards
-        DashboardGrid.tsx         Unified mixed-type favorites list — long-press to drag-reorder, ⋯ to open menu
-        FavoriteMenuSheet.tsx     @gorhom/bottom-sheet menu invoked from each card's ⋯ button
-        TrainStopPickerSheet.tsx  Stop picker bottom sheet for train favorites — sets origin/destination override
+        DashboardGrid.tsx         Unified mixed-type dashboard items list — long-press to drag-reorder, ⋯ to open menu
+        DashboardItemMenuSheet.tsx @gorhom/bottom-sheet menu invoked from each card's ⋯ button
+        TrainStopPickerSheet.tsx  Stop picker bottom sheet for train items — sets origin/destination override
         cards/
-          cardStyles.ts           Shared `useCardStyles()` hook returning theme-aware StyleSheet for all favorite card rows
+          cardStyles.ts           Shared `useCardStyles()` hook returning theme-aware StyleSheet for all dashboard card rows
           CardMenuButton.tsx      Trailing ⋯ Pressable used on every card
-          LineCard.tsx            Favorite-line row (title + termini + colored chip)
-          StationCard.tsx         Favorite-station row — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
-          TrainCard.tsx           Favorite-train row — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
+          LineCard.tsx            Line dashboard card (title + termini + colored chip)
+          StationCard.tsx         Station dashboard card — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
+          TrainCard.tsx           Train dashboard card — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
       profile/
-        ProfilePanel.tsx          Profile card + theme toggle + sign out/in — rendered in the Menu drawer's Profile section
-        FavoritesManager.tsx      Profile favorites manager (Lines/Stations/Trains sections + Clear all)
-        FavoritesSection.tsx      Section header + list of FavoriteRows
-        FavoriteRow.tsx           Single favorite row with deep link + trash button — train rows show "{origin} to {dest}" + "{line} #{num}"
+        ProfilePanel.tsx          Profile card + theme toggle + "Clear all dashboard items" button + sign out/in — rendered in the Menu drawer's Profile section
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
       hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, useMetraTrip)
       useMetraFeed.ts             Metra GTFS-RT feed subscriber — polls Cloud Functions, AppState-aware
-      useNavHeaderInset.ts        Top inset for screens under the transparent navigator header (Android-safe fallback)
+      useNavHeaderInset.ts        Top inset for screens under the navigator header (Android-safe fallback)
       headerItems.ts              Platform-aware native-stack header items — wraps headerLeft/headerRight in `unstable_*Items` with `hidesSharedBackground: true` on iOS to suppress the iOS 26 Liquid Glass pill; falls back to legacy headerLeft/headerRight on Android
-      useToggleFavorite.ts        Optimistic favorite toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
-      useReorderFavorites.ts      Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
-      useClearAllFavorites.ts     Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
+      useToggleDashboardItem.ts   Optimistic dashboard-item toggle + map-keyed Firestore writes (writes `position` for fully-reordered users)
+      useReorderDashboardItems.ts Optimistic drag-end reorder + batched `favorites.{key}.position` Firestore write
+      useClearAllDashboardItems.ts Optimistic clear-all + Firestore `favorites: {}` write (revert on error)
       useDashboardQueries.ts      TanStack Query reads for lines/stations/metra-trip/station-schedule/station-trips on the dashboard
-      useUpdateFavoriteSettings.ts  Persist per-favorite settings (direction filter, density, train stop overrides) to Firestore + store
+      useUpdateDashboardItemSettings.ts  Persist per-item settings (direction filter, density, train stop overrides) to Firestore + store
       useMetraTripLiveStatus.ts   Polling hook returning derived realtime state for a Metra trip (used by TrainCard mini hero)
-      favoriteRoute.ts            Pure helper: resolves a Favorite to its deep-link route
+      dashboardItemRoute.ts       Pure helper: resolves a DashboardItem to its deep-link route
       queryClient.ts              TanStack Query client factory (singleton)
       store/
-        favorites.ts              Zustand store for favorites (AsyncStorage-persisted) + reorder action + pendingWrites guard
+        dashboard.ts              Zustand store for dashboard items (AsyncStorage-persisted) + reorder action + pendingWrites guard
       auth.ts                     Auth helpers — email/password, social (Apple, Google)
-      AuthContext.tsx              Auth context + onSnapshot live profile listener; hydrates favorites store (skipped while pendingWrites>0)
+      AuthContext.tsx              Auth context + onSnapshot live profile listener; hydrates dashboard items store (skipped while pendingWrites>0)
       theme/
         tokens.ts                 Light + dark token objects (semantic colors, numeric space + radius scales)
         ThemeProvider.tsx         Provider — resolves system/light/dark + persists choice to AsyncStorage
@@ -267,14 +261,14 @@ packages/
   shared/
     src/
       index.ts                    Barrel export of all shared modules
-      types.ts                    Line, Station, UserProfile, Favorite, FavoriteType TypeScript interfaces
+      types.ts                    Line, Station, UserProfile, DashboardItem, DashboardItemType TypeScript interfaces
       gtfs-types.ts               Schedule and trip type definitions
       pace-types.ts               Pace transit types
       constants.ts                CTA/Metra line colors, names, route mappings
       siteConfig.ts               Site name, URL, OG image config
       cta-pulse.ts                Pure aggregation + health helpers for CTA service pulse
       metra-trip-matching.ts      Helpers for matching Metra realtime entities
-      favorites.ts                Pure helpers for favorites (favoriteKey, mapToArray, arrayToMap)
+      dashboard-items.ts          Pure helpers for dashboard items (dashboardItemKey, mapToArray, arrayToMap)
       station-arrivals.ts         Pure helpers for arrival groups, per-favorite direction filters, station-name shortening, and the station-card subheader string (stationCardSubheader)
 ```
 
@@ -373,7 +367,7 @@ The web app runs as a server-side rendered Next.js app deployed to Firebase App 
 
 ### Mobile app (Expo)
 
-The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing). The root `app/_layout.tsx` is an expo-router `Drawer` (`@react-navigation/drawer`, `headerShown: false`, `drawerType: 'front'`) holding the providers; its single screen is the `(app)` route group whose `app/(app)/_layout.tsx` is the actual `Stack`. The `(app)` group segment is **not** part of any URL, so `router.push('/metra')`, deep links, etc. are unchanged — it exists only so the whole Stack can be wrapped by the Drawer. There are no bottom tabs and no standalone profile route. The **Menu** opens as a side drawer (swipe-from-edge or the home-screen hamburger): `MenuDrawerContent` renders four labeled sections — **Menu** (nav rows: Dashboard `/`, Metra `/metra`, CTA `/cta`), **Dashboard** (the existing `FavoritesManager`), **Profile** (`ProfilePanel`: profile card + theme toggle + sign out/in), **Legal** (Privacy, Terms). Nav rows close the drawer then navigate. `MenuDrawerContent` composes `useSafeAreaInsets()` into its scroll container so content never sits under the status bar / home indicator. Every screen shares one app header, defined once in the `app/(app)/_layout.tsx` Stack `screenOptions`: `headerTransparent: true` with a transparent `headerStyle.backgroundColor`, plus a `headerBackground` of `AppHeaderBackground` — an absolute-fill view filled with `bg.headerTranslucent` (canvas color at ~88% alpha, so content/photos stay faintly visible behind the bar) and a 1px `border.hairline` bottom divider (theme-aware, visible in both light and dark). Titles are left-aligned (`headerTitleAlign: 'left'`, `text.primary`, bold) and **page-specific**: Home/Terms/Privacy and the CTA/Metra list screens show `Chicago Transit Tracker` (a list screen can't lead its title with the agency word per the compliance rules); alerts screens show `Service Alerts`; line/station/train screens set the entity name (`line.name`, `station.name`, `"{lineName} #{trainNumber}"`) via their existing per-screen `Stack.Screen` override. Each screen now sets only its own `headerTitle` (+ `headerRight` where it already did) — all chrome is inherited. `HeaderBackButton` is the custom `headerLeft` (returns `null` at root) and `HeaderMenuButton` (home `headerRight`) are flat icons in `text.primary` with **no scrim circle and no text shadow** (the near-opaque bar makes them legible); the favorite heart in `headerRight` on detail screens is likewise a flat heart (no circle) stroked in `text.primary` by default. On iOS 26 the native `UINavigationBar` would normally wrap any `headerLeft` / `headerRight` element in a "Liquid Glass" rounded pill — we opt out by routing every header button through `apps/mobile/lib/headerItems.ts`, which on iOS uses `unstable_headerLeftItems` / `unstable_headerRightItems` (the iOS-only native-stack API) with `type: 'custom'` and `hidesSharedBackground: true`, and on Android falls back to the legacy `headerLeft` / `headerRight` props. New header buttons MUST go through this helper, not raw `headerLeft` / `headerRight`, or the glass pill will return on iOS 26 devices. The `auth` modal and `apple-callback` screens are header-less (`headerShown: false`). The home Dashboard ("My Trains") renders edge-to-edge — signed in, `DashboardHeader` shows only the "Welcome back, {name}" greeting; signed out, the tagline and Sign up / Log in CTAs. CTA and Metra browsing happens by tapping cards on the dashboard or via the Menu drawer. All detail screens (`/cta/[line]`, `/metra/[line]`, station and train screens) plus the list screens still render `PageHeader` with `compact` enabled beneath the bar — station screens use `station.photoUrl` with the service default as fallback; line and train screens use the service default directly (`hero-header.jpg` for CTA, `hero-header-metra.jpg` for Metra). Screens without a `PageHeader` use `useNavHeaderInset()` to inset their content below the header.
+The mobile app uses Firebase JS SDK (not Admin SDK) for client-side Firestore reads. It shares types and constants from `@ctt/shared` but has its own data hooks in `apps/mobile/lib/hooks.ts`. Navigation uses expo-router (file-based routing). The root `app/_layout.tsx` is an expo-router `Drawer` (`@react-navigation/drawer`, `headerShown: false`, `drawerType: 'front'`) holding the providers; its single screen is the `(app)` route group whose `app/(app)/_layout.tsx` is the actual `Stack`. The `(app)` group segment is **not** part of any URL, so `router.push('/metra')`, deep links, etc. are unchanged — it exists only so the whole Stack can be wrapped by the Drawer. There are no bottom tabs and no standalone profile route. The **Menu** opens as a side drawer (swipe-from-edge or any screen's headerRight hamburger): `MenuDrawerContent` renders four labeled sections — **Menu** (nav rows: Dashboard `/`, Metra `/metra`, CTA `/cta`), **Dashboard Items** (read-only `DashboardItemsList` grouped by Trains / Stations / Lines; train rows fetch their trip and show "{origin} to {destination}" + "{line} #{num}"), **Profile** (`ProfilePanel`: profile card + theme toggle + "Clear all dashboard items" button + sign out/in), **Legal** (Privacy, Terms). Nav rows close the drawer then navigate. `MenuDrawerContent` composes `useSafeAreaInsets()` into its scroll container so content never sits under the status bar / home indicator. Every screen shares one app header, defined once in the `app/(app)/_layout.tsx` Stack `screenOptions`: a **solid opaque** header (`headerTransparent: false`, `headerStyle.backgroundColor` = `bg.canvas`) plus a `headerBackground` that paints the canvas fill and pins a 1px `border.hairline` divider to the bottom edge (theme-aware, visible in both light and dark). Hero photos on detail screens butt cleanly against the header — there is no longer any photo bleed-through. Titles are left-aligned (`headerTitleAlign: 'left'`, `text.primary`, bold) and **page-specific**: Home/Terms/Privacy and the CTA/Metra list screens show `Chicago Transit Tracker` (a list screen can't lead its title with the agency word per the compliance rules); alerts screens show `Service Alerts`; line/station screens set the entity name (`line.name`, `station.name`); the train screen shows `"{origin} to {destination}"` mirroring the dashboard TrainCard, falling back to `"Train {n}"` until the trip resolves. Each screen sets only its own `headerTitle` (+ `headerRight`) — all chrome is inherited. `HeaderBackButton` is the custom `headerLeft` (returns `null` at root) and `HeaderMenuButton` is the `headerRight` on **every** screen (home and detail), giving users a one-tap path back to the Menu drawer. On iOS 26 the native `UINavigationBar` would normally wrap any `headerLeft` / `headerRight` element in a "Liquid Glass" rounded pill — we opt out by routing every header button through `apps/mobile/lib/headerItems.ts`, which on iOS uses `unstable_headerLeftItems` / `unstable_headerRightItems` (the iOS-only native-stack API) with `type: 'custom'` and `hidesSharedBackground: true`, and on Android falls back to the legacy `headerLeft` / `headerRight` props. New header buttons MUST go through this helper, not raw `headerLeft` / `headerRight`, or the glass pill will return on iOS 26 devices. The `auth` modal and `apple-callback` screens are header-less (`headerShown: false`). The home Dashboard ("My Trains") renders edge-to-edge — signed in, `DashboardHeader` shows only the "Welcome back, {name}" greeting; signed out, the tagline and Sign up / Log in CTAs. CTA and Metra browsing happens by tapping cards on the dashboard or via the Menu drawer. All detail screens (`/cta/[line]`, `/metra/[line]`, station and train screens) plus the list screens still render `PageHeader` with `compact` enabled beneath the bar — station screens use `station.photoUrl` with the service default as fallback; line and train screens use the service default directly (`hero-header.jpg` for CTA, `hero-header-metra.jpg` for Metra). Every detail screen passes a `dashboardItem={{ type, id }}` prop so `PageHeader` renders a compact translucent "+ Dashboard" pill (`DashboardAddButton`) in the hero's bottom-right corner; tapping it adds the line/station/train to the user's dashboard (or routes to `/auth` first when signed out). Screens without a `PageHeader` use `useNavHeaderInset()` to inset their content below the header.
 
 ### Dark mode
 

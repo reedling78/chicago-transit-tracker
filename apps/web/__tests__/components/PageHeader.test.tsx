@@ -16,9 +16,9 @@ jest.mock('next/image', () => ({
   },
 }))
 
-jest.mock('@components/FavoriteButton', () => {
-  return function MockFavoriteButton({ type, id }: { type: string; id: string }) {
-    return <div data-testid="favorite-button">{`${type}:${id}`}</div>
+jest.mock('@components/DashboardAddButton', () => {
+  return function MockDashboardAddButton({ type, id }: { type: string; id: string }) {
+    return <div data-testid="dashboard-add-button">{`${type}:${id}`}</div>
   }
 })
 
@@ -111,19 +111,19 @@ describe('PageHeader', () => {
     expect(heading?.querySelectorAll('span')).toHaveLength(0)
   })
 
-  it('renders FavoriteButton when favorite prop is provided', () => {
-    render(<PageHeader title="Red Line" favorite={{ type: 'line', id: 'red' }} />)
-    expect(screen.getByTestId('favorite-button')).toHaveTextContent('line:red')
+  it('renders DashboardAddButton when dashboardItem prop is provided', () => {
+    render(<PageHeader title="Red Line" dashboardItem={{ type: 'line', id: 'red' }} />)
+    expect(screen.getByTestId('dashboard-add-button')).toHaveTextContent('line:red')
   })
 
-  it('does not render FavoriteButton when favorite prop is omitted', () => {
+  it('does not render DashboardAddButton when dashboardItem prop is omitted', () => {
     render(<PageHeader title="Privacy" />)
-    expect(screen.queryByTestId('favorite-button')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('dashboard-add-button')).not.toBeInTheDocument()
   })
 
-  it('still renders the FavoriteButton at the top when no breadcrumbs are provided', () => {
-    render(<PageHeader title="Red Line" favorite={{ type: 'line', id: 'red' }} />)
-    expect(screen.getByTestId('favorite-button')).toBeInTheDocument()
+  it('renders DashboardAddButton without breadcrumbs when no breadcrumbItems are provided', () => {
+    render(<PageHeader title="Red Line" dashboardItem={{ type: 'line', id: 'red' }} />)
+    expect(screen.getByTestId('dashboard-add-button')).toBeInTheDocument()
     expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument()
   })
 

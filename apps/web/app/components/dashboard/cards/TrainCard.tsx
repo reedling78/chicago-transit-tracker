@@ -7,29 +7,29 @@ import { CSS } from '@dnd-kit/utilities'
 import {
   computeDestinationEta,
   computeRightPanel,
-  favoriteKey,
+  dashboardItemKey,
   formatClockLabel,
   formatMinutesAway,
   minutesUntil,
   nextServiceRunLabel,
   parseDisplayTimeToMinutes,
   shortenStationName,
-  type Favorite,
+  type DashboardItem,
   type Line,
   type Station,
   type TripStop,
 } from '@ctt/shared'
-import { useFavoriteTripQuery } from '@lib/hooks/useDashboardQueries'
+import { useDashboardItemTripQuery } from '@lib/hooks/useDashboardQueries'
 import { useMetraTripLiveStatus } from '@lib/hooks/useMetraTripLiveStatus'
-import { useUpdateFavoriteSettings } from '@lib/hooks/useUpdateFavoriteSettings'
-import FavoriteMenu from '../FavoriteMenu'
+import { useUpdateDashboardItemSettings } from '@lib/hooks/useUpdateDashboardItemSettings'
+import DashboardItemMenu from '../DashboardItemMenu'
 import MetraTripHeroStatusCardCompact from '../../MetraTripHeroStatusCardCompact'
 import TrainStopPickerModal from '../TrainStopPickerModal'
 import CardMenuButton from './CardMenuButton'
 import { cardRow, cardRowDragging, cardSubtitle, cardTitle } from './cardClassNames'
 
 interface TrainCardProps {
-  favorite: Favorite
+  item: DashboardItem
   lines: Line[] | undefined
   stations: Station[] | undefined
 }
@@ -52,30 +52,30 @@ function pickStop(
   return fallback
 }
 
-export default function TrainCard({ favorite, lines, stations }: TrainCardProps) {
+export default function TrainCard({ item, lines, stations }: TrainCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [pickerMode, setPickerMode] = useState<'origin' | 'destination' | null>(null)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: favoriteKey(favorite.type, favorite.id),
+    id: dashboardItemKey(item.type, item.id),
   })
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60_000)
     return () => clearInterval(id)
   }, [])
-  const { data: trip } = useFavoriteTripQuery(favorite.id)
-  const { update } = useUpdateFavoriteSettings(favorite.type, favorite.id)
+  const { data: trip } = useDashboardItemTripQuery(item.id)
+  const { update } = useUpdateDashboardItemSettings(item.type, item.id)
   const live = useMetraTripLiveStatus(trip ?? null)
 
-  const [lineSlugFromId, trainNumberFromId] = favorite.id.split('_')
-  const trainNumber = trip?.trainNumber ?? trainNumberFromId ?? favorite.id
+  const [lineSlugFromId, trainNumberFromId] = item.id.split('_')
+  const trainNumber = trip?.trainNumber ?? trainNumberFromId ?? item.id
   const line = lines?.find((l) => l.slug === (trip?.lineSlug ?? lineSlugFromId))
   const lineColor = line?.color
 
   const firstStop = trip?.stops?.[0]
   const lastStop = trip?.stops?.[trip.stops.length - 1]
-  const originStop = pickStop(trip?.stops, favorite.trainOriginStopSlug, firstStop)
-  const destStop = pickStop(trip?.stops, favorite.trainDestinationStopSlug, lastStop)
+  const originStop = pickStop(trip?.stops, item.trainOriginStopSlug, firstStop)
+  const destStop = pickStop(trip?.stops, item.trainDestinationStopSlug, lastStop)
 
   const title = trip
     ? originStop && destStop
@@ -167,8 +167,8 @@ export default function TrainCard({ favorite, lines, stations }: TrainCardProps)
         </p>
       )}
       {menuOpen && (
-        <FavoriteMenu
-          favorite={favorite}
+        <DashboardItemMenu
+          item={item}
           lines={lines}
           stations={stations}
           header={{ title, subtitle: subheader }}

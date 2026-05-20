@@ -14,13 +14,13 @@ jest.mock('../../lib/useNavHeaderInset', () => ({
   useNavHeaderInset: () => 64,
 }))
 
-jest.mock('../../components/FavoriteButton', () => {
+jest.mock('../../components/DashboardAddButton', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Text } = require('react-native')
   return {
     __esModule: true,
     default: ({ type, id }: { type: string; id: string }) => (
-      <Text testID="favorite-button">{`${type}:${id}`}</Text>
+      <Text testID="dashboard-add-button">{`${type}:${id}`}</Text>
     ),
   }
 })
@@ -71,14 +71,14 @@ describe('PageHeader', () => {
     expect(screen.getByText('Red Line')).toBeOnTheScreen()
   })
 
-  it('renders FavoriteButton when favorite prop is provided', () => {
-    render(<PageHeader title="Red Line" favorite={{ type: 'line', id: 'red' }} />)
-    expect(screen.getByTestId('favorite-button').props.children).toBe('line:red')
+  it('renders DashboardAddButton when dashboardItem prop is provided', () => {
+    render(<PageHeader title="Red Line" dashboardItem={{ type: 'line', id: 'red' }} />)
+    expect(screen.getByTestId('dashboard-add-button').props.children).toBe('line:red')
   })
 
-  it('does not render FavoriteButton when favorite prop is omitted', () => {
+  it('does not render DashboardAddButton when dashboardItem prop is omitted', () => {
     render(<PageHeader title="Red Line" />)
-    expect(screen.queryByTestId('favorite-button')).toBeNull()
+    expect(screen.queryByTestId('dashboard-add-button')).toBeNull()
   })
 
   it('renders without a title when title is omitted', () => {

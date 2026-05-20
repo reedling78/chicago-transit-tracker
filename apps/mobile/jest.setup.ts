@@ -28,11 +28,11 @@ jest.mock('@react-native-async-storage/async-storage', () => {
   }
 })
 
-// FavoriteButton transitively depends on TanStack Query, Firebase Auth, and
-// the favorites Zustand store. Screen-level tests render PageHeader-using
+// DashboardAddButton transitively depends on TanStack Query, Firebase Auth, and
+// the dashboard Zustand store. Screen-level tests render PageHeader-using
 // screens without those providers, so stub the component globally. The real
-// FavoriteButton is unit-tested in its own file (which calls jest.unmock).
-jest.mock('./components/FavoriteButton', () => {
+// DashboardAddButton is unit-tested in its own file (which calls jest.unmock).
+jest.mock('./components/DashboardAddButton', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react')
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -40,7 +40,7 @@ jest.mock('./components/FavoriteButton', () => {
   return {
     __esModule: true,
     default: ({ type, id }: { type: string; id: string }) =>
-      React.createElement(Text, { testID: 'favorite-button-stub' }, `${type}:${id}`),
+      React.createElement(Text, { testID: 'dashboard-add-button-stub' }, `${type}:${id}`),
   }
 })
 

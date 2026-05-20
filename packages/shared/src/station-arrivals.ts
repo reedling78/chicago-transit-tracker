@@ -1,5 +1,5 @@
 import type { ServiceType, StationSchedule, StationTrips } from './gtfs-types'
-import type { FavoriteDirection } from './types'
+import type { DashboardItemDirection } from './types'
 import type { FeedData } from './metra-status'
 import { longToNumber } from './metra-status'
 import { extractMetraTrainNumber, routeIdToLineSlug } from './metra-trip-matching'
@@ -90,7 +90,7 @@ export interface ComputeArrivalGroupsInput {
   now: Date
   service: 'cta' | 'metra'
   /** Filter applied to the resulting groups; defaults to `'all'`. */
-  directionFilter?: FavoriteDirection
+  directionFilter?: DashboardItemDirection
   /** Max arrivals returned per direction group. Defaults to 3. */
   limit?: number
   /** Normalized Metra realtime trip updates (see {@link indexMetraTripUpdates}). */
@@ -238,7 +238,7 @@ export function computeArrivalGroups({
 
 export function applyDirectionFilter(
   groups: ArrivalGroup[],
-  directionFilter: FavoriteDirection,
+  directionFilter: DashboardItemDirection,
   service: 'cta' | 'metra',
 ): ArrivalGroup[] {
   if (!directionFilter || directionFilter === 'all') return groups

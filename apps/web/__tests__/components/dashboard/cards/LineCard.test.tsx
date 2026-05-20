@@ -3,26 +3,25 @@
  */
 import { render, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import type { Favorite } from '@ctt/shared'
 
 const mockPush = jest.fn()
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }))
 
-// Avoid pulling the real useToggleFavorite (which imports firebase) into the
+// Avoid pulling the real useToggleDashboardItem (which imports firebase) into the
 // FavoriteMenu render path during these tests.
-jest.mock('@lib/hooks/useToggleFavorite', () => ({
-  useToggleFavorite: () => ({
-    isFavorited: true,
+jest.mock('@lib/hooks/useToggleDashboardItem', () => ({
+  useToggleDashboardItem: () => ({
+    isOnDashboard: true,
     toggle: jest.fn(),
     isToggling: false,
     needsAuth: false,
   }),
 }))
 
-jest.mock('@lib/hooks/useUpdateFavoriteSettings', () => ({
-  useUpdateFavoriteSettings: () => ({ update: jest.fn(), isUpdating: false }),
+jest.mock('@lib/hooks/useUpdateDashboardItemSettings', () => ({
+  useUpdateDashboardItemSettings: () => ({ update: jest.fn(), isUpdating: false }),
 }))
 
 import LineCard from '@components/dashboard/cards/LineCard'
@@ -38,7 +37,7 @@ describe('LineCard', () => {
   it('renders the line name and termini subtitle', () => {
     render(
       <ul>
-        <LineCard favorite={fav} line={mockLine} lines={[mockLine]} />
+        <LineCard item={fav} line={mockLine} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.getByText('Red Line')).toBeInTheDocument()
@@ -48,7 +47,7 @@ describe('LineCard', () => {
   it('renders a working link to the line route', () => {
     const { container } = render(
       <ul>
-        <LineCard favorite={fav} line={mockLine} lines={[mockLine]} />
+        <LineCard item={fav} line={mockLine} lines={[mockLine]} />
       </ul>,
     )
     const link = container.querySelector('a[href="/cta/red"]')
@@ -58,19 +57,19 @@ describe('LineCard', () => {
   it('opens the menu when the overflow button is clicked', () => {
     render(
       <ul>
-        <LineCard favorite={fav} line={mockLine} lines={[mockLine]} />
+        <LineCard item={fav} line={mockLine} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.queryByText('Open details')).not.toBeInTheDocument()
     fireEvent.click(screen.getByLabelText('Open menu for Red Line'))
     expect(screen.getByText('Open details')).toBeInTheDocument()
-    expect(screen.getByText('Remove from favorites')).toBeInTheDocument()
+    expect(screen.getByText('Remove from dashboard')).toBeInTheDocument()
   })
 
   it('falls back to the favorite id when the line has not loaded yet', () => {
     render(
       <ul>
-        <LineCard favorite={fav} line={undefined} lines={undefined} />
+        <LineCard item={fav} line={undefined} lines={undefined} />
       </ul>,
     )
     expect(screen.getByText('red')).toBeInTheDocument()
@@ -80,7 +79,7 @@ describe('LineCard', () => {
     // mockLine.color = #c60c30 → rgb(198, 12, 48)
     const { container } = render(
       <ul>
-        <LineCard favorite={fav} line={mockLine} lines={[mockLine]} />
+        <LineCard item={fav} line={mockLine} lines={[mockLine]} />
       </ul>,
     )
     const li = container.querySelector('li')

@@ -1,5 +1,22 @@
 import { render, fireEvent } from '@testing-library/react-native'
 import ProfilePanel from '../../../components/profile/ProfilePanel'
+import { useDashboardStore } from '../../../lib/store/dashboard'
+
+jest.mock('../../../lib/firebase', () => ({ auth: {}, db: {} }))
+jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
+  updateDoc: jest.fn(() => Promise.resolve()),
+  serverTimestamp: jest.fn(),
+}))
+
+const mockClearAll = jest.fn()
+jest.mock('../../../lib/useClearAllDashboardItems', () => ({
+  useClearAllDashboardItems: () => ({
+    clearAll: mockClearAll,
+    isClearing: false,
+    needsAuth: false,
+  }),
+}))
 
 const mockUseAuth = jest.fn()
 jest.mock('../../../lib/AuthContext', () => ({ useAuth: () => mockUseAuth() }))
@@ -13,7 +30,10 @@ jest.mock('@expo/vector-icons/Ionicons', () => {
   return { __esModule: true, default: ({ name }: { name: string }) => <Text>{name}</Text> }
 })
 
-beforeEach(() => jest.clearAllMocks())
+beforeEach(() => {
+  jest.clearAllMocks()
+  useDashboardStore.setState({ items: [], hydrated: false, pendingWrites: 0 })
+})
 
 describe('ProfilePanel (mobile)', () => {
   it('shows the Sign In CTA when signed out', () => {

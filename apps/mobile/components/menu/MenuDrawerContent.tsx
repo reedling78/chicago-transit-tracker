@@ -6,8 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme, type Theme } from '../../lib/theme'
 import MenuSection from './MenuSection'
 import MenuNavRow from './MenuNavRow'
+import DashboardItemsList from './DashboardItemsList'
 import ProfilePanel from '../profile/ProfilePanel'
-import FavoritesManager from '../profile/FavoritesManager'
 
 export default function MenuDrawerContent(props: DrawerContentComponentProps) {
   const { theme } = useTheme()
@@ -30,8 +30,8 @@ export default function MenuDrawerContent(props: DrawerContentComponentProps) {
         <MenuNavRow icon="subway-outline" label="CTA" href="/cta" onNavigate={close} />
       </MenuSection>
 
-      <MenuSection title="Dashboard">
-        <FavoritesManager />
+      <MenuSection title="Dashboard Items">
+        <DashboardItemsList onNavigate={close} />
       </MenuSection>
 
       <MenuSection title="Profile">

@@ -4,9 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { Favorite, Line } from '@ctt/shared'
-import { favoriteKey } from '@ctt/shared'
-import FavoriteMenu from '../FavoriteMenu'
+import type { DashboardItem, Line } from '@ctt/shared'
+import { dashboardItemKey } from '@ctt/shared'
+import DashboardItemMenu from '../DashboardItemMenu'
 import CardMenuButton from './CardMenuButton'
 import {
   cardLink,
@@ -18,15 +18,15 @@ import {
 } from './cardClassNames'
 
 interface LineCardProps {
-  favorite: Favorite
+  item: DashboardItem
   line: Line | undefined
   lines: Line[] | undefined
 }
 
-export default function LineCard({ favorite, line, lines }: LineCardProps) {
+export default function LineCard({ item, line, lines }: LineCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: favoriteKey(favorite.type, favorite.id),
+    id: dashboardItemKey(item.type, item.id),
   })
 
   const style = {
@@ -36,7 +36,7 @@ export default function LineCard({ favorite, line, lines }: LineCardProps) {
   }
 
   const href = line ? `/${line.service}/${line.slug}` : null
-  const title = line?.name ?? favorite.id
+  const title = line?.name ?? item.id
   const subtitle = line?.termini?.length ? line.termini.join(' — ') : null
   const meta = line?.service === 'metra' ? 'Metra' : line ? 'CTA' : null
 
@@ -71,8 +71,8 @@ export default function LineCard({ favorite, line, lines }: LineCardProps) {
         accessibilityLabel={`Open menu for ${title}`}
       />
       {menuOpen && (
-        <FavoriteMenu
-          favorite={favorite}
+        <DashboardItemMenu
+          item={item}
           lines={lines}
           stations={undefined}
           onClose={() => setMenuOpen(false)}

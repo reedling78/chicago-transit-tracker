@@ -3,16 +3,16 @@
  */
 import { render, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import type { Favorite, StationSchedule } from '@ctt/shared'
+import type { StationSchedule } from '@ctt/shared'
 
 const mockPush = jest.fn()
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
 }))
 
-jest.mock('@lib/hooks/useToggleFavorite', () => ({
-  useToggleFavorite: () => ({
-    isFavorited: true,
+jest.mock('@lib/hooks/useToggleDashboardItem', () => ({
+  useToggleDashboardItem: () => ({
+    isOnDashboard: true,
     toggle: jest.fn(),
     isToggling: false,
     needsAuth: false,
@@ -20,8 +20,8 @@ jest.mock('@lib/hooks/useToggleFavorite', () => ({
 }))
 
 const mockUpdate = jest.fn()
-jest.mock('@lib/hooks/useUpdateFavoriteSettings', () => ({
-  useUpdateFavoriteSettings: () => ({ update: mockUpdate, isUpdating: false }),
+jest.mock('@lib/hooks/useUpdateDashboardItemSettings', () => ({
+  useUpdateDashboardItemSettings: () => ({ update: mockUpdate, isUpdating: false }),
 }))
 
 const mockScheduleQuery = jest.fn()
@@ -131,7 +131,7 @@ describe('StationCard', () => {
   it('renders title and a CTA "<service> <lines> Line" subheader (no separate meta chip)', () => {
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.getByText('Clark/Lake')).toBeInTheDocument()
@@ -145,17 +145,17 @@ describe('StationCard', () => {
   it('renders a Metra subheader with no trailing "Line"', () => {
     render(
       <ul>
-        <StationCard favorite={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
+        <StationCard item={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
       </ul>,
     )
     expect(screen.getByText('Metra BNSF')).toBeInTheDocument()
     expect(screen.queryByText('Metra')).toBeNull()
   })
 
-  it('renders a link via favoriteRoute', () => {
+  it('renders a link via dashboardItemRoute', () => {
     const { container } = render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(container.querySelector('a[href="/cta/red/clark-lake"]')).not.toBeNull()
@@ -164,7 +164,7 @@ describe('StationCard', () => {
   it('opens the menu on overflow click', () => {
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     fireEvent.click(screen.getByLabelText('Open menu for Clark/Lake'))
@@ -174,7 +174,7 @@ describe('StationCard', () => {
   it('falls back to the favorite id when station data has not loaded', () => {
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={undefined} lines={undefined} />
+        <StationCard item={ctaFav} station={undefined} lines={undefined} />
       </ul>,
     )
     expect(screen.getByText('clark-lake')).toBeInTheDocument()
@@ -183,7 +183,7 @@ describe('StationCard', () => {
   it('shows skeleton while schedule is loading', () => {
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.getByTestId('arrivals-skeleton')).toBeInTheDocument()
@@ -193,7 +193,7 @@ describe('StationCard', () => {
     mockScheduleQuery.mockReturnValue(loadedSchedule(ctaSchedule))
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.getByText('Service toward Loop')).toBeInTheDocument()
@@ -212,7 +212,7 @@ describe('StationCard', () => {
     const compactFav: Favorite = { ...ctaFav, density: 'compact' }
     render(
       <ul>
-        <StationCard favorite={compactFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={compactFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.getAllByTestId('arrival-row-compact')).toHaveLength(2)
@@ -224,7 +224,7 @@ describe('StationCard', () => {
     const filtered: Favorite = { ...ctaFav, directionFilter: 'Loop' }
     render(
       <ul>
-        <StationCard favorite={filtered} station={mockStation} lines={[mockLine]} />
+        <StationCard item={filtered} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.getByText('Service toward Loop')).toBeInTheDocument()
@@ -239,7 +239,7 @@ describe('StationCard', () => {
     )
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(screen.getByText('No upcoming departures.')).toBeInTheDocument()
@@ -258,7 +258,7 @@ describe('StationCard', () => {
 
     render(
       <ul>
-        <StationCard favorite={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
+        <StationCard item={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
       </ul>,
     )
 
@@ -276,7 +276,7 @@ describe('StationCard', () => {
     mockTripsQuery.mockReturnValue({ data: metraTrips, isLoading: false, dataUpdatedAt: 0 })
     const { container } = render(
       <ul>
-        <StationCard favorite={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
+        <StationCard item={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
       </ul>,
     )
     expect(container.querySelector('a[href="/metra/bnsf/train/1234"]')).not.toBeNull()
@@ -285,7 +285,7 @@ describe('StationCard', () => {
     mockScheduleQuery.mockReturnValue(loadedSchedule(ctaSchedule))
     const cta = render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     const ctaRows = cta.container.querySelectorAll('[data-testid="arrival-row"]')
@@ -299,11 +299,7 @@ describe('StationCard', () => {
     const compactMetraFav: Favorite = { ...metraFav, density: 'compact' }
     const { container } = render(
       <ul>
-        <StationCard
-          favorite={compactMetraFav}
-          station={mockMetraStation}
-          lines={[mockMetraLine]}
-        />
+        <StationCard item={compactMetraFav} station={mockMetraStation} lines={[mockMetraLine]} />
       </ul>,
     )
     expect(container.querySelector('a[href="/metra/bnsf/train/1234"]')).not.toBeNull()
@@ -321,7 +317,7 @@ describe('StationCard', () => {
 
     render(
       <ul>
-        <StationCard favorite={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
+        <StationCard item={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
       </ul>,
     )
 
@@ -332,7 +328,7 @@ describe('StationCard', () => {
     mockScheduleQuery.mockReturnValue(loadedSchedule(ctaSchedule))
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(mockMetraFeed).toHaveBeenCalledWith('tripupdates', { enabled: false })
@@ -342,7 +338,7 @@ describe('StationCard', () => {
     mockScheduleQuery.mockReturnValue(loadedSchedule(ctaSchedule))
     render(
       <ul>
-        <StationCard favorite={ctaFav} station={mockStation} lines={[mockLine]} />
+        <StationCard item={ctaFav} station={mockStation} lines={[mockLine]} />
       </ul>,
     )
     expect(mockTripsQuery).toHaveBeenCalledWith('clark-lake', false)

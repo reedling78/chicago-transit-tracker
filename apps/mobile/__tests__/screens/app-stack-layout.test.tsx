@@ -64,7 +64,7 @@ jest.mock('../../components/HeaderBackButton', () => {
 })
 
 describe('AppStackLayout (app group)', () => {
-  it('renders the Stack with transparent header options and the back-button slot', () => {
+  it('renders the Stack with a solid opaque header and the back-button slot', () => {
     const { getByTestId, getByText } = render(<AppStackLayout />)
     const stack = getByTestId('stack')
     const options = JSON.parse(stack.props['data-options']) as {
@@ -76,10 +76,13 @@ describe('AppStackLayout (app group)', () => {
       title: string
       unstable_headerLeftItems?: HeaderItem[]
     }
-    expect(options.headerTransparent).toBe(true)
+    expect(options.headerTransparent).toBe(false)
     expect(options.headerShadowVisible).toBe(false)
     expect(options.headerBackVisible).toBe(false)
-    expect(options.headerStyle.backgroundColor).toBe('transparent')
+    // The hero photo no longer bleeds behind the header — backgroundColor is
+    // the theme's solid canvas color.
+    expect(typeof options.headerStyle.backgroundColor).toBe('string')
+    expect(options.headerStyle.backgroundColor).not.toBe('transparent')
     expect(options.headerTitleAlign).toBe('left')
     expect(options.title).toBe('')
     expect(getByText('HeaderBackButton')).toBeOnTheScreen()

@@ -21,7 +21,8 @@ jest.mock('expo-router', () => {
   ;(Stack as unknown as { Screen: typeof StackScreen }).Screen = StackScreen
   return {
     useLocalSearchParams: () => ({ station: 'clark-lake' }),
-    useRouter: () => ({ push: jest.fn() }),
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+    useNavigation: () => ({ dispatch: jest.fn() }),
     Stack,
   }
 })
@@ -81,12 +82,19 @@ describe('CtaStationDetailScreen', () => {
     expect(screen.getByText('Clark/Lake')).toBeOnTheScreen()
   })
 
-  it('places the favorite button in the PageHeader title row', () => {
+  it('renders the menu button in the header right', () => {
     mockUseStation.mockReturnValue({ station: mockStation, loading: false })
-    mockUseSchedule.mockReturnValue({ schedule: null, loading: true })
+    mockUseSchedule.mockReturnValue({ schedule: mockSchedule, loading: false })
     render(<CtaStationDetailScreen />)
-    const stub = screen.getByTestId('favorite-button-stub')
-    expect(stub).toBeOnTheScreen()
+    const menuButton = screen.getByLabelText('Open menu')
+    expect(menuButton).toBeOnTheScreen()
+  })
+
+  it('renders the DashboardAddButton on the hero for the station', () => {
+    mockUseStation.mockReturnValue({ station: mockStation, loading: false })
+    mockUseSchedule.mockReturnValue({ schedule: mockSchedule, loading: false })
+    render(<CtaStationDetailScreen />)
+    const stub = screen.getByTestId('dashboard-add-button-stub')
     expect(stub.props.children).toBe('station:clark-lake')
   })
 

@@ -9,9 +9,9 @@ import {
   type Timestamp,
 } from 'firebase/firestore'
 import { auth, db } from './firebase'
-import type { Favorite, UserProfile } from '@ctt/shared'
+import type { DashboardItem, UserProfile } from '@ctt/shared'
 import { mapToArray } from '@ctt/shared'
-import { useFavoritesStore } from './store/favorites'
+import { useDashboardStore } from './store/dashboard'
 
 interface AuthState {
   user: User | null
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!firebaseUser) {
         setProfile(null)
-        useFavoritesStore.getState().clear()
+        useDashboardStore.getState().clear()
         setLoading(false)
         return
       }
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return
           }
           const data = snapshot.data()
-          const favoritesMap = (data.favorites ?? {}) as Record<string, Favorite>
+          const favoritesMap = (data.favorites ?? {}) as Record<string, DashboardItem>
           const favorites = mapToArray(favoritesMap)
           setProfile({
             uid: data.uid,
@@ -121,8 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Skip hydrate while local writes are in flight — otherwise a stale
           // snapshot can clobber an unconfirmed reorder. Pending writes settle
           // via Firestore and the next snapshot reconciles.
-          if (useFavoritesStore.getState().pendingWrites === 0) {
-            useFavoritesStore.getState().hydrate(favorites)
+          if (useDashboardStore.getState().pendingWrites === 0) {
+            useDashboardStore.getState().hydrate(favorites)
           }
           setLoading(false)
         },

@@ -1,14 +1,17 @@
 'use client'
 
+import { useState } from 'react'
 import { useAuth } from '@components/AuthProvider'
 import { signOut } from '@lib/auth'
-import { useState } from 'react'
 import AuthModal from '@components/AuthModal'
-import FavoritesManager from '@components/profile/FavoritesManager'
+import { useDashboardStore } from '@lib/store/dashboard'
+import { useClearAllDashboardItems } from '@lib/hooks/useClearAllDashboardItems'
 
 export default function ProfileContent() {
   const { user, profile, loading } = useAuth()
   const [showAuth, setShowAuth] = useState(false)
+  const itemCount = useDashboardStore((s) => s.items.length)
+  const { clearAll, isClearing } = useClearAllDashboardItems()
 
   if (loading) {
     return (
@@ -38,6 +41,14 @@ export default function ProfileContent() {
     apple: 'Apple',
     google: 'Google',
     password: 'Email & Password',
+  }
+
+  function handleClearAll() {
+    if (itemCount === 0) return
+    const ok = window.confirm(
+      `Remove all ${itemCount} item${itemCount === 1 ? '' : 's'} from your dashboard?`,
+    )
+    if (ok) clearAll()
   }
 
   return (
@@ -74,15 +85,22 @@ export default function ProfileContent() {
 
         <hr className="my-6 border-gray-200 dark:border-gray-700" />
 
-        <button
-          onClick={() => signOut()}
-          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
-        >
-          Sign Out
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => signOut()}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+          >
+            Sign Out
+          </button>
+          <button
+            onClick={handleClearAll}
+            disabled={itemCount === 0 || isClearing}
+            className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+          >
+            Clear all dashboard items
+          </button>
+        </div>
       </div>
-
-      <FavoritesManager />
     </div>
   )
 }

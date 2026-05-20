@@ -4,7 +4,7 @@ import { useTheme } from '../../../lib/theme'
 import type { Theme } from '../../../lib/theme'
 
 /**
- * Shared row styling for all dashboard favorite cards. Keeping this in one
+ * Shared row styling for all dashboard items cards. Keeping this in one
  * place prevents drift across StationCard / TrainCard / LineCard.
  */
 function makeCardStyles(theme: Theme) {

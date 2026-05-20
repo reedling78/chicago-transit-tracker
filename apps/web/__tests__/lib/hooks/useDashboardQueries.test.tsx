@@ -15,7 +15,7 @@ jest.mock('firebase/firestore', () => ({
 
 import { getDoc, getDocs } from 'firebase/firestore'
 import {
-  useFavoriteTripQuery,
+  useDashboardItemTripQuery,
   useLinesQuery,
   useStationScheduleQuery,
   useStationTripsQuery,
@@ -59,7 +59,7 @@ describe('display-name normalization (direct Firestore reads)', () => {
     expect(result.current.data?.[0].downtownTerminal).toBe('Ogilvie TC')
   })
 
-  it('useFavoriteTripQuery normalizes headsign and stop station names', async () => {
+  it('useDashboardItemTripQuery normalizes headsign and stop station names', async () => {
     mockGetDoc.mockResolvedValueOnce({
       exists: () => true,
       data: () => ({
@@ -68,7 +68,7 @@ describe('display-name normalization (direct Firestore reads)', () => {
         stops: [{ sequence: 1, stationName: 'Chicago Union Station', slug: 'union-station' }],
       }),
     } as never)
-    const { result } = renderHook(() => useFavoriteTripQuery('bnsf_1200'), { wrapper })
+    const { result } = renderHook(() => useDashboardItemTripQuery('bnsf_1200'), { wrapper })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.data?.headsign).toBe('Union Station')
     expect(result.current.data?.stops[0].stationName).toBe('Union Station')
