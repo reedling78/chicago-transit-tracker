@@ -42,4 +42,5 @@ jest.mock('firebase/auth', () => ({
 jest.mock('../../app/lib/firebase-client', () => ({
   auth: mockAuth,
   db: {},
+  getAnalyticsClient: jest.fn(() => Promise.resolve(null)),
 }))

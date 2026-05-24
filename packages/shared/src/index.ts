@@ -103,3 +103,13 @@ export {
   computeRightPanel,
   computeDestinationEta,
 } from './metra-trip-realtime-helpers'
+export type {
+  AnalyticsAuthMethod,
+  AnalyticsTransitService,
+  AnalyticsDashboardItemType,
+  AnalyticsEventMap,
+  AnalyticsEventName,
+  AnalyticsEventParams,
+  AnalyticsUserProperty,
+  AnalyticsUserPropertyValueMap,
+} from './analytics-events'

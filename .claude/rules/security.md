@@ -47,3 +47,16 @@ This pattern prevents CORS issues and keeps API credentials out of client-side c
 - No API keys, tokens, or service account details in client-side code
 - No secrets in `console.log`, error messages, or UI text
 - Client components fetch data through the project's own `/api/` routes, never directly from external services
+
+---
+
+## Public-by-Design Firebase Client Config (Exception)
+
+The following Firebase client identifiers are **public by design** per Google's documentation and may live in the client bundle and in the repo. They are not secrets:
+
+- **Web:** the `firebaseConfig` object in `apps/web/app/lib/firebase-client.ts` (apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId) and `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`.
+- **Mobile:** `apps/mobile/GoogleService-Info.plist` (iOS) and `apps/mobile/google-services.json` (Android).
+
+Access control for Firebase resources is enforced by **Firestore security rules** and **Firebase Auth**, not by hiding these config values. A code reviewer who flags these as "leaked credentials" should be pointed here.
+
+This exception applies only to the identifiers listed above. Server-side service-account keys, `METRA_API_TOKEN`, and any other API tokens remain strictly off-limits to client code.

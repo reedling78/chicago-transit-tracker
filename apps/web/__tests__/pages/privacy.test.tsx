@@ -45,6 +45,19 @@ describe('PrivacyPage', () => {
     ).toHaveAttribute('href', expect.stringContaining('tools.google.com/dlpage/gaoptout'))
   })
 
+  it('discloses that analytics is provided via Firebase Analytics', () => {
+    render(<PrivacyPage />)
+    const body = document.body.textContent ?? ''
+    expect(body).toMatch(/google analytics 4 \(via firebase analytics\)/i)
+  })
+
+  it('discloses user-ID linkage for signed-in users and the PII exclusion', () => {
+    render(<PrivacyPage />)
+    const body = document.body.textContent ?? ''
+    expect(body).toMatch(/firebase authentication user id is associated with these analytics/i)
+    expect(body).toMatch(/not.*send your email address, display name, or profile photo/i)
+  })
+
   it('provides a deletion contact path for App Store compliance', () => {
     // Apple requires a documented account-deletion flow. The privacy policy
     // is the canonical place for the email address; if it's removed, App
