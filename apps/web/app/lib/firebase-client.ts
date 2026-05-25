@@ -10,7 +10,7 @@ const firebaseConfig = {
   storageBucket: 'chicago-transit-tracker.firebasestorage.app',
   messagingSenderId: '591975765807',
   appId: '1:591975765807:web:7a48b7de39a312be8b33da',
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  measurementId: 'G-YZTP3F4Y9E',
 }
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
@@ -24,7 +24,6 @@ export function getAnalyticsClient(): Promise<Analytics | null> {
   if (analyticsInstance) return Promise.resolve(analyticsInstance)
   if (analyticsPromise) return analyticsPromise
   if (typeof window === 'undefined') return Promise.resolve(null)
-  if (!firebaseConfig.measurementId) return Promise.resolve(null)
 
   analyticsPromise = isSupported()
     .then((supported) => {

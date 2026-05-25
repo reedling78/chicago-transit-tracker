@@ -8,6 +8,11 @@ jest.mock('@lib/metra-realtime', () => ({
 }))
 const mockFetch = fetchMetraAlerts as jest.MockedFunction<typeof fetchMetraAlerts>
 
+const mockTrackEvent = jest.fn()
+jest.mock('@lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
+
 function makeAlert(
   id: string,
   routeId: string,
@@ -176,6 +181,18 @@ describe('MetraAlerts', () => {
       expect(screen.getByText('Milwaukee District North')).toBeInTheDocument()
       expect(screen.getByText('Metra Electric')).toBeInTheDocument()
     })
+  })
+
+  it('fires alert_link_clicked when a More info link is clicked', async () => {
+    mockTrackEvent.mockClear()
+    mockFetch.mockResolvedValue(sampleAlerts)
+    render(<MetraAlerts />)
+    const links = await screen.findAllByText('More info')
+    fireEvent.click(links[0].closest('a')!)
+    expect(mockTrackEvent).toHaveBeenCalledWith(
+      'alert_link_clicked',
+      expect.objectContaining({ service: 'metra', alert_id: expect.any(String) }),
+    )
   })
 })
 

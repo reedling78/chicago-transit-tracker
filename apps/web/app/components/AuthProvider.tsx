@@ -14,6 +14,7 @@ import { auth, db } from '@lib/firebase-client'
 import type { DashboardItem, UserProfile } from '@ctt/shared'
 import { mapToArray } from '@ctt/shared'
 import { useDashboardStore } from '@lib/store/dashboard'
+import { setUser as setAnalyticsUser, setUserProperty, trackEvent } from '@lib/analytics'
 
 interface AuthState {
   user: User | null
@@ -60,6 +61,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       const uid = firebaseUser?.uid ?? null
       activeUid = uid
       setUser(firebaseUser)
+      void setAnalyticsUser(uid)
 
       profileUnsub?.()
       profileUnsub = undefined
@@ -70,6 +72,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false)
         return
       }
+
+      const provider = resolveProvider(firebaseUser)
+      void setUserProperty('auth_provider', provider)
 
       const profileRef = doc(db, 'profiles', firebaseUser.uid)
 
@@ -83,12 +88,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
             email: firebaseUser.email,
             displayName: firebaseUser.displayName,
             photoUrl: firebaseUser.photoURL,
-            provider: resolveProvider(firebaseUser),
+            provider,
             favorites: {},
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           })
           if (activeUid !== uid) return
+          void trackEvent('sign_up', { method: provider })
+        } else {
+          void trackEvent('login', { method: provider })
         }
       } catch (err) {
         console.error('Failed to load/create profile:', err)

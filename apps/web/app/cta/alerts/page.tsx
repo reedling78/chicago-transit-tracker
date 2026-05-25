@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import PageHeader from '@components/PageHeader'
 import CTAAlerts from '@components/CTAAlerts'
+import AnalyticsMount from '@components/AnalyticsMount'
 import { siteConfig } from '@lib/siteConfig'
 
 const description = 'Real-time CTA rail service alerts and advisories.'
@@ -31,6 +32,7 @@ export default function CTAAlertsPage() {
         description="Real-time rail service alerts and advisories from the CTA."
       />
       <CTAAlerts />
+      <AnalyticsMount event="alerts_opened" params={{ service: 'cta' }} />
     </main>
   )
 }

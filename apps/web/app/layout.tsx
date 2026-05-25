@@ -1,7 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
-import Script from 'next/script'
 import { Suspense } from 'react'
 import './globals.css'
 import Navbar from '@components/Navbar'
@@ -74,16 +73,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Suspense fallback={null}>
           <Analytics />
         </Suspense>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.gaId}`}
-          strategy="afterInteractive"
-        />
-        <Script id="ga-init" strategy="afterInteractive">{`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${siteConfig.gaId}');
-        `}</Script>
       </body>
     </html>
   )

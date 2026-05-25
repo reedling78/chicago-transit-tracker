@@ -4,6 +4,7 @@ import { getFirestore } from '@lib/firebase-admin'
 import { getLinesForService } from '@lib/transit'
 import PageHeader from '@components/PageHeader'
 import MetraTripRealtime, { type TripDetail } from '@components/MetraTripRealtime'
+import AnalyticsMount from '@components/AnalyticsMount'
 import { siteConfig } from '@lib/siteConfig'
 
 interface TripIndexEntry {
@@ -149,6 +150,10 @@ export default async function MetraTripPage({ params }: Props) {
       />
 
       <MetraTripRealtime trip={trip} lineSlug={lineSlug} />
+      <AnalyticsMount
+        event="train_opened"
+        params={{ line_id: lineSlug, train_number: trip.trainNumber }}
+      />
     </main>
   )
 }

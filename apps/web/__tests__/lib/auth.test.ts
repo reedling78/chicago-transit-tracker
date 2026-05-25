@@ -7,6 +7,11 @@ import {
   mockSignInWithPopup,
 } from '../mocks/firebase-auth'
 
+const mockTrackEvent = jest.fn()
+jest.mock('@lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
+
 import {
   signInWithEmail,
   signUpWithEmail,
@@ -41,10 +46,11 @@ describe('auth helpers', () => {
     )
   })
 
-  it('signOut calls firebase signOut', async () => {
+  it('signOut calls firebase signOut and emits a logout analytics event', async () => {
     mockSignOut.mockResolvedValue(undefined)
     await signOut()
     expect(mockSignOut).toHaveBeenCalledWith(mockAuth)
+    expect(mockTrackEvent).toHaveBeenCalledWith('logout', {})
   })
 
   it('resetPassword calls sendPasswordResetEmail', async () => {

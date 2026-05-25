@@ -5,7 +5,10 @@ describe('siteConfig', () => {
     expect(siteConfig.name).toBe('Chicago Transit Tracker')
     expect(siteConfig.url).toBe('https://chicagotransittracker.com')
     expect(siteConfig.description).toBeTruthy()
-    expect(siteConfig.gaId).toBeTruthy()
+  })
+
+  it('does not expose a standalone GA tag id (analytics goes through Firebase)', () => {
+    expect((siteConfig as Record<string, unknown>).gaId).toBeUndefined()
   })
 
   it('ogImage includes url, width, height, and type', () => {

@@ -9,5 +9,4 @@ export const siteConfig = {
     height: 630,
     type: 'image/jpeg',
   },
-  gaId: 'G-KQ1MNGBQP2',
 } as const
