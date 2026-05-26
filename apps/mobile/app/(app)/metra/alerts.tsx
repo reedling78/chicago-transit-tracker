@@ -1,12 +1,18 @@
+import { useEffect } from 'react'
 import { View, ScrollView, StyleSheet } from 'react-native'
 import { Stack } from 'expo-router'
 import { useNavHeaderInset } from '../../../lib/useNavHeaderInset'
 import { useTheme } from '../../../lib/theme'
 import MetraAlerts from '../../../components/MetraAlerts'
+import { trackEvent } from '../../../lib/analytics'
 
 export default function MetraAlertsScreen() {
   const headerInset = useNavHeaderInset()
   const { theme } = useTheme()
+
+  useEffect(() => {
+    void trackEvent('alerts_opened', { service: 'metra' })
+  }, [])
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}>

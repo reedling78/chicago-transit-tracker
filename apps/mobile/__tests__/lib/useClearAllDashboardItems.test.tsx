@@ -20,6 +20,11 @@ jest.mock('firebase/firestore', () => ({
 
 jest.mock('../../lib/firebase', () => ({ db: {} }))
 
+const mockTrackEvent = jest.fn()
+jest.mock('../../lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
+
 jest.mock('@react-native-async-storage/async-storage', () => {
   const store = new Map<string, string>()
   return {
@@ -98,5 +103,18 @@ describe('useClearAllDashboardItems (mobile)', () => {
     expect(result.current.needsAuth).toBe(true)
     act(() => result.current.clearAll())
     expect(mockUpdateDoc).not.toHaveBeenCalled()
+  })
+
+  it('emits dashboard_items_cleared with the snapshot count', () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'u1' } })
+    useDashboardStore.setState({
+      items: [
+        { type: 'line', id: 'red', addedAt: '2026-01-01T00:00:00Z' },
+        { type: 'station', id: 'clark-lake', addedAt: '2026-01-02T00:00:00Z' },
+      ],
+    })
+    const { result } = renderHook(() => useClearAllDashboardItems(), { wrapper })
+    act(() => result.current.clearAll())
+    expect(mockTrackEvent).toHaveBeenCalledWith('dashboard_items_cleared', { count: 2 })
   })
 })

@@ -101,7 +101,7 @@ export default function MetraAlerts({ routeId }: { routeId?: string }) {
       )}
 
       {filteredAlerts.map((alert) => (
-        <AlertCard key={alert.id} alert={alert} />
+        <AlertCard key={alert.id} alert={alert} service="metra" />
       ))}
     </View>
   )

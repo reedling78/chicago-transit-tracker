@@ -1,13 +1,28 @@
 import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, Linking } from 'react-native'
-import type { NormalizedAlert } from '@ctt/shared'
+import type { AnalyticsTransitService, NormalizedAlert } from '@ctt/shared'
 import { useTheme } from '../lib/theme'
 import type { Theme } from '../lib/theme'
+import { trackEvent } from '../lib/analytics'
 
-export default function AlertCard({ alert }: { alert: NormalizedAlert }) {
+export default function AlertCard({
+  alert,
+  service,
+}: {
+  alert: NormalizedAlert
+  service?: AnalyticsTransitService
+}) {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
   const borderColor = alert.routes[0]?.color ?? theme.colors.text.muted
+
+  function openAlertLink() {
+    if (!alert.url) return
+    if (service) {
+      void trackEvent('alert_link_clicked', { service, alert_id: alert.id })
+    }
+    void Linking.openURL(alert.url)
+  }
 
   return (
     <View style={[styles.card, { borderLeftColor: borderColor }]}>
@@ -28,7 +43,7 @@ export default function AlertCard({ alert }: { alert: NormalizedAlert }) {
 
       {/* Link */}
       {alert.url ? (
-        <Pressable onPress={() => Linking.openURL(alert.url!)}>
+        <Pressable onPress={openAlertLink}>
           <Text style={styles.link}>More info →</Text>
         </Pressable>
       ) : null}

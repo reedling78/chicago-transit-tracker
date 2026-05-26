@@ -10,6 +10,7 @@ import { CTAScheduleTable } from '../../../../components/CTAScheduleTable'
 import PageHeader from '../../../../components/PageHeader'
 import HeaderMenuButton from '../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../lib/headerItems'
+import { useTrackOpenedOnce } from '../../../../lib/useTrackOpenedOnce'
 
 const ctaHeroImage = require('../../../../assets/hero-header.jpg')
 
@@ -20,6 +21,11 @@ export default function CtaStationDetailScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
   const badgeStyles = useMemo(() => makeBadgeStyles(theme), [theme])
+
+  useTrackOpenedOnce(station, 'station_opened', () => ({
+    service: 'cta',
+    station_id: station!.slug,
+  }))
 
   if (stationLoading || !station) {
     return (

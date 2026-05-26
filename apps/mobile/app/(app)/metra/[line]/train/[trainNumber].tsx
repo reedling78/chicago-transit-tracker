@@ -9,6 +9,7 @@ import MetraTripRealtime from '../../../../../components/MetraTripRealtime'
 import PageHeader from '../../../../../components/PageHeader'
 import HeaderMenuButton from '../../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../../lib/headerItems'
+import { useTrackOpenedOnce } from '../../../../../lib/useTrackOpenedOnce'
 
 const metraHeroImage = require('../../../../../assets/hero-header-metra.jpg')
 
@@ -19,6 +20,11 @@ export default function MetraTrainDetailScreen() {
   const { trip, loading } = useMetraTrip(lineSlug, train)
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
+
+  useTrackOpenedOnce(trip, 'train_opened', () => ({
+    line_id: lineSlug,
+    train_number: trip!.trainNumber ?? train,
+  }))
 
   // Mirror the dashboard TrainCard: title is "{origin} to {destination}",
   // subtitle is "{line} #{trainNumber}". Falls back to "Train {n}" until trip

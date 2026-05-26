@@ -23,6 +23,15 @@ jest.mock('firebase/firestore', () => ({
 
 jest.mock('../../lib/firebase', () => ({ auth: {}, db: {} }))
 
+const mockSetAnalyticsUser = jest.fn()
+const mockSetUserProperty = jest.fn()
+const mockTrackEvent = jest.fn()
+jest.mock('../../lib/analytics', () => ({
+  setUser: (...args: unknown[]) => mockSetAnalyticsUser(...args),
+  setUserProperty: (...args: unknown[]) => mockSetUserProperty(...args),
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
+
 const mockHydrate = jest.fn()
 const mockClear = jest.fn()
 let mockPendingWrites = 0
@@ -220,6 +229,64 @@ describe('AuthProvider (mobile)', () => {
     })
 
     expect(mockHydrate).not.toHaveBeenCalled()
+  })
+
+  it('emits sign_up + setUser + auth_provider on first-time sign-in', async () => {
+    mockGetDoc.mockResolvedValue({ exists: () => false } as never)
+    mockOnSnapshot.mockImplementation(() => jest.fn())
+    mockOnAuthStateChanged.mockImplementation((_, cb) => {
+      ;(cb as (u: unknown) => void)(mockUser)
+      return jest.fn()
+    })
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(mockTrackEvent).toHaveBeenCalledWith('sign_up', { method: 'password' })
+    })
+    expect(mockSetAnalyticsUser).toHaveBeenCalledWith('test-uid-123')
+    expect(mockSetUserProperty).toHaveBeenCalledWith('auth_provider', 'password')
+  })
+
+  it('emits login (not sign_up) when an existing profile is found', async () => {
+    mockGetDoc.mockResolvedValue({ exists: () => true } as never)
+    mockOnSnapshot.mockImplementation(() => jest.fn())
+    mockOnAuthStateChanged.mockImplementation((_, cb) => {
+      ;(cb as (u: unknown) => void)(mockUser)
+      return jest.fn()
+    })
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(mockTrackEvent).toHaveBeenCalledWith('login', { method: 'password' })
+    })
+    expect(mockTrackEvent).not.toHaveBeenCalledWith('sign_up', expect.anything())
+  })
+
+  it('clears the analytics user on sign-out (null user)', async () => {
+    mockOnAuthStateChanged.mockImplementation((_, cb) => {
+      ;(cb as (u: unknown) => void)(null)
+      return jest.fn()
+    })
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => {
+      expect(mockSetAnalyticsUser).toHaveBeenCalledWith(null)
+    })
   })
 
   it('cleans up auth listener and profile subscription on unmount', async () => {

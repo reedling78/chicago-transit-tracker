@@ -12,6 +12,7 @@ import * as AppleAuthentication from 'expo-apple-authentication'
 import * as WebBrowser from 'expo-web-browser'
 import * as Crypto from 'expo-crypto'
 import { auth } from './firebase'
+import { trackEvent } from './analytics'
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -51,6 +52,7 @@ export function signUpWithEmail(email: string, password: string) {
 }
 
 export function signOut() {
+  void trackEvent('logout', {})
   return firebaseSignOut(auth)
 }
 
