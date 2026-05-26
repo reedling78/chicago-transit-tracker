@@ -55,7 +55,8 @@
             "useFrameworks": "static"
           }
         }
-      ]
+      ],
+      "./plugins/withRnfbStaticFrameworksFix.js"
     ],
     "extra": {
       "router": {},
