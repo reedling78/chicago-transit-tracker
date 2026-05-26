@@ -6,6 +6,7 @@ import { db } from '@lib/firebase-client'
 import { useAuth } from '@components/AuthProvider'
 import { useDashboardStore } from '@lib/store/dashboard'
 import { dashboardItemKey, type DashboardItem, type DashboardItemType } from '@ctt/shared'
+import { trackEvent } from '@lib/analytics'
 
 interface UseToggleDashboardItemResult {
   isOnDashboard: boolean
@@ -65,12 +66,14 @@ export function useToggleDashboardItem(
       useDashboardStore.getState().removeOptimistic(type, id)
       useDashboardStore.getState().incrementPendingWrites()
       mutation.mutate({ kind: 'remove' })
+      void trackEvent('dashboard_item_removed', { item_type: type, item_id: id })
     } else {
       const item: DashboardItem = useDashboardStore.getState().addOptimistic(type, id)
       const payload: ItemPayload = { type, id, addedAt: item.addedAt }
       if (typeof item.position === 'number') payload.position = item.position
       useDashboardStore.getState().incrementPendingWrites()
       mutation.mutate({ kind: 'add', payload })
+      void trackEvent('dashboard_item_added', { item_type: type, item_id: id })
     }
   }
 

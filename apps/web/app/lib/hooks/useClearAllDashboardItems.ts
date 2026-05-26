@@ -6,6 +6,7 @@ import { db } from '@lib/firebase-client'
 import { useAuth } from '@components/AuthProvider'
 import { useDashboardStore } from '@lib/store/dashboard'
 import type { DashboardItem } from '@ctt/shared'
+import { trackEvent } from '@lib/analytics'
 
 interface UseClearAllDashboardItemsResult {
   clearAll: () => void
@@ -42,6 +43,7 @@ export function useClearAllDashboardItems(): UseClearAllDashboardItemsResult {
     useDashboardStore.setState({ items: [] })
     useDashboardStore.getState().incrementPendingWrites()
     mutation.mutate(snapshot)
+    void trackEvent('dashboard_items_cleared', { count: snapshot.length })
   }
 
   return {

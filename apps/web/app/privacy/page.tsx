@@ -85,25 +85,40 @@ export default function PrivacyPage() {
       <Section title="Analytics">
         <p>
           We use{' '}
-          <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4 (GA4)</strong> to
-          understand how visitors use the site. GA4 collects anonymized data including:
+          <strong className="text-gray-700 dark:text-gray-300">
+            Google Analytics 4 (via Firebase Analytics)
+          </strong>{' '}
+          to understand how visitors use the site and companion mobile app. Analytics collects
+          anonymized data including:
         </p>
         <ul className="list-inside list-disc space-y-1 pl-2">
           <li>Pages visited and time spent on each page</li>
           <li>General geographic region (city/country level, not precise location)</li>
           <li>Device type, browser, and operating system</li>
           <li>Referring website or search engine</li>
+          <li>
+            A small set of in-app interaction events (sign-in, adding or removing a saved item,
+            opening a line or station)
+          </li>
         </ul>
         <p>
-          IP addresses are anonymized by default in GA4. We do not use this data to identify
-          individual users.
+          IP addresses are anonymized by default. We do not use this data to identify individual
+          users.
+        </p>
+        <p>
+          When you are signed in, your Firebase Authentication user ID is associated with these
+          analytics events so we can understand whether new features (like saved dashboards) are
+          actually used over time. We do{' '}
+          <strong className="text-gray-700 dark:text-gray-300">not</strong> send your email address,
+          display name, or profile photo to analytics.
         </p>
       </Section>
 
       <Section title="Cookies and Local Storage">
         <p>
-          GA4 uses first-party cookies to distinguish visits and sessions. These are analytics
-          cookies only — we do not use advertising, retargeting, or cross-site tracking cookies.
+          Firebase Analytics uses first-party cookies to distinguish visits and sessions. These are
+          analytics cookies only — we do not use advertising, retargeting, or cross-site tracking
+          cookies.
         </p>
         <p>
           This site also uses{' '}
@@ -149,8 +164,10 @@ export default function PrivacyPage() {
           .
         </p>
         <p>
-          <strong className="text-gray-700 dark:text-gray-300">Google Analytics 4</strong> —
-          analytics provider. Data is processed under Google&rsquo;s privacy policy at{' '}
+          <strong className="text-gray-700 dark:text-gray-300">
+            Google Analytics 4 (via Firebase Analytics)
+          </strong>{' '}
+          — analytics provider. Data is processed under Google&rsquo;s privacy policy at{' '}
           <a
             href="https://policies.google.com/privacy"
             target="_blank"

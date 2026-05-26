@@ -21,6 +21,11 @@ jest.mock('firebase/firestore', () => ({
 
 jest.mock('../../lib/firebase', () => ({ db: {} }))
 
+const mockTrackEvent = jest.fn()
+jest.mock('../../lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
+
 const mockUpdateDoc = updateDoc as jest.MockedFunction<typeof updateDoc>
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -92,6 +97,21 @@ describe('useReorderDashboardItems (mobile)', () => {
     await waitFor(() => {
       expect(useDashboardStore.getState().pendingWrites).toBe(0)
     })
+  })
+
+  it('emits dashboard_items_reordered with the new count', () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
+    useDashboardStore.getState().hydrate(sampleFavorites)
+    const { result } = renderHook(() => useReorderDashboardItems(), { wrapper })
+    act(() => result.current.reorder(sampleFavorites))
+    expect(mockTrackEvent).toHaveBeenCalledWith('dashboard_items_reordered', { count: 3 })
+  })
+
+  it('does not emit analytics when signed out', () => {
+    mockUseAuth.mockReturnValue({ user: null })
+    const { result } = renderHook(() => useReorderDashboardItems(), { wrapper })
+    act(() => result.current.reorder(sampleFavorites))
+    expect(mockTrackEvent).not.toHaveBeenCalled()
   })
 
   it('logs and decrements pendingWrites on Firestore error', async () => {

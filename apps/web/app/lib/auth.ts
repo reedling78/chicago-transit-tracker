@@ -8,6 +8,7 @@ import {
   OAuthProvider,
 } from 'firebase/auth'
 import { auth } from './firebase-client'
+import { trackEvent } from './analytics'
 
 export function signInWithEmail(email: string, password: string) {
   return signInWithEmailAndPassword(auth, email, password)
@@ -18,6 +19,7 @@ export function signUpWithEmail(email: string, password: string) {
 }
 
 export function signOut() {
+  void trackEvent('logout', {})
   return firebaseSignOut(auth)
 }
 

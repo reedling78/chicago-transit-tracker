@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "591975765807",
+    "project_id": "chicago-transit-tracker",
+    "storage_bucket": "chicago-transit-tracker.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591975765807:android:1be9ef49a60ac4af8b33da",
+        "android_client_info": {
+          "package_name": "com.chicagotransittracker.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "591975765807-lb90qdlscfn8r1v48ercpvla5ifp8b0p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXmiGpxLI6SXpzkYLkchjm2kXPZ9Wsiks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "591975765807-lb90qdlscfn8r1v48ercpvla5ifp8b0p.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "591975765807-6pbc1mbpucbqch5jjb68lnpal0ldt6pv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.chicagotransittracker.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

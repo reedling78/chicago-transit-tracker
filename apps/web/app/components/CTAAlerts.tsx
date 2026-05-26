@@ -6,6 +6,7 @@ import { fetchCTAAlerts } from '@lib/cta-alerts'
 import type { NormalizedAlert } from '@lib/types'
 import type { Line } from '@lib/types'
 import { CTA_SLUG_TO_ROUTE_ID, CTA_ROUTE_ID_TO_NAME } from '@lib/constants'
+import { trackEvent } from '@lib/analytics'
 
 function AlertCard({ alert }: { alert: NormalizedAlert }) {
   const borderColor = alert.routes[0]?.color ?? '#6b7280'
@@ -51,6 +52,9 @@ function AlertCard({ alert }: { alert: NormalizedAlert }) {
           href={alert.url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            void trackEvent('alert_link_clicked', { service: 'cta', alert_id: alert.id })
+          }
           className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
         >
           More info

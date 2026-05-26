@@ -8,6 +8,11 @@ jest.mock('@lib/cta-alerts', () => ({
 }))
 const mockFetch = fetchCTAAlerts as jest.MockedFunction<typeof fetchCTAAlerts>
 
+const mockTrackEvent = jest.fn()
+jest.mock('@lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
+
 function makeAlert(
   id: string,
   routes: { routeId: string; routeName: string; color: string }[],
@@ -190,6 +195,18 @@ describe('CTAAlerts', () => {
       const redBadges = screen.getAllByText('Red Line')
       expect(redBadges.length).toBeGreaterThanOrEqual(1)
     })
+  })
+
+  it('fires alert_link_clicked when a More info link is clicked', async () => {
+    mockTrackEvent.mockClear()
+    mockFetch.mockResolvedValue(sampleAlerts)
+    render(<CTAAlerts />)
+    const links = await screen.findAllByText('More info')
+    fireEvent.click(links[0].closest('a')!)
+    expect(mockTrackEvent).toHaveBeenCalledWith(
+      'alert_link_clicked',
+      expect.objectContaining({ service: 'cta', alert_id: expect.any(String) }),
+    )
   })
 })
 

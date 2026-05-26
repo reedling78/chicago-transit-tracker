@@ -102,7 +102,7 @@ export default function CTAAlerts({ routeId }: { routeId?: string }) {
       )}
 
       {filteredAlerts.map((alert) => (
-        <AlertCard key={alert.id} alert={alert} />
+        <AlertCard key={alert.id} alert={alert} service="cta" />
       ))}
     </View>
   )

@@ -4,9 +4,11 @@ import { StyleSheet, View } from 'react-native'
 import { useTheme } from '../../lib/theme'
 import HeaderBackButton from '../../components/HeaderBackButton'
 import { headerLeftItem } from '../../lib/headerItems'
+import { useAnalyticsScreenTracking } from '../../lib/useAnalyticsScreenTracking'
 
 export default function AppStackLayout() {
   const { theme, resolvedMode } = useTheme()
+  useAnalyticsScreenTracking()
   return (
     <>
       <StatusBar style={resolvedMode === 'light' ? 'dark' : 'light'} />

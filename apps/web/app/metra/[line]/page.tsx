@@ -6,6 +6,7 @@ import MetraAlerts from '@components/MetraAlerts'
 import MetraCurrentService from '@components/MetraCurrentService'
 import PageHeader from '@components/PageHeader'
 import StationList from '@components/StationList'
+import AnalyticsMount from '@components/AnalyticsMount'
 import { siteConfig } from '@lib/siteConfig'
 
 type Props = { params: Promise<{ line: string }> }
@@ -109,6 +110,7 @@ export default async function MetraLinePage({ params }: Props) {
           />
         </div>
       </div>
+      <AnalyticsMount event="line_opened" params={{ service: 'metra', line_id: line.slug }} />
     </main>
   )
 }

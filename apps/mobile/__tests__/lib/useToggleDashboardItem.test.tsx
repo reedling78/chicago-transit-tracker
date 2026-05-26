@@ -21,6 +21,11 @@ jest.mock('firebase/firestore', () => ({
 
 jest.mock('../../lib/firebase', () => ({ db: {} }))
 
+const mockTrackEvent = jest.fn()
+jest.mock('../../lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
+
 jest.mock('@react-native-async-storage/async-storage', () => {
   const store = new Map<string, string>()
   return {
@@ -174,5 +179,37 @@ describe('useToggleDashboardItem (mobile)', () => {
     await waitFor(() => {
       expect(useDashboardStore.getState().pendingWrites).toBe(0)
     })
+  })
+
+  it('emits dashboard_item_added on add', () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
+    const { result } = renderHook(() => useToggleDashboardItem('station', 'clark-lake'), {
+      wrapper,
+    })
+    act(() => result.current.toggle())
+    expect(mockTrackEvent).toHaveBeenCalledWith('dashboard_item_added', {
+      item_type: 'station',
+      item_id: 'clark-lake',
+    })
+  })
+
+  it('emits dashboard_item_removed on remove', () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
+    useDashboardStore
+      .getState()
+      .hydrate([{ type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }])
+    const { result } = renderHook(() => useToggleDashboardItem('line', 'red'), { wrapper })
+    act(() => result.current.toggle())
+    expect(mockTrackEvent).toHaveBeenCalledWith('dashboard_item_removed', {
+      item_type: 'line',
+      item_id: 'red',
+    })
+  })
+
+  it('does not emit analytics when signed out', () => {
+    mockUseAuth.mockReturnValue({ user: null })
+    const { result } = renderHook(() => useToggleDashboardItem('line', 'red'), { wrapper })
+    act(() => result.current.toggle())
+    expect(mockTrackEvent).not.toHaveBeenCalled()
   })
 })

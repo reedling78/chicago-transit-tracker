@@ -141,6 +141,23 @@ jest.mock('react-native-draggable-flatlist', () => {
   }
 })
 
+// @react-native-firebase/analytics requires a linked native module. Provide a
+// passive stub so tests can import the analytics wrapper without crashing. The
+// wrapper's own unit test re-mocks this with assertion spies (jest.unmock +
+// jest.doMock) when it needs to verify pass-through behavior.
+jest.mock('@react-native-firebase/analytics', () => {
+  const fn = jest.fn()
+  fn.logEvent = jest.fn(() => Promise.resolve())
+  fn.logScreenView = jest.fn(() => Promise.resolve())
+  fn.setUserId = jest.fn(() => Promise.resolve())
+  fn.setUserProperty = jest.fn(() => Promise.resolve())
+  fn.setAnalyticsCollectionEnabled = jest.fn(() => Promise.resolve())
+  return {
+    __esModule: true,
+    default: () => fn,
+  }
+})
+
 // @gorhom/bottom-sheet renders contents inline through its provider/portal.
 // Render contents directly so menu items are reachable in jsdom; expose
 // present/dismiss as jest.fn so consumers can assert against them.

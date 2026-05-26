@@ -54,4 +54,31 @@ describe('PrivacyScreen', () => {
     const { queryByTestId } = render(<PrivacyScreen />)
     expect(queryByTestId('footer')).toBeNull()
   })
+
+  it('discloses that analytics is provided via Firebase Analytics', () => {
+    const { getByText } = render(<PrivacyScreen />)
+    expect(
+      getByText(/google analytics 4 via firebase analytics/i, { exact: false }),
+    ).toBeOnTheScreen()
+  })
+
+  it('discloses user-ID linkage for signed-in users and the PII exclusion', () => {
+    const { getByText } = render(<PrivacyScreen />)
+    expect(
+      getByText(/firebase authentication user id is associated with these analytics/i, {
+        exact: false,
+      }),
+    ).toBeOnTheScreen()
+    expect(
+      getByText(/send your email address, display name, or profile photo/i, { exact: false }),
+    ).toBeOnTheScreen()
+  })
+
+  it('notes that the app does not collect IDFA / AAID', () => {
+    const { getByText } = render(<PrivacyScreen />)
+    expect(getByText(/does not collect idfa/i, { exact: false })).toBeOnTheScreen()
+    expect(
+      getByText(/does not trigger app tracking transparency prompts/i, { exact: false }),
+    ).toBeOnTheScreen()
+  })
 })

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import PageHeader from '@components/PageHeader'
 import MetraAlerts from '@components/MetraAlerts'
+import AnalyticsMount from '@components/AnalyticsMount'
 import { siteConfig } from '@lib/siteConfig'
 
 const description = 'Real-time Metra commuter rail service alerts and advisories.'
@@ -32,6 +33,7 @@ export default function MetraAlertsPage() {
         imageSrc="/hero-header-metra.jpg"
       />
       <MetraAlerts />
+      <AnalyticsMount event="alerts_opened" params={{ service: 'metra' }} />
     </main>
   )
 }

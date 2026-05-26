@@ -10,6 +10,7 @@ import { MetraTimetable } from '../../../../components/MetraTimetable'
 import PageHeader from '../../../../components/PageHeader'
 import HeaderMenuButton from '../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../lib/headerItems'
+import { useTrackOpenedOnce } from '../../../../lib/useTrackOpenedOnce'
 
 const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
@@ -21,6 +22,11 @@ export default function MetraStationDetailScreen() {
   const { theme } = useTheme()
   const styles = useMemo(() => makeStyles(theme), [theme])
   const badgeStyles = useMemo(() => makeBadgeStyles(theme), [theme])
+
+  useTrackOpenedOnce(station, 'station_opened', () => ({
+    service: 'metra',
+    station_id: station!.slug,
+  }))
 
   if (stationLoading || !station) {
     return (

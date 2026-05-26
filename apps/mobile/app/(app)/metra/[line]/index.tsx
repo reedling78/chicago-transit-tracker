@@ -6,6 +6,7 @@ import StationTimeline from '../../../../components/StationTimeline'
 import PageHeader from '../../../../components/PageHeader'
 import HeaderMenuButton from '../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../lib/headerItems'
+import { useTrackOpenedOnce } from '../../../../lib/useTrackOpenedOnce'
 
 const metraHeroImage = require('../../../../assets/hero-header-metra.jpg')
 
@@ -14,6 +15,11 @@ export default function MetraLineDetailScreen() {
   const { line, loading: lineLoading } = useLine(lineSlug)
   const { stations, loading: stationsLoading } = useLineStations(lineSlug, line?.shortName ?? '')
   const { theme } = useTheme()
+
+  useTrackOpenedOnce(line, 'line_opened', () => ({
+    service: 'metra',
+    line_id: line!.slug,
+  }))
 
   if (lineLoading || !line) {
     return (

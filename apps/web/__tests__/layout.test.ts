@@ -24,4 +24,15 @@ describe('root layout metadata', () => {
     expect(metadata.twitter).toBeDefined()
     expect(metadata.twitter.card).toBe('summary_large_image')
   })
+
+  it('does not inject the legacy gtag script (analytics goes through Firebase)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('fs')
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require('path')
+    const layoutSource = fs.readFileSync(path.join(__dirname, '..', 'app', 'layout.tsx'), 'utf-8')
+    expect(layoutSource).not.toMatch(/googletagmanager\.com/)
+    expect(layoutSource).not.toMatch(/gtag\(/)
+    expect(layoutSource).not.toMatch(/siteConfig\.gaId/)
+  })
 })

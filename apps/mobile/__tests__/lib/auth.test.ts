@@ -2,10 +2,21 @@ import { Platform } from 'react-native'
 import * as AppleAuthentication from 'expo-apple-authentication'
 import * as WebBrowser from 'expo-web-browser'
 import * as Crypto from 'expo-crypto'
-import { signInWithCredential, OAuthProvider, GoogleAuthProvider } from 'firebase/auth'
+import {
+  signInWithCredential,
+  signOut as firebaseSignOut,
+  OAuthProvider,
+  GoogleAuthProvider,
+} from 'firebase/auth'
+
+const mockTrackEvent = jest.fn()
+jest.mock('../../lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
 
 import {
   signInWithApple,
+  signOut,
   completeAppleSignInFromCallback,
   signInWithGoogleCredential,
 } from '../../lib/auth'
@@ -62,6 +73,19 @@ const mockOpenAuthSessionAsync = WebBrowser.openAuthSessionAsync as jest.MockedF
 const mockDigestStringAsync = Crypto.digestStringAsync as jest.MockedFunction<
   typeof Crypto.digestStringAsync
 >
+
+describe('signOut', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('emits a logout analytics event and calls firebase signOut', async () => {
+    ;(firebaseSignOut as jest.Mock).mockResolvedValueOnce(undefined)
+    await signOut()
+    expect(mockTrackEvent).toHaveBeenCalledWith('logout', {})
+    expect(firebaseSignOut).toHaveBeenCalledWith({ __auth: true })
+  })
+})
 
 describe('signInWithGoogleCredential', () => {
   beforeEach(() => {

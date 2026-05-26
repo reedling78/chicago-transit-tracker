@@ -7,6 +7,7 @@ import CtaServicePulseContainer from '@components/CtaServicePulseContainer'
 import LineDetail from '@components/LineDetail'
 import PageHeader from '@components/PageHeader'
 import StationList from '@components/StationList'
+import AnalyticsMount from '@components/AnalyticsMount'
 import { siteConfig } from '@lib/siteConfig'
 
 type Props = { params: Promise<{ line: string }> }
@@ -101,6 +102,7 @@ export default async function CTALinePage({ params }: Props) {
           />
         </div>
       </div>
+      <AnalyticsMount event="line_opened" params={{ service: 'cta', line_id: line.slug }} />
     </main>
   )
 }

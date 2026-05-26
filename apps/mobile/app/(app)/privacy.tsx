@@ -35,9 +35,21 @@ export default function PrivacyScreen() {
             payment details.
           </Paragraph>
           <Paragraph theme={theme}>
-            We use anonymized analytics to understand how the app is used. This may include pages
-            visited, general device type, operating system, and approximate region. Analytics data
-            is not used to identify individual users.
+            We use anonymized analytics (Google Analytics 4 via Firebase Analytics) to understand
+            how the app is used. This may include screens visited, general device type, operating
+            system, approximate region, and a small set of in-app interaction events (sign-in,
+            adding or removing a saved item, opening a line or station). Analytics data is not used
+            to identify individual users.
+          </Paragraph>
+          <Paragraph theme={theme}>
+            When you are signed in, your Firebase Authentication user ID is associated with these
+            analytics events so we can understand whether new features are actually used over time.
+            We do <Text style={styles.bold}>not</Text> send your email address, display name, or
+            profile photo to analytics.
+          </Paragraph>
+          <Paragraph theme={theme}>
+            The app does not collect IDFA (iOS) or AAID (Android), so on iOS it does not trigger App
+            Tracking Transparency prompts.
           </Paragraph>
         </Section>
 
@@ -74,8 +86,8 @@ export default function PrivacyScreen() {
             .
           </Paragraph>
           <Paragraph theme={theme}>
-            <Text style={styles.bold}>Google Analytics</Text> — analytics provider. Data is
-            processed under Google’s privacy policy at{' '}
+            <Text style={styles.bold}>Google Analytics 4 (via Firebase Analytics)</Text> — analytics
+            provider. Data is processed under Google’s privacy policy at{' '}
             <Text
               style={styles.link}
               onPress={() => Linking.openURL('https://policies.google.com/privacy')}

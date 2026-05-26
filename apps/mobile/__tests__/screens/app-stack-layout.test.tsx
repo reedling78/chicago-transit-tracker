@@ -45,7 +45,7 @@ jest.mock('expo-router', () => {
   StackScreen.displayName = 'StackScreen'
   Stack.displayName = 'Stack'
   Stack.Screen = StackScreen
-  return { Stack }
+  return { Stack, usePathname: () => '/' }
 })
 
 jest.mock('expo-status-bar', () => {

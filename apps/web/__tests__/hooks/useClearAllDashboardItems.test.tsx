@@ -13,7 +13,15 @@ jest.mock('firebase/firestore', () => ({
   serverTimestamp: () => mockServerTimestamp(),
 }))
 
-jest.mock('../../app/lib/firebase-client', () => ({ db: { __mock: 'db' } }))
+jest.mock('../../app/lib/firebase-client', () => ({
+  db: { __mock: 'db' },
+  getAnalyticsClient: jest.fn(() => Promise.resolve(null)),
+}))
+
+const mockTrackEvent = jest.fn()
+jest.mock('@lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
 
 const mockUseAuth = jest.fn()
 jest.mock('../../app/components/AuthProvider', () => ({
@@ -85,5 +93,18 @@ describe('useClearAllDashboardItems', () => {
     expect(result.current.needsAuth).toBe(true)
     act(() => result.current.clearAll())
     expect(mockUpdateDoc).not.toHaveBeenCalled()
+  })
+
+  it('emits dashboard_items_cleared with the snapshot count', () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'u1' } })
+    useDashboardStore.setState({
+      items: [
+        { type: 'line', id: 'red', addedAt: '2026-01-01T00:00:00Z' },
+        { type: 'station', id: 'clark-lake', addedAt: '2026-01-02T00:00:00Z' },
+      ],
+    })
+    const { result } = renderHook(() => useClearAllDashboardItems(), { wrapper })
+    act(() => result.current.clearAll())
+    expect(mockTrackEvent).toHaveBeenCalledWith('dashboard_items_cleared', { count: 2 })
   })
 })

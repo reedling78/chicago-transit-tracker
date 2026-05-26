@@ -12,6 +12,7 @@ import StationDetail from '@components/StationDetail'
 import LineChipList, { type LineLinkInfo } from '@components/LineChipList'
 import StationMap from '@components/StationMap'
 import Arrivals from '@components/Arrivals'
+import AnalyticsMount from '@components/AnalyticsMount'
 import { siteConfig } from '@lib/siteConfig'
 
 type Props = { params: Promise<{ line: string; station: string }> }
@@ -113,6 +114,10 @@ export default async function CTAStationPage({ params }: Props) {
           <Arrivals slug={stationSlug} service="cta" hasSchedule={!!station.ctaMapId} />
         </div>
       </div>
+      <AnalyticsMount
+        event="station_opened"
+        params={{ service: 'cta', station_id: station.slug }}
+      />
     </main>
   )
 }

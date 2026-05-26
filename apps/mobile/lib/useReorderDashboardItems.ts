@@ -4,6 +4,7 @@ import { db } from './firebase'
 import { useAuth } from './AuthContext'
 import { REORDER_POSITION_STEP, useDashboardStore } from './store/dashboard'
 import { dashboardItemKey, type DashboardItem } from '@ctt/shared'
+import { trackEvent } from './analytics'
 
 interface UseReorderDashboardItemsResult {
   reorder: (newOrder: DashboardItem[]) => void
@@ -39,6 +40,7 @@ export function useReorderDashboardItems(): UseReorderDashboardItemsResult {
     useDashboardStore.getState().reorder(newOrder)
     useDashboardStore.getState().incrementPendingWrites()
     mutation.mutate(newOrder)
+    void trackEvent('dashboard_items_reordered', { count: newOrder.length })
   }
 
   return {

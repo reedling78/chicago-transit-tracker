@@ -7,12 +7,18 @@ import PageHeader from '../../../components/PageHeader'
 import CTALineIcon from '../../../components/CTALineIcon'
 import HeaderMenuButton from '../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../lib/headerItems'
+import { useTrackOpenedOnce } from '../../../lib/useTrackOpenedOnce'
 
 export default function CtaLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()
   const { line, loading: lineLoading } = useLine(lineSlug)
   const { stations, loading: stationsLoading } = useLineStations(lineSlug, line?.shortName ?? '')
   const { theme } = useTheme()
+
+  useTrackOpenedOnce(line, 'line_opened', () => ({
+    service: 'cta',
+    line_id: line!.slug,
+  }))
 
   if (lineLoading || !line) {
     return (

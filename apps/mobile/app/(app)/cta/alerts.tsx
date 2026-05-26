@@ -1,12 +1,18 @@
+import { useEffect } from 'react'
 import { View, ScrollView, StyleSheet } from 'react-native'
 import { Stack } from 'expo-router'
 import { useNavHeaderInset } from '../../../lib/useNavHeaderInset'
 import { useTheme } from '../../../lib/theme'
 import CTAAlerts from '../../../components/CTAAlerts'
+import { trackEvent } from '../../../lib/analytics'
 
 export default function CtaAlertsScreen() {
   const headerInset = useNavHeaderInset()
   const { theme } = useTheme()
+
+  useEffect(() => {
+    void trackEvent('alerts_opened', { service: 'cta' })
+  }, [])
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg.canvas }]}>
