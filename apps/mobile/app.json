@@ -47,7 +47,15 @@
       "expo-router",
       "expo-web-browser",
       "expo-apple-authentication",
-      "@react-native-firebase/app"
+      "@react-native-firebase/app",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
     ],
     "extra": {
       "router": {},
