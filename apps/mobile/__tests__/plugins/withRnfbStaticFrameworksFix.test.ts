@@ -8,9 +8,9 @@ import * as os from 'os'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const withRnfbStaticFrameworksFix = require('../../plugins/withRnfbStaticFrameworksFix.js')
 
-type DangerousMod = (
-  config: { modRequest: { platformProjectRoot: string } },
-) => Promise<unknown> | unknown
+type DangerousMod = (config: {
+  modRequest: { platformProjectRoot: string }
+}) => Promise<unknown> | unknown
 
 let captured: { mod: DangerousMod } | null = null
 
@@ -44,9 +44,7 @@ describe('withRnfbStaticFrameworksFix', () => {
     expect(result).toMatch(/rnfb-static-frameworks-fix/)
     expect(result).toMatch(/post_install do \|installer\|/)
     expect(result).toMatch(/target\.name\.start_with\?\("RNFB"\)/)
-    expect(result).toMatch(
-      /CLANG_WARN_NON_MODULAR_INCLUDE_IN_FRAMEWORK_MODULE'\] = 'NO'/,
-    )
+    expect(result).toMatch(/CLANG_WARN_NON_MODULAR_INCLUDE_IN_FRAMEWORK_MODULE'\] = 'NO'/)
   })
 
   it('is idempotent — re-running the plugin does not duplicate the hook', () => {
