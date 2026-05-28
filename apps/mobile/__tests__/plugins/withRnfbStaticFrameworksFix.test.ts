@@ -22,14 +22,32 @@ jest.mock('@expo/config-plugins', () => ({
   },
 }))
 
-function runPlugin(podfileContents: string): string {
+// Minimal stand-in for the Podfile shape Expo SDK 54 generates. Captures the
+// shape we depend on: a target block containing a single post_install block
+// that calls react_native_post_install(...).
+const PODFILE_TEMPLATE = `
+target 'MyApp' do
+  use_expo_modules!
+
+  post_install do |installer|
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+      :ccache_enabled => ccache_enabled?(podfile_properties),
+    )
+  end
+end
+`
+
+async function runPlugin(podfileContents: string): Promise<string> {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rnfb-plugin-test-'))
   const podfilePath = path.join(tmp, 'Podfile')
   fs.writeFileSync(podfilePath, podfileContents, 'utf8')
 
   withRnfbStaticFrameworksFix({})
   if (!captured) throw new Error('plugin did not register a dangerous mod')
-  captured.mod({ modRequest: { platformProjectRoot: tmp } })
+  await captured.mod({ modRequest: { platformProjectRoot: tmp } })
 
   return fs.readFileSync(podfilePath, 'utf8')
 }
@@ -39,27 +57,42 @@ beforeEach(() => {
 })
 
 describe('withRnfbStaticFrameworksFix', () => {
-  it('appends the CLANG_WARN_NON_MODULAR post_install hook scoped to RNFB targets', () => {
-    const result = runPlugin('target "myApp" do\nend\n')
-    expect(result).toMatch(/rnfb-static-frameworks-fix/)
-    expect(result).toMatch(/post_install do \|installer\|/)
+  it('injects the build-setting override INSIDE the existing post_install block', async () => {
+    const result = await runPlugin(PODFILE_TEMPLATE)
+
+    // Hook lands after react_native_post_install and before the closing `end`
+    // of the post_install block. We assert ordering by index.
+    const reactNativeIdx = result.indexOf('react_native_post_install')
+    const markerIdx = result.indexOf('rnfb-static-frameworks-fix')
+    const postInstallEndIdx = result.indexOf('end\nend') // close of post_install + close of target
+
+    expect(reactNativeIdx).toBeGreaterThan(-1)
+    expect(markerIdx).toBeGreaterThan(reactNativeIdx)
+    expect(postInstallEndIdx).toBeGreaterThan(markerIdx)
+  })
+
+  it('does NOT append a second top-level post_install block', async () => {
+    const result = await runPlugin(PODFILE_TEMPLATE)
+    const postInstallCount = (result.match(/post_install do \|installer\|/g) ?? []).length
+    expect(postInstallCount).toBe(1)
+  })
+
+  it('scopes the build setting to RNFB-prefixed Pods targets only', async () => {
+    const result = await runPlugin(PODFILE_TEMPLATE)
     expect(result).toMatch(/target\.name\.start_with\?\("RNFB"\)/)
     expect(result).toMatch(/CLANG_WARN_NON_MODULAR_INCLUDE_IN_FRAMEWORK_MODULE'\] = 'NO'/)
   })
 
-  it('is idempotent — re-running the plugin does not duplicate the hook', () => {
-    const initial = runPlugin('target "myApp" do\nend\n')
-    const podfilePath = path.join(
-      // captured was reset by beforeEach; just call runPlugin again on the same temp dir
-      // by reusing the result via a fresh dir is fine — idempotency is about marker text.
-      fs.mkdtempSync(path.join(os.tmpdir(), 'rnfb-plugin-test-')),
-      'Podfile',
-    )
-    fs.writeFileSync(podfilePath, initial, 'utf8')
-    withRnfbStaticFrameworksFix({})
-    captured!.mod({ modRequest: { platformProjectRoot: path.dirname(podfilePath) } })
-    const after = fs.readFileSync(podfilePath, 'utf8')
-    const markerCount = (after.match(/rnfb-static-frameworks-fix/g) ?? []).length
+  it('is idempotent — re-running the plugin does not duplicate the hook', async () => {
+    const once = await runPlugin(PODFILE_TEMPLATE)
+    const twice = await runPlugin(once)
+    const markerCount = (twice.match(/rnfb-static-frameworks-fix/g) ?? []).length
     expect(markerCount).toBe(1)
+  })
+
+  it('throws a useful error if the Expo Podfile template changes shape', async () => {
+    await expect(runPlugin('# no post_install here\n')).rejects.toThrow(
+      /could not find the Expo `react_native_post_install/,
+    )
   })
 })
