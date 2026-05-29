@@ -57,18 +57,6 @@ beforeEach(() => {
 })
 
 describe('withRnfbStaticFrameworksFix', () => {
-  it('injects use_modular_headers! immediately after use_expo_modules!', async () => {
-    const result = await runPlugin(PODFILE_TEMPLATE)
-    const expoModulesIdx = result.indexOf('use_expo_modules!')
-    const modularHeadersIdx = result.indexOf('use_modular_headers!')
-
-    expect(expoModulesIdx).toBeGreaterThan(-1)
-    expect(modularHeadersIdx).toBeGreaterThan(expoModulesIdx)
-    // No other Podfile content should sneak in between the two directives.
-    const between = result.slice(expoModulesIdx + 'use_expo_modules!'.length, modularHeadersIdx)
-    expect(between.trim()).toBe('')
-  })
-
   it('injects the build-setting override INSIDE the existing post_install block', async () => {
     const result = await runPlugin(PODFILE_TEMPLATE)
 
@@ -89,25 +77,32 @@ describe('withRnfbStaticFrameworksFix', () => {
     expect(postInstallCount).toBe(1)
   })
 
-  it('scopes the build setting to RNFB-prefixed Pods targets only', async () => {
+  it('uses CLANG_ALLOW (not CLANG_WARN) — the build setting that actually permits non-modular includes', async () => {
     const result = await runPlugin(PODFILE_TEMPLATE)
-    expect(result).toMatch(/target\.name\.start_with\?\("RNFB"\)/)
-    expect(result).toMatch(/CLANG_WARN_NON_MODULAR_INCLUDE_IN_FRAMEWORK_MODULE'\] = 'NO'/)
+    expect(result).toMatch(/CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'\] = 'YES'/)
+    // Make sure we didn't keep the old (ineffective) CLANG_WARN setting around.
+    expect(result).not.toMatch(/CLANG_WARN_NON_MODULAR_INCLUDE_IN_FRAMEWORK_MODULE/)
   })
 
-  it('is idempotent — re-running the plugin does not duplicate either patch', async () => {
+  it('scopes the build setting to RNFB / Firebase / Google pod targets', async () => {
+    const result = await runPlugin(PODFILE_TEMPLATE)
+    expect(result).toMatch(/target\.name\.start_with\?\("RNFB"\)/)
+    expect(result).toMatch(/target\.name\.start_with\?\("Firebase"\)/)
+    expect(result).toMatch(/target\.name\.start_with\?\("Google"\)/)
+  })
+
+  it('does NOT inject use_modular_headers! anymore — it had no effect under static frameworks', async () => {
+    const result = await runPlugin(PODFILE_TEMPLATE)
+    expect(result).not.toMatch(/use_modular_headers!/)
+  })
+
+  it('is idempotent — re-running the plugin does not duplicate the hook', async () => {
     const once = await runPlugin(PODFILE_TEMPLATE)
     const twice = await runPlugin(once)
     expect((twice.match(/rnfb-static-frameworks-fix/g) ?? []).length).toBe(1)
-    expect((twice.match(/use_modular_headers!/g) ?? []).length).toBe(1)
-  })
-
-  it('throws a useful error if use_expo_modules! is missing from the template', async () => {
-    await expect(
-      runPlugin(
-        'target "MyApp" do\n  post_install do |installer|\n    react_native_post_install(\n      installer,\n    )\n  end\nend\n',
-      ),
-    ).rejects.toThrow(/could not find `use_expo_modules!`/)
+    expect(
+      (twice.match(/CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES/g) ?? []).length,
+    ).toBe(1)
   })
 
   it('throws a useful error if react_native_post_install is missing from the template', async () => {
