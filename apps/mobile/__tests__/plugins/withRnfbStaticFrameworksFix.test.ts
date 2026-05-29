@@ -91,18 +91,30 @@ describe('withRnfbStaticFrameworksFix', () => {
     expect(result).toMatch(/target\.name\.start_with\?\("Google"\)/)
   })
 
-  it('does NOT inject use_modular_headers! anymore — it had no effect under static frameworks', async () => {
+  it('injects use_modular_headers! after use_expo_modules! — needed so React-Core has a module map', async () => {
     const result = await runPlugin(PODFILE_TEMPLATE)
-    expect(result).not.toMatch(/use_modular_headers!/)
+    const expoModulesIdx = result.indexOf('use_expo_modules!')
+    const modularHeadersIdx = result.indexOf('use_modular_headers!')
+    expect(expoModulesIdx).toBeGreaterThan(-1)
+    expect(modularHeadersIdx).toBeGreaterThan(expoModulesIdx)
   })
 
-  it('is idempotent — re-running the plugin does not duplicate the hook', async () => {
+  it('is idempotent — re-running the plugin does not duplicate either patch', async () => {
     const once = await runPlugin(PODFILE_TEMPLATE)
     const twice = await runPlugin(once)
     expect((twice.match(/rnfb-static-frameworks-fix/g) ?? []).length).toBe(1)
     expect(
       (twice.match(/CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES/g) ?? []).length,
     ).toBe(1)
+    expect((twice.match(/use_modular_headers!/g) ?? []).length).toBe(1)
+  })
+
+  it('throws a useful error if use_expo_modules! is missing from the template', async () => {
+    await expect(
+      runPlugin(
+        'target "MyApp" do\n  post_install do |installer|\n    react_native_post_install(\n      installer,\n    )\n  end\nend\n',
+      ),
+    ).rejects.toThrow(/could not find `use_expo_modules!`/)
   })
 
   it('throws a useful error if react_native_post_install is missing from the template', async () => {
