@@ -8,22 +8,27 @@
  * `GoogleUtilities`, ...) include React Core / Firebase headers as
  * non-modular imports, which then fails the static-framework build.
  *
- * Iteration history (eight EAS builds in):
+ * Iteration history (nine EAS builds in):
  *
  *   - `CLANG_WARN_NON_MODULAR_INCLUDE_IN_FRAMEWORK_MODULE = NO` only suppresses
  *     the warning escalation; the underlying check still rejects the include.
- *   - `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES` clears the
- *     non-modular-include rejection but then exposes a follow-on error:
- *     `declaration of 'RCTBridgeModule' must be imported from module
- *     'RNFBApp.RNFBAppModule' before it is required`. RNFB sees React-Core
- *     as not-a-module.
- *   - `use_modular_headers!` alone (without CLANG_ALLOW) doesn't take effect
- *     under `use_frameworks: static` with Expo's `use_react_native!(...)`.
+ *   - `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES` on RNFB
+ *     targets clears the non-modular-include rejection but then exposes a
+ *     follow-on error: `declaration of 'RCTBridgeModule' must be imported
+ *     from module 'RNFBApp.RNFBAppModule' before it is required`. RNFB still
+ *     sees React-Core as not-a-module.
+ *   - `use_modular_headers!` at the Podfile level doesn't take effect under
+ *     `use_frameworks: static` with Expo's `use_react_native!(...)` — the
+ *     autolinker overrides it for React-Core specifically.
  *
- * The combination that works: `use_modular_headers!` makes React-Core build
- * with a module map (so `RCTBridgeModule` is a real module declaration RNFB
- * can import), AND `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES`
- * covers any pod that still slips through with a non-modular include.
+ * The combination that actually works (Gemini follow-up consult, attempt 9):
+ *   1. `use_modular_headers!` in the target block (Patch 1).
+ *   2. `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES` on
+ *      RNFB / Firebase / Google pod targets in post_install (Patch 2a).
+ *   3. `DEFINES_MODULE = YES` on `React-Core` / `ReactCommon` / `RCTRequired`
+ *      in post_install (Patch 2b) — this is the lever that actually forces
+ *      Xcode to emit a Clang modulemap for React-Core, fixing the
+ *      `RCTBridgeModule must be imported from module ...` error.
  *
  * CocoaPods only honors ONE `post_install` block per Podfile — declaring a
  * second silently overrides the first. Expo's template's post_install calls
@@ -43,8 +48,21 @@ const USE_MODULAR_HEADERS = '  use_modular_headers!'
 const INNER_HOOK = `
     ${MARKER}
     installer.pods_project.targets.each do |target|
+      # Permit non-modular includes inside RNFB / Firebase / Google framework modules.
+      # Without this, Clang rejects the include of React-Core headers from RNFB pods.
       if target.name.start_with?("RNFB") || target.name.start_with?("Firebase") || target.name.start_with?("Google")
         target.build_configurations.each do |config|
+          config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+        end
+      end
+
+      # Force React-Core (and friends) to emit a Clang modulemap so that
+      # \`#import <React/RCTBridgeModule.h>\` from RNFB resolves to a real
+      # module reference. The Podfile-level directive at the top of this target
+      # block doesn't take effect for React-Core under static frameworks.
+      if target.name == "React-Core" || target.name == "ReactCommon" || target.name == "RCTRequired"
+        target.build_configurations.each do |config|
+          config.build_settings['DEFINES_MODULE'] = 'YES'
           config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
         end
       end

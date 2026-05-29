@@ -84,11 +84,21 @@ describe('withRnfbStaticFrameworksFix', () => {
     expect(result).not.toMatch(/CLANG_WARN_NON_MODULAR_INCLUDE_IN_FRAMEWORK_MODULE/)
   })
 
-  it('scopes the build setting to RNFB / Firebase / Google pod targets', async () => {
+  it('scopes the CLANG_ALLOW build setting to RNFB / Firebase / Google pod targets', async () => {
     const result = await runPlugin(PODFILE_TEMPLATE)
     expect(result).toMatch(/target\.name\.start_with\?\("RNFB"\)/)
     expect(result).toMatch(/target\.name\.start_with\?\("Firebase"\)/)
     expect(result).toMatch(/target\.name\.start_with\?\("Google"\)/)
+  })
+
+  it('forces DEFINES_MODULE = YES on React-Core / ReactCommon / RCTRequired', async () => {
+    const result = await runPlugin(PODFILE_TEMPLATE)
+    // The lever that actually makes Xcode emit a Clang modulemap for React-Core
+    // so RNFB's `#import <React/RCTBridgeModule.h>` resolves to a real module.
+    expect(result).toMatch(/target\.name == "React-Core"/)
+    expect(result).toMatch(/target\.name == "ReactCommon"/)
+    expect(result).toMatch(/target\.name == "RCTRequired"/)
+    expect(result).toMatch(/DEFINES_MODULE'\] = 'YES'/)
   })
 
   it('injects use_modular_headers! after use_expo_modules! — needed so React-Core has a module map', async () => {
@@ -102,11 +112,23 @@ describe('withRnfbStaticFrameworksFix', () => {
   it('is idempotent — re-running the plugin does not duplicate either patch', async () => {
     const once = await runPlugin(PODFILE_TEMPLATE)
     const twice = await runPlugin(once)
-    expect((twice.match(/rnfb-static-frameworks-fix/g) ?? []).length).toBe(1)
+    // Compare counts: re-running must not increase any occurrence count.
+    const countOnce = {
+      marker: (once.match(/rnfb-static-frameworks-fix/g) ?? []).length,
+      clangAllow: (once.match(/CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES/g) ?? [])
+        .length,
+      modularHeaders: (once.match(/use_modular_headers!/g) ?? []).length,
+      definesModule: (once.match(/DEFINES_MODULE/g) ?? []).length,
+    }
+    expect((twice.match(/rnfb-static-frameworks-fix/g) ?? []).length).toBe(countOnce.marker)
     expect(
       (twice.match(/CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES/g) ?? []).length,
-    ).toBe(1)
-    expect((twice.match(/use_modular_headers!/g) ?? []).length).toBe(1)
+    ).toBe(countOnce.clangAllow)
+    expect((twice.match(/use_modular_headers!/g) ?? []).length).toBe(countOnce.modularHeaders)
+    expect((twice.match(/DEFINES_MODULE/g) ?? []).length).toBe(countOnce.definesModule)
+    // And the first run must have produced exactly one marker + use_modular_headers!.
+    expect(countOnce.marker).toBe(1)
+    expect(countOnce.modularHeaders).toBe(1)
   })
 
   it('throws a useful error if use_expo_modules! is missing from the template', async () => {
