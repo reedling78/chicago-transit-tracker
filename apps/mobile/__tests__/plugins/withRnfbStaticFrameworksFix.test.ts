@@ -100,7 +100,9 @@ describe('withRnfbStaticFrameworksFix', () => {
     const once = await runPlugin(PODFILE_TEMPLATE)
     const twice = await runPlugin(once)
     expect((twice.match(/rnfb-static-frameworks-fix/g) ?? []).length).toBe(1)
-    expect((twice.match(/CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES/g) ?? []).length).toBe(1)
+    expect(
+      (twice.match(/CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES/g) ?? []).length,
+    ).toBe(1)
   })
 
   it('throws a useful error if react_native_post_install is missing from the template', async () => {
