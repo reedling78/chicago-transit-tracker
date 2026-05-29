@@ -2,7 +2,7 @@
   "expo": {
     "name": "Chicago Transit Tracker",
     "slug": "chicago-transit-tracker",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.chicagotransittracker.app",
-      "buildNumber": "13",
+      "buildNumber": "14",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
@@ -37,7 +37,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.chicagotransittracker.app",
-      "versionCode": 13,
+      "versionCode": 14,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
