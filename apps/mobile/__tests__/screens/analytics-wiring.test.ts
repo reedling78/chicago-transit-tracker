@@ -50,24 +50,3 @@ describe('mobile analytics screen wiring', () => {
     expect(src).toMatch(/service="metra"/)
   })
 })
-
-describe('mobile Firebase native config files', () => {
-  it('GoogleService-Info.plist is committed with the canonical bundle id', () => {
-    const src = read('GoogleService-Info.plist')
-    expect(src).toContain('com.chicagotransittracker.app')
-    expect(src).toContain('chicago-transit-tracker')
-  })
-
-  it('google-services.json is committed with the canonical package name', () => {
-    const src = read('google-services.json')
-    expect(src).toContain('com.chicagotransittracker.app')
-    expect(src).toContain('chicago-transit-tracker')
-  })
-
-  it('app.json wires the Firebase config plugin + googleServicesFile paths', () => {
-    const src = read('app.json')
-    expect(src).toContain('@react-native-firebase/app')
-    expect(src).toContain('./GoogleService-Info.plist')
-    expect(src).toContain('./google-services.json')
-  })
-})

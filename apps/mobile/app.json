@@ -18,7 +18,6 @@
       "bundleIdentifier": "com.chicagotransittracker.app",
       "buildNumber": "16",
       "usesAppleSignIn": true,
-      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
@@ -37,8 +36,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.chicagotransittracker.app",
-      "versionCode": 16,
-      "googleServicesFile": "./google-services.json"
+      "versionCode": 16
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -47,7 +45,6 @@
       "expo-router",
       "expo-web-browser",
       "expo-apple-authentication",
-      "@react-native-firebase/app",
       [
         "expo-build-properties",
         {
@@ -55,8 +52,7 @@
             "useFrameworks": "static"
           }
         }
-      ],
-      "./plugins/withRnfbStaticFrameworksFix.js"
+      ]
     ],
     "extra": {
       "router": {},
