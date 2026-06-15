@@ -564,7 +564,7 @@ git checkout main && git pull && git tidy
 
 **CTA branding:** All CTA UI must use the official hex colors above and follow the trademark rules. Full guidelines at `https://www.transitchicago.com/developers/branding/`.
 
-**Planning and spec documents:** All planning documents go in `docs/superpowers/plans/YYYY-MM-DD-topic.md` and all design specs go in `docs/superpowers/specs/YYYY-MM-DD-topic-design.md`. Never save these only to Claude's internal plans directory — always write them to the repo so they are versioned with the code.
+**Planning and spec documents:** All planning documents go in `/Users/reedrizzo/Documents/cowork/chicago-transit-tracker/docs/plans/YYYY-MM-DD-topic.md` and all design specs go in `/Users/reedrizzo/Documents/cowork/chicago-transit-tracker/docs/specs/YYYY-MM-DD-topic-design.md`. These live in the Cowork project directory (outside the repo) so they are accessible across sessions without cluttering the codebase. Do not write plans or specs into `docs/superpowers/` inside the repo.
 
 **Shared package guardrails:** `packages/shared/` must never import from `firebase-admin`, `next`, `next/*`, or `react-dom`. It must remain platform-agnostic so both web and mobile can consume it.
 
