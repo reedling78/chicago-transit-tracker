@@ -106,6 +106,19 @@ export const mockMetraStation: Station = {
   lineOrder: { BNSF: 24 },
 }
 
+// A multi-line Metra hub (like Chicago Union Station) — used to exercise the
+// per-line filter that only appears on Metra stations serving more than one line.
+export const mockMetraHubStation: Station = {
+  ...mockMetraStation,
+  id: 'union-station-metra',
+  name: 'Chicago Union Station',
+  slug: 'union-station-metra',
+  lines: ['BNSF', 'MD-W', 'UP-N'],
+  metraStopId: 'CUS',
+  metraLink: 'https://metra.com/stations/union-station',
+  lineOrder: { BNSF: 1, 'MD-W': 1, 'UP-N': 1 },
+}
+
 export const mockCtaAlert: NormalizedAlert = {
   id: '1',
   headline: 'Red Line Signal Work',

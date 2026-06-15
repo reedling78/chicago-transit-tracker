@@ -6,6 +6,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
   computeArrivalGroups,
+  directionFilterLabel,
   displayStationName,
   dashboardItemKey,
   formatMinutesAway,
@@ -60,6 +61,7 @@ export default function StationCard({ item, station, lines }: StationCardProps) 
 
   const density: DashboardItemDensity = item.density ?? 'expanded'
   const directionFilter = item.directionFilter ?? 'all'
+  const lineFilter = item.lineFilter ?? 'all'
 
   const realtime = realtimeEnabled ? indexMetraTripUpdates(feedData) : null
 
@@ -69,6 +71,7 @@ export default function StationCard({ item, station, lines }: StationCardProps) 
     now,
     service: metra ? 'metra' : 'cta',
     directionFilter,
+    lineFilter,
     limit: density === 'compact' ? 2 : 3,
     realtime,
     metraStopId,
@@ -87,10 +90,37 @@ export default function StationCard({ item, station, lines }: StationCardProps) 
     ? stationCardSubheader(metra ? 'metra' : 'cta', station.lines ?? [])
     : null
 
+  const lineChipColor = lineFilter !== 'all' ? (LINE_COLORS[lineFilter] ?? null) : null
+  const directionLabel = directionFilterLabel(directionFilter)
+
   const headerContent = (
     <div className="min-w-0 flex-1">
       <p className={cardTitle}>{title}</p>
       {subtitle && <p className={cardSubtitle}>{subtitle}</p>}
+      {(lineChipColor != null || directionLabel != null) && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {lineFilter !== 'all' && (
+            <span
+              data-testid="line-filter-chip"
+              className="rounded px-1.5 py-0.5 text-[11px] font-semibold [text-shadow:0_1px_1px_rgb(0_0_0_/_35%)]"
+              style={{
+                backgroundColor: lineChipColor?.bg ?? '#565a5c',
+                color: lineChipColor?.text ?? '#fff',
+              }}
+            >
+              {lineFilter}
+            </span>
+          )}
+          {directionLabel != null && (
+            <span
+              data-testid="direction-filter-chip"
+              className="rounded bg-gray-200 px-1.5 py-0.5 text-[11px] font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+            >
+              {directionLabel}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 

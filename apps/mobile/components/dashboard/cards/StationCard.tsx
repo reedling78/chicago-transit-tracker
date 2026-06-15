@@ -3,6 +3,7 @@ import { Animated, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import {
   computeArrivalGroups,
+  directionFilterLabel,
   displayStationName,
   formatMinutesAway,
   indexMetraTripUpdates,
@@ -92,6 +93,10 @@ export default function StationCard({
 
   const density: DashboardItemDensity = item.density ?? 'expanded'
   const directionFilter = item.directionFilter ?? 'all'
+  const lineFilter = item.lineFilter ?? 'all'
+
+  const lineChipColor = lineFilter !== 'all' ? (LINE_COLORS[lineFilter] ?? null) : null
+  const directionLabel = directionFilterLabel(directionFilter)
 
   const realtime = realtimeEnabled ? indexMetraTripUpdates(feedData) : null
 
@@ -101,6 +106,7 @@ export default function StationCard({
     now,
     service: metra ? 'metra' : 'cta',
     directionFilter,
+    lineFilter,
     limit: density === 'compact' ? 2 : 3,
     realtime,
     metraStopId,
@@ -128,6 +134,29 @@ export default function StationCard({
             <Text style={cardStyles.subtitle} numberOfLines={1}>
               {subtitle}
             </Text>
+          ) : null}
+          {lineChipColor != null || directionLabel != null ? (
+            <View style={localStyles.chipRow}>
+              {lineFilter !== 'all' ? (
+                <Text
+                  testID="line-filter-chip"
+                  style={[
+                    localStyles.lineChip,
+                    {
+                      backgroundColor: lineChipColor?.bg ?? '#565a5c',
+                      color: lineChipColor?.text ?? '#fff',
+                    },
+                  ]}
+                >
+                  {lineFilter}
+                </Text>
+              ) : null}
+              {directionLabel != null ? (
+                <Text testID="direction-filter-chip" style={localStyles.directionChip}>
+                  {directionLabel}
+                </Text>
+              ) : null}
+            </View>
           ) : null}
         </View>
         {hasLiveRow ? (
@@ -348,7 +377,16 @@ function makeLocalStyles(theme: Theme) {
     // padding is 14px horizontal / 12px bottom — negate them so the inner block
     // touches the card's rounded corners.
     body: { marginTop: 2, marginHorizontal: -14, marginBottom: -theme.space[3] },
-    emptyText: { color: theme.colors.text.secondary, fontSize: 12, paddingHorizontal: 14 },
+    // `body` bleeds to the card's bottom edge (marginBottom: -space[3]) so the
+    // colored arrival rows reach the rounded corner. The text states (empty /
+    // unavailable) aren't full-bleed, so add the padding back or the message
+    // sits flush against the card edge. Mirrors the web card's `pb-4`.
+    emptyText: {
+      color: theme.colors.text.secondary,
+      fontSize: 12,
+      paddingHorizontal: 14,
+      paddingBottom: theme.space[3],
+    },
     expandedWrap: {
       overflow: 'hidden',
       borderTopWidth: StyleSheet.hairlineWidth,
@@ -413,6 +451,26 @@ function makeLocalStyles(theme: Theme) {
     },
     liveBadge: { flexDirection: 'row', alignItems: 'center', gap: 5 },
     liveText: { color: '#22c55e', fontSize: 12, fontWeight: '700' },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 6 },
+    lineChip: {
+      fontSize: 11,
+      fontWeight: '700',
+      borderRadius: 4,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      overflow: 'hidden',
+      ...onColor,
+    },
+    directionChip: {
+      fontSize: 11,
+      fontWeight: '600',
+      borderRadius: 4,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      overflow: 'hidden',
+      backgroundColor: theme.colors.border.subtle,
+      color: theme.colors.text.secondary,
+    },
     updatedFootnote: {
       color: theme.colors.text.secondary,
       fontSize: 11,

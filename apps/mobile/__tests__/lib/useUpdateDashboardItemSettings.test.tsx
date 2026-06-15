@@ -70,6 +70,26 @@ describe('useUpdateDashboardItemSettings (mobile)', () => {
     expect(args['favorites.station:aurora.directionFilter']).toBe('inbound')
   })
 
+  it('writes lineFilter and applies the optimistic store update', async () => {
+    mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
+    useDashboardStore
+      .getState()
+      .hydrate([{ type: 'station', id: 'union-station-metra', addedAt: '2026-04-25T10:00:00Z' }])
+
+    const { result } = renderHook(
+      () => useUpdateDashboardItemSettings('station', 'union-station-metra'),
+      { wrapper },
+    )
+    act(() => result.current.update({ lineFilter: 'MD-W' }))
+
+    expect(useDashboardStore.getState().items[0].lineFilter).toBe('MD-W')
+    await waitFor(() => {
+      expect(mockUpdateDoc).toHaveBeenCalled()
+    })
+    const args = mockUpdateDoc.mock.calls[0][1] as Record<string, unknown>
+    expect(args['favorites.station:union-station-metra.lineFilter']).toBe('MD-W')
+  })
+
   it('writes train origin and destination stop overrides for train favorites', async () => {
     mockUseAuth.mockReturnValue({ user: { uid: 'test-uid' } })
     useDashboardStore

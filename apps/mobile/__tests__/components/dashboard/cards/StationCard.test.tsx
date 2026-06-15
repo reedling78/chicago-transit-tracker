@@ -2,7 +2,13 @@ import { render, fireEvent } from '@testing-library/react-native'
 import type { FeedData, StationSchedule } from '@ctt/shared'
 
 import StationCard from '../../../../components/dashboard/cards/StationCard'
-import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../../fixtures'
+import {
+  mockLine,
+  mockMetraLine,
+  mockStation,
+  mockMetraStation,
+  mockMetraHubStation,
+} from '../../../fixtures'
 import { useMetraFeed } from '../../../../lib/useMetraFeed'
 
 jest.mock('../../../../lib/useMetraFeed', () => ({
@@ -264,6 +270,98 @@ describe('StationCard', () => {
     )
     expect(getByText('Service toward Loop')).toBeTruthy()
     expect(queryByText("Service toward O'Hare")).toBeNull()
+  })
+
+  it('filters a multi-line Metra hub card to the lineFilter line', () => {
+    mockScheduleQuery.mockReturnValue(
+      loaded({
+        directions: [
+          { headsign: 'Chicago', line: 'BNSF', weekday: [9999], saturday: [9999], sunday: [9999] },
+          { headsign: 'Kenosha', line: 'UP-N', weekday: [9999], saturday: [9999], sunday: [9999] },
+        ],
+      }),
+    )
+    const hubFav: Favorite = {
+      type: 'station',
+      id: 'union-station-metra',
+      addedAt: '2026-04-25T10:00:00Z',
+      lineFilter: 'BNSF',
+    }
+    const { getByText, queryByText } = render(
+      <StationCard
+        item={hubFav}
+        station={mockMetraHubStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+    expect(getByText('Service toward Chicago')).toBeTruthy()
+    expect(queryByText('Service toward Kenosha')).toBeNull()
+  })
+
+  it('shows line + direction filter chips when filters are active', () => {
+    mockScheduleQuery.mockReturnValue(
+      loaded({
+        directions: [
+          { headsign: 'Chicago', line: 'BNSF', weekday: [9999], saturday: [9999], sunday: [9999] },
+          { headsign: 'Kenosha', line: 'UP-N', weekday: [9999], saturday: [9999], sunday: [9999] },
+        ],
+      }),
+    )
+    const hubFav: Favorite = {
+      type: 'station',
+      id: 'union-station-metra',
+      addedAt: '2026-04-25T10:00:00Z',
+      lineFilter: 'BNSF',
+      directionFilter: 'inbound',
+    }
+    const { getByTestId } = render(
+      <StationCard
+        item={hubFav}
+        station={mockMetraHubStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+    expect(getByTestId('line-filter-chip')).toHaveTextContent('BNSF')
+    expect(getByTestId('direction-filter-chip')).toHaveTextContent('Inbound')
+  })
+
+  it('shows no filter chips when no filter is active', () => {
+    mockScheduleQuery.mockReturnValue(loaded(ctaSchedule))
+    const { queryByTestId } = render(
+      <StationCard
+        item={metraFav}
+        station={mockMetraStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+    expect(queryByTestId('line-filter-chip')).toBeNull()
+    expect(queryByTestId('direction-filter-chip')).toBeNull()
+  })
+
+  it('pads the empty-state message off the card bottom edge', () => {
+    // The arrivals body bleeds to the card's bottom edge for colored rows; the
+    // empty-state text must add the padding back so it isn't flush to the edge.
+    mockScheduleQuery.mockReturnValue(
+      loaded({
+        directions: [{ headsign: 'Chicago', line: 'BNSF', weekday: [], saturday: [], sunday: [] }],
+      }),
+    )
+    const { getByText } = render(
+      <StationCard
+        item={metraFav}
+        station={mockMetraStation}
+        lines={[mockMetraLine]}
+        onLongPress={() => {}}
+        onMenuPress={() => {}}
+      />,
+    )
+    expect(getByText('No upcoming departures.')).toHaveStyle({ paddingBottom: 12 })
   })
 
   it('shows a live indicator and last-updated when realtime matches a Metra row', () => {

@@ -91,6 +91,12 @@ export interface ComputeArrivalGroupsInput {
   service: 'cta' | 'metra'
   /** Filter applied to the resulting groups; defaults to `'all'`. */
   directionFilter?: DashboardItemDirection
+  /**
+   * Restrict groups to a single GTFS line code (matches `ArrivalGroup.line`,
+   * e.g. `'BNSF'`). `'all'`/undefined leaves groups untouched. Composes with
+   * `directionFilter`. Only surfaced in the UI for multi-line Metra stations.
+   */
+  lineFilter?: string
   /** Max arrivals returned per direction group. Defaults to 3. */
   limit?: number
   /** Normalized Metra realtime trip updates (see {@link indexMetraTripUpdates}). */
@@ -147,6 +153,7 @@ export function computeArrivalGroups({
   now,
   service,
   directionFilter = 'all',
+  lineFilter,
   limit = 3,
   realtime,
   metraStopId,
@@ -233,7 +240,7 @@ export function computeArrivalGroups({
 
   groups.sort((a, b) => a.headsign.localeCompare(b.headsign))
 
-  return applyDirectionFilter(groups, directionFilter, service)
+  return applyLineFilter(applyDirectionFilter(groups, directionFilter, service), lineFilter)
 }
 
 export function applyDirectionFilter(
@@ -254,6 +261,34 @@ export function applyDirectionFilter(
 
   // CTA (or any non-inbound/outbound value): exact headsign match.
   return groups.filter((g) => g.headsign === directionFilter)
+}
+
+/**
+ * Human label for an active station-card direction filter, for display on a
+ * filter chip. `'all'` (or falsy) returns null (no chip). Metra's
+ * `'inbound'`/`'outbound'` are title-cased; any other value is a CTA headsign
+ * and is returned verbatim.
+ */
+export function directionFilterLabel(
+  directionFilter: DashboardItemDirection | undefined,
+): string | null {
+  if (!directionFilter || directionFilter === 'all') return null
+  if (directionFilter === 'inbound') return 'Inbound'
+  if (directionFilter === 'outbound') return 'Outbound'
+  return directionFilter
+}
+
+/**
+ * Restrict groups to a single line. `lineFilter` is a GTFS line code matching
+ * `ArrivalGroup.line` (e.g. `'BNSF'`); `'all'`/undefined returns the input
+ * untouched. Used by multi-line Metra station cards (Ogilvie, Union Station).
+ */
+export function applyLineFilter(
+  groups: ArrivalGroup[],
+  lineFilter: string | undefined,
+): ArrivalGroup[] {
+  if (!lineFilter || lineFilter === 'all') return groups
+  return groups.filter((g) => g.line === lineFilter)
 }
 
 /**

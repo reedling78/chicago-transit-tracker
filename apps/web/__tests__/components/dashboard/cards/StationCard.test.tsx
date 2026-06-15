@@ -37,7 +37,13 @@ jest.mock('@lib/hooks/useMetraFeed', () => ({
 }))
 
 import StationCard from '@components/dashboard/cards/StationCard'
-import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../../fixtures'
+import {
+  mockLine,
+  mockMetraLine,
+  mockStation,
+  mockMetraStation,
+  mockMetraHubStation,
+} from '../../../fixtures'
 import type { FeedData } from '@ctt/shared'
 
 /** Minimal decoded GTFS-RT feed with one Metra trip update for the Aurora fixture. */
@@ -260,6 +266,69 @@ describe('StationCard', () => {
     )
     expect(screen.getByText('Service toward Loop')).toBeInTheDocument()
     expect(screen.queryByText("Service toward O'Hare")).toBeNull()
+  })
+
+  it('filters a multi-line Metra hub card to the lineFilter line', () => {
+    mockScheduleQuery.mockReturnValue(
+      loadedSchedule({
+        directions: [
+          { headsign: 'Chicago', line: 'BNSF', weekday: [9999], saturday: [9999], sunday: [9999] },
+          { headsign: 'Kenosha', line: 'UP-N', weekday: [9999], saturday: [9999], sunday: [9999] },
+        ],
+      }),
+    )
+    const hubFav: Favorite = {
+      type: 'station',
+      id: 'union-station-metra',
+      addedAt: '2026-04-25T10:00:00Z',
+      lineFilter: 'BNSF',
+    }
+    render(
+      <ul>
+        <StationCard item={hubFav} station={mockMetraHubStation} lines={[mockMetraLine]} />
+      </ul>,
+    )
+    expect(screen.getByText('Service toward Chicago')).toBeInTheDocument()
+    expect(screen.queryByText('Service toward Kenosha')).toBeNull()
+  })
+
+  it('shows line + direction filter chips when filters are active', () => {
+    mockScheduleQuery.mockReturnValue(
+      loadedSchedule({
+        directions: [
+          { headsign: 'Chicago', line: 'BNSF', weekday: [9999], saturday: [9999], sunday: [9999] },
+          { headsign: 'Kenosha', line: 'UP-N', weekday: [9999], saturday: [9999], sunday: [9999] },
+        ],
+      }),
+    )
+    const hubFav: Favorite = {
+      type: 'station',
+      id: 'union-station-metra',
+      addedAt: '2026-04-25T10:00:00Z',
+      lineFilter: 'BNSF',
+      directionFilter: 'inbound',
+    }
+    render(
+      <ul>
+        <StationCard item={hubFav} station={mockMetraHubStation} lines={[mockMetraLine]} />
+      </ul>,
+    )
+    const lineChip = screen.getByTestId('line-filter-chip')
+    expect(lineChip).toHaveTextContent('BNSF')
+    // BNSF brand color from LINE_COLORS ('#1A3D7A').
+    expect(lineChip).toHaveStyle({ backgroundColor: '#1A3D7A' })
+    expect(screen.getByTestId('direction-filter-chip')).toHaveTextContent('Inbound')
+  })
+
+  it('shows no filter chips when no filter is active', () => {
+    mockScheduleQuery.mockReturnValue(loadedSchedule(ctaSchedule))
+    render(
+      <ul>
+        <StationCard item={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
+      </ul>,
+    )
+    expect(screen.queryByTestId('line-filter-chip')).toBeNull()
+    expect(screen.queryByTestId('direction-filter-chip')).toBeNull()
   })
 
   it('renders empty state when schedule has no upcoming departures', () => {

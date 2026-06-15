@@ -11,6 +11,7 @@ import type {
 /** Subset of DashboardItem fields that can be updated via `updateSettings`. */
 export type DashboardItemSettingsPatch = {
   directionFilter?: DashboardItemDirection
+  lineFilter?: string
   density?: DashboardItemDensity
   trainOriginStopSlug?: string
   trainDestinationStopSlug?: string

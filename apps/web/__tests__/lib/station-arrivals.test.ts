@@ -1,5 +1,7 @@
 import {
   applyDirectionFilter,
+  applyLineFilter,
+  directionFilterLabel,
   computeArrivalGroups,
   formatClockLabel,
   formatMinutesAway,
@@ -75,6 +77,61 @@ const metraTrips: StationTrips = {
       line: 'BNSF',
       lineSlug: 'bnsf',
       directionId: 0, // outbound
+    },
+  ],
+  saturday: [],
+  sunday: [],
+}
+
+// A multi-line Metra hub schedule (like Union Station): BNSF + UP-N, each with
+// an inbound and outbound direction, so the line filter has something to
+// discriminate and can compose with the direction filter.
+const metraHubSchedule: StationSchedule = {
+  directions: [
+    { headsign: 'Chicago', line: 'BNSF', weekday: [605], saturday: [], sunday: [] },
+    { headsign: 'Aurora', line: 'BNSF', weekday: [610], saturday: [], sunday: [] },
+    { headsign: 'Chicago', line: 'UP-N', weekday: [615], saturday: [], sunday: [] },
+    { headsign: 'Kenosha', line: 'UP-N', weekday: [620], saturday: [], sunday: [] },
+  ],
+}
+
+const metraHubTrips: StationTrips = {
+  weekday: [
+    {
+      tripId: 'BNSF_1',
+      trainNumber: '1',
+      headsign: 'Chicago',
+      departure: '10:05 AM',
+      line: 'BNSF',
+      lineSlug: 'bnsf',
+      directionId: 1,
+    },
+    {
+      tripId: 'BNSF_2',
+      trainNumber: '2',
+      headsign: 'Aurora',
+      departure: '10:10 AM',
+      line: 'BNSF',
+      lineSlug: 'bnsf',
+      directionId: 0,
+    },
+    {
+      tripId: 'UPN_1',
+      trainNumber: '301',
+      headsign: 'Chicago',
+      departure: '10:15 AM',
+      line: 'UP-N',
+      lineSlug: 'up-n',
+      directionId: 1,
+    },
+    {
+      tripId: 'UPN_2',
+      trainNumber: '302',
+      headsign: 'Kenosha',
+      departure: '10:20 AM',
+      line: 'UP-N',
+      lineSlug: 'up-n',
+      directionId: 0,
     },
   ],
   saturday: [],
@@ -220,6 +277,87 @@ describe('applyDirectionFilter', () => {
     const result = applyDirectionFilter(groups, 'inbound', 'metra')
     expect(result).toHaveLength(1)
     expect(result[0].directionId).toBe(1)
+  })
+})
+
+describe('applyLineFilter', () => {
+  const groups: ArrivalGroup[] = [
+    { headsign: 'Chicago', line: 'BNSF', items: [] },
+    { headsign: 'Chicago', line: 'UP-N', items: [] },
+  ]
+
+  it('returns input unchanged for "all"', () => {
+    expect(applyLineFilter(groups, 'all')).toBe(groups)
+  })
+
+  it('returns input unchanged for undefined', () => {
+    expect(applyLineFilter(groups, undefined)).toBe(groups)
+  })
+
+  it('filters to the single matching line', () => {
+    const result = applyLineFilter(groups, 'BNSF')
+    expect(result).toHaveLength(1)
+    expect(result[0].line).toBe('BNSF')
+  })
+
+  it('returns [] when no group matches the requested line', () => {
+    expect(applyLineFilter(groups, 'MD-W')).toEqual([])
+  })
+})
+
+describe('directionFilterLabel', () => {
+  it('returns null for "all" and undefined', () => {
+    expect(directionFilterLabel('all')).toBeNull()
+    expect(directionFilterLabel(undefined)).toBeNull()
+  })
+
+  it('title-cases the Metra inbound/outbound values', () => {
+    expect(directionFilterLabel('inbound')).toBe('Inbound')
+    expect(directionFilterLabel('outbound')).toBe('Outbound')
+  })
+
+  it('returns a CTA headsign verbatim', () => {
+    expect(directionFilterLabel('Loop')).toBe('Loop')
+  })
+})
+
+describe('computeArrivalGroups — line filter', () => {
+  it('restricts a multi-line Metra station to a single line', () => {
+    const groups = computeArrivalGroups({
+      schedule: metraHubSchedule,
+      trips: metraHubTrips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      lineFilter: 'BNSF',
+    })
+    expect(groups.every((g) => g.line === 'BNSF')).toBe(true)
+    expect(groups.map((g) => g.headsign).sort()).toEqual(['Aurora', 'Chicago'])
+  })
+
+  it('composes the line filter with the direction filter', () => {
+    const groups = computeArrivalGroups({
+      schedule: metraHubSchedule,
+      trips: metraHubTrips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      directionFilter: 'inbound',
+      lineFilter: 'BNSF',
+    })
+    expect(groups).toHaveLength(1)
+    expect(groups[0].line).toBe('BNSF')
+    expect(groups[0].headsign).toBe('Chicago')
+    expect(groups[0].directionId).toBe(1)
+  })
+
+  it('leaves all lines when lineFilter is "all"', () => {
+    const groups = computeArrivalGroups({
+      schedule: metraHubSchedule,
+      trips: metraHubTrips,
+      now: TUESDAY_10_AM,
+      service: 'metra',
+      lineFilter: 'all',
+    })
+    expect(new Set(groups.map((g) => g.line))).toEqual(new Set(['BNSF', 'UP-N']))
   })
 })
 

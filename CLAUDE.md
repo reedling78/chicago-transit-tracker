@@ -111,7 +111,7 @@ apps/
             cardClassNames.ts     Shared Tailwind strings for all dashboard card rows
             CardMenuButton.tsx    Trailing ⋯ Pressable used on every card
             LineCard.tsx          Line dashboard card (title + termini + accent left border)
-            StationCard.tsx       Station dashboard card — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
+            StationCard.tsx       Station dashboard card — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction + line filter (line filter only for multi-line Metra hubs like Union Station / Ogilvie) + density, active-filter chips in the header, tappable Metra rows → train detail
             TrainCard.tsx         Train dashboard card — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
       profile/
         page.tsx                  User profile page (server shell + metadata)
@@ -211,7 +211,7 @@ apps/
           cardStyles.ts           Shared `useCardStyles()` hook returning theme-aware StyleSheet for all dashboard card rows
           CardMenuButton.tsx      Trailing ⋯ Pressable used on every card
           LineCard.tsx            Line dashboard card (title + termini + colored chip)
-          StationCard.tsx         Station dashboard card — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction filter + density, tappable Metra rows → train detail
+          StationCard.tsx         Station dashboard card — "{service} {lines}[ Line]" subheader, pulsing Live header badge + compliant "Updated H:MM" footnote, direction + line filter (line filter only for multi-line Metra hubs like Union Station / Ogilvie) + density, active-filter chips in the header, tappable Metra rows → train detail
           TrainCard.tsx           Train dashboard card — origin/destination title + "{line} #{num}" subheader; live: header pulse + compact status/destination panel
       profile/
         ProfilePanel.tsx          Profile card + theme toggle + "Clear all dashboard items" button + sign out/in — rendered in the Menu drawer's Profile section
@@ -274,7 +274,7 @@ packages/
       metra-trip-matching.ts      Helpers for matching Metra realtime entities
       metra-current-service.ts    Pure helpers + types (MetraLineTrip, CurrentServiceTrain) for the line "Current service" view — consumed by web and mobile
       dashboard-items.ts          Pure helpers for dashboard items (dashboardItemKey, mapToArray, arrayToMap)
-      station-arrivals.ts         Pure helpers for arrival groups, per-favorite direction filters, station-name shortening, and the station-card subheader string (stationCardSubheader)
+      station-arrivals.ts         Pure helpers for arrival groups, per-favorite direction + line filters (applyDirectionFilter / applyLineFilter / directionFilterLabel), station-name shortening, and the station-card subheader string (stationCardSubheader)
 ```
 
 ---

@@ -32,6 +32,9 @@ export function useUpdateDashboardItemSettings(
       if (patch.directionFilter !== undefined) {
         updates[`favorites.${key}.directionFilter`] = patch.directionFilter
       }
+      if (patch.lineFilter !== undefined) {
+        updates[`favorites.${key}.lineFilter`] = patch.lineFilter
+      }
       if (patch.density !== undefined) {
         updates[`favorites.${key}.density`] = patch.density
       }
@@ -57,6 +60,7 @@ export function useUpdateDashboardItemSettings(
     if (!current) return
     const previous: DashboardItemSettingsPatch = {}
     if (patch.directionFilter !== undefined) previous.directionFilter = current.directionFilter
+    if (patch.lineFilter !== undefined) previous.lineFilter = current.lineFilter
     if (patch.density !== undefined) previous.density = current.density
     if (patch.trainOriginStopSlug !== undefined)
       previous.trainOriginStopSlug = current.trainOriginStopSlug

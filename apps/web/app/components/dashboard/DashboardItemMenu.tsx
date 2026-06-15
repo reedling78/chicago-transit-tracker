@@ -84,6 +84,14 @@ export default function DashboardItemMenu({
   const isMetra = station?.service === 'metra' || station?.service === 'both'
   const density: DashboardItemDensity = effective.density ?? 'expanded'
   const direction: DashboardItemDirection = effective.directionFilter ?? 'all'
+  const lineFilter: string = effective.lineFilter ?? 'all'
+
+  // Only multi-line Metra stations (the downtown hubs — Ogilvie, Union Station)
+  // get a per-line filter. station.lines holds GTFS codes matching ArrivalGroup.line.
+  const showLineFilter = station?.service === 'metra' && (station?.lines?.length ?? 0) > 1
+  const lineOptions: { key: string; label: string }[] = showLineFilter
+    ? [{ key: 'all', label: 'All' }, ...station!.lines.map((l) => ({ key: l, label: l }))]
+    : []
 
   const directionOptions: { key: DashboardItemDirection; label: string }[] = isStation
     ? isMetra
@@ -133,6 +141,14 @@ export default function DashboardItemMenu({
             active={direction}
             onSelect={(value) => update({ directionFilter: value })}
           />
+          {showLineFilter && (
+            <ToggleRow
+              label="Line"
+              options={lineOptions}
+              active={lineFilter}
+              onSelect={(value) => update({ lineFilter: value })}
+            />
+          )}
           <div className="my-1 border-t border-gray-200 dark:border-gray-700" />
         </>
       )}
