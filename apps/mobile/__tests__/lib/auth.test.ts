@@ -9,17 +9,17 @@ import {
   GoogleAuthProvider,
 } from 'firebase/auth'
 
-const mockTrackEvent = jest.fn()
-jest.mock('../../lib/analytics', () => ({
-  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
-}))
-
 import {
   signInWithApple,
   signOut,
   completeAppleSignInFromCallback,
   signInWithGoogleCredential,
 } from '../../lib/auth'
+
+const mockTrackEvent = jest.fn()
+jest.mock('../../lib/analytics', () => ({
+  trackEvent: (...args: unknown[]) => mockTrackEvent(...args),
+}))
 
 jest.mock('firebase/auth', () => {
   const credentialFn = jest.fn((opts: { idToken: string; rawNonce: string }) => ({
