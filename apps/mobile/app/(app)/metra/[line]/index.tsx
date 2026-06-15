@@ -1,8 +1,9 @@
 import { View, ScrollView, StyleSheet, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, Stack } from 'expo-router'
-import { useLine, useLineStations } from '../../../../lib/hooks'
+import { useLine, useLineStations, useMetraLineTrips } from '../../../../lib/hooks'
 import { useTheme } from '../../../../lib/theme'
 import StationTimeline from '../../../../components/StationTimeline'
+import MetraCurrentService from '../../../../components/MetraCurrentService'
 import PageHeader from '../../../../components/PageHeader'
 import HeaderMenuButton from '../../../../components/HeaderMenuButton'
 import { headerRightItem } from '../../../../lib/headerItems'
@@ -14,6 +15,7 @@ export default function MetraLineDetailScreen() {
   const { line: lineSlug } = useLocalSearchParams<{ line: string }>()
   const { line, loading: lineLoading } = useLine(lineSlug)
   const { stations, loading: stationsLoading } = useLineStations(lineSlug, line?.shortName ?? '')
+  const { trips } = useMetraLineTrips(lineSlug)
   const { theme } = useTheme()
 
   useTrackOpenedOnce(line, 'line_opened', () => ({
@@ -48,6 +50,7 @@ export default function MetraLineDetailScreen() {
           imageSrc={metraHeroImage}
           dashboardItem={{ type: 'line', id: line.slug }}
         />
+        <MetraCurrentService lineSlug={line.slug} lineColor={line.color} trips={trips} />
         {stationsLoading ? (
           <ActivityIndicator size="large" color={line.color} style={{ marginTop: 24 }} />
         ) : (

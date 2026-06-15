@@ -9,6 +9,7 @@ import type {
   StationTrips,
   NormalizedAlert,
   TripStop,
+  MetraLineTrip,
 } from '@ctt/shared'
 import { displayStationName } from '@ctt/shared'
 import { FUNCTIONS_BASE_URL } from './config'
@@ -208,6 +209,44 @@ export function useMetraTrip(lineSlug: string, trainNumber: string) {
   }, [lineSlug, trainNumber])
 
   return { trip, loading }
+}
+
+export function useMetraLineTrips(lineSlug: string) {
+  const [trips, setTrips] = useState<MetraLineTrip[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!lineSlug) {
+      setTrips([])
+      setLoading(false)
+      return
+    }
+    const q = query(collection(db, 'metra-trips'), where('lineSlug', '==', lineSlug))
+    getDocs(q)
+      .then((snap) => {
+        setTrips(
+          snap.docs.map((d) => {
+            const data = d.data()
+            return {
+              trainNumber: data.trainNumber,
+              headsign: displayStationName(data.headsign),
+              serviceType: data.serviceType,
+              directionId: data.directionId ?? 0,
+              stops: ((data.stops ?? []) as TripStop[]).map((s) => ({
+                ...s,
+                stationName: displayStationName(s.stationName),
+              })),
+            } satisfies MetraLineTrip
+          }),
+        )
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+  }, [lineSlug])
+
+  return { trips, loading }
 }
 
 export function useStationTrips(stationSlug: string) {

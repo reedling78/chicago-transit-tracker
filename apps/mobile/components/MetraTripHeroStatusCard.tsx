@@ -6,12 +6,11 @@ import {
   longToNumber,
   type DerivedStop,
   type HeroStatus,
-  type StatusTone,
   type TripPhase,
   type TripStop,
   type VehiclePosition,
 } from '@ctt/shared'
-import { useTheme } from '../lib/theme'
+import { useTheme, tonePalette } from '../lib/theme'
 import type { Theme } from '../lib/theme'
 
 export interface MetraTripHeroStatusCardProps {
@@ -24,21 +23,6 @@ export interface MetraTripHeroStatusCardProps {
   lineColor: string
   error: string | null
   nowMs: number
-}
-
-function tonePalette(tone: StatusTone, theme: Theme): { text: string; dot: string } {
-  switch (tone) {
-    case 'ontime':
-    case 'early':
-      return { text: theme.colors.status.onTime, dot: theme.colors.status.onTime }
-    case 'delayed':
-      return { text: theme.colors.status.delayed, dot: theme.colors.status.delayed }
-    case 'completed':
-    case 'nodata':
-      return { text: theme.colors.status.neutral, dot: theme.colors.status.neutral }
-    case 'scheduled':
-      return { text: theme.colors.status.scheduled, dot: theme.colors.status.scheduled }
-  }
 }
 
 export default function MetraTripHeroStatusCard({

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react-native'
 import { mockMetraLine, mockMetraStation } from '../fixtures'
-import { useLine, useLineStations } from '../../lib/hooks'
+import { useLine, useLineStations, useMetraLineTrips } from '../../lib/hooks'
 import MetraLineDetailScreen from '../../app/(app)/metra/[line]'
 
 jest.mock('expo-linear-gradient', () => {
@@ -54,10 +54,20 @@ jest.mock('expo-router', () => {
 jest.mock('../../lib/hooks', () => ({
   useLine: jest.fn(),
   useLineStations: jest.fn(),
+  useMetraLineTrips: jest.fn(() => ({ trips: [], loading: false })),
+}))
+
+jest.mock('../../lib/useMetraFeed', () => ({
+  useMetraFeed: jest.fn(() => ({ data: null, error: null, fetchedAt: null, loading: true })),
 }))
 
 const mockUseLine = useLine as jest.MockedFunction<typeof useLine>
 const mockUseLineStations = useLineStations as jest.MockedFunction<typeof useLineStations>
+const mockUseMetraLineTrips = useMetraLineTrips as jest.MockedFunction<typeof useMetraLineTrips>
+
+beforeEach(() => {
+  mockUseMetraLineTrips.mockReturnValue({ trips: [], loading: false })
+})
 
 describe('MetraLineDetailScreen', () => {
   it('shows loading state while the line is loading', () => {
@@ -97,6 +107,14 @@ describe('MetraLineDetailScreen', () => {
     render(<MetraLineDetailScreen />)
     const stub = screen.getByTestId('dashboard-add-button-stub')
     expect(stub.props.children).toBe('line:bnsf')
+  })
+
+  it('renders the Current service card above the timeline', () => {
+    mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
+    render(<MetraLineDetailScreen />)
+    expect(screen.getByTestId('current-service-list')).toBeOnTheScreen()
+    expect(screen.getByText('Current service')).toBeOnTheScreen()
   })
 
   it('does not render the Footer', () => {

@@ -186,6 +186,8 @@ apps/
       MetraTripRealtime.tsx       Train detail orchestrator — polls tripupdates+positions, derives stop state, renders hero card + Steps timeline
       MetraTripStopTimeline.tsx   Per-stop timeline for the active trip — wraps Steps with status mapping
       MetraTripHeroStatusCard.tsx Two-panel live status card (RN port of the web component)
+      MetraCurrentService.tsx     Line detail "Current service" container — polls realtime feeds, runs shared selection/row logic, renders CurrentServiceList
+      CurrentServiceList.tsx      Presentational live list of active/upcoming trains with status pills + "Updated H:MM" timestamp (RN port; service-agnostic)
       Steps/                      Reusable vertical-step primitive (Steps + Steps.Item) — RN port; per-row segments, halo bullet for current
       HeaderMenuButton.tsx        Flat hamburger header icon (no scrim, text.primary) — dispatches DrawerActions.openDrawer(); used as headerRight on the home and every detail screen
       HeaderBackButton.tsx        Flat chevron back button (no scrim, no shadow, text.primary) used as Stack headerLeft (returns null at root)
@@ -215,7 +217,7 @@ apps/
     lib/
       config.ts                   Cloud Functions base URL constant
       firebase.ts                 Firebase JS SDK init — App, Auth (with AsyncStorage persistence), Firestore
-      hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, useMetraTrip)
+      hooks.ts                    Firestore data hooks (useLines, useStation, useStationTrips, useAlerts, useMetraTrip, useMetraLineTrips)
       useMetraFeed.ts             Metra GTFS-RT feed subscriber — polls Cloud Functions, AppState-aware
       useNavHeaderInset.ts        Top inset for screens under the navigator header (Android-safe fallback)
       headerItems.ts              Platform-aware native-stack header items — wraps headerLeft/headerRight in `unstable_*Items` with `hidesSharedBackground: true` on iOS to suppress the iOS 26 Liquid Glass pill; falls back to legacy headerLeft/headerRight on Android
@@ -235,6 +237,7 @@ apps/
         tokens.ts                 Light + dark token objects (semantic colors, numeric space + radius scales)
         ThemeProvider.tsx         Provider — resolves system/light/dark + persists choice to AsyncStorage
         useTheme.ts               Hook returning { theme, mode, resolvedMode, setMode }
+        statusTone.ts             tonePalette(tone, theme) — maps a realtime StatusTone to theme colors (shared by hero card + Current service list)
         useSystemColorScheme.ts   Thin wrapper around RN's useColorScheme (mockable for tests)
         index.ts                  Barrel export
     __tests__/                    Jest + React Native Testing Library test suites
@@ -268,6 +271,7 @@ packages/
       siteConfig.ts               Site name, URL, OG image config
       cta-pulse.ts                Pure aggregation + health helpers for CTA service pulse
       metra-trip-matching.ts      Helpers for matching Metra realtime entities
+      metra-current-service.ts    Pure helpers + types (MetraLineTrip, CurrentServiceTrain) for the line "Current service" view — consumed by web and mobile
       dashboard-items.ts          Pure helpers for dashboard items (dashboardItemKey, mapToArray, arrayToMap)
       station-arrivals.ts         Pure helpers for arrival groups, per-favorite direction filters, station-name shortening, and the station-card subheader string (stationCardSubheader)
 ```
