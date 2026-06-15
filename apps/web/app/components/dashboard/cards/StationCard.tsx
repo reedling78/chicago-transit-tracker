@@ -225,7 +225,7 @@ function ArrivalsBody({ density, groups, loading, hasSchedule, lastUpdated }: Ar
             )
             return (
               <li
-                key={g.headsign}
+                key={`${g.headsign}-${g.line}`}
                 className="flex items-center gap-2 text-base"
                 data-testid="arrival-row-compact"
               >
@@ -253,7 +253,7 @@ function ArrivalsBody({ density, groups, loading, hasSchedule, lastUpdated }: Ar
       {groups.map((g) => {
         const bg = LINE_COLORS[g.line]?.bg ?? '#565a5c'
         return (
-          <div key={g.headsign} data-testid="arrival-group">
+          <div key={`${g.headsign}-${g.line}`} data-testid="arrival-group">
             <div className="bg-gray-600 px-4 py-2 dark:bg-gray-700">
               <p className="text-sm font-semibold text-white">Service toward {g.headsign}</p>
             </div>

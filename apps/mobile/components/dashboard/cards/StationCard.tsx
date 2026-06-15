@@ -239,7 +239,7 @@ function ArrivalsBody({
           if (onPressTrain && train?.lineSlug && train.trainNumber) {
             return (
               <PressableButton
-                key={g.headsign}
+                key={`${g.headsign}-${g.line}`}
                 onPress={() => onPressTrain(train.lineSlug!, train.trainNumber!)}
                 accessibilityRole="link"
                 accessibilityLabel={`Open train toward ${g.headsign}`}
@@ -249,7 +249,7 @@ function ArrivalsBody({
               </PressableButton>
             )
           }
-          return <View key={g.headsign}>{rowContent}</View>
+          return <View key={`${g.headsign}-${g.line}`}>{rowContent}</View>
         })}
         {updatedFootnote}
       </View>
@@ -261,7 +261,7 @@ function ArrivalsBody({
       {groups.map((g) => {
         const bg = LINE_COLORS[g.line]?.bg ?? '#565a5c'
         return (
-          <View key={g.headsign} testID="arrival-group">
+          <View key={`${g.headsign}-${g.line}`} testID="arrival-group">
             <View style={styles.groupHeader}>
               <Text style={styles.groupHeaderText}>Service toward {g.headsign}</Text>
             </View>

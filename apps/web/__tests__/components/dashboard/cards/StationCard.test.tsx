@@ -207,6 +207,37 @@ describe('StationCard', () => {
     expect(rows[0]).toHaveTextContent('≈')
   })
 
+  it('renders both arrival groups when two lines share the same headsign', () => {
+    // Regression: key={g.headsign} caused duplicate-key warning and dropped one group
+    // when e.g. BNSF and MD-W both terminate at "Union Station".
+    mockScheduleQuery.mockReturnValue(
+      loadedSchedule({
+        directions: [
+          {
+            headsign: 'Union Station',
+            line: 'BNSF',
+            weekday: [9999],
+            saturday: [9999],
+            sunday: [9999],
+          },
+          {
+            headsign: 'Union Station',
+            line: 'MD-W',
+            weekday: [9999],
+            saturday: [9999],
+            sunday: [9999],
+          },
+        ],
+      }),
+    )
+    render(
+      <ul>
+        <StationCard item={metraFav} station={mockMetraStation} lines={[mockMetraLine]} />
+      </ul>,
+    )
+    expect(screen.getAllByTestId('arrival-group')).toHaveLength(2)
+  })
+
   it('renders compact rows when density is compact', () => {
     mockScheduleQuery.mockReturnValue(loadedSchedule(ctaSchedule))
     const compactFav: Favorite = { ...ctaFav, density: 'compact' }
