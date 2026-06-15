@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { render, screen } from '@testing-library/react-native'
+import { render, screen, fireEvent } from '@testing-library/react-native'
 import { mockMetraLine, mockMetraStation } from '../fixtures'
 import { useLine, useLineStations, useMetraLineTrips } from '../../lib/hooks'
 import MetraLineDetailScreen from '../../app/(app)/metra/[line]'
@@ -85,12 +85,12 @@ describe('MetraLineDetailScreen', () => {
     expect(screen.getByText('Union Station ↔ Aurora')).toBeOnTheScreen()
   })
 
-  it('renders the station timeline body when data is loaded', () => {
+  it('renders the Live and Stations tabs', () => {
     mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
     render(<MetraLineDetailScreen />)
-    // "Aurora" appears in both the termini subtitle and the station name
-    expect(screen.getAllByText('Aurora').length).toBeGreaterThanOrEqual(1)
+    const tabs = screen.getAllByRole('tab')
+    expect(tabs).toHaveLength(2)
   })
 
   it('renders the menu button in the header right', () => {
@@ -109,12 +109,33 @@ describe('MetraLineDetailScreen', () => {
     expect(stub.props.children).toBe('line:bnsf')
   })
 
-  it('renders the Current service card above the timeline', () => {
+  it('shows the Live tab (current service) by default and not the station list', () => {
     mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
     mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
     render(<MetraLineDetailScreen />)
     expect(screen.getByTestId('current-service-list')).toBeOnTheScreen()
     expect(screen.getByText('Current service')).toBeOnTheScreen()
+    // the station timeline is not mounted while the Live tab is active
+    expect(screen.queryByLabelText('Aurora')).toBeNull()
+  })
+
+  it('switches to the Stations tab to show the station timeline and unmounts Live', () => {
+    mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
+    render(<MetraLineDetailScreen />)
+    fireEvent.press(screen.getByRole('tab', { name: 'Stations' }))
+    expect(screen.getByLabelText('Aurora')).toBeOnTheScreen()
+    expect(screen.queryByTestId('current-service-list')).toBeNull()
+  })
+
+  it('switches back to the Live tab from Stations', () => {
+    mockUseLine.mockReturnValue({ line: mockMetraLine, loading: false })
+    mockUseLineStations.mockReturnValue({ stations: [mockMetraStation], loading: false })
+    render(<MetraLineDetailScreen />)
+    fireEvent.press(screen.getByRole('tab', { name: 'Stations' }))
+    fireEvent.press(screen.getByRole('tab', { name: 'Live' }))
+    expect(screen.getByTestId('current-service-list')).toBeOnTheScreen()
+    expect(screen.queryByLabelText('Aurora')).toBeNull()
   })
 
   it('does not render the Footer', () => {
