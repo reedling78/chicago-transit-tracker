@@ -37,7 +37,9 @@ interface DashboardItemMenuSheetProps {
 }
 
 const SNAP_POINTS_DEFAULT = ['40%']
-const SNAP_POINTS_STATION = ['55%']
+// Stations can carry a third "Line" toggle row (multi-line Metra hubs) whose
+// chips wrap to two rows for Union Station's 6 lines — give the sheet headroom.
+const SNAP_POINTS_STATION = ['65%']
 
 const DashboardItemMenuSheet = forwardRef<
   DashboardItemMenuSheetHandle,
@@ -135,6 +137,14 @@ function MenuContents({ item, lines, stations, onSetTrainStop, dismiss }: MenuCo
   const isMetra = station?.service === 'metra' || station?.service === 'both'
   const density: DashboardItemDensity = effective.density ?? 'expanded'
   const direction: DashboardItemDirection = effective.directionFilter ?? 'all'
+  const lineFilter: string = effective.lineFilter ?? 'all'
+
+  // Only multi-line Metra stations (the downtown hubs — Ogilvie, Union Station)
+  // get a per-line filter. station.lines holds GTFS codes matching ArrivalGroup.line.
+  const showLineFilter = station?.service === 'metra' && (station?.lines?.length ?? 0) > 1
+  const lineOptions: { key: string; label: string }[] = showLineFilter
+    ? [{ key: 'all', label: 'All' }, ...station!.lines.map((l) => ({ key: l, label: l }))]
+    : []
 
   // Only fetch schedule for non-Metra (CTA) stations to populate headsign chips.
   const scheduleQuery = useStationScheduleQuery(isStation && !isMetra ? item.id : null)
@@ -184,6 +194,15 @@ function MenuContents({ item, lines, stations, onSetTrainStop, dismiss }: MenuCo
             onSelect={(value) => update({ directionFilter: value })}
             styles={styles}
           />
+          {showLineFilter ? (
+            <ToggleRow
+              label="Line"
+              options={lineOptions}
+              active={lineFilter}
+              onSelect={(value) => update({ lineFilter: value })}
+              styles={styles}
+            />
+          ) : null}
           <View style={styles.divider} />
         </>
       ) : null}

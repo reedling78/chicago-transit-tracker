@@ -122,6 +122,13 @@ export interface DashboardItem {
    */
   directionFilter?: DashboardItemDirection
   /**
+   * Station-card line filter — a GTFS line code (e.g. `'BNSF'`, `'UP-N'`)
+   * restricting the card to one line. Defaults to `'all'`/undefined (no
+   * filtering). Only surfaced in the UI for multi-line Metra stations; composes
+   * with `directionFilter`. Ignored for `line` / `train` items.
+   */
+  lineFilter?: string
+  /**
    * Station-card render density. Defaults to `'expanded'` when omitted. Ignored
    * for `line` / `train` items.
    */

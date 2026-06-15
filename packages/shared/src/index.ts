@@ -38,6 +38,8 @@ export {
   computeArrivalGroups,
   indexMetraTripUpdates,
   applyDirectionFilter,
+  applyLineFilter,
+  directionFilterLabel,
   listStationHeadsigns,
   summarizeCompact,
   stationCardSubheader,

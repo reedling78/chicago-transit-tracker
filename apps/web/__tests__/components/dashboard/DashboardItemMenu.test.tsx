@@ -27,7 +27,13 @@ jest.mock('@lib/hooks/useUpdateDashboardItemSettings', () => ({
 
 import DashboardItemMenu from '@components/dashboard/DashboardItemMenu'
 import { useDashboardStore } from '@lib/store/dashboard'
-import { mockLine, mockMetraLine, mockStation, mockMetraStation } from '../../fixtures'
+import {
+  mockLine,
+  mockMetraLine,
+  mockStation,
+  mockMetraStation,
+  mockMetraHubStation,
+} from '../../fixtures'
 
 const lineItem: DashboardItem = { type: 'line', id: 'red', addedAt: '2026-04-25T10:00:00Z' }
 const ctaStationItem: DashboardItem = {
@@ -38,6 +44,11 @@ const ctaStationItem: DashboardItem = {
 const metraStationItem: DashboardItem = {
   type: 'station',
   id: 'aurora',
+  addedAt: '2026-04-25T10:00:00Z',
+}
+const metraHubItem: DashboardItem = {
+  type: 'station',
+  id: 'union-station-metra',
   addedAt: '2026-04-25T10:00:00Z',
 }
 
@@ -221,6 +232,48 @@ describe('DashboardItemMenu', () => {
         'aria-checked',
         'true',
       )
+    })
+
+    it('renders a Line row with one chip per line for a multi-line Metra station', () => {
+      render(
+        <DashboardItemMenu
+          item={metraHubItem}
+          lines={[mockMetraLine]}
+          stations={[mockMetraHubStation]}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.getByText('Line')).toBeInTheDocument()
+      expect(screen.getByRole('menuitemradio', { name: 'BNSF' })).toBeInTheDocument()
+      expect(screen.getByRole('menuitemradio', { name: 'MD-W' })).toBeInTheDocument()
+      expect(screen.getByRole('menuitemradio', { name: 'UP-N' })).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('menuitemradio', { name: 'MD-W' }))
+      expect(mockUpdate).toHaveBeenCalledWith({ lineFilter: 'MD-W' })
+    })
+
+    it('does not render a Line row for a single-line Metra station', () => {
+      render(
+        <DashboardItemMenu
+          item={metraStationItem}
+          lines={[mockMetraLine]}
+          stations={[mockMetraStation]}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.queryByText('Line')).toBeNull()
+    })
+
+    it('does not render a Line row for a CTA station', () => {
+      render(
+        <DashboardItemMenu
+          item={ctaStationItem}
+          lines={[mockLine]}
+          stations={[mockStation]}
+          schedule={ctaSchedule}
+          onClose={() => {}}
+        />,
+      )
+      expect(screen.queryByText('Line')).toBeNull()
     })
 
     it('marks the active option with aria-checked', () => {

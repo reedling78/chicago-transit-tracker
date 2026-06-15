@@ -6,7 +6,13 @@ import type { MetraTripDetail, StationSchedule } from '@ctt/shared'
 import DashboardItemMenuSheet, {
   type DashboardItemMenuSheetHandle,
 } from '../../../components/dashboard/DashboardItemMenuSheet'
-import { mockLine, mockStation, mockMetraLine, mockMetraStation } from '../../fixtures'
+import {
+  mockLine,
+  mockStation,
+  mockMetraLine,
+  mockMetraStation,
+  mockMetraHubStation,
+} from '../../fixtures'
 import { useDashboardStore } from '../../../lib/store/dashboard'
 
 const mockPush = jest.fn()
@@ -304,6 +310,56 @@ describe('DashboardItemMenuSheet', () => {
       )
       fireEvent.press(getByLabelText('Show: Loop'))
       expect(mockUpdate).toHaveBeenCalledWith({ directionFilter: 'Loop' })
+    })
+
+    it('renders a Line row with one chip per line for a multi-line Metra station', () => {
+      const ref = createRef<DashboardItemMenuSheetHandle>()
+      const { getByLabelText } = render(
+        <DashboardItemMenuSheet
+          ref={ref}
+          lines={[mockMetraLine]}
+          stations={[mockMetraHubStation]}
+        />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({
+          type: 'station',
+          id: 'union-station-metra',
+          addedAt: '2026-04-25T10:00:00Z',
+        }),
+      )
+      expect(getByLabelText('Line: All')).toBeTruthy()
+      expect(getByLabelText('Line: BNSF')).toBeTruthy()
+      expect(getByLabelText('Line: MD-W')).toBeTruthy()
+      expect(getByLabelText('Line: UP-N')).toBeTruthy()
+      fireEvent.press(getByLabelText('Line: MD-W'))
+      expect(mockUpdate).toHaveBeenCalledWith({ lineFilter: 'MD-W' })
+    })
+
+    it('does not render a Line row for a single-line Metra station', () => {
+      const ref = createRef<DashboardItemMenuSheetHandle>()
+      const { queryByLabelText } = render(
+        <DashboardItemMenuSheet ref={ref} lines={[mockMetraLine]} stations={[mockMetraStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({ type: 'station', id: 'aurora', addedAt: '2026-04-25T10:00:00Z' }),
+      )
+      expect(queryByLabelText('Line: All')).toBeNull()
+    })
+
+    it('does not render a Line row for a CTA station', () => {
+      mockScheduleQuery.mockReturnValue({ data: ctaSchedule, isLoading: false, dataUpdatedAt: 0 })
+      const ref = createRef<DashboardItemMenuSheetHandle>()
+      const { queryByLabelText } = render(
+        <DashboardItemMenuSheet ref={ref} lines={[mockLine]} stations={[mockStation]} />,
+        { wrapper },
+      )
+      act(() =>
+        ref.current?.open({ type: 'station', id: 'clark-lake', addedAt: '2026-04-25T10:00:00Z' }),
+      )
+      expect(queryByLabelText('Line: All')).toBeNull()
     })
 
     it('does not fetch a schedule for Metra stations', () => {
