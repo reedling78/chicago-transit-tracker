@@ -1,17 +1,12 @@
 import { cache } from 'react'
-import { displayStationName } from '@ctt/shared'
+import { displayStationName, type MetraLineTrip } from '@ctt/shared'
 import { getFirestore } from './firebase-admin'
 import type { Line, Station } from './types'
 import type { TripStop } from './metra-status'
 import type { DocumentData } from 'firebase-admin/firestore'
 
-export interface MetraLineTrip {
-  trainNumber: string
-  headsign: string
-  serviceType: 'weekday' | 'saturday' | 'sunday'
-  directionId: number
-  stops: TripStop[]
-}
+// Re-export so existing callers can keep importing the trip type from here.
+export type { MetraLineTrip }
 
 function toLine(id: string, d: DocumentData): Line {
   return {

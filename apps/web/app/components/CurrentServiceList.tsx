@@ -1,15 +1,8 @@
 import Link from 'next/link'
-import { TONE_CLASSES, type StatusTone } from '@lib/metra-status'
+import { TONE_CLASSES, type CurrentServiceTrain } from '@ctt/shared'
 
-export interface CurrentServiceTrain {
-  trainNumber: string
-  href: string
-  destination: string
-  nextStop: string | null
-  nextStopEta: string | null
-  statusLabel: string
-  statusTone: StatusTone
-}
+// Re-export so existing callers/tests can keep importing the row type from here.
+export type { CurrentServiceTrain }
 
 export interface CurrentServiceListProps {
   trains: CurrentServiceTrain[]

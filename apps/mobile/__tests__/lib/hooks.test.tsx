@@ -6,6 +6,7 @@ import {
   useLine,
   useLines,
   useLineStations,
+  useMetraLineTrips,
   useMetraTrip,
   useSchedule,
   useStation,
@@ -339,6 +340,79 @@ describe('useMetraTrip', () => {
 
     const { getByText } = render(<NameProbe />)
     await waitFor(() => expect(getByText('Union Station|Union Station')).toBeOnTheScreen())
+  })
+})
+
+function LineTripsProbe({ line }: { line: string }) {
+  const { trips, loading } = useMetraLineTrips(line)
+  if (loading) return <Text>loading</Text>
+  return <Text>{`trips:${trips.map((t) => `${t.trainNumber}-${t.stops.length}`).join(',')}`}</Text>
+}
+
+describe('useMetraLineTrips', () => {
+  function tripDocsSnap(items: Record<string, unknown>[]): any {
+    return { docs: items.map((item, i) => ({ id: `doc-${i}`, data: () => item })) }
+  }
+
+  it('queries metra-trips by lineSlug and maps to MetraLineTrip rows', async () => {
+    mockGetDocs.mockResolvedValueOnce(
+      tripDocsSnap([
+        {
+          trainNumber: '1200',
+          headsign: 'Aurora',
+          serviceType: 'weekday',
+          directionId: 0,
+          stops: [
+            { sequence: 1, stationName: 'Union Station', slug: 'union-station-metra' },
+            { sequence: 2, stationName: 'Aurora', slug: 'aurora-bnsf' },
+          ],
+        },
+        {
+          trainNumber: '1201',
+          headsign: 'Union Station',
+          serviceType: 'weekday',
+          directionId: 1,
+          stops: [{ sequence: 1, stationName: 'Aurora', slug: 'aurora-bnsf' }],
+        },
+      ]),
+    )
+
+    const { getByText } = render(<LineTripsProbe line="bnsf" />)
+    expect(getByText('loading')).toBeOnTheScreen()
+    await waitFor(() => expect(getByText('trips:1200-2,1201-1')).toBeOnTheScreen())
+
+    expect(mockCollection).toHaveBeenCalledWith({}, 'metra-trips')
+    expect(mockWhere).toHaveBeenCalledWith('lineSlug', '==', 'bnsf')
+  })
+
+  it('defaults directionId to 0 and normalizes headsign + stop station names', async () => {
+    function NameProbe() {
+      const { trips, loading } = useMetraLineTrips('bnsf')
+      if (loading) return <Text>loading</Text>
+      return (
+        <Text>{`${trips[0].headsign}|${trips[0].stops[0].stationName}|${trips[0].directionId}`}</Text>
+      )
+    }
+    mockGetDocs.mockResolvedValueOnce(
+      tripDocsSnap([
+        {
+          trainNumber: '1200',
+          headsign: 'Chicago Union Station',
+          serviceType: 'weekday',
+          stops: [{ sequence: 1, stationName: 'Chicago Union Station', slug: 'union-station' }],
+        },
+      ]),
+    )
+
+    const { getByText } = render(<NameProbe />)
+    // headsign and stop names are normalized to display names; directionId falls back to 0
+    await waitFor(() => expect(getByText('Union Station|Union Station|0')).toBeOnTheScreen())
+  })
+
+  it('skips fetching when lineSlug is empty', async () => {
+    const { getByText } = render(<LineTripsProbe line="" />)
+    await waitFor(() => expect(getByText('trips:')).toBeOnTheScreen())
+    expect(mockGetDocs).not.toHaveBeenCalled()
   })
 })
 

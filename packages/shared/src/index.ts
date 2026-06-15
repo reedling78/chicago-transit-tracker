@@ -104,6 +104,21 @@ export {
   computeDestinationEta,
 } from './metra-trip-realtime-helpers'
 export type {
+  MetraLineTrip,
+  CurrentServiceTrain,
+  TripWithDepartureMinutes,
+} from './metra-current-service'
+export {
+  MAX_TRAINS_SHOWN,
+  UPCOMING_WINDOW_MINUTES,
+  currentServiceType,
+  formatEta,
+  extractMatchedRealtime,
+  buildTrainRow,
+  annotate,
+  selectTrainsForDisplay,
+} from './metra-current-service'
+export type {
   AnalyticsAuthMethod,
   AnalyticsTransitService,
   AnalyticsDashboardItemType,

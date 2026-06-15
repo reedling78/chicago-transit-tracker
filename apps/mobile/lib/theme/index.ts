@@ -5,6 +5,7 @@ export {
   type ThemeModeSetting,
 } from './ThemeProvider'
 export { useTheme } from './useTheme'
+export { tonePalette } from './statusTone'
 export {
   darkTheme,
   lightTheme,
