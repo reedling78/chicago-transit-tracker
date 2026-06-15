@@ -169,7 +169,7 @@ apps/
           index.tsx               Metra line list
           alerts.tsx              Metra service alerts screen
           [line]/
-            index.tsx             Metra line detail
+            index.tsx             Metra line detail — sticky Live | Stations tabs (LineTabs) under the hero; Live = MetraCurrentService (default), Stations = StationTimeline; inactive tab unmounts so Live only polls while visible
             train/[trainNumber].tsx Metra train detail screen — fetches via useMetraTrip + renders MetraTripRealtime
           station/[station].tsx   Metra station detail
     components/
@@ -178,6 +178,7 @@ apps/
       CTAAlerts.tsx               CTA alerts list with filter chips (client component)
       CTALineIcon.tsx             CTA 'L' train icon (react-native-svg)
       LineListItem.tsx             Reusable line list card with accent border
+      LineTabs.tsx                Generic segmented control (Live | Stations) under the hero on the Metra line screen — presentational; parent owns active state
       MetraAlerts.tsx             Metra alerts list with filter chips (client component)
       PageHeader.tsx              Full-bleed photo hero with overlays, title, badges (matches web)
       TimetableFilterBar.tsx      Shared direction + service type toggle bar
